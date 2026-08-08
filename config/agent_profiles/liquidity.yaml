@@ -1,0 +1,13 @@
+agent_id: agent_liquidity
+agent_profile: liquidity
+active_strategy: decision_pipeline
+quantity:
+  default_quantity: 1
+confluence:
+  engines:
+    - liquidity_sweep
+    - sweep_retest
+    - vwap_acceptance
+tiering:
+  minimum_trade_tier: A
+# Template only — does not replace the active agent until explicitly loaded

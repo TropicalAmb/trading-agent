@@ -1,0 +1,63 @@
+# Paper autonomous agent for a cheap VPS (laptop can be closed).
+# Usage:
+#   docker compose --profile paper up -d --build
+# Dashboard: map host port or use SSH tunnel / Tailscale — do NOT expose webhook publicly.
+
+services:
+  paper-agent:
+    profiles: ["paper"]
+    build: .
+    restart: unless-stopped
+    env_file:
+      - .env
+    environment:
+      USE_MOCK_BROKER: "true"
+      ALLOW_LIVE_TRADING: "false"
+      TRADING_MODE: paper
+      CONFIG_PATH: config/settings.yaml
+    volumes:
+      - ./config:/app/config:ro
+      - agent-data:/app/data
+    ports:
+      # Local/VPC only — put behind auth / reverse proxy / tunnel in production
+      - "8787:8787"
+    healthcheck:
+      test: ["CMD", "python", "scripts/healthcheck.py"]
+      interval: 60s
+      timeout: 20s
+      retries: 3
+      start_period: 40s
+    command:
+      [
+        "python",
+        "-m",
+        "agent.live_main",
+        "--mock",
+        "--webhook",
+      ]
+
+  # Optional second agent instance (different profile) — same portfolio coordinator rules apply via shared data volume
+  paper-agent-momentum:
+    profiles: ["multi"]
+    build: .
+    restart: unless-stopped
+    env_file:
+      - .env
+    environment:
+      USE_MOCK_BROKER: "true"
+      ALLOW_LIVE_TRADING: "false"
+      CONFIG_PATH: config/settings.yaml
+      AGENT_PROFILE: momentum
+    volumes:
+      - ./config:/app/config:ro
+      - agent-data:/app/data
+    command:
+      [
+        "python",
+        "-m",
+        "agent.live_main",
+        "--mock",
+      ]
+
+volumes:
+  agent-data:

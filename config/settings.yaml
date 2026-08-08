@@ -1,0 +1,618 @@
+mode: paper  # paper | live — live also requires ALLOW_LIVE_TRADING=true in .env
+
+# Version stamp for BEFORE vs AFTER optimization comparison (do not erase old journals)
+config_version: opt_v1
+
+# Identity for multi-agent deployments (override per compose profile / agent yaml)
+agent_id: agent_1
+agent_profile: balanced
+
+# decision_pipeline = independent engines → A+/A/B/C tiers → ranker (default)
+# Legacy: confluence | vwap_acceptance | vwap_orb | sweep_retest
+active_strategy: decision_pipeline
+
+# Optional extra gate: TradingView alert must also match (usually leave false for full autonomy)
+require_tv_alert_confluence: false
+
+# Market data provider (swap later without rewriting strategies)
+market_data:
+  provider: yahoo_delayed
+  bar_interval: 5m   # strategy timeframe (scheduler is 1m — these differ)
+  bar_period: 10d
+  estimated_delay_seconds: 780          # ~13m typical Yahoo
+  expected_delay_seconds: 900           # ~15m expected feed delay
+  stale_extra_tolerance_seconds: 420    # stale = expected + bar_interval + this
+  # Do NOT set stale_after_seconds unless overriding the formula for ops/tests
+  request_timeout_sec: 40
+  max_retries: 3
+  bar_cursor_path: data/bar_cursors.json
+  last_evaluation_path: data/last_evaluation.json
+
+# Shadow B research lifecycle (does not affect paper equity)
+shadow:
+  research_horizon_bars: 36          # ~3h on 5m bars
+  research_horizon_minutes: 180
+  path: data/shadow_trades.json
+
+# Supervisor stuck detection (NO_NEW_BAR is NOT stuck)
+observability:
+  scheduler_expected_seconds: 60
+  scheduler_warning_seconds: 90
+  scheduler_stuck_seconds: 150
+
+# Contract sizing — scalable; paper default is 1 (not hard-coded in strategy)
+quantity:
+  default_quantity: 1
+  max_quantity: 25
+  quantity_by_symbol: {}
+  quantity_by_strategy: {}
+  quantity_by_agent_profile:
+    balanced: 1
+    momentum: 1
+    liquidity: 1
+
+# Setup tiers: trade A+ and A by default; journal B; reject C for execution
+tiering:
+  minimum_trade_tier: A
+  a_plus_min_confidence: 85
+  a_min_confidence: 70
+  b_min_confidence: 55
+  a_plus_min_r: 1.4
+  a_min_r: 1.2
+  # Used by global-score tier path (score alone cannot mint A+)
+  tier_thresholds:
+    A_PLUS: 85
+    A: 72
+    B: 58
+    C: 0
+
+# Portfolio coordinator across agents on same account
+portfolio:
+  allow_opposite_same_symbol: false
+  allow_duplicate_same_trade: false
+
+# Engines run independently; agreement boosts confidence but is NOT mandatory
+confluence:
+  min_engines_agree: 1
+  must_include_one_of: []
+  engines:
+    - ema_pullback      # trend pullback — works overnight
+    - liquidity_sweep   # PDH/PDL sweep reclaim
+    - vwap_acceptance   # includes reclaim variants (see vwap_reclaim note)
+    - sweep_retest
+    - momentum          # breakout continuation (PRESENT ≠ ENTRY_VALID)
+    - breakout_retest   # resistance break + hold/retest (no chase)
+    - trend_continuation # shallow ATR retrace without exact EMA touch
+    - opening_range     # London/NY OR breakout+retest / failed OR
+  max_risk_dollars: 180
+  min_reward_dollars: 90
+  min_rr: 1.3
+
+# Global scoring (additive evidence; hard invalidations always win)
+# primary_setup_base lowered 45→32 so B cannot routinely score 90+
+global_scoring:
+  primary_setup_base_points: 32
+  valid_setup_base: 32  # alias
+  max_regime_points: 8
+
+tier_thresholds_note: "see tiering.tier_thresholds"
+
+strategy_regime_weights:
+  ema_pullback:
+    TREND_UP: 1.15
+    TREND_DOWN: 1.15
+    EXPANSION_UP: 1.05
+    EXPANSION_DOWN: 1.05
+    RANGE: 0.75
+    COMPRESSION: 0.70
+  liquidity_sweep:
+    RANGE: 1.15
+    COMPRESSION: 1.05
+    TREND_UP: 0.95
+    TREND_DOWN: 0.95
+    EXPANSION_UP: 0.90
+    EXPANSION_DOWN: 0.90
+  sweep_retest:
+    RANGE: 1.10
+    EXPANSION_UP: 1.05
+    EXPANSION_DOWN: 1.05
+    TREND_UP: 1.00
+    TREND_DOWN: 1.00
+  vwap_acceptance:
+    RANGE: 1.10
+    TREND_UP: 1.05
+    TREND_DOWN: 1.05
+    COMPRESSION: 0.90
+  momentum:
+    EXPANSION_UP: 1.20
+    EXPANSION_DOWN: 1.20
+    TREND_UP: 1.10
+    TREND_DOWN: 1.10
+    RANGE: 0.65
+    COMPRESSION: 0.70
+  breakout_retest:
+    EXPANSION_UP: 1.15
+    EXPANSION_DOWN: 1.15
+    TREND_UP: 1.10
+    TREND_DOWN: 1.10
+    RANGE: 0.80
+  trend_continuation:
+    TREND_UP: 1.15
+    TREND_DOWN: 1.15
+    EXPANSION_UP: 1.05
+    EXPANSION_DOWN: 1.05
+    RANGE: 0.70
+  opening_range:
+    EXPANSION_UP: 1.10
+    EXPANSION_DOWN: 1.10
+    RANGE: 1.05
+    TREND_UP: 1.00
+    TREND_DOWN: 1.00
+
+momentum:
+  enabled: true
+  min_body_atr: 0.40
+  max_body_atr: 1.20
+  max_distance_from_fast_ema_atr: 0.60
+  close_strength_min: 0.65
+  stop_atr_mult: 1.0
+  target_r_multiple: 1.6
+  min_confidence: 62
+  target_dollars: 100
+  min_reward_dollars: 80
+  max_risk_dollars: 150
+  breakout_lookback: 8
+
+# breakout_retest: continuation after level break + retest (no chase)
+breakout_retest:
+  enabled: true
+  breakout_lookback: 12
+  retest_lookback: 6
+  max_breakout_body_atr: 1.25
+  retest_hold_atr: 0.25
+  stop_atr_mult: 0.9
+  target_r_multiple: 1.7
+  max_risk_dollars: 150
+  min_reward_dollars: 80
+  min_confidence: 64
+
+# shallow trend continuation without requiring exact EMA20 touch
+trend_continuation:
+  enabled: true
+  swing_lookback: 10
+  max_retrace_atr: 1.1
+  min_impulse_atr: 1.0
+  stop_atr_mult: 0.95
+  target_r_multiple: 1.6
+  max_risk_dollars: 150
+  min_reward_dollars: 80
+  min_confidence: 64
+
+# London / NY opening range (15m default research)
+opening_range:
+  enabled: true
+  duration_minutes: 15
+  sessions:
+    london: "03:00"
+    ny: "09:30"
+  stop_atr_mult: 0.85
+  target_r_multiple: 1.6
+  max_risk_dollars: 150
+  min_reward_dollars: 80
+  min_confidence: 64
+  # Do not auto-trade the first break — require hold/retest/fail patterns in engine
+
+# vwap_reclaim: NOT a separate engine — vwap_acceptance already implements
+# below→reclaim→retest (long) and above→lose→retest (short). See strategy note.
+vwap_reclaim:
+  alias_of: vwap_acceptance
+  enabled: false
+
+strategy_versions:
+  ema_pullback:
+    champion: ema_pullback_v1
+    challengers: []
+  liquidity_sweep:
+    champion: liquidity_sweep_v1
+    challengers: []
+  sweep_retest:
+    champion: sweep_retest_v1
+    challengers: []
+  vwap_acceptance:
+    champion: vwap_acceptance_v1
+    challengers: []
+  momentum:
+    champion: momentum_v1
+    challengers: []
+  breakout_retest:
+    champion: breakout_retest_v1
+    challengers: []
+  trend_continuation:
+    champion: trend_continuation_v1
+    challengers: []
+  opening_range:
+    champion: opening_range_v1
+    challengers: []
+
+adaptive_analysis:
+  min_closed_trades_strategy_regime: 30
+  min_closed_trades_strategy_session: 30
+  min_shadow_trades: 30
+  min_challenger_trades: 50
+
+circuit_breakers:
+  consecutive_losses_watch: 3
+  consecutive_losses_pause: 5
+  pause_minutes: 60
+  min_sample_for_expectancy_pause: 20
+  path: data/circuit_breakers.json
+
+paper_execution:
+  slippage_ticks_entry: 1
+  slippage_ticks_stop: 1
+  slippage_ticks_target: 0
+  # commission_per_contract: reuse broker/instrument mapping if present; else 0
+  commission_per_contract: 0.0
+
+# Active style until profits unlock longer swing holds
+growth_plan:
+  default_mode: active
+  swing_unlock_realized_pnl: 2000
+  active:
+    max_hold_minutes: 120
+    time_stop_only_if_losing: true
+    target_dollars: 110
+    target_r_multiple: 1.6
+    min_reward_dollars: 90
+    max_risk_dollars: 150
+    min_confidence: 62
+    scale_out:
+      enabled: true
+      tp1_r_multiple: 1.0
+      move_stop_to_breakeven: true
+    profit_protection:
+      enabled: true
+      move_be_at_r: 0.75
+      near_target_frac: 0.70
+      lock_profit_frac: 0.50
+      trail_after_r: 1.0
+      trail_giveback_r: 0.35
+  swing:
+    max_hold_minutes: 480
+    time_stop_only_if_losing: true
+    target_dollars: 180
+    target_r_multiple: 2.0
+    min_reward_dollars: 100
+    max_risk_dollars: 200
+    min_confidence: 68
+    scale_out:
+      enabled: true
+      tp1_r_multiple: 1.0
+      move_stop_to_breakeven: true
+    profit_protection:
+      enabled: true
+      move_be_at_r: 0.75
+      near_target_frac: 0.70
+      lock_profit_frac: 0.50
+      trail_after_r: 1.0
+      trail_giveback_r: 0.40
+
+# ibkr (paper/live — recommended cheapest API) | tradovate | topstepx
+broker_backend: ibkr
+
+broker:
+  host: ${IBKR_HOST:127.0.0.1}
+  port: ${IBKR_PORT:4002}
+  client_id: ${IBKR_CLIENT_ID:1}
+  readonly: false
+  connect_timeout_sec: 15
+
+universe:
+  # BINDING: see PROJECT_MEMORY.md — micros AND full-size; do not shrink without user ask
+  symbols:
+    - MES   # Micro S&P
+    - MNQ   # Micro Nasdaq
+    - MGC   # Micro Gold
+    - MYM   # Micro Dow
+    - M2K   # Micro Russell
+    - MCL   # Micro Crude
+    - ES    # Full S&P
+    - NQ    # Full Nasdaq
+    - CL    # Full Crude
+    - GC    # Full Gold
+  currency: USD
+  exchange: CME
+
+# Do not punish Asia — overnight is when this bot must still trade
+session_quality:
+  asia:
+    extra_min_confidence: 0
+  london:
+    extra_min_confidence: 0
+  ny:
+    extra_min_confidence: 0
+  globex_open:
+    extra_min_confidence: 0
+
+ema_pullback:
+  fast_ema: 20
+  slow_ema: 50
+  touch_atr: 0.55
+  pullback_lookback: 8
+  max_extension_atr: 2.0
+  stop_atr_mult: 1.0
+  min_confidence: 60
+  target_r_multiple: 1.5
+  target_dollars: 100
+  min_reward_dollars: 80
+  max_risk_dollars: 150
+  bar_interval: 5m
+  bar_period: 10d
+
+instruments:
+  MES:
+    point_value: 5.0
+    sec_type: FUT
+  MNQ:
+    point_value: 2.0
+    sec_type: FUT
+  MGC:
+    point_value: 10.0
+    sec_type: FUT
+  MYM:
+    point_value: 0.5
+    sec_type: FUT
+  M2K:
+    point_value: 5.0
+    sec_type: FUT
+  MCL:
+    point_value: 100.0
+    sec_type: FUT
+  ES:
+    point_value: 50.0
+    sec_type: FUT
+  NQ:
+    point_value: 20.0
+    sec_type: FUT
+  CL:
+    point_value: 1000.0
+    sec_type: FUT
+  GC:
+    point_value: 100.0
+    sec_type: FUT
+
+schedule:
+  timezone: America/New_York
+  # always_open = enter anytime CME micros are trading (recommended)
+  # windows     = only the entry_windows list below
+  entry_mode: always_open
+  # ONLY hard pauses: daily CME halt ~17:00–18:00 ET + Fri close → Sun 18:00.
+  # Exchange is actually closed then — no fills exist. Asia starts ~18:00 ET.
+  weekend_open: "18:00"   # Sunday
+  weekend_close: "17:00"  # Friday
+  maintenance_start: "17:00"
+  maintenance_end: "18:00"
+  # Optional if you later set entry_mode: windows
+  entry_windows:
+    - name: asia
+      start: "18:00"
+      end: "02:00"
+      enabled: true
+    - name: london
+      start: "03:00"
+      end: "09:30"
+      enabled: true
+    - name: ny_morning
+      start: "09:35"
+      end: "11:30"
+      enabled: true
+    - name: ny_afternoon
+      start: "11:30"
+      end: "16:55"
+      enabled: true
+  entry_start: "09:35"
+  entry_end: "16:55"
+  # 1 minute: faster stop/target checks + catch new 5m bars sooner.
+  # Yahoo data is still ~10-15m delayed, so sub-minute won't help much yet.
+  poll_interval_minutes: 1
+  run_once_on_start: true
+  # Overridden by growth_plan presets each cycle
+  max_hold_minutes: 90
+  time_stop_only_if_losing: true
+
+# ===== HIGH-PERFORMANCE default: VWAP + prior-value acceptance =====
+vwap_acceptance:
+  # globex = Asia/London/NY whenever CME is open. Only real pauses: 5–6pm ET + weekend.
+  session_filter: globex
+  entry_start: "18:00"
+  entry_end: "16:55"
+  # flatten_ct only for prop/RTH mode — leave null so Asia is not killed after 4:58 CT
+  flatten_ct: null
+  fast_ema: 20
+  slow_ema: 50
+  accept_zone_atr: 0.35
+  extension_atr: 1.2
+  stop_atr_mult: 1.0
+  skip_trend_days: false
+  trend_day_atr_mult: 1.8
+  min_confidence: 65
+  target_r_multiple: 1.5
+  target_dollars: 120
+  min_reward_dollars: 100
+  max_risk_dollars: 200
+  bar_interval: 5m
+  bar_period: 10d
+
+# Alternate: filtered ORB + VWAP (better on trend days)
+vwap_orb:
+  or_start: "09:30"
+  or_end: "09:45"
+  entry_end: "16:55"
+  flatten_ct: "16:58"
+  fast_ema: 20
+  slow_ema: 50
+  min_or_width_points: 4.0
+  # MNQ is wider than MES; filter extreme open ranges only
+  max_or_width_points: 120.0
+  width_caps:
+    MES: {min: 3.0, max: 80.0}
+    MNQ: {min: 8.0, max: 300.0}
+    ES: {min: 3.0, max: 80.0}
+    NQ: {min: 8.0, max: 300.0}
+    MGC: {min: 2.0, max: 80.0}
+    MYM: {min: 20.0, max: 500.0}
+    M2K: {min: 2.0, max: 80.0}
+  stop_buffer_points: 1.0
+  skip_two_sided_days: false
+  allow_second_break: true
+  min_confidence: 65
+  target_r_multiple: 1.5
+  target_dollars: 120
+  min_reward_dollars: 100
+  max_risk_dollars: 200
+  bar_interval: 5m
+  bar_period: 10d
+
+# Location-first: sweep prior day extreme then reclaim (fade liquidity grab)
+liquidity_sweep:
+  fast_ema: 20
+  slow_ema: 50
+  sweep_lookback_bars: 16
+  stop_buffer_atr: 0.35
+  vwap_slack: 0.001
+  soft_reclaim: true
+  allow_against_trend: false
+  min_confidence: 62
+  target_r_multiple: 1.6
+  target_dollars: 110
+  min_reward_dollars: 90
+  max_risk_dollars: 150
+  bar_interval: 5m
+  bar_period: 10d
+
+# Optional: your TradingView MTF Sweep Retest (not claimed as globally best)
+sweep_retest:
+  use_vwap: true
+  soft_htf: true
+  fast_ema: 20
+  slow_ema: 50
+  retest_zone_atr: 0.30
+  sweep_valid_bars: 400
+  min_confidence: 60
+  stop_atr_mult: 1.0
+  target_r_multiple: 1.5
+  target_dollars: 110
+  min_reward_dollars: 90
+  max_risk_dollars: 160
+  bar_interval: 5m
+  bar_period: 10d
+
+webhook:
+  enabled: true
+  host: 0.0.0.0
+  port: 8787
+
+risk:
+  # Legacy ceiling (quantity.default_quantity is the live sizing control)
+  max_contracts_per_trade: 2
+  # Kept for analytics / optional overrides — executor uses quantity.* now
+  strong_min_confidence: 80
+  strong_contracts: 2
+  a_plus_min_confidence: 90
+  a_plus_contracts: 4
+  # BINDING: user allows many concurrent opens (>>8). See PROJECT_MEMORY.md
+  max_open_positions: 50
+  max_loss_pct_of_equity_per_trade: 0.02
+  # Account protection (paper uses blotter P&L; live uses broker P&L)
+  daily_loss_kill_pct: 0.08
+  daily_loss_kill_dollars: 4000
+  max_risk_dollars_per_trade: 250
+  max_total_open_risk_dollars: 3500
+  halt_on_stale_data: true
+  max_quote_age_sec: 120
+  require_defined_risk: false
+  require_both_legs: false
+  max_correlated_index_positions: 4
+  index_symbols: [MES, ES, MNQ, NQ, MYM, M2K]
+  # After any fill on a symbol, wait before re-entering (blocks revenge pattern)
+  symbol_cooldown_minutes: 45
+  # Do not hold opposite directions across highly correlated indexes
+  block_opposite_correlated: true
+  # Cross-index: block LONG MES + SHORT MNQ etc.
+  correlation_groups:
+    - [MES, MNQ, MYM, M2K, ES, NQ]
+  # Micro + full-size of same underlying = one opportunity (not independent)
+  product_families:
+    SP500: [MES, ES]
+    NASDAQ: [MNQ, NQ]
+    GOLD: [MGC, GC]
+    CRUDE: [MCL, CL]
+  max_same_direction_per_family: 1
+  # Optional conscious multi-index longs (MES+MNQ) still allowed within correlation_groups
+  # as long as directions match; family rule only blocks MES+ES / MNQ+NQ duplicates.
+
+advisor:
+  enabled: false
+  model: claude-sonnet-4-20250514
+  max_tokens: 1024
+  require_claude: false
+
+# Local daily blotter (replaces TradingView Paper Trading for external bots)
+paper:
+  json_path: data/paper_trades.json
+  html_path: data/paper_trading_view.html
+  starting_equity: 50000
+
+execution:
+  dry_run: true
+  order_type: MKT
+  transmit: true
+  # Scale out: close half at TP1 (1R), leave half to full target; stop -> breakeven after TP1
+  scale_out:
+    enabled: true
+    tp1_r_multiple: 1.0
+    move_stop_to_breakeven: true
+  # Don't let winners turn into full losers (classic trap)
+  profit_protection:
+    enabled: true
+    # At +0.75R unrealized, move stop to breakeven (even before TP1)
+    move_be_at_r: 0.75
+    # Once price is 70% of the way to target, lock stop at 50% of that move
+    near_target_frac: 0.70
+    lock_profit_frac: 0.50
+    # After +1R peak, trail so we give back at most 0.4R from the peak
+    trail_after_r: 1.0
+    trail_giveback_r: 0.40
+
+alerts:
+  enabled: true
+  on_fill: true
+  on_reject: true
+  on_kill_switch: true
+
+journal:
+  db_path: data/journal.db
+  csv_export: data/decisions.csv
+  positions_db_path: data/positions.db
+
+# Legacy options engine (unused when active_strategy is futures)
+strategy:
+  name: credit_spreads
+  min_dte: 21
+  max_dte: 45
+  short_otm_pct: 0.05
+  spread_width: 5.0
+  min_credit_pct_of_width: 0.20
+  min_iv_rank: 40
+  use_trend_filter: true
+  trend_sma_period: 50
+  allow_put_credit: true
+  allow_call_credit: true
+  max_candidates_per_symbol: 2
+  min_score: 0.08
+
+management:
+  profit_take_frac_of_credit: 0.50
+  stop_loss_mult_of_credit: 1.5
+  time_exit_dte: 21
+  force_close_dte: 7

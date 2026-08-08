@@ -1,0 +1,52 @@
+# Autonomous agent stack:
+# - ib-gateway: Interactive Brokers Gateway (paper by default)
+# - agent: credit-spread trading loop
+#
+# First login to Gateway usually needs VNC (port 5900) for credentials/2FA.
+# After session is established, the agent connects on 4002 (paper) / 4001 (live).
+
+services:
+  ib-gateway:
+    # See https://github.com/gnzsnz/ib-gateway-docker for port/env details.
+    # Paper API inside container is typically 4004; live 4003 (socat-mapped).
+    image: ghcr.io/gnzsnz/ib-gateway:latest
+    restart: unless-stopped
+    environment:
+      TWS_USERID: ${TWS_USERID:-}
+      TWS_PASSWORD: ${TWS_PASSWORD:-}
+      TRADING_MODE: ${TRADING_MODE:-paper}
+      VNC_SERVER_PASSWORD: ${VNC_SERVER_PASSWORD:-trading}
+      READ_ONLY_API: "no"
+      TWOFA_TIMEOUT_ACTION: restart
+    ports:
+      - "4001:4003"   # live API (host -> container)
+      - "4002:4004"   # paper API (host -> container)
+      - "5900:5900"   # VNC for initial login / 2FA
+    volumes:
+      - ibgateway-data:/home/ibgateway/Jts
+
+  agent:
+    build: .
+    restart: unless-stopped
+    depends_on:
+      - ib-gateway
+    env_file:
+      - .env
+    environment:
+      IBKR_HOST: ib-gateway
+      # Inside the compose network, talk to the gateway container port directly.
+      IBKR_PORT: ${IBKR_PORT:-4004}
+      TRADING_MODE: ${TRADING_MODE:-paper}
+      ALLOW_LIVE_TRADING: ${ALLOW_LIVE_TRADING:-false}
+      ANTHROPIC_API_KEY: ${ANTHROPIC_API_KEY:-}
+      USE_MOCK_BROKER: ${USE_MOCK_BROKER:-false}
+      TELEGRAM_BOT_TOKEN: ${TELEGRAM_BOT_TOKEN:-}
+      TELEGRAM_CHAT_ID: ${TELEGRAM_CHAT_ID:-}
+      DISCORD_WEBHOOK_URL: ${DISCORD_WEBHOOK_URL:-}
+    volumes:
+      - ./config:/app/config:ro
+      - ./data:/app/data
+    command: ["python", "-m", "agent.main"]
+
+volumes:
+  ibgateway-data:

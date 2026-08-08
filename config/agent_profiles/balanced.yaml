@@ -1,0 +1,14 @@
+agent_id: agent_1
+agent_profile: balanced
+active_strategy: decision_pipeline
+quantity:
+  default_quantity: 1
+confluence:
+  engines:
+    - ema_pullback
+    - liquidity_sweep
+    - vwap_acceptance
+    - sweep_retest
+    - momentum
+tiering:
+  minimum_trade_tier: A
