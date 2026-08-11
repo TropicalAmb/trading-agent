@@ -127,7 +127,7 @@ def handle_signal(
     *,
     cfg: dict[str, Any],
     broker,
-    risk: DirectionalRiskEngine,
+    risk_engine: DirectionalRiskEngine,
     execution: DirectionalExecutor,
     journal: Journal,
     alerter: Alerter,
@@ -155,7 +155,7 @@ def handle_signal(
     open_sides, last_fill = ({}, {})
     if blotter is not None:
         open_sides, last_fill = _blotter_risk_context(blotter)
-    ok, reasons = risk.evaluate(
+    ok, reasons = risk_engine.evaluate(
         signal,
         account,
         open_symbols,
@@ -237,7 +237,7 @@ def main(argv: list[str] | None = None) -> int:
         cfg.get("journal", {}).get("csv_export", "data/decisions.csv"),
     )
     alerter = Alerter(cfg)
-    risk = DirectionalRiskEngine(cfg)
+    risk_engine = DirectionalRiskEngine(cfg)
     broker = build_broker(cfg, use_mock=use_mock)
     try:
         broker.connect()
@@ -455,7 +455,7 @@ def main(argv: list[str] | None = None) -> int:
             sig,
             cfg=cfg,
             broker=broker,
-            risk=risk,
+            risk_engine=risk_engine,
             execution=execution,
             journal=journal,
             alerter=alerter,
@@ -605,6 +605,16 @@ def main(argv: list[str] | None = None) -> int:
                 exit_j = None
             for t in closed:
                 journal.log("trade_closed", t)
+                try:
+                    from agent.learning.loop import record_outcome_for_setup
+
+                    record_outcome_for_setup(
+                        cfg,
+                        setup_id=str(t.get("setup_id") or ""),
+                        trade=t,
+                    )
+                except Exception:
+                    pass
                 if cbs is not None and t.get("exit_reason") != "tp1":
                     try:
                         cbs.record_close(
@@ -612,6 +622,39 @@ def main(argv: list[str] | None = None) -> int:
                             str(t.get("session") or "other"),
                             float(t.get("pnl_dollars") or 0),
                             cfg,
+                        )
+                    except Exception:
+                        pass
+                # Strategy lifecycle equity (R) — kill/drift; not single-loss panic
+                if t.get("exit_reason") != "tp1" and bool(
+                    (cfg.get("strategy_lifecycle") or {}).get("enabled", True)
+                ):
+                    try:
+                        from agent.risk.strategy_lifecycle import StrategyLifecycleStore
+
+                        lc = StrategyLifecycleStore(
+                            (cfg.get("strategy_lifecycle") or {}).get(
+                                "path", "data/strategy_lifecycle.json"
+                            )
+                        )
+                        # Do NOT name this `risk` — that shadows DirectionalRiskEngine
+                        # in cycle() and causes EXECUTION_ERROR UnboundLocalError on fills.
+                        trade_risk_dollars = float(t.get("risk_dollars") or 0) or abs(
+                            float(t.get("entry") or 0) - float(t.get("stop") or 0)
+                        ) * float(
+                            (cfg.get("instruments") or {})
+                            .get(str(t.get("symbol") or ""), {})
+                            .get("point_value", 1.0)
+                        )
+                        pnl = float(t.get("pnl_dollars") or 0)
+                        pnl_r = (
+                            (pnl / trade_risk_dollars) if trade_risk_dollars > 1e-9 else 0.0
+                        )
+                        lc.record_forward_trade(
+                            str(t.get("strategy_name") or "unknown"),
+                            str(t.get("symbol") or ""),
+                            pnl_r,
+                            cfg=cfg,
                         )
                     except Exception:
                         pass
@@ -722,6 +765,42 @@ def main(argv: list[str] | None = None) -> int:
                     except Exception:
                         b_tracker = None
                         shadow = None
+                    def _open_shadow_row(row: dict) -> None:
+                        if shadow is None:
+                            return
+                        opened = shadow.open_shadow(row)
+                        if opened is None:
+                            journal.log(
+                                "rejected_setup",
+                                {
+                                    "symbol": row.get("symbol"),
+                                    "strategy": row.get("strategy")
+                                    or row.get("strategy_name"),
+                                    "reason": "SUPPRESSED_DUPLICATE_SETUP",
+                                    "setup_id": row.get("setup_id"),
+                                    "structural_key": row.get("structural_key"),
+                                },
+                            )
+                            return
+                        try:
+                            from agent.learning.loop import record_candidate_snapshot
+
+                            record_candidate_snapshot(
+                                cfg,
+                                row={
+                                    **row,
+                                    "entry_features": row.get("entry_features")
+                                    or row.get("features")
+                                    or {},
+                                },
+                                router_decision=str(
+                                    row.get("nonselected_reason") or "SHADOW"
+                                ),
+                                executed_or_shadow="SHADOW",
+                            )
+                        except Exception:
+                            pass
+
                     for js in cycle_out.get("journal_only") or []:
                         journal.log(
                             "rejected_setup",
@@ -734,6 +813,9 @@ def main(argv: list[str] | None = None) -> int:
                                     "strategy_local_score"
                                 ),
                                 "global_score": (js.metadata or {}).get("global_score"),
+                                "router_evidence": (js.metadata or {}).get(
+                                    "router_evidence"
+                                ),
                                 "strategy": js.strategy_name,
                                 "entry": js.entry,
                                 "stop": js.stop,
@@ -772,13 +854,27 @@ def main(argv: list[str] | None = None) -> int:
                                     "score_breakdown"
                                 ),
                                 "regime": (js.metadata or {}).get("regime"),
+                                "router_evidence": (js.metadata or {}).get(
+                                    "router_evidence"
+                                ),
                                 "point_value": (js.metadata or {}).get("point_value", 5.0),
                                 "quantity": js.quantity,
                                 "config_version": (js.metadata or {}).get(
                                     "config_version"
                                 ),
+                                "paper_config_version": (js.metadata or {}).get(
+                                    "paper_config_version"
+                                )
+                                or (js.metadata or {}).get("config_version"),
                                 "strategy_version": (js.metadata or {}).get(
                                     "strategy_version"
+                                ),
+                                "cascade_log": (js.metadata or {}).get("cascade_log"),
+                                "cascade_decision": (js.metadata or {}).get(
+                                    "cascade_decision"
+                                ),
+                                "lifecycle_state": (js.metadata or {}).get(
+                                    "lifecycle_state"
                                 ),
                                 "setup_id": (js.metadata or {}).get("setup_id"),
                                 "structural_key": (js.metadata or {}).get(
@@ -787,19 +883,25 @@ def main(argv: list[str] | None = None) -> int:
                             }
                             if b_tracker is not None:
                                 b_tracker.record(row)
-                            if shadow is not None:
-                                opened = shadow.open_shadow(row)
-                                if opened is None:
-                                    journal.log(
-                                        "rejected_setup",
-                                        {
-                                            "symbol": js.symbol,
-                                            "strategy": js.strategy_name,
-                                            "reason": "SUPPRESSED_DUPLICATE_SETUP",
-                                            "setup_id": row.get("setup_id"),
-                                            "structural_key": row.get("structural_key"),
-                                        },
-                                    )
+                            _open_shadow_row(row)
+                    # Shadow nonselected valid competitors (A+/A/B) for comparison data
+                    for row in cycle_out.get("nonselected_valid") or []:
+                        journal.log(
+                            "rejected_setup",
+                            {
+                                "symbol": row.get("symbol"),
+                                "side": row.get("side") or row.get("direction"),
+                                "tier": row.get("tier"),
+                                "strategy": row.get("strategy"),
+                                "global_score": row.get("global_score"),
+                                "router_evidence": row.get("router_evidence"),
+                                "reason": row.get("nonselected_reason")
+                                or "NONSELECTED_VALID_SHADOW",
+                                "setup_id": row.get("setup_id"),
+                                "structural_key": row.get("structural_key"),
+                            },
+                        )
+                        _open_shadow_row(row)
                     setups = cycle_out.get("executable") or []
                     all_candidates = cycle_out.get("all_candidates") or []
                     last_eval_cands = cycle_out.get("last_evaluated_candidates") or all_candidates
@@ -843,7 +945,7 @@ def main(argv: list[str] | None = None) -> int:
                     signals = [setup_to_signal(s) for s in setups]
                     if not signals:
                         primary = cs.get("primary") or (
-                            "PASS — NO CANDIDATE >= A"
+                            "PASS — NO PAPERABLE CANDIDATE >= A"
                         )
                         detail = cs.get("detail") or ""
                         decision = primary if primary.startswith(
@@ -1111,7 +1213,7 @@ def main(argv: list[str] | None = None) -> int:
                         chosen,
                         cfg=cfg,
                         broker=broker,
-                        risk=risk,
+                        risk_engine=risk_engine,
                         execution=execution,
                         journal=journal,
                         alerter=alerter,
@@ -1148,6 +1250,19 @@ def main(argv: list[str] | None = None) -> int:
                                 and st.direction == chosen.side
                             ):
                                 pipeline.mark_setup_traded(st)
+                                try:
+                                    from agent.learning.loop import (
+                                        record_candidate_snapshot,
+                                    )
+
+                                    record_candidate_snapshot(
+                                        cfg,
+                                        setup=st,
+                                        router_decision="EXECUTED",
+                                        executed_or_shadow="ACTUAL",
+                                    )
+                                except Exception:
+                                    pass
                                 break
 
             # Invariant: every A/A+ executable must have a terminal decision

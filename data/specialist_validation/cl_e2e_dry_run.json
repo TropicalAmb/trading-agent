@@ -1,0 +1,30 @@
+{
+  "checks": {
+    "cl_in_engines": true,
+    "cl_not_research_only": true,
+    "nq_research_only": true,
+    "config_version": true,
+    "strategy_version": true,
+    "hard_risk_500": true
+  },
+  "symbol": "MCL",
+  "qty": 2,
+  "risk_dollars": 200.0,
+  "tier": "A",
+  "can_execute": true,
+  "remapped_from": "CL",
+  "cascade_log": [
+    "FIT: FIT",
+    "THESIS: LONG_SUPPORT",
+    "LOCATION: EXCELLENT_LOCATION \u2014 VWAP distance 0.18 ATR",
+    "TRIGGER: MOMENTUM",
+    "Decision: EXECUTE_PAPER (pending hard risk/qty)",
+    "RISK: PASS \u2014 MCL 2 contract(s), $200 risk (cap $500)",
+    "Decision: EXECUTE PAPER"
+  ],
+  "cascade_decision": "EXECUTE_PAPER",
+  "cascade_summary": "FIT: FIT | THESIS: LONG_SUPPORT | LOCATION: EXCELLENT_LOCATION \u2014 VWAP distance 0.18 ATR | TRIGGER: MOMENTUM | Decision: EXECUTE_PAPER (pending hard risk/qty) | RISK: PASS \u2014 MCL 2 contract(s), $200 risk (cap $500) | Decision: EXECUTE PAPER | RISK DETAIL: MCL qty=2 risk=$200 cap=$500 | CONTRACT: remapped CL \u2192 MCL (risk fit) | Decision: EXECUTE_PAPER",
+  "config_version": "router_v1_clpaper1",
+  "strategy_version": "cl_vwap_prox_momentum_v1",
+  "lifecycle_state": "ACTIVE"
+}

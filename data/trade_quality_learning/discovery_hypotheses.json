@@ -1,0 +1,82 @@
+[
+  {
+    "name": "discovery_momentum_aligned=1",
+    "mode": "SHADOW_ONLY",
+    "rule": "momentum_aligned=1",
+    "evidence_lift_pp": 18.23394495412844,
+    "n": 24,
+    "status": "HYPOTHESIS"
+  },
+  {
+    "name": "discovery_body_atr_in_(0.612,_4.755]",
+    "mode": "SHADOW_ONLY",
+    "rule": "body_atr in (0.612, 4.755]",
+    "evidence_lift_pp": 15.516553649780612,
+    "n": 23,
+    "status": "HYPOTHESIS"
+  },
+  {
+    "name": "discovery_stop_dist_atr_in_(0.242,_0.743]",
+    "mode": "SHADOW_ONLY",
+    "rule": "stop_dist_atr in (0.242, 0.743]",
+    "evidence_lift_pp": 15.516553649780612,
+    "n": 23,
+    "status": "HYPOTHESIS"
+  },
+  {
+    "name": "discovery_atr_pctile_in_(0.775,_0.985]",
+    "mode": "SHADOW_ONLY",
+    "rule": "atr_pctile in (0.775, 0.985]",
+    "evidence_lift_pp": 15.516553649780612,
+    "n": 23,
+    "status": "HYPOTHESIS"
+  },
+  {
+    "name": "discovery_price_vs_ema20_atr_in_(-0.306,_0.517]",
+    "mode": "SHADOW_ONLY",
+    "rule": "price_vs_ema20_atr in (-0.306, 0.517]",
+    "evidence_lift_pp": 12.552126772310256,
+    "n": 22,
+    "status": "HYPOTHESIS"
+  },
+  {
+    "name": "discovery_strategy\u00d7symbol_('ema_pullback', 'MNQ')",
+    "mode": "SHADOW_ONLY",
+    "rule": "{'interaction': 'strategy\u00d7symbol', 'values': ('ema_pullback', 'MNQ'), 'n': 19, 'wr': 0.42105263157894735, 'lift_pp': 22.839208112023172, 'expectancy_r': -0.058125162106650585}",
+    "evidence_lift_pp": 22.839208112023172,
+    "n": 19,
+    "status": "HYPOTHESIS"
+  },
+  {
+    "name": "discovery_mtf_aligned\u00d7above_vwap_(2.0, 1.0)",
+    "mode": "SHADOW_ONLY",
+    "rule": "{'interaction': 'mtf_aligned\u00d7above_vwap', 'values': (2.0, 1.0), 'n': 22, 'wr': 0.36363636363636365, 'lift_pp': 17.097581317764803, 'expectancy_r': 0.3377355349506812}",
+    "evidence_lift_pp": 17.097581317764803,
+    "n": 22,
+    "status": "HYPOTHESIS"
+  },
+  {
+    "name": "discovery_mtf_aligned\u00d7above_vwap_(1.0, 1.0)",
+    "mode": "SHADOW_ONLY",
+    "rule": "{'interaction': 'mtf_aligned\u00d7above_vwap', 'values': (1.0, 1.0), 'n': 17, 'wr': 0.35294117647058826, 'lift_pp': 16.028062601187266, 'expectancy_r': -0.10713094756953316}",
+    "evidence_lift_pp": 16.028062601187266,
+    "n": 17,
+    "status": "HYPOTHESIS"
+  },
+  {
+    "name": "discovery_near_pdl\u00d7session_(0.0, 'ny')",
+    "mode": "SHADOW_ONLY",
+    "rule": "{'interaction': 'near_pdl\u00d7session', 'values': (0.0, 'ny'), 'n': 64, 'wr': 0.265625, 'lift_pp': 7.2964449541284395, 'expectancy_r': -0.19303080555434812}",
+    "evidence_lift_pp": 7.2964449541284395,
+    "n": 64,
+    "status": "HYPOTHESIS"
+  },
+  {
+    "name": "discovery_momentum_aligned\u00d7regime_(0.0, 'TREND_UP')",
+    "mode": "SHADOW_ONLY",
+    "rule": "{'interaction': 'momentum_aligned\u00d7regime', 'values': (0.0, 'TREND_UP'), 'n': 27, 'wr': 0.25925925925925924, 'lift_pp': 6.659870880054363, 'expectancy_r': -0.32659254251397835}",
+    "evidence_lift_pp": 6.659870880054363,
+    "n": 27,
+    "status": "HYPOTHESIS"
+  }
+]

@@ -1,0 +1,706 @@
+{
+  "generated": "2026-08-10T13:04:59.594246+00:00",
+  "cl": {
+    "name": "cl_vwap_prox_momentum_v1",
+    "n": 121,
+    "sample_label": "STRONGER SAMPLE",
+    "baseline": {
+      "n": 121,
+      "wr": 0.6942148760330579,
+      "pf": 4.54054054054054,
+      "E": 1.0826446280991735,
+      "max_dd": -5.0,
+      "trades_per_week": 13.75,
+      "label": "STRONGER SAMPLE"
+    },
+    "walk_forward": [
+      {
+        "fold": 1,
+        "train_n": 4,
+        "test": {
+          "n": 24,
+          "wr": 0.625,
+          "pf": 3.3333333333333335,
+          "E": 0.875,
+          "max_dd": -4.0,
+          "trades_per_week": 13.333333333333332,
+          "label": "VERY PRELIMINARY"
+        },
+        "test_range": [
+          "2026-06-01 07:20:00-04:00",
+          "2026-06-11 13:20:00-04:00"
+        ]
+      },
+      {
+        "fold": 2,
+        "train_n": 24,
+        "test": {
+          "n": 24,
+          "wr": 0.5833333333333334,
+          "pf": 2.8,
+          "E": 0.75,
+          "max_dd": -7.0,
+          "trades_per_week": 15.0,
+          "label": "VERY PRELIMINARY"
+        },
+        "test_range": [
+          "2026-06-12 03:20:00-04:00",
+          "2026-06-25 02:05:00-04:00"
+        ]
+      },
+      {
+        "fold": 3,
+        "train_n": 48,
+        "test": {
+          "n": 24,
+          "wr": 0.7083333333333334,
+          "pf": 4.857142857142857,
+          "E": 1.125,
+          "max_dd": -2.0,
+          "trades_per_week": 13.333333333333332,
+          "label": "VERY PRELIMINARY"
+        },
+        "test_range": [
+          "2026-06-25 02:05:00-04:00",
+          "2026-07-07 05:25:00-04:00"
+        ]
+      },
+      {
+        "fold": 4,
+        "train_n": 72,
+        "test": {
+          "n": 24,
+          "wr": 0.75,
+          "pf": 6.0,
+          "E": 1.25,
+          "max_dd": -2.0,
+          "trades_per_week": 13.333333333333332,
+          "label": "VERY PRELIMINARY"
+        },
+        "test_range": [
+          "2026-07-07 07:05:00-04:00",
+          "2026-07-21 00:50:00-04:00"
+        ]
+      },
+      {
+        "fold": 5,
+        "train_n": 96,
+        "test": {
+          "n": 25,
+          "wr": 0.8,
+          "pf": 8.0,
+          "E": 1.4,
+          "max_dd": -3.0,
+          "trades_per_week": 10.416666666666668,
+          "label": "VERY PRELIMINARY"
+        },
+        "test_range": [
+          "2026-07-21 03:40:00-04:00",
+          "2026-08-07 09:45:00-04:00"
+        ]
+      }
+    ],
+    "holdout": {
+      "train": {
+        "n": 96,
+        "wr": 0.6666666666666666,
+        "pf": 4.0,
+        "E": 1.0,
+        "max_dd": -7.0,
+        "trades_per_week": 14.545454545454547,
+        "label": "PROMISING / NOT CONFIRMED"
+      },
+      "holdout": {
+        "n": 25,
+        "wr": 0.8,
+        "pf": 8.0,
+        "E": 1.4,
+        "max_dd": -3.0,
+        "trades_per_week": 10.416666666666668,
+        "label": "VERY PRELIMINARY"
+      },
+      "cut_ts": "2026-07-21 03:40:00-04:00"
+    },
+    "monthly": [
+      {
+        "n": 62,
+        "wr": 0.6129032258064516,
+        "pf": 3.1666666666666665,
+        "E": 0.8387096774193549,
+        "max_dd": -5.0,
+        "trades_per_week": 15.5,
+        "label": "PROMISING / NOT CONFIRMED",
+        "month": "2026-06"
+      },
+      {
+        "n": 49,
+        "wr": 0.7346938775510204,
+        "pf": 5.538461538461538,
+        "E": 1.2040816326530612,
+        "max_dd": -3.0,
+        "trades_per_week": 12.25,
+        "label": "PROMISING / NOT CONFIRMED",
+        "month": "2026-07"
+      },
+      {
+        "n": 10,
+        "wr": 1.0,
+        "pf": 999.0,
+        "E": 2.0,
+        "max_dd": 0.0,
+        "trades_per_week": 12.5,
+        "label": "VERY PRELIMINARY",
+        "month": "2026-08"
+      }
+    ],
+    "by_session": {
+      "asia": {
+        "n": 52,
+        "wr": 0.7115384615384616,
+        "pf": 4.933333333333334,
+        "E": 1.1346153846153846,
+        "max_dd": -3.0,
+        "trades_per_week": 9.285714285714286,
+        "label": "PROMISING / NOT CONFIRMED"
+      },
+      "london": {
+        "n": 35,
+        "wr": 0.6285714285714286,
+        "pf": 3.3846153846153846,
+        "E": 0.8857142857142857,
+        "max_dd": -5.0,
+        "trades_per_week": 8.75,
+        "label": "PROMISING / NOT CONFIRMED"
+      },
+      "ny_afternoon": {
+        "n": 7,
+        "wr": 0.7142857142857143,
+        "pf": 5.0,
+        "E": 1.1428571428571428,
+        "max_dd": -1.0,
+        "trades_per_week": 5.833333333333334,
+        "label": "VERY PRELIMINARY"
+      },
+      "ny_lunch": {
+        "n": 8,
+        "wr": 0.75,
+        "pf": 6.0,
+        "E": 1.25,
+        "max_dd": -1.0,
+        "trades_per_week": 5.7142857142857135,
+        "label": "VERY PRELIMINARY"
+      },
+      "ny_mid_morning": {
+        "n": 8,
+        "wr": 0.625,
+        "pf": 3.3333333333333335,
+        "E": 0.875,
+        "max_dd": -2.0,
+        "trades_per_week": 8.0,
+        "label": "VERY PRELIMINARY"
+      },
+      "ny_open": {
+        "n": 5,
+        "wr": 1.0,
+        "pf": 999.0,
+        "E": 2.0,
+        "max_dd": 0.0,
+        "trades_per_week": 5.0,
+        "label": "VERY PRELIMINARY"
+      },
+      "ny_premarket": {
+        "n": 6,
+        "wr": 0.6666666666666666,
+        "pf": 4.0,
+        "E": 1.0,
+        "max_dd": -1.0,
+        "trades_per_week": 5.0,
+        "label": "VERY PRELIMINARY"
+      }
+    },
+    "by_side": {
+      "BUY": {
+        "n": 44,
+        "wr": 0.7954545454545454,
+        "pf": 7.777777777777778,
+        "E": 1.3863636363636365,
+        "max_dd": -3.0,
+        "trades_per_week": 7.333333333333333,
+        "label": "PROMISING / NOT CONFIRMED"
+      },
+      "SELL": {
+        "n": 77,
+        "wr": 0.6363636363636364,
+        "pf": 3.5,
+        "E": 0.9090909090909091,
+        "max_dd": -5.0,
+        "trades_per_week": 11.666666666666668,
+        "label": "PROMISING / NOT CONFIRMED"
+      }
+    },
+    "by_symbol": {
+      "CL": {
+        "n": 63,
+        "wr": 0.746031746031746,
+        "pf": 5.875,
+        "E": 1.2380952380952381,
+        "max_dd": -3.0,
+        "trades_per_week": 7.875,
+        "label": "PROMISING / NOT CONFIRMED"
+      },
+      "MCL": {
+        "n": 58,
+        "wr": 0.6379310344827587,
+        "pf": 3.5238095238095237,
+        "E": 0.9137931034482759,
+        "max_dd": -5.0,
+        "trades_per_week": 8.285714285714286,
+        "label": "PROMISING / NOT CONFIRMED"
+      }
+    },
+    "vol_regime": {
+      "EXTREME": {
+        "n": 33,
+        "wr": 0.8181818181818182,
+        "pf": 9.0,
+        "E": 1.4545454545454546,
+        "max_dd": -1.0,
+        "trades_per_week": 7.5,
+        "label": "PROMISING / NOT CONFIRMED"
+      },
+      "HIGH": {
+        "n": 23,
+        "wr": 0.5217391304347826,
+        "pf": 2.1818181818181817,
+        "E": 0.5652173913043478,
+        "max_dd": -4.0,
+        "trades_per_week": 7.666666666666667,
+        "label": "VERY PRELIMINARY"
+      },
+      "LOW": {
+        "n": 29,
+        "wr": 0.6551724137931034,
+        "pf": 3.8,
+        "E": 0.9655172413793104,
+        "max_dd": -2.0,
+        "trades_per_week": 7.631578947368421,
+        "label": "VERY PRELIMINARY"
+      },
+      "NORMAL": {
+        "n": 36,
+        "wr": 0.7222222222222222,
+        "pf": 5.2,
+        "E": 1.1666666666666667,
+        "max_dd": -2.0,
+        "trades_per_week": 8.571428571428571,
+        "label": "PROMISING / NOT CONFIRMED"
+      }
+    },
+    "monte_carlo": {
+      "n_sims": 5000,
+      "status": "OK",
+      "median_terminal_r": 131.0,
+      "p05_terminal_r": 107.0,
+      "p95_terminal_r": 155.0,
+      "median_max_dd_r": -4.0,
+      "p90_max_dd_r": -5.0,
+      "p95_max_dd_r": -6.0,
+      "prob_dd_ge_5r": 0.2242,
+      "prob_dd_ge_10r": 0.0006,
+      "prob_dd_ge_15r": 0.0,
+      "prob_dd_ge_20r": 0.0,
+      "median_longest_losing_streak": 4,
+      "p90_longest_losing_streak": 5,
+      "p95_longest_losing_streak": 6
+    },
+    "stress_slip_fee": {
+      "n": 121,
+      "wr": 0.6942148760330579,
+      "pf": 4.094973478151049,
+      "E": 1.0126446280991737,
+      "max_dd": -5.349999999999966,
+      "trades_per_week": 13.75,
+      "label": "STRONGER SAMPLE",
+      "penalty_r": 0.07
+    },
+    "kill_thresholds": {
+      "hist_max_dd_r": -5.0,
+      "hist_p95_dd_r": -6.0,
+      "trailing_stop_r": -7.5,
+      "hard_kill_r": -9.0,
+      "n": 121.0,
+      "method": "historical_bootstrap"
+    },
+    "mfe_mae": {
+      "mfe_win": 9.27521939827664,
+      "mfe_loss": 3.2715855194816568,
+      "mae_win": 1.6050818570724295,
+      "mae_loss": 3.827266974130104
+    }
+  },
+  "nq": {
+    "name": "nq_ny_open_momentum_v1",
+    "n": 71,
+    "sample_label": "PROMISING / NOT CONFIRMED",
+    "baseline": {
+      "n": 71,
+      "wr": 0.647887323943662,
+      "pf": 3.68,
+      "E": 0.9436619718309859,
+      "max_dd": -2.0,
+      "trades_per_week": 9.86111111111111,
+      "label": "PROMISING / NOT CONFIRMED"
+    },
+    "walk_forward": [
+      {
+        "fold": 1,
+        "train_n": 2,
+        "test": {
+          "n": 14,
+          "wr": 0.5714285714285714,
+          "pf": 2.6666666666666665,
+          "E": 0.7142857142857143,
+          "max_dd": -4.0,
+          "trades_per_week": 10.0,
+          "label": "VERY PRELIMINARY"
+        },
+        "test_range": [
+          "2026-06-04 10:20:00-04:00",
+          "2026-06-15 10:25:00-04:00"
+        ]
+      },
+      {
+        "fold": 2,
+        "train_n": 14,
+        "test": {
+          "n": 14,
+          "wr": 0.5714285714285714,
+          "pf": 2.6666666666666665,
+          "E": 0.7142857142857143,
+          "max_dd": -3.0,
+          "trades_per_week": 10.0,
+          "label": "VERY PRELIMINARY"
+        },
+        "test_range": [
+          "2026-06-16 09:55:00-04:00",
+          "2026-06-26 09:55:00-04:00"
+        ]
+      },
+      {
+        "fold": 3,
+        "train_n": 28,
+        "test": {
+          "n": 14,
+          "wr": 0.7142857142857143,
+          "pf": 5.0,
+          "E": 1.1428571428571428,
+          "max_dd": -4.0,
+          "trades_per_week": 8.75,
+          "label": "VERY PRELIMINARY"
+        },
+        "test_range": [
+          "2026-06-30 09:30:00-04:00",
+          "2026-07-16 09:30:00-04:00"
+        ]
+      },
+      {
+        "fold": 4,
+        "train_n": 42,
+        "test": {
+          "n": 14,
+          "wr": 0.5714285714285714,
+          "pf": 2.6666666666666665,
+          "E": 0.7142857142857143,
+          "max_dd": -4.0,
+          "trades_per_week": 8.75,
+          "label": "VERY PRELIMINARY"
+        },
+        "test_range": [
+          "2026-07-16 09:30:00-04:00",
+          "2026-07-29 09:45:00-04:00"
+        ]
+      },
+      {
+        "fold": 5,
+        "train_n": 56,
+        "test": {
+          "n": 15,
+          "wr": 0.8,
+          "pf": 8.0,
+          "E": 1.4,
+          "max_dd": -2.0,
+          "trades_per_week": 9.375,
+          "label": "VERY PRELIMINARY"
+        },
+        "test_range": [
+          "2026-07-29 10:05:00-04:00",
+          "2026-08-07 10:15:00-04:00"
+        ]
+      }
+    ],
+    "holdout": {
+      "train": {
+        "n": 56,
+        "wr": 0.6071428571428571,
+        "pf": 3.090909090909091,
+        "E": 0.8214285714285714,
+        "max_dd": -4.0,
+        "trades_per_week": 9.655172413793103,
+        "label": "PROMISING / NOT CONFIRMED"
+      },
+      "holdout": {
+        "n": 15,
+        "wr": 0.8,
+        "pf": 8.0,
+        "E": 1.4,
+        "max_dd": -2.0,
+        "trades_per_week": 9.375,
+        "label": "VERY PRELIMINARY"
+      },
+      "cut_ts": "2026-07-29 10:05:00-04:00"
+    },
+    "monthly": [
+      {
+        "n": 30,
+        "wr": 0.6,
+        "pf": 3.0,
+        "E": 0.8,
+        "max_dd": -2.0,
+        "trades_per_week": 10.0,
+        "label": "PROMISING / NOT CONFIRMED",
+        "month": "2026-06"
+      },
+      {
+        "n": 31,
+        "wr": 0.6774193548387096,
+        "pf": 4.2,
+        "E": 1.032258064516129,
+        "max_dd": -2.0,
+        "trades_per_week": 9.6875,
+        "label": "PROMISING / NOT CONFIRMED",
+        "month": "2026-07"
+      },
+      {
+        "n": 10,
+        "wr": 0.7,
+        "pf": 4.666666666666667,
+        "E": 1.1,
+        "max_dd": -1.0,
+        "trades_per_week": 10.0,
+        "label": "VERY PRELIMINARY",
+        "month": "2026-08"
+      }
+    ],
+    "by_session": {
+      "ny_open": {
+        "n": 71,
+        "wr": 0.647887323943662,
+        "pf": 3.68,
+        "E": 0.9436619718309859,
+        "max_dd": -2.0,
+        "trades_per_week": 9.86111111111111,
+        "label": "PROMISING / NOT CONFIRMED"
+      }
+    },
+    "by_side": {
+      "BUY": {
+        "n": 35,
+        "wr": 0.7142857142857143,
+        "pf": 5.0,
+        "E": 1.1428571428571428,
+        "max_dd": -1.0,
+        "trades_per_week": 9.722222222222221,
+        "label": "PROMISING / NOT CONFIRMED"
+      },
+      "SELL": {
+        "n": 36,
+        "wr": 0.5833333333333334,
+        "pf": 2.8,
+        "E": 0.75,
+        "max_dd": -2.0,
+        "trades_per_week": 10.0,
+        "label": "PROMISING / NOT CONFIRMED"
+      }
+    },
+    "by_symbol": {
+      "MNQ": {
+        "n": 35,
+        "wr": 0.6571428571428571,
+        "pf": 3.8333333333333335,
+        "E": 0.9714285714285714,
+        "max_dd": -2.0,
+        "trades_per_week": 5.0,
+        "label": "PROMISING / NOT CONFIRMED"
+      },
+      "NQ": {
+        "n": 36,
+        "wr": 0.6388888888888888,
+        "pf": 3.5384615384615383,
+        "E": 0.9166666666666666,
+        "max_dd": -2.0,
+        "trades_per_week": 5.0,
+        "label": "PROMISING / NOT CONFIRMED"
+      }
+    },
+    "vol_regime": {
+      "EXTREME": {
+        "n": 66,
+        "wr": 0.6212121212121212,
+        "pf": 3.28,
+        "E": 0.8636363636363636,
+        "max_dd": -2.0,
+        "trades_per_week": 10.0,
+        "label": "PROMISING / NOT CONFIRMED"
+      },
+      "HIGH": {
+        "n": 5,
+        "wr": 1.0,
+        "pf": 999.0,
+        "E": 2.0,
+        "max_dd": 0.0,
+        "trades_per_week": 8.333333333333334,
+        "label": "VERY PRELIMINARY"
+      }
+    },
+    "monte_carlo": {
+      "n_sims": 5000,
+      "status": "OK",
+      "median_terminal_r": 67.0,
+      "p05_terminal_r": 46.0,
+      "p95_terminal_r": 88.0,
+      "median_max_dd_r": -4.0,
+      "p90_max_dd_r": -6.0,
+      "p95_max_dd_r": -6.0,
+      "prob_dd_ge_5r": 0.2424,
+      "prob_dd_ge_10r": 0.0026,
+      "prob_dd_ge_15r": 0.0,
+      "prob_dd_ge_20r": 0.0,
+      "median_longest_losing_streak": 4,
+      "p90_longest_losing_streak": 5,
+      "p95_longest_losing_streak": 6
+    },
+    "stress_slip_fee": {
+      "n": 71,
+      "wr": 0.647887323943662,
+      "pf": 3.318878504672899,
+      "E": 0.8736619718309858,
+      "max_dd": -2.3500000000000014,
+      "trades_per_week": 9.86111111111111,
+      "label": "PROMISING / NOT CONFIRMED",
+      "penalty_r": 0.07
+    },
+    "kill_thresholds": {
+      "hist_max_dd_r": -2.0,
+      "hist_p95_dd_r": -6.0,
+      "trailing_stop_r": -7.5,
+      "hard_kill_r": -9.0,
+      "n": 71.0,
+      "method": "historical_bootstrap"
+    },
+    "mfe_mae": {
+      "mfe_win": 7.018860749414059,
+      "mfe_loss": 2.1492268103630017,
+      "mae_win": 0.9464605766920677,
+      "mae_loss": 3.9916356404518187
+    }
+  },
+  "paper": {
+    "cl_vwap_prox_momentum": {
+      "activate_paper_executable": false,
+      "reason": "Holdout remains interesting \u2014 add research engine + lifecycle tracking; do NOT make sole paper champion (n still limited).",
+      "add_as_research_engine": true,
+      "recommend_paper_shadow_track": true
+    },
+    "nq_ny_open_momentum": {
+      "activate_paper_executable": false,
+      "reason": "PROMISING / NOT CONFIRMED \u2014 remain research_only",
+      "add_as_research_engine": true
+    }
+  },
+  "lifecycle_seed": [
+    {
+      "strategy": "cl_vwap_prox_momentum",
+      "symbol": "CL",
+      "state": "ACTIVE",
+      "equity_r": 0.0,
+      "equity_peak_r": 0.0,
+      "dd_from_peak_r": 0.0,
+      "trailing_stop_r": -5.0,
+      "hard_kill_r": -6.0,
+      "expected_wr": 0.6942148760330579,
+      "expected_e": 1.0826446280991735,
+      "forward_trades": 0,
+      "rolling_wr": null,
+      "rolling_e": null,
+      "rolling_pf": null,
+      "drift_flag": false,
+      "drift_weeks_under": 0,
+      "last_review_ts": 0.0,
+      "notes": "seeded:historical_bootstrap:n=63",
+      "key": "cl_vwap_prox_momentum|CL"
+    },
+    {
+      "strategy": "cl_vwap_prox_momentum",
+      "symbol": "MCL",
+      "state": "ACTIVE",
+      "equity_r": 0.0,
+      "equity_peak_r": 0.0,
+      "dd_from_peak_r": 0.0,
+      "trailing_stop_r": -7.5,
+      "hard_kill_r": -9.0,
+      "expected_wr": 0.6942148760330579,
+      "expected_e": 1.0826446280991735,
+      "forward_trades": 0,
+      "rolling_wr": null,
+      "rolling_e": null,
+      "rolling_pf": null,
+      "drift_flag": false,
+      "drift_weeks_under": 0,
+      "last_review_ts": 0.0,
+      "notes": "seeded:historical_bootstrap:n=58",
+      "key": "cl_vwap_prox_momentum|MCL"
+    },
+    {
+      "strategy": "nq_ny_open_momentum",
+      "symbol": "NQ",
+      "state": "ACTIVE",
+      "equity_r": 0.0,
+      "equity_peak_r": 0.0,
+      "dd_from_peak_r": 0.0,
+      "trailing_stop_r": -6.25,
+      "hard_kill_r": -7.5,
+      "expected_wr": 0.647887323943662,
+      "expected_e": 0.9436619718309859,
+      "forward_trades": 0,
+      "rolling_wr": null,
+      "rolling_e": null,
+      "rolling_pf": null,
+      "drift_flag": false,
+      "drift_weeks_under": 0,
+      "last_review_ts": 0.0,
+      "notes": "seeded:historical_bootstrap:n=36",
+      "key": "nq_ny_open_momentum|NQ"
+    },
+    {
+      "strategy": "nq_ny_open_momentum",
+      "symbol": "MNQ",
+      "state": "ACTIVE",
+      "equity_r": 0.0,
+      "equity_peak_r": 0.0,
+      "dd_from_peak_r": 0.0,
+      "trailing_stop_r": -6.25,
+      "hard_kill_r": -7.5,
+      "expected_wr": 0.647887323943662,
+      "expected_e": 0.9436619718309859,
+      "forward_trades": 0,
+      "rolling_wr": null,
+      "rolling_e": null,
+      "rolling_pf": null,
+      "drift_flag": false,
+      "drift_weeks_under": 0,
+      "last_review_ts": 0.0,
+      "notes": "seeded:historical_bootstrap:n=35",
+      "key": "nq_ny_open_momentum|MNQ"
+    }
+  ]
+}

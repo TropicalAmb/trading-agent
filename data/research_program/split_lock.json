@@ -1,0 +1,80 @@
+{
+  "frozen_at_rule": "60/20/20 chronological by trading day; locked before optimization",
+  "splits_1h": {
+    "NQ": {
+      "train_end": "2026-02-12 00:00:00-05:00",
+      "val_end": "2026-05-11 00:00:00-04:00",
+      "final_start": "2026-05-12 00:00:00-04:00",
+      "n_days_train": 215,
+      "n_days_val": 72,
+      "n_days_final": 72
+    },
+    "ES": {
+      "train_end": "2026-02-12 00:00:00-05:00",
+      "val_end": "2026-05-11 00:00:00-04:00",
+      "final_start": "2026-05-12 00:00:00-04:00",
+      "n_days_train": 215,
+      "n_days_val": 72,
+      "n_days_final": 72
+    },
+    "GC": {
+      "train_end": "2026-02-13 00:00:00-05:00",
+      "val_end": "2026-05-11 00:00:00-04:00",
+      "final_start": "2026-05-12 00:00:00-04:00",
+      "n_days_train": 216,
+      "n_days_val": 72,
+      "n_days_final": 72
+    },
+    "CL": {
+      "train_end": "2026-02-12 00:00:00-05:00",
+      "val_end": "2026-05-11 00:00:00-04:00",
+      "final_start": "2026-05-12 00:00:00-04:00",
+      "n_days_train": 215,
+      "n_days_val": 72,
+      "n_days_final": 72
+    }
+  },
+  "splits_5m": {
+    "NQ": {
+      "train_end": "2026-07-10 00:00:00-04:00",
+      "val_end": "2026-07-24 00:00:00-04:00",
+      "final_start": "2026-07-26 00:00:00-04:00",
+      "n_days_train": 35,
+      "n_days_val": 12,
+      "n_days_final": 12
+    },
+    "ES": {
+      "train_end": "2026-07-10 00:00:00-04:00",
+      "val_end": "2026-07-24 00:00:00-04:00",
+      "final_start": "2026-07-26 00:00:00-04:00",
+      "n_days_train": 35,
+      "n_days_val": 12,
+      "n_days_final": 12
+    },
+    "GC": {
+      "train_end": "2026-07-10 00:00:00-04:00",
+      "val_end": "2026-07-24 00:00:00-04:00",
+      "final_start": "2026-07-26 00:00:00-04:00",
+      "n_days_train": 35,
+      "n_days_val": 12,
+      "n_days_final": 12
+    },
+    "CL": {
+      "train_end": "2026-07-10 00:00:00-04:00",
+      "val_end": "2026-07-24 00:00:00-04:00",
+      "final_start": "2026-07-26 00:00:00-04:00",
+      "n_days_train": 35,
+      "n_days_val": 12,
+      "n_days_final": 12
+    }
+  },
+  "friction": "Friction: 2 ticks slip + 1 tick buffer per side (research_wit convention); fixed-R stops/targets; no lookahead on entry bar; train/val/final chronological freeze.",
+  "gates": {
+    "min_wr": 0.65,
+    "min_pf": 1.5,
+    "min_expectancy_r": 0.25,
+    "min_n": 100,
+    "max_worst_loss_r": -5.0,
+    "min_med_win_over_med_loss": 0.35
+  }
+}

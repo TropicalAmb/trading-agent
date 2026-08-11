@@ -34,8 +34,8 @@ def test_thresholds_unlocked_not_changed():
     assert cfg["tiering"]["minimum_trade_tier"] == "A"
     assert cfg["tiering"]["tier_thresholds"]["A"] == 72
     assert cfg["tiering"]["tier_thresholds"]["A_PLUS"] == 85
-    assert cfg["quantity"]["default_quantity"] == 1
-    assert cfg["risk"]["max_risk_dollars_per_trade"] == 250
+    assert cfg["quantity"]["default_quantity"] == 2
+    assert float(cfg["risk"]["max_risk_dollars_per_trade"]) == 500
 
 
 def test_no_new_bar_is_healthy_waiting_not_stale_bundle():

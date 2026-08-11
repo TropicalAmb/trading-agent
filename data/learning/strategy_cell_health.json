@@ -1,0 +1,307 @@
+{
+  "cells": {
+    "ema_pullback|MCL|london|TREND_UP|LONG": {
+      "state": "ACTIVE",
+      "reason": "insufficient_sample n=1",
+      "n": 1,
+      "shrunk_wr": null,
+      "expectancy_r": null
+    },
+    "liquidity_sweep|MYM|london|TREND_DOWN|SHORT": {
+      "state": "ACTIVE",
+      "reason": "insufficient_sample n=1",
+      "n": 1,
+      "shrunk_wr": null,
+      "expectancy_r": null
+    },
+    "trend_pullback|ES|london|TREND_DOWN|SHORT": {
+      "state": "ACTIVE",
+      "reason": "insufficient_sample n=1",
+      "n": 1,
+      "shrunk_wr": null,
+      "expectancy_r": null
+    },
+    "ema_pullback|MES|london|TREND_DOWN|SHORT": {
+      "state": "ACTIVE",
+      "reason": "insufficient_sample n=1",
+      "n": 1,
+      "shrunk_wr": null,
+      "expectancy_r": null
+    },
+    "trend_pullback|MES|london|TREND_DOWN|SHORT": {
+      "state": "ACTIVE",
+      "reason": "insufficient_sample n=1",
+      "n": 1,
+      "shrunk_wr": null,
+      "expectancy_r": null
+    },
+    "opening_range|MCL|asia|RANGE|LONG": {
+      "state": "ACTIVE",
+      "reason": "insufficient_sample n=1",
+      "n": 1,
+      "shrunk_wr": null,
+      "expectancy_r": null
+    },
+    "vwap_acceptance|MYM|london|TREND_DOWN|SHORT": {
+      "state": "ACTIVE",
+      "reason": "insufficient_sample n=1",
+      "n": 1,
+      "shrunk_wr": null,
+      "expectancy_r": null
+    },
+    "breakout_retest|MYM|london|TREND_DOWN|SHORT": {
+      "state": "ACTIVE",
+      "reason": "insufficient_sample n=1",
+      "n": 1,
+      "shrunk_wr": null,
+      "expectancy_r": null
+    },
+    "ema_pullback|MYM|london|TREND_DOWN|SHORT": {
+      "state": "ACTIVE",
+      "reason": "insufficient_sample n=1",
+      "n": 1,
+      "shrunk_wr": null,
+      "expectancy_r": null
+    },
+    "breakout_retest|MNQ|london|TREND_DOWN|SHORT": {
+      "state": "ACTIVE",
+      "reason": "insufficient_sample n=1",
+      "n": 1,
+      "shrunk_wr": null,
+      "expectancy_r": null
+    },
+    "ema_pullback|M2K|london|RANGE|SHORT": {
+      "state": "ACTIVE",
+      "reason": "insufficient_sample n=1",
+      "n": 1,
+      "shrunk_wr": null,
+      "expectancy_r": null
+    },
+    "ema_pullback|ES|asia|TREND_UP|LONG": {
+      "state": "ACTIVE",
+      "reason": "insufficient_sample n=1",
+      "n": 1,
+      "shrunk_wr": null,
+      "expectancy_r": null
+    },
+    "ema_pullback|MES|asia|TREND_UP|LONG": {
+      "state": "ACTIVE",
+      "reason": "insufficient_sample n=1",
+      "n": 1,
+      "shrunk_wr": null,
+      "expectancy_r": null
+    },
+    "ema_pullback|MNQ|ny|TREND_UP|LONG": {
+      "state": "ACTIVE",
+      "reason": "insufficient_sample n=11",
+      "n": 11,
+      "shrunk_wr": null,
+      "expectancy_r": null
+    },
+    "ema_pullback|ES|ny|TREND_UP|LONG": {
+      "state": "ACTIVE",
+      "reason": "insufficient_sample n=1",
+      "n": 1,
+      "shrunk_wr": null,
+      "expectancy_r": null
+    },
+    "ema_pullback|MCL|ny|TREND_DOWN|SHORT": {
+      "state": "ACTIVE",
+      "reason": "insufficient_sample n=3",
+      "n": 3,
+      "shrunk_wr": null,
+      "expectancy_r": null
+    },
+    "ema_pullback|CL|ny|TREND_DOWN|SHORT": {
+      "state": "ACTIVE",
+      "reason": "insufficient_sample n=2",
+      "n": 2,
+      "shrunk_wr": null,
+      "expectancy_r": null
+    },
+    "ema_pullback|MES|ny|TREND_UP|LONG": {
+      "state": "ACTIVE",
+      "reason": "insufficient_sample n=9",
+      "n": 9,
+      "shrunk_wr": null,
+      "expectancy_r": null
+    },
+    "ema_pullback|MYM|ny|TREND_UP|LONG": {
+      "state": "ACTIVE",
+      "reason": "insufficient_sample n=7",
+      "n": 7,
+      "shrunk_wr": null,
+      "expectancy_r": null
+    },
+    "ema_pullback|M2K|ny|TREND_UP|LONG": {
+      "state": "ACTIVE",
+      "reason": "insufficient_sample n=5",
+      "n": 5,
+      "shrunk_wr": null,
+      "expectancy_r": null
+    },
+    "ema_pullback|MGC|ny|TREND_UP|LONG": {
+      "state": "ACTIVE",
+      "reason": "insufficient_sample n=8",
+      "n": 8,
+      "shrunk_wr": null,
+      "expectancy_r": null
+    },
+    "ema_pullback|M2K|ny|RANGE|LONG": {
+      "state": "ACTIVE",
+      "reason": "insufficient_sample n=2",
+      "n": 2,
+      "shrunk_wr": null,
+      "expectancy_r": null
+    },
+    "ema_pullback|M2K|ny|HIGH_VOLATILITY|LONG": {
+      "state": "ACTIVE",
+      "reason": "insufficient_sample n=1",
+      "n": 1,
+      "shrunk_wr": null,
+      "expectancy_r": null
+    },
+    "ema_pullback|MCL|ny|TREND_UP|LONG": {
+      "state": "ACTIVE",
+      "reason": "insufficient_sample n=4",
+      "n": 4,
+      "shrunk_wr": null,
+      "expectancy_r": null
+    },
+    "liquidity_sweep|MES|ny|TREND_DOWN|SHORT": {
+      "state": "ACTIVE",
+      "reason": "insufficient_sample n=1",
+      "n": 1,
+      "shrunk_wr": null,
+      "expectancy_r": null
+    },
+    "ema_pullback|MES|ny|TREND_DOWN|SHORT": {
+      "state": "ACTIVE",
+      "reason": "insufficient_sample n=1",
+      "n": 1,
+      "shrunk_wr": null,
+      "expectancy_r": null
+    },
+    "ema_pullback|MGC|ny|TREND_DOWN|SHORT": {
+      "state": "ACTIVE",
+      "reason": "insufficient_sample n=1",
+      "n": 1,
+      "shrunk_wr": null,
+      "expectancy_r": null
+    },
+    "ema_pullback|MNQ|ny|TREND_DOWN|SHORT": {
+      "state": "ACTIVE",
+      "reason": "insufficient_sample n=4",
+      "n": 4,
+      "shrunk_wr": null,
+      "expectancy_r": null
+    },
+    "ema_pullback|CL|ny|TREND_UP|LONG": {
+      "state": "ACTIVE",
+      "reason": "insufficient_sample n=1",
+      "n": 1,
+      "shrunk_wr": null,
+      "expectancy_r": null
+    },
+    "ema_pullback|MYM|ny|TREND_DOWN|SHORT": {
+      "state": "ACTIVE",
+      "reason": "insufficient_sample n=3",
+      "n": 3,
+      "shrunk_wr": null,
+      "expectancy_r": null
+    },
+    "ema_pullback|MES|ny|HIGH_VOLATILITY|LONG": {
+      "state": "ACTIVE",
+      "reason": "insufficient_sample n=3",
+      "n": 3,
+      "shrunk_wr": null,
+      "expectancy_r": null
+    },
+    "ema_pullback|MYM|ny|HIGH_VOLATILITY|LONG": {
+      "state": "ACTIVE",
+      "reason": "insufficient_sample n=2",
+      "n": 2,
+      "shrunk_wr": null,
+      "expectancy_r": null
+    },
+    "ema_pullback|MNQ|ny|HIGH_VOLATILITY|LONG": {
+      "state": "ACTIVE",
+      "reason": "insufficient_sample n=1",
+      "n": 1,
+      "shrunk_wr": null,
+      "expectancy_r": null
+    },
+    "liquidity_reversal|CL|asia|TREND_UP|BUY": {
+      "state": "INSUFFICIENT_DATA",
+      "note": "priority_learning_seed"
+    },
+    "liquidity_reversal|CL|asia|TREND_UP|SELL": {
+      "state": "INSUFFICIENT_DATA",
+      "note": "priority_learning_seed"
+    },
+    "liquidity_reversal|CL|asia|TREND_DOWN|BUY": {
+      "state": "INSUFFICIENT_DATA",
+      "note": "priority_learning_seed"
+    },
+    "liquidity_reversal|CL|asia|TREND_DOWN|SELL": {
+      "state": "INSUFFICIENT_DATA",
+      "note": "priority_learning_seed"
+    },
+    "liquidity_reversal|CL|asia|RANGE|BUY": {
+      "state": "INSUFFICIENT_DATA",
+      "note": "priority_learning_seed"
+    },
+    "liquidity_reversal|CL|asia|RANGE|SELL": {
+      "state": "INSUFFICIENT_DATA",
+      "note": "priority_learning_seed"
+    },
+    "liquidity_reversal|CL|london|TREND_UP|BUY": {
+      "state": "INSUFFICIENT_DATA",
+      "note": "priority_learning_seed"
+    },
+    "liquidity_reversal|CL|london|TREND_UP|SELL": {
+      "state": "INSUFFICIENT_DATA",
+      "note": "priority_learning_seed"
+    },
+    "liquidity_reversal|CL|london|TREND_DOWN|BUY": {
+      "state": "INSUFFICIENT_DATA",
+      "note": "priority_learning_seed"
+    },
+    "liquidity_reversal|CL|london|TREND_DOWN|SELL": {
+      "state": "INSUFFICIENT_DATA",
+      "note": "priority_learning_seed"
+    },
+    "liquidity_reversal|CL|london|RANGE|BUY": {
+      "state": "INSUFFICIENT_DATA",
+      "note": "priority_learning_seed"
+    },
+    "liquidity_reversal|CL|london|RANGE|SELL": {
+      "state": "INSUFFICIENT_DATA",
+      "note": "priority_learning_seed"
+    },
+    "liquidity_reversal|CL|ny|TREND_UP|BUY": {
+      "state": "INSUFFICIENT_DATA",
+      "note": "priority_learning_seed"
+    },
+    "liquidity_reversal|CL|ny|TREND_UP|SELL": {
+      "state": "INSUFFICIENT_DATA",
+      "note": "priority_learning_seed"
+    },
+    "liquidity_reversal|CL|ny|TREND_DOWN|BUY": {
+      "state": "INSUFFICIENT_DATA",
+      "note": "priority_learning_seed"
+    },
+    "liquidity_reversal|CL|ny|TREND_DOWN|SELL": {
+      "state": "INSUFFICIENT_DATA",
+      "note": "priority_learning_seed"
+    },
+    "liquidity_reversal|CL|ny|RANGE|BUY": {
+      "state": "INSUFFICIENT_DATA",
+      "note": "priority_learning_seed"
+    },
+    "liquidity_reversal|CL|ny|RANGE|SELL": {
+      "state": "INSUFFICIENT_DATA",
+      "note": "priority_learning_seed"
+    }
+  }
+}

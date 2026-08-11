@@ -4,7 +4,11 @@ import logging
 from typing import Any
 
 from agent.execution.order_state import OrderState
-from agent.execution.sizing import resolve_trade_quantity
+from agent.execution.sizing import (
+    fit_quantity_to_risk,
+    hard_cap_from_cfg,
+    resolve_trade_quantity,
+)
 from agent.paper.blotter import PaperBlotter
 from agent.schedule.sessions import active_session_name
 from agent.strategy.sweep_retest import SweepSignal
@@ -74,12 +78,25 @@ class DirectionalExecutor:
         )
 
     def _size_qty(self, signal: SweepSignal) -> int:
-        return resolve_trade_quantity(
+        desired = resolve_trade_quantity(
             self.cfg,
             symbol=str(signal.symbol),
             strategy=str(getattr(signal, "strategy_name", "") or ""),
             agent_id=str(getattr(signal, "agent_id", self.cfg.get("agent_id", "agent_1"))),
             signal=signal,
+            tier=str(getattr(signal, "setup_tier", "") or "") or None,
+        )
+        meta = self.cfg.get("instruments", {}).get(str(signal.symbol), {}) or {}
+        pv = float(meta.get("point_value", 5.0))
+        hard = hard_cap_from_cfg(self.cfg)
+        max_q = int((self.cfg.get("quantity") or {}).get("max_quantity", 25))
+        return fit_quantity_to_risk(
+            desired_qty=desired,
+            entry=float(signal.entry),
+            stop=float(signal.stop),
+            point_value=pv,
+            hard_cap_dollars=hard,
+            max_quantity=max_q,
         )
 
     def execute(self, signal: SweepSignal, *, source: str = "agent") -> dict[str, Any]:
@@ -106,6 +123,18 @@ class DirectionalExecutor:
             "market_timestamp": str(getattr(signal, "market_timestamp", "") or ""),
             "received_timestamp": str(getattr(signal, "received_timestamp", "") or ""),
         }
+        if qty < 1:
+            logger.warning(
+                "Directional REJECT %s %s — cannot size under risk hard cap",
+                signal.side,
+                signal.symbol,
+            )
+            return {
+                "ok": False,
+                "status": "REJECTED",
+                "reason": "RISK_LIMIT qty=0 after fit",
+                "detail": detail,
+            }
         logger.info(
             "Directional %s %s qty=%s conf=%s tier=%s dry_run=%s risk=$%.0f target=$%.0f",
             signal.side,
@@ -114,9 +143,28 @@ class DirectionalExecutor:
             getattr(signal, "confidence", "?"),
             getattr(signal, "setup_tier", "?"),
             dry_run,
-            signal.risk_dollars,
-            signal.reward_dollars,
+            signal.risk_dollars * max(qty, 1),
+            signal.reward_dollars * max(qty, 1),
         )
+
+        # Global kill switch — no new orders when armed
+        try:
+            from agent.execution.kill_switch import kill_switch_from_cfg
+
+            ks = kill_switch_from_cfg(self.cfg)
+            reject = ks.reject_new_orders_reason()
+            if reject:
+                logger.warning("KILL_SWITCH blocked order %s %s", signal.symbol, reject)
+                return {
+                    "dry_run": dry_run,
+                    "submitted": False,
+                    "order_id": None,
+                    "status": "REJECTED",
+                    "order_state": OrderState.REJECTED.value,
+                    "reason": reject,
+                }
+        except Exception:
+            pass
 
         if dry_run or not hasattr(self.broker, "place_bracket_order"):
             meta = self.cfg.get("instruments", {}).get(signal.symbol, {})
@@ -130,6 +178,7 @@ class DirectionalExecutor:
             )
             # Order state machine: paper jumps CREATED → FILLED (deterministic)
             _ = OrderState.CREATED
+            sig_meta = getattr(signal, "metadata", None) or {}
             paper = self.blotter.record_paper_fill(
                 symbol=signal.symbol,
                 side=signal.side,
@@ -153,6 +202,15 @@ class DirectionalExecutor:
                 market_timestamp=str(getattr(signal, "market_timestamp", "") or ""),
                 received_timestamp=str(getattr(signal, "received_timestamp", "") or ""),
                 feed_source=str(getattr(signal, "feed_source", "yahoo_delayed") or ""),
+                config_version=str(
+                    sig_meta.get("config_version") or self.cfg.get("config_version") or ""
+                ),
+                strategy_version=str(
+                    sig_meta.get("strategy_version")
+                    or self.cfg.get("strategy_version")
+                    or ""
+                ),
+                metadata=dict(sig_meta),
             )
             return {
                 "dry_run": True,

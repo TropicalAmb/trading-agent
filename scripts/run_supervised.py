@@ -79,21 +79,37 @@ def write_status(**kwargs) -> None:
 
 
 def prevent_sleep(enable: bool = True) -> None:
-    if sys.platform != "win32":
-        return
+    """Refresh stay-awake + (on first enable) arm overnight powercfg policy."""
     try:
-        import ctypes
+        sys.path.insert(0, str(ROOT / "scripts"))
+        from overnight_power import arm_overnight_power, disarm_overnight_power, thread_execution_state
 
-        ES_CONTINUOUS = 0x80000000
-        ES_SYSTEM_REQUIRED = 0x00000001
-        ES_AWAYMODE_REQUIRED = 0x00000040
         if enable:
-            flag = ES_CONTINUOUS | ES_SYSTEM_REQUIRED | ES_AWAYMODE_REQUIRED
+            thread_execution_state(True)
+            # Arm powercfg once; safe to call repeatedly (keeps original baselines)
+            if not (DATA / "overnight_power_state.json").exists():
+                st = arm_overnight_power()
+                log(f"overnight_power armed saved={st.get('saved')}")
         else:
-            flag = ES_CONTINUOUS
-        ctypes.windll.kernel32.SetThreadExecutionState(flag)
+            disarm_overnight_power()
+            log("overnight_power disarmed (sleep settings restored)")
     except Exception as exc:
         log(f"prevent_sleep failed: {exc}")
+        # Fallback: at least keep execution state
+        try:
+            import ctypes
+
+            ES_CONTINUOUS = 0x80000000
+            ES_SYSTEM_REQUIRED = 0x00000001
+            ES_AWAYMODE_REQUIRED = 0x00000040
+            flag = (
+                (ES_CONTINUOUS | ES_SYSTEM_REQUIRED | ES_AWAYMODE_REQUIRED)
+                if enable
+                else ES_CONTINUOUS
+            )
+            ctypes.windll.kernel32.SetThreadExecutionState(flag)
+        except Exception:
+            pass
 
 
 def acquire_lock() -> bool:

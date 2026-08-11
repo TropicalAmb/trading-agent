@@ -144,10 +144,29 @@ def score_setup(
         contradictions.append("EMA_OPPOSE")
 
     has_location = False
-    loc_strats = {"liquidity_sweep", "sweep_retest", "breakout_retest", "opening_range"}
+    loc_strats = {
+        "liquidity_sweep",
+        "sweep_retest",
+        "breakout_retest",
+        "opening_range",
+        "vwap_mss",
+        "vwap_orb",
+        "liquidity_reversal",
+        "vwap_reclaim",
+        "cl_vwap_prox_momentum",
+        "nq_ny_open_momentum",
+    }
     loc_quality = str((setup.metadata or {}).get("location_quality") or "")
-    if setup.strategy_name in loc_strats or (setup.metadata or {}).get("has_location"):
+    meta_mut = dict(setup.metadata or {})
+    if setup.strategy_name in loc_strats or meta_mut.get("has_location"):
         has_location = True
+        # Enrichment may pre-set has_location from a partner location engine
+        if not meta_mut.get("location_source"):
+            meta_mut["location_source"] = (
+                "location_engine"
+                if setup.strategy_name in loc_strats or meta_mut.get("has_location")
+                else "structural"
+            )
         pts = 15 if loc_quality == "exceptional" else 10
         comps.append(
             ScoreComponent(
@@ -159,7 +178,10 @@ def score_setup(
         )
     elif (sign > 0 and ctx.near_pdl) or (sign < 0 and ctx.near_pdh):
         has_location = True
+        meta_mut["location_source"] = "soft_prior_day"
         comps.append(ScoreComponent("LOCATION", 10, "near prior-day extreme", "LOCATION"))
+    if meta_mut != (setup.metadata or {}):
+        setup.metadata = meta_mut
 
     if sign > 0 and ctx.momentum_up:
         comps.append(ScoreComponent("CANDLE", 8, "strong bullish confirmation", "CANDLE_CONFIRMATION"))

@@ -1,0 +1,39 @@
+agent_id: agent_high_confidence
+agent_profile: high_confidence
+active_strategy: decision_pipeline
+execution_profile: high_confidence
+quantity:
+  default_quantity: 2
+confluence:
+  engines:
+    - liquidity_sweep
+    - vwap_acceptance
+    - sweep_retest
+    - momentum
+    - breakout_retest
+    - opening_range
+    - vwap_orb
+    - vwap_mss
+    - cl_vwap_prox_momentum
+research_only_engines:
+  - ema_pullback
+  - trend_continuation
+  - trend_pullback
+  - liquidity_reversal
+  - vwap_reclaim
+  - indicator_parity
+  - nq_ny_open_momentum
+tiering:
+  minimum_trade_tier: A
+performance_router:
+  enabled: true
+performance_router_v2:
+  enabled: false  # flipped only after OOS proof + calibrated model
+high_confidence:
+  enabled: true
+  min_predicted_probability: 0.65
+  preferred_probability: 0.70
+  min_expectancy_r: 0.0
+  min_profit_factor: 1.2
+  min_sample: 30
+# Template / shadow comparison profile — does not replace active agent until loaded

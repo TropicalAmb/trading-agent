@@ -63,3 +63,30 @@ def test_saturday_blocked():
 def test_windows_mode_still_works():
     assert active_session_name(WINDOWS, _dt(2026, 8, 6, 13, 0)) == "ny_afternoon"
     assert active_session_name(WINDOWS, _dt(2026, 8, 6, 17, 30)) is None
+
+
+def test_skip_friday_entries_research_filter():
+    cfg = {
+        "schedule": {
+            **ALWAYS["schedule"],
+            "skip_friday_entries": True,
+        }
+    }
+    # Friday midday — market open but research filter blocks new entries
+    ok, reason = session_ok(cfg, _dt(2026, 8, 7, 11, 0))
+    assert not ok
+    assert "skip_friday" in reason.lower()
+
+
+def test_ny_open_entry_delay():
+    cfg = {
+        "schedule": {
+            **ALWAYS["schedule"],
+            "ny_open_entry_delay_minutes": 30,
+        }
+    }
+    ok, reason = session_ok(cfg, _dt(2026, 8, 6, 9, 45))
+    assert not ok
+    assert "ny_open_entry_delay" in reason.lower()
+    ok2, _ = session_ok(cfg, _dt(2026, 8, 6, 10, 5))
+    assert ok2

@@ -29,6 +29,7 @@ SUPERVISOR = ROOT / "scripts" / "run_supervised.py"
 
 MAX_HEARTBEAT_AGE_SEC = 300
 MAX_SUPERVISOR_STATUS_AGE_SEC = 360
+SILENCE_RESTART_MARKER = DATA / "trade_silence_last_restart.json"
 
 
 def log(msg: str) -> None:
@@ -110,6 +111,80 @@ def supervisor_status_age() -> float | None:
         return None
 
 
+def _silence_restart_allowed(cooldown_min: float) -> bool:
+    if not SILENCE_RESTART_MARKER.exists():
+        return True
+    try:
+        data = json.loads(SILENCE_RESTART_MARKER.read_text(encoding="utf-8"))
+        age = age_of_iso(data.get("ts"))
+        if age is None:
+            return True
+        return age >= cooldown_min * 60.0
+    except Exception:
+        return True
+
+
+def _mark_silence_restart(reason: str) -> None:
+    SILENCE_RESTART_MARKER.write_text(
+        json.dumps(
+            {
+                "ts": datetime.now(timezone.utc).isoformat(),
+                "reason": reason,
+            },
+            indent=2,
+        ),
+        encoding="utf-8",
+    )
+
+
+def run_trade_silence_check() -> dict:
+    """Diagnose prolonged no-fill periods; optionally restart on known bug patterns."""
+    try:
+        sys.path.insert(0, str(ROOT / "src"))
+        from agent.config import load_settings
+        from agent.ops.trade_silence import run_trade_silence_watch
+
+        cfg = load_settings(ROOT / "config" / "settings.yaml")
+        report = run_trade_silence_watch(ROOT, cfg)
+        payload = report.to_dict()
+        log(
+            f"trade_silence severity={report.severity} blockers={report.blocker_codes} "
+            f"mins={report.minutes_since_last_paper}"
+        )
+        wcfg = cfg.get("trade_silence_watch") or {}
+        cooldown = float(wcfg.get("restart_cooldown_minutes", 60))
+        codes = set(report.blocker_codes or [])
+        # Code bugs / preflight fail need a patch — never thrash-restart
+        if codes & {
+            "CODE_BUG_RESTART_WILL_NOT_FIX",
+            "PREFLIGHT_PAPER_PATH_FAIL",
+        }:
+            log(f"TRADE_SILENCE CODE_BUG (no restart): {report.summary}")
+            payload["auto_restart_performed"] = False
+            payload["code_bug_no_restart"] = True
+            return payload
+        # Drought probe already ran inside diagnose; log PIPELINE_DROUGHT clearly
+        if "PIPELINE_DROUGHT" in codes:
+            log(f"TRADE_SILENCE PIPELINE_DROUGHT: {report.summary}")
+        if (
+            report.auto_restart_suggested
+            and report.severity == "ALERT"
+            and _silence_restart_allowed(cooldown)
+        ):
+            log(
+                f"TRADE_SILENCE AUTO-RESTART: {report.blocker_codes} — {report.summary}"
+            )
+            kill_all_agent_procs()
+            time.sleep(2)
+            start_supervisor()
+            _mark_silence_restart(",".join(report.blocker_codes))
+            payload["auto_restart_performed"] = True
+        return payload
+    except Exception as exc:
+        log(f"trade_silence check failed: {exc}")
+        return {"severity": "INFO", "summary": f"silence check failed: {exc}"}
+
+
 def main() -> int:
     os.chdir(ROOT)
     DATA.mkdir(parents=True, exist_ok=True)
@@ -121,7 +196,12 @@ def main() -> int:
             age = 9999
         if age <= 600:
             log("healthy-skip: STOP_AGENT set by user")
+            # Still record silence status so dashboard shows intentional stop
+            run_trade_silence_check()
             return 0
+
+    # Always diagnose trade silence (even when heartbeat healthy)
+    run_trade_silence_check()
 
     hb = heartbeat_age()
     st = supervisor_status_age()

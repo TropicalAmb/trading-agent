@@ -53,16 +53,8 @@ def setup_to_signal(setup: TradeSetup) -> SweepSignal:
 
 
 def resolve_quantity(cfg: dict[str, Any], *, symbol: str, strategy: str, agent_id: str) -> int:
-    q = cfg.get("quantity", {})
-    default = int(q.get("default_quantity", cfg.get("risk", {}).get("max_contracts_per_trade", 1)))
-    by_sym = q.get("quantity_by_symbol") or {}
-    by_strat = q.get("quantity_by_strategy") or {}
-    by_agent = q.get("quantity_by_agent_profile") or {}
-    qty = int(
-        by_sym.get(symbol)
-        or by_strat.get(strategy)
-        or by_agent.get(agent_id)
-        or default
+    from agent.execution.sizing import resolve_trade_quantity
+
+    return resolve_trade_quantity(
+        cfg, symbol=symbol, strategy=strategy, agent_id=agent_id
     )
-    max_q = int(q.get("max_quantity", cfg.get("risk", {}).get("max_contracts_per_trade", 25)))
-    return max(1, min(qty, max_q))

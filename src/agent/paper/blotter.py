@@ -179,6 +179,9 @@ class PaperBlotter:
         market_timestamp: str = "",
         received_timestamp: str = "",
         feed_source: str = "yahoo_delayed",
+        config_version: str = "",
+        strategy_version: str = "",
+        metadata: dict[str, Any] | None = None,
     ) -> dict[str, Any]:
         now = datetime.now(timezone.utc).isoformat()
         # Prefer market bar time for journal honesty on delayed feeds
@@ -194,6 +197,22 @@ class PaperBlotter:
             tp1 = float(entry) + risk_pts
         else:
             tp1 = float(entry) - risk_pts
+        meta = dict(metadata or {})
+        # Compact learning payload — entry-time only (no post-entry leakage)
+        learn_meta = {
+            "setup_id": meta.get("setup_id"),
+            "structural_key": meta.get("structural_key"),
+            "regime": meta.get("regime"),
+            "global_score": meta.get("global_score"),
+            "strategy_local_score": meta.get("strategy_local_score"),
+            "entry_features": meta.get("entry_features"),
+            "router_evidence": meta.get("router_evidence"),
+            "agreeing_engines": meta.get("agreeing_engines"),
+            "cascade": meta.get("cascade"),
+            "high_confidence_shadow": meta.get("high_confidence_shadow"),
+            "quality_predictions": meta.get("quality_predictions"),
+            "config_version": config_version or meta.get("config_version"),
+        }
         trade = {
             "id": trade_id,
             "ts": now,
@@ -220,6 +239,8 @@ class PaperBlotter:
             "strategy_name": strategy_name,
             "agent_id": agent_id,
             "feed_source": feed_source,
+            "config_version": config_version or "",
+            "strategy_version": strategy_version or "",
             "risk_dollars": risk_dollars,
             "reward_dollars": reward_dollars,
             "tv_price": tv_price,
@@ -230,6 +251,9 @@ class PaperBlotter:
             "exit_reason": None,
             "result": "OPEN",
             "venue": "LOCAL_PAPER",
+            "setup_id": meta.get("setup_id"),
+            "metadata": learn_meta,
+            "entry_features": meta.get("entry_features"),
         }
         self._state.setdefault("trades", []).insert(0, trade)
         # signal risk/reward are per 1 contract; scale to position size
@@ -271,6 +295,8 @@ class PaperBlotter:
                 "strategy_name": strategy_name,
                 "agent_id": agent_id,
                 "feed_source": feed_source,
+                "setup_id": meta.get("setup_id"),
+                "metadata": learn_meta,
             }
         )
         trade["initial_stop"] = float(stop)
@@ -851,6 +877,26 @@ class PaperBlotter:
             },
         )
         self._state["scan_history"] = hist[:40]
+        # Autonomous silence / blocker diagnostic (non-fatal)
+        try:
+            from agent.ops.trade_silence import run_trade_silence_watch
+            from agent.config import load_settings
+
+            root = self.json_path.resolve().parent.parent
+            cfg = load_settings(root / "config" / "settings.yaml")
+            report = run_trade_silence_watch(root, cfg)
+            self._state["heartbeat"]["trade_silence"] = {
+                "severity": report.severity,
+                "summary": report.summary,
+                "minutes_since_last_paper": report.minutes_since_last_paper,
+                "blocker_codes": list(report.blocker_codes),
+                "recommended_action": report.recommended_action,
+                "shadow_open": report.shadow_open,
+                "recent_rejects": report.recent_rejects,
+                "top_reject_reasons": list(report.top_reject_reasons)[:5],
+            }
+        except Exception:
+            pass
         self._save()
 
     def render_html(self) -> Path:
@@ -924,6 +970,50 @@ class PaperBlotter:
                     )
         except Exception:
             sup_note = ""
+
+        silence_html = ""
+        try:
+            sil = hb.get("trade_silence") or {}
+            if not sil:
+                sil_path = self.json_path.parent / "trade_silence_status.json"
+                if sil_path.exists():
+                    sil = json.loads(sil_path.read_text(encoding="utf-8"))
+            sev = str(sil.get("severity") or "OK").upper()
+            blockers_list = [str(x) for x in (sil.get("blocker_codes") or [])]
+            # Healthy selective quiet is informational only — do not scare with a banner
+            # Suppress only non-fault states; PIPELINE_DROUGHT / CODE_BUG / etc. show
+            actionable = [
+                b
+                for b in blockers_list
+                if b
+                not in {
+                    "HEALTHY_SELECTIVE_QUIET",
+                    "MARKET_CLOSED",
+                    "STOP_AGENT_SET",
+                }
+            ]
+            show = sev in {"WARN", "ALERT"} and bool(actionable) and bool(sil.get("summary"))
+            if show:
+                color = {
+                    "ALERT": "#f07178",
+                    "WARN": "#e6c07b",
+                }.get(sev, "var(--muted)")
+                blockers = ", ".join(blockers_list) or "—"
+                tops = sil.get("top_reject_reasons") or []
+                top_s = "; ".join(f"{a}×{b}" for a, b in tops[:4]) or "—"
+                silence_html = (
+                    f"<div class='meta' style='border:1px solid {color};padding:8px;margin-top:8px;'>"
+                    f"<b style='color:{color}'>TRADE SILENCE [{sev}]</b> — "
+                    f"{sil.get('summary')}<br/>"
+                    f"mins_since_paper={sil.get('minutes_since_last_paper')} · "
+                    f"blockers={blockers} · shadows_open={sil.get('shadow_open')} · "
+                    f"recent_rejects={sil.get('recent_rejects')}<br/>"
+                    f"top_rejects: {top_s}<br/>"
+                    f"action: {sil.get('recommended_action') or '—'}"
+                    f"</div>"
+                )
+        except Exception:
+            silence_html = ""
 
         def rows_closed() -> str:
             if not closed:
@@ -1141,6 +1231,156 @@ class PaperBlotter:
 
         def _dir_label(v: int) -> str:
             return "bull" if int(v or 0) > 0 else ("bear" if int(v or 0) < 0 else "flat")
+
+        def why_selected_html() -> str:
+            """Compact learning explanation for latest executed / rejected candidates."""
+            try:
+                from agent.learning.features import top_traits_from_features
+            except Exception:
+                top_traits_from_features = None  # type: ignore
+            cands = hb.get("candidates") or hb.get("last_evaluated_candidates") or []
+            if not cands and scan_hist:
+                cands = (scan_hist[0] or {}).get("last_evaluated_candidates") or []
+            if not cands:
+                # Fall back to latest open position metadata
+                if opens:
+                    o = opens[0]
+                    return (
+                        f"<b>{o.get('symbol')} {o.get('side')}</b> · "
+                        f"strategy={o.get('strategy_name') or o.get('strategy') or '—'} · "
+                        f"tier={o.get('setup_tier') or '—'} · "
+                        f"Waiting for next scored candidates to show router evidence."
+                    )
+                return "No candidate explanations yet — waiting for next scored bar."
+            # Prefer executable-looking tiers first
+            ordered = sorted(
+                cands,
+                key=lambda c: {"A+": 0, "A": 1, "B": 2}.get(str(c.get("tier") or ""), 9),
+            )
+            bits = []
+            for c in ordered[:5]:
+                ev = c.get("router_evidence") or {}
+                feats = c.get("entry_features") or {}
+                qp = c.get("quality_predictions") or {}
+                hc = c.get("high_confidence_shadow") or {}
+                pos, neg = ([], [])
+                if top_traits_from_features is not None and feats:
+                    pos, neg = top_traits_from_features(feats)
+                reason = c.get("nonselected_reason") or ""
+                decision = "SELECTED" if str(c.get("tier") or "") in {"A", "A+"} and not reason else (
+                    reason or f"tier={c.get('tier')}"
+                )
+                bits.append(
+                    "<div style='margin:8px 0;padding:8px 0;border-bottom:1px solid #333'>"
+                    f"<b>{c.get('symbol')} {c.get('direction')}</b> · {c.get('strategy')} · "
+                    f"tier={c.get('tier')} · global={c.get('global_score')}<br/>"
+                    f"empirical WR={ev.get('shrunk_win_rate', ev.get('win_rate', '—'))} · "
+                    f"raw={ev.get('raw_win_rate', '—')} · "
+                    f"model p={ev.get('model_probability', qp.get('p_win', '—'))} · "
+                    f"P(1R)={qp.get('p_1r', '—')} · E={ev.get('expectancy_r', qp.get('expected_r', '—'))} · "
+                    f"PF={ev.get('profit_factor', '—')} · "
+                    f"n={ev.get('sample_count', '—')} · level={ev.get('evidence_level', '—')}<br/>"
+                    f"<span style='color:#8f8'>TOP+: {', '.join(pos) or '—'}</span> · "
+                    f"<span style='color:#f88'>TOP-: {', '.join(neg) or '—'}</span><br/>"
+                    f"Router_v1: {c.get('router_v1_decision') or decision} · "
+                    f"High-confidence shadow: {hc.get('decision') or '—'} "
+                    f"({hc.get('reason') or ''})"
+                    "</div>"
+                )
+            return "\n".join(bits) if bits else "—"
+
+        def adaptive_learning_status_html() -> str:
+            """ADAPTIVE LEARNING STATUS panel."""
+            bits = []
+            try:
+                from pathlib import Path as _P
+                import json as _json
+
+                root = _P(__file__).resolve().parents[3]
+                deploy = root / "data" / "trade_quality_learning" / "DEPLOY_ROUTER_V2.json"
+                champ = root / "data" / "learning" / "models" / "trade_quality_champion.json"
+                chall = root / "data" / "learning" / "models" / "trade_quality_challenger.json"
+                store = root / "data" / "learning" / "candidates.jsonl"
+                prio = root / "data" / "cl_priority_learning" / "PRIORITY_CELL.json"
+                n_store = sum(1 for _ in open(store, encoding="utf-8")) if store.exists() else 0
+                bits.append(
+                    f"<div class='meta'><b>Learning store size:</b> {n_store} candidates · "
+                    f"execution_profile=balanced · router_v2 paper deploy="
+                    f"{_json.loads(deploy.read_text(encoding='utf-8')).get('deploy') if deploy.exists() else False}"
+                    "</div>"
+                )
+                if champ.exists():
+                    cj = _json.loads(champ.read_text(encoding="utf-8"))
+                    bits.append(
+                        f"<div class='meta'><b>Champion:</b> {cj.get('version')} · "
+                        f"kind={cj.get('kind')} · calibrated={cj.get('calibrated')} · "
+                        f"brier={cj.get('brier_score')}</div>"
+                    )
+                if chall.exists():
+                    cj = _json.loads(chall.read_text(encoding="utf-8"))
+                    bits.append(
+                        f"<div class='meta'><b>Challenger:</b> {cj.get('version')} · "
+                        f"kind={cj.get('kind')} · calibrated={cj.get('calibrated')}</div>"
+                    )
+                if prio.exists():
+                    pj = _json.loads(prio.read_text(encoding="utf-8"))
+                    bits.append(
+                        f"<div class='meta'><b>Priority learning cell:</b> {pj.get('cell')} · "
+                        f"{pj.get('mode')} (no global promotion)</div>"
+                    )
+            except Exception as exc:
+                bits.append(f"<div class='meta'>Adaptive status unavailable: {exc}</div>")
+            # Latest candidate adaptive card
+            bits.append("<div class='meta' style='margin-top:8px'>" + why_selected_html() + "</div>")
+            return "\n".join(bits)
+
+        def cl_winner_why_html() -> str:
+            """WHY THE RECENT CL WINNER WON — anecdotal vs statistical."""
+            try:
+                from pathlib import Path as _P
+                import json as _json
+
+                path = _P(__file__).resolve().parents[3] / "data" / "cl_priority_learning" / "CL_PRIORITY_LEARNING_REPORT.json"
+                if not path.exists():
+                    return (
+                        "No CL priority report yet. Run "
+                        "<code>python scripts/run_cl_priority_learning_pass.py</code>."
+                    )
+                rep = _json.loads(path.read_text(encoding="utf-8"))
+                w = rep.get("recent_cl_paper_winner") or {}
+                snap = w.get("snapshot") or {}
+                bits = [
+                    f"<div class='meta' style='color:#fc6'><b>Warning:</b> {w.get('warning')}</div>",
+                    f"<div class='meta'><b>{w.get('trade_id')}</b> · {snap.get('strategy')} · "
+                    f"{snap.get('direction')} · session={snap.get('session')} · "
+                    f"tier={snap.get('tier')} · global={snap.get('global_score')} · "
+                    f"pnl=${snap.get('pnl_dollars')} · R={snap.get('realized_r')}</div>",
+                    f"<div class='meta'>MTF 15m/1h/4h={snap.get('dir_15m')}/"
+                    f"{snap.get('dir_1h')}/{snap.get('dir_4h')} aligned={snap.get('mtf_aligned')} · "
+                    f"VWAP above={snap.get('above_vwap')} · agreeing={snap.get('agreeing_engines')}</div>",
+                    "<div class='meta'><b>Anecdotal (single trade — not filters):</b></div>",
+                ]
+                for a in (w.get("anecdotal_traits") or [])[:12]:
+                    bits.append(f"<div class='meta'>· {a}</div>")
+                bits.append("<div class='meta'><b>Statistical candidates (CL LR hist win vs loss):</b></div>")
+                useful = w.get("statistically_useful_traits") or []
+                if not useful:
+                    bits.append("<div class='meta'>· none with |delta|≥10pp yet</div>")
+                for u in useful[:12]:
+                    bits.append(
+                        f"<div class='meta'>· {u.get('trait')}: W={u.get('winners')} "
+                        f"L={u.get('losers')} Δ={u.get('delta')}</div>"
+                    )
+                hist = rep.get("cl_liquidity_reversal_historical") or {}
+                ov = hist.get("overall") or {}
+                bits.append(
+                    f"<div class='meta'><b>CL LR historical overall:</b> n={ov.get('n')} "
+                    f"WR={ov.get('wr')} shrunk={ov.get('shrunk_wr')} PF={ov.get('pf')} "
+                    f"E={ov.get('expectancy_r')} (ref OOS WR≈49.1%)</div>"
+                )
+                return "\n".join(bits)
+            except Exception as exc:
+                return f"CL winner section error: {exc}"
 
         def rows_regime_context() -> str:
             reports = hb.get("symbol_reports") or {}
@@ -1379,6 +1619,131 @@ class PaperBlotter:
             except Exception as exc:
                 return f"Engine audit n/a ({exc})"
 
+        def cl_specialist_forward_html() -> str:
+            """Forward-only CL specialist stats — never mixed with historical benchmark."""
+            try:
+                from agent.risk.strategy_lifecycle import StrategyLifecycleStore
+
+                book = StrategyLifecycleStore("data/strategy_lifecycle.json").get_cell(
+                    "cl_vwap_prox_momentum", "CL_BOOK"
+                )
+                closed = [
+                    t
+                    for t in (self._state.get("closed") or [])
+                    if str(t.get("strategy_name") or "") == "cl_vwap_prox_momentum"
+                    and not bool(t.get("e2e_test"))
+                ]
+                open_n = sum(
+                    1
+                    for t in (self._state.get("open") or [])
+                    if str(t.get("strategy_name") or "") == "cl_vwap_prox_momentum"
+                )
+                rs = []
+                for t in closed:
+                    risk = float(t.get("risk_dollars") or 0)
+                    pnl = float(t.get("pnl_dollars") or 0)
+                    if risk > 1e-9:
+                        rs.append(pnl / risk)
+                wins = [r for r in rs if r > 0]
+                losses = [r for r in rs if r < 0]
+                n = len(rs)
+                wr = (len(wins) / n) if n else None
+                pf = (sum(wins) / abs(sum(losses))) if losses and sum(losses) != 0 else (999.0 if wins else None)
+                e = (sum(rs) / n) if n else None
+                avg_w = (sum(wins) / len(wins)) if wins else None
+                avg_l = (sum(losses) / len(losses)) if losses else None
+                eq = 0.0
+                peak = 0.0
+                max_dd = 0.0
+                for r in rs:
+                    eq += r
+                    peak = max(peak, eq)
+                    max_dd = min(max_dd, eq - peak)
+                state = book.state
+                return f"""
+          <div class="meta"><b>Strategy:</b> cl_vwap_prox_momentum_v1 · <b>Config:</b> router_v1_clpaper1</div>
+          <div class="meta"><b>State:</b> {state} · open={open_n} · forward closed={n}</div>
+          <table>
+            <thead><tr><th>Metric</th><th>Forward</th><th>Historical benchmark (research)</th></tr></thead>
+            <tbody>
+              <tr><td>Trades</td><td>{n}</td><td>121</td></tr>
+              <tr><td>Wins / Losses</td><td>{len(wins)} / {len(losses)}</td><td>—</td></tr>
+              <tr><td>WR</td><td>{(f'{wr*100:.1f}%' if wr is not None else '—')}</td><td>69.4%</td></tr>
+              <tr><td>PF</td><td>{(f'{pf:.2f}' if pf is not None else '—')}</td><td>4.54</td></tr>
+              <tr><td>E[R]</td><td>{(f'{e:+.3f}' if e is not None else '—')}</td><td>+1.08R</td></tr>
+              <tr><td>Cumulative R</td><td>{eq:+.2f}</td><td>—</td></tr>
+              <tr><td>Peak R</td><td>{peak:+.2f}</td><td>—</td></tr>
+              <tr><td>DD from peak R</td><td>{(eq-peak):+.2f}</td><td>—</td></tr>
+              <tr><td>Max DD R</td><td>{max_dd:.2f}</td><td>-5.0R</td></tr>
+              <tr><td>Avg winner R</td><td>{(f'{avg_w:+.2f}' if avg_w is not None else '—')}</td><td>—</td></tr>
+              <tr><td>Avg loser R</td><td>{(f'{avg_l:+.2f}' if avg_l is not None else '—')}</td><td>—</td></tr>
+            </tbody>
+          </table>
+          <div class="meta">Lifecycle book: equity={book.equity_r:+.2f}R peak={book.equity_peak_r:+.2f}R dd={book.dd_from_peak_r:.2f}R · WATCH={book.watch_dd_r} SHADOW={book.shadow_dd_r} HARD={book.hard_kill_r}</div>
+          <div class="meta">Do not mix historical benchmark with forward results. Do not tweak v1 during initial forward sample.</div>
+                """
+            except Exception as exc:
+                return f"<div class='meta'>CL SPECIALIST section error: {exc}</div>"
+
+        def strategy_lifecycle_table_html() -> str:
+            try:
+                from agent.risk.strategy_lifecycle import StrategyLifecycleStore
+
+                path = "data/strategy_lifecycle.json"
+                rows = StrategyLifecycleStore(path).snapshot()
+                if not rows:
+                    return "<div class='meta'>STRATEGY HEALTH: no lifecycle cells seeded yet.</div>"
+                body = []
+                for r in sorted(rows, key=lambda x: (x.get("strategy") or "", x.get("symbol") or "")):
+                    body.append(
+                        "<tr>"
+                        f"<td>{r.get('strategy')}</td>"
+                        f"<td>{r.get('symbol')}</td>"
+                        f"<td>{r.get('state')}</td>"
+                        f"<td>{r.get('forward_trades')}</td>"
+                        f"<td>{_fmt_pct(r.get('rolling_wr'))}</td>"
+                        f"<td>{_fmt_pct(r.get('expected_wr'))}</td>"
+                        f"<td>{_fmt_num(r.get('rolling_e'))}</td>"
+                        f"<td>{_fmt_num(r.get('expected_e'))}</td>"
+                        f"<td>{_fmt_num(r.get('rolling_pf'))}</td>"
+                        f"<td>{_fmt_num(r.get('equity_r'))}</td>"
+                        f"<td>{_fmt_num(r.get('equity_peak_r'))}</td>"
+                        f"<td>{_fmt_num(r.get('dd_from_peak_r'))}</td>"
+                        f"<td>{_fmt_num(r.get('trailing_stop_r'))}</td>"
+                        f"<td>{_fmt_num(r.get('hard_kill_r'))}</td>"
+                        f"<td>{'Y' if r.get('drift_flag') else ''}</td>"
+                        f"<td>{r.get('notes') or ''}</td>"
+                        "</tr>"
+                    )
+                return (
+                    "<table><thead><tr>"
+                    "<th>Strategy</th><th>Symbol</th><th>State</th><th>Fwd n</th>"
+                    "<th>Roll WR</th><th>Exp WR</th><th>Roll E</th><th>Exp E</th><th>PF</th>"
+                    "<th>Eq R</th><th>Peak R</th><th>DD R</th><th>Trail thr</th><th>Hard kill</th>"
+                    "<th>Drift</th><th>Notes</th>"
+                    "</tr></thead><tbody>"
+                    + "".join(body)
+                    + "</tbody></table>"
+                )
+            except Exception as exc:
+                return f"<div class='meta'>STRATEGY HEALTH error: {exc}</div>"
+
+        def _fmt_pct(v):
+            if v is None:
+                return ""
+            try:
+                return f"{float(v)*100:.1f}%"
+            except Exception:
+                return ""
+
+        def _fmt_num(v):
+            if v is None:
+                return ""
+            try:
+                return f"{float(v):.2f}"
+            except Exception:
+                return ""
+
         def circuit_summary_html() -> str:
             try:
                 from agent.risk.circuit_breakers import CircuitBreakerStore
@@ -1495,6 +1860,31 @@ class PaperBlotter:
       <div class="meta">Prices: {price_bits}</div>
       <div class="meta">{sup_note or "Supervisor status: waiting for first background update"}</div>
       <div class="meta">Received/heartbeat time (UTC): {hb_ts}</div>
+      {silence_html}
+    </div>
+    <div class="card">
+      <details class="fold" data-fold="adaptive_learning" open>
+        <summary>Adaptive Learning Status<span class="hint">click to expand/collapse</span></summary>
+        <div class="fold-body">
+          {adaptive_learning_status_html()}
+        </div>
+      </details>
+    </div>
+    <div class="card">
+      <details class="fold" data-fold="cl_winner_why" open>
+        <summary>Why the recent CL winner won<span class="hint">click to expand/collapse</span></summary>
+        <div class="fold-body">
+          {cl_winner_why_html()}
+        </div>
+      </details>
+    </div>
+    <div class="card">
+      <details class="fold" data-fold="why_selected" open>
+        <summary>Why selected / why passed (learning)<span class="hint">click to expand/collapse</span></summary>
+        <div class="fold-body">
+          <div class="meta">{why_selected_html()}</div>
+        </div>
+      </details>
     </div>
     <div class="card">
       <details class="fold" data-fold="scan_tape">
@@ -1523,7 +1913,7 @@ class PaperBlotter:
       </table>
     </div>
     <div class="card">
-      <details class="fold" data-fold="session_pnl" open>
+      <details class="fold" data-fold="session_pnl">
         <summary>P&amp;L by session (cumulative)<span class="hint">click to expand/collapse</span></summary>
         <div class="fold-body">
           <table>
@@ -1563,7 +1953,7 @@ class PaperBlotter:
       </details>
     </div>
     <div class="card">
-      <details class="fold" data-fold="regime_context" open>
+      <details class="fold" data-fold="regime_context">
         <summary>Current market regime / context (latest scan)<span class="hint">click to expand/collapse</span></summary>
         <div class="fold-body">
           <table>
@@ -1574,7 +1964,7 @@ class PaperBlotter:
       </details>
     </div>
     <div class="card">
-      <details class="fold" data-fold="exec_decisions" open>
+      <details class="fold" data-fold="exec_decisions">
         <summary>A/A+ execution decisions (terminal)<span class="hint">click to expand/collapse</span></summary>
         <div class="fold-body">
           <table>
@@ -1586,7 +1976,7 @@ class PaperBlotter:
       </details>
     </div>
     <div class="card">
-      <details class="fold" data-fold="opp_rate" open>
+      <details class="fold" data-fold="opp_rate">
         <summary>ACTIVE MARKET OPPORTUNITY RATE<span class="hint">click to expand/collapse</span></summary>
         <div class="fold-body">
           <div class="meta">{opportunity_rate_html()}</div>
@@ -1596,7 +1986,7 @@ class PaperBlotter:
       </details>
     </div>
     <div class="card">
-      <details class="fold" data-fold="global_candidates" open>
+      <details class="fold" data-fold="global_candidates">
         <summary>Current scan candidates<span class="hint">click to expand/collapse</span></summary>
         <div class="fold-body">
           <table>
@@ -1608,7 +1998,7 @@ class PaperBlotter:
       </details>
     </div>
     <div class="card">
-      <details class="fold" data-fold="last_eval_candidates" open>
+      <details class="fold" data-fold="last_eval_candidates">
         <summary>Last evaluated bar candidates (persists across NO_NEW_BAR)<span class="hint">click to expand/collapse</span></summary>
         <div class="fold-body">
           <table>
@@ -1619,7 +2009,7 @@ class PaperBlotter:
       </details>
     </div>
     <div class="card">
-      <details class="fold" data-fold="config_version" open>
+      <details class="fold" data-fold="config_version">
         <summary>Performance by config version<span class="hint">click to expand/collapse</span></summary>
         <div class="fold-body">
           <table>
@@ -1643,13 +2033,24 @@ class PaperBlotter:
       </details>
     </div>
     <div class="card">
-      <details class="fold" data-fold="shadow_health" open>
+      <details class="fold" data-fold="cl_specialist" open>
+        <summary>CL SPECIALIST FORWARD TEST<span class="hint">click to expand/collapse</span></summary>
+        <div class="fold-body">
+          {cl_specialist_forward_html()}
+        </div>
+      </details>
+    </div>
+    <div class="card">
+      <details class="fold" data-fold="shadow_health">
         <summary>Shadow B / strategy health / research<span class="hint">click to expand/collapse</span></summary>
         <div class="fold-body">
           <div class="meta">{shadow_summary_html()}</div>
           <div class="meta">{circuit_summary_html()}</div>
+          <h3>STRATEGY HEALTH (lifecycle kill / drift)</h3>
+          {strategy_lifecycle_table_html()}
+          <div class="meta">States: ACTIVE → WATCH (DD or 2 weekly drift) → SHADOW_ONLY (DD≤−7.5R) → HARD_PAUSED (DD≤−9R). No auto-reactivation from HARD_PAUSED. Single losses do not kill.</div>
           <div class="meta">Exit-model research: data/exit_model_research.jsonl (shadow only — never modifies actual paper). Champion/challenger: config strategy_versions (no auto-promotion).</div>
-          <div class="meta">Config version stamp on new records: opt_v1 (BEFORE vs AFTER comparison). Adaptive promotion requires manual approval.</div>
+          <div class="meta">Config version stamp on new records: router_v1_clpaper1. Adaptive promotion requires manual approval.</div>
         </div>
       </details>
     </div>
@@ -1668,7 +2069,7 @@ class PaperBlotter:
   </div>
   <script>
   (function () {{
-    var KEY = "paper_view_folds_v1";
+    var KEY = "paper_view_folds_v2";
     function load() {{
       try {{ return JSON.parse(localStorage.getItem(KEY) || "{{}}"); }}
       catch (e) {{ return {{}}; }}

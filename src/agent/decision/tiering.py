@@ -11,6 +11,13 @@ LOCATION_STRATEGIES = {
     "sweep_retest",
     "breakout_retest",
     "opening_range",
+    "vwap_acceptance",
+    "vwap_mss",
+    "vwap_orb",
+    "liquidity_reversal",
+    "vwap_reclaim",
+    "cl_vwap_prox_momentum",
+    "nq_ny_open_momentum",
 }
 
 
@@ -28,6 +35,26 @@ def _agreeing(setup: TradeSetup) -> list[str]:
     return out
 
 
+def _has_engine_partner(setup: TradeSetup) -> bool:
+    """True when another independent engine agrees on the same symbol/side."""
+    return any(n != setup.strategy_name for n in _agreeing(setup))
+
+
+def _structural_location(setup: TradeSetup, has_location: bool) -> bool:
+    """Location from a location engine — not soft PDH/PDL proximity alone."""
+    agreeing = _agreeing(setup)
+    if setup.strategy_name in LOCATION_STRATEGIES:
+        return True
+    if any(n in LOCATION_STRATEGIES for n in agreeing):
+        return True
+    src = str((setup.metadata or {}).get("location_source") or "")
+    if src in {"structural", "location_engine"}:
+        return True
+    if has_location and src and src != "soft_prior_day":
+        return True
+    return False
+
+
 def assign_tier_from_global(
     setup: TradeSetup,
     cfg: dict[str, Any],
@@ -41,7 +68,7 @@ def assign_tier_from_global(
     """Tier mapping using auditable global score + evidence requirements.
 
     Score alone cannot mint A+. Hard invalidations → C.
-    Lone mediocre EMA without location remains B.
+    Lone ema_pullback (no second engine) stays B/C — soft PDH/PDL does not unlock A.
     """
     tcfg = cfg.get("tiering", {})
     thr = tcfg.get("tier_thresholds") or {}
@@ -56,25 +83,23 @@ def assign_tier_from_global(
 
     major = {c for c in contradictions if c in {"MTF_ALL_OPPOSE", "OVEREXTENDED"}}
     fams = [f for f in families_positive if f != "PRIMARY"]
-    agreeing = _agreeing(setup)
-    lone_ema = (
-        setup.strategy_name == "ema_pullback"
-        and len(agreeing) < 2
-        and not has_location
-    )
+    partner = _has_engine_partner(setup)
+    # Soft near-PDH/PDL must not promote lone EMA into A/A+
+    lone_ema = setup.strategy_name == "ema_pullback" and not partner
+    structural_loc = _structural_location(setup, has_location)
 
     # A+
     if (
         global_score >= ap_thr
         and setup.expected_r >= ap_r
         and len(fams) >= 3
-        and has_location
+        and (structural_loc or has_location)
         and not major
         and not lone_ema
     ):
         return "A+"
 
-    # A — valid single excellent strategy can qualify without second engine
+    # A — non-EMA single engines can qualify; EMA needs a real partner engine
     if (
         global_score >= a_thr
         and setup.expected_r >= a_r
@@ -118,11 +143,8 @@ def assign_tier(
             return "B"
         return "C"
 
-    lone_ema = (
-        strategy_name == "ema_pullback"
-        and agreeing_engines < 2
-        and not has_location
-    )
+    # Soft location alone must not unlock A for EMA — need a second engine
+    lone_ema = strategy_name == "ema_pullback" and agreeing_engines < 2
     if lone_ema:
         if confidence >= b_min and expected_r >= 1.0:
             return "B"
@@ -149,7 +171,7 @@ def assign_tier(
 def assign_tier_for_setup(setup: TradeSetup, cfg: dict[str, Any]) -> str:
     meta = setup.metadata or {}
     if "global_score" in meta:
-        return assign_tier_from_global(
+        tier = assign_tier_from_global(
             setup,
             cfg,
             global_score=float(meta.get("global_score") or 0),
@@ -158,6 +180,23 @@ def assign_tier_for_setup(setup: TradeSetup, cfg: dict[str, Any]) -> str:
             hard_invalidations=list(meta.get("hard_invalidations") or []),
             contradictions=list(meta.get("contradictions") or []),
         )
+    else:
+        tier = None
+    # Validated paper specialists: floor to A when cascade trigger+location OK
+    paper_specs = {str(x) for x in (cfg.get("paper_specialist_engines") or [])}
+    if setup.strategy_name in paper_specs and not meta.get("hard_invalidations"):
+        cas = meta.get("cascade") or {}
+        trig_ok = str(cas.get("trigger") or "") in {"MOMENTUM", "PULLBACK", "BREAKOUT_RETEST"}
+        loc_ok = str(cas.get("location") or "") in {
+            "EXCELLENT_LOCATION",
+            "ACCEPTABLE_LOCATION",
+        }
+        if trig_ok and loc_ok and (tier is None or tier_rank(tier) < tier_rank("A")):
+            meta["tier_floor"] = "paper_specialist_v1"
+            setup.metadata = meta
+            return "A"
+    if tier is not None:
+        return tier
     agreeing = _agreeing(setup)
     # Fall back: count distinct families from reasons without inflation
     fam_hints = []
@@ -183,7 +222,11 @@ def tier_rank(tier: str) -> int:
     return {"A+": 4, "A": 3, "B": 2, "C": 1}.get(tier, 0)
 
 
-def can_execute(setup: TradeSetup, cfg: dict[str, Any]) -> bool:
+def execution_reject_reason(setup: TradeSetup, cfg: dict[str, Any]) -> str | None:
+    """Stable reject code if setup cannot paper-execute; None if it can.
+
+    Used for ledger/ops so A/A+ quality filters never vanish silently.
+    """
     minimum = str(cfg.get("tiering", {}).get("minimum_trade_tier", "A")).upper()
     allowed = {
         "A+": {"A+"},
@@ -191,11 +234,91 @@ def can_execute(setup: TradeSetup, cfg: dict[str, Any]) -> bool:
         "B": {"A+", "A", "B"},
         "C": {"A+", "A", "B", "C"},
     }.get(minimum, {"A+", "A"})
-    if (setup.metadata or {}).get("hard_invalidations"):
-        return False
-    if (setup.metadata or {}).get("execution_mode") == "SHADOW":
-        return False
-    return setup.setup_tier in allowed
+    meta = setup.metadata or {}
+    if meta.get("hard_invalidations"):
+        return f"HARD_INVALIDATION:{','.join(str(x) for x in meta.get('hard_invalidations') or [])}"
+    if meta.get("execution_mode") == "SHADOW":
+        return "EXECUTION_MODE_SHADOW"
+    research_only = {str(x) for x in (cfg.get("research_only_engines") or [])}
+    if setup.strategy_name in research_only or meta.get("research_only"):
+        return f"RESEARCH_ONLY:{setup.strategy_name}"
+    health = str(
+        meta.get("cell_health")
+        or (meta.get("router_evidence") or {}).get("cell_health")
+        or "ACTIVE"
+    )
+    if health in {"SHADOW_ONLY", "PAUSED_FOR_REVIEW", "HARD_PAUSED"}:
+        return f"CELL_HEALTH:{health}"
+    life = str(meta.get("lifecycle_state") or "ACTIVE")
+    if life in {"SHADOW_ONLY", "HARD_PAUSED"}:
+        return f"LIFECYCLE:{life}"
+    profile = str(cfg.get("execution_profile") or "balanced").lower()
+    if profile == "high_confidence":
+        hq = cfg.get("high_confidence") or {}
+        ev = meta.get("router_evidence") or {}
+        if bool(hq.get("enabled", True)) and bool(ev.get("model_calibrated")):
+            p = ev.get("model_probability")
+            thr = float(hq.get("min_predicted_probability", 0.65))
+            if p is None or float(p) < thr:
+                return "HIGH_CONFIDENCE_PROB"
+            if float(ev.get("expectancy_r") or 0) < float(hq.get("min_expectancy_r", 0.0)):
+                return "HIGH_CONFIDENCE_EXPECTANCY"
+            if float(ev.get("profit_factor") or 0) < float(hq.get("min_profit_factor", 1.2)):
+                return "HIGH_CONFIDENCE_PF"
+            if int(ev.get("sample_count") or 0) < int(hq.get("min_sample", 30)):
+                return "HIGH_CONFIDENCE_N"
+    if setup.setup_tier not in allowed:
+        return f"TIER:{setup.setup_tier}"
+
+    eq = cfg.get("execution_quality") or {}
+    if bool(eq.get("enabled", False)) and setup.strategy_name != "x":
+        paper_specs = {str(x) for x in (cfg.get("paper_specialist_engines") or [])}
+        is_specialist = setup.strategy_name in paper_specs
+        min_r = float(eq.get("min_expected_r", 0) or 0)
+        if min_r > 0 and float(setup.expected_r or 0) < min_r:
+            return f"EXECUTION_QUALITY:R<{min_r}"
+        min_reward = float(eq.get("min_reward_dollars", 0) or 0)
+        if min_reward > 0 and float(setup.reward_dollars or 0) < min_reward:
+            return (
+                f"EXECUTION_QUALITY:reward ${float(setup.reward_dollars or 0):.0f}"
+                f" < min ${min_reward:.0f}"
+            )
+        cas = meta.get("cascade") or {}
+        if bool(eq.get("reject_poor_cascade_location", False)):
+            if str(cas.get("location") or "") == "POOR_LOCATION":
+                return "EXECUTION_QUALITY:POOR_LOCATION"
+        if bool(eq.get("require_non_mixed_thesis", False)) and not is_specialist:
+            # Location engines may paper with imperfect MTF (IRL: factors disagree).
+            # Cascade thesis stays journaled for research; do not hard-kill good location A's.
+            allow_mixed_loc = bool(eq.get("location_may_trade_mixed_thesis", True))
+            if not (
+                allow_mixed_loc and setup.strategy_name in LOCATION_STRATEGIES
+            ):
+                thesis = str(cas.get("thesis") or "")
+                side = str(setup.direction or "").upper()
+                want = "LONG_SUPPORT" if side in {"BUY", "LONG"} else "SHORT_SUPPORT"
+                # Missing/unknown cascade thesis must NOT block (features unavailable ≠ MIXED)
+                if thesis and thesis not in {want, ""}:
+                    if thesis == "MIXED" or (
+                        thesis in {"LONG_SUPPORT", "SHORT_SUPPORT"} and thesis != want
+                    ):
+                        return f"EXECUTION_QUALITY:thesis_{thesis}"
+        min_agree = int(eq.get("min_agreeing_engines", 0) or 0)
+        if (
+            min_agree >= 2
+            and not is_specialist
+            and setup.strategy_name not in LOCATION_STRATEGIES
+        ):
+            if len(_agreeing(setup)) < min_agree:
+                return f"EXECUTION_QUALITY:agreeing<{min_agree}"
+        if bool(eq.get("ema_pullback_requires_partner", True)):
+            if setup.strategy_name == "ema_pullback" and not _has_engine_partner(setup):
+                return "EXECUTION_QUALITY:ema_needs_partner"
+    return None
+
+
+def can_execute(setup: TradeSetup, cfg: dict[str, Any]) -> bool:
+    return execution_reject_reason(setup, cfg) is None
 
 
 def is_executable_tier(tier: str, cfg: dict[str, Any]) -> bool:

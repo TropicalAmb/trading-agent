@@ -35,6 +35,14 @@ def main() -> int:
     )
     pids2.discard(os.getpid())
     kill_pids(pids2)
+    # Restore Windows sleep / lid settings armed by overnight supervisor
+    try:
+        from overnight_power import disarm_overnight_power
+
+        disarm_overnight_power()
+        print("Overnight power policy restored (sleep/lid).")
+    except Exception as exc:
+        print(f"Overnight power restore skipped: {exc}")
     print(f"Stopped. Cleared {len(pids | pids2)} process(es). STOP_AGENT set.")
     return 0
 

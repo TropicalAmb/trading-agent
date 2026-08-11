@@ -7,6 +7,7 @@ from datetime import datetime, timezone
 from typing import Any, Optional
 from zoneinfo import ZoneInfo
 
+import numpy as np
 import pandas as pd
 
 ET = ZoneInfo("America/New_York")
@@ -38,6 +39,17 @@ def _atr(df: pd.DataFrame, n: int = 14) -> pd.Series:
         axis=1,
     ).max(axis=1)
     return tr.rolling(n).mean()
+
+
+def _session_vwap(df: pd.DataFrame) -> pd.Series:
+    typical = (df["high"] + df["low"] + df["close"]) / 3.0
+    vol = df["volume"].replace(0, np.nan).fillna(1.0) if "volume" in df.columns else pd.Series(1.0, index=df.index)
+    idx = df.index
+    if getattr(idx, "tz", None) is not None:
+        days = idx.tz_convert(ET).date
+    else:
+        days = idx.date
+    return (typical * vol).groupby(days).cumsum() / vol.groupby(days).cumsum()
 
 
 def _session_or(
@@ -76,7 +88,7 @@ def evaluate_opening_range(
     if df is None or len(df) < 40:
         return None
 
-    duration = int(strat.get("duration_minutes", 15))
+    default_duration = int(strat.get("duration_minutes", 15))
     sessions = strat.get("sessions") or {
         "london": "03:00",
         "ny": "09:30",
@@ -86,7 +98,9 @@ def evaluate_opening_range(
     max_risk = float(strat.get("max_risk_dollars", 150))
     min_reward = float(strat.get("min_reward_dollars", 80))
     min_conf = int(strat.get("min_confidence", 64))
-    require_retest = bool(strat.get("require_retest", True))
+    # Per-session entry style: retest | first_break
+    # WIT research + walk-forward: NY 5m first_break + skip Friday was strongest OOS book.
+    default_style = "retest" if bool(strat.get("require_retest", True)) else "first_break"
 
     atr = _atr(df)
     a = float(atr.iloc[-1] or 0.0)
@@ -99,12 +113,26 @@ def evaluate_opening_range(
 
     or_hi = or_lo = None
     sess_name = None
+    duration = default_duration
+    entry_style = default_style
     for name, hhmm in sessions.items():
-        hi, lo = _session_or(x, open_hhmm=str(hhmm), duration_min=duration)
+        dur = int(
+            strat.get(f"duration_minutes_{name}", default_duration)
+            or default_duration
+        )
+        style = str(
+            strat.get(f"entry_mode_{name}", strat.get("entry_mode", default_style))
+            or default_style
+        ).lower()
+        hi, lo = _session_or(x, open_hhmm=str(hhmm), duration_min=dur)
         if hi is not None:
             or_hi, or_lo, sess_name = hi, lo, name
+            duration = dur
+            entry_style = style
             # Prefer the most recent completed OR that still has post-OR bars
-            post = x[x.index >= (x.index[-1].normalize() + pd.Timedelta(hours=int(hhmm.split(':')[0]), minutes=int(hhmm.split(':')[1]) + duration))]
+            oh, om = map(int, str(hhmm).split(":"))
+            post_start = x.index[-1].normalize() + pd.Timedelta(hours=oh, minutes=om + dur)
+            post = x[x.index >= post_start]
             if len(post) >= 2:
                 break
     if or_hi is None or or_lo is None:
@@ -115,29 +143,41 @@ def evaluate_opening_range(
     c, o = float(last["close"]), float(last["open"])
     h, l = float(last["high"]), float(last["low"])
     pc = float(prev["close"])
+    body = abs(c - o)
 
     side = None
     level = None
     mode = ""
-    # Breakout + retest hold (default) — do not auto-trade first break
-    if require_retest:
+    if entry_style == "first_break":
+        # No chasing giant expansion candles (exhaustion filter)
+        max_body = float(strat.get("max_breakout_body_atr", 1.25)) * a
+        if body <= max_body and c > or_hi and c > o and pc <= or_hi:
+            side, level, mode = "BUY", or_hi, "or_first_break"
+        elif body <= max_body and c < or_lo and c < o and pc >= or_lo:
+            side, level, mode = "SELL", or_lo, "or_first_break"
+    else:
+        # Retest / failed-OR (A+ group framework)
         if pc > or_hi and l <= or_hi + 0.15 * a and c >= or_hi and c > o:
             side, level, mode = "BUY", or_hi, "or_retest"
         elif pc < or_lo and h >= or_lo - 0.15 * a and c <= or_lo and c < o:
             side, level, mode = "SELL", or_lo, "or_retest"
-        # Failed breakout reversal
         elif float(prev["high"]) > or_hi and c < or_hi and c < o:
             side, level, mode = "SELL", or_hi, "failed_or"
         elif float(prev["low"]) < or_lo and c > or_lo and c > o:
             side, level, mode = "BUY", or_lo, "failed_or"
-    else:
-        if c > or_hi and c > o:
-            side, level, mode = "BUY", or_hi, "or_break"
-        elif c < or_lo and c < o:
-            side, level, mode = "SELL", or_lo, "or_break"
 
     if side is None or level is None:
         return None
+
+    # Accuracy filter (research): long only above VWAP, short only below
+    if bool(strat.get("require_vwap_align", True)):
+        vwap = _session_vwap(x)
+        v = float(vwap.iloc[-1])
+        if np.isfinite(v):
+            if side == "BUY" and c < v:
+                return None
+            if side == "SELL" and c > v:
+                return None
 
     entry = c
     if side == "BUY":
@@ -151,7 +191,9 @@ def evaluate_opening_range(
 
     risk_d = abs(entry - stop) * point_value
     reward_d = abs(target - entry) * point_value
-    if risk_d > max_risk or reward_d < min_reward:
+    if max_risk > 0 and risk_d > max_risk:
+        return None
+    if reward_d < min_reward:
         return None
     if risk_d > 0 and reward_d / risk_d < 1.3:
         return None
@@ -159,7 +201,10 @@ def evaluate_opening_range(
     conf = 65
     conf += 8 if mode == "or_retest" else 0
     conf += 4 if mode == "failed_or" else 0
-    conf = min(90, conf)
+    conf += 3 if mode == "or_first_break" else 0
+    if bool(strat.get("require_vwap_align", True)):
+        conf += 4
+    conf = min(92, conf)
     if conf < min_conf:
         return None
 
@@ -170,7 +215,7 @@ def evaluate_opening_range(
         stop=float(stop),
         target=float(target),
         confidence=int(conf),
-        reason=f"{side} OPENING_RANGE {sess_name} {mode}",
+        reason=f"{side} OPENING_RANGE {sess_name} {mode} {duration}m vwap_align",
         ts=datetime.now(timezone.utc),
         risk_dollars=float(risk_d),
         reward_dollars=float(reward_d),

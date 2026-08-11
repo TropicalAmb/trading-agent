@@ -1,0 +1,107 @@
+# LIVE PILOT PROFILE — DO NOT ACTIVATE WITHOUT EXPLICIT APPROVAL
+# Load only after: realtime MD + broker sim success + human approval.
+# This file is intentionally separate from config/settings.yaml (paper).
+
+mode: live
+config_version: live_pilot_v1
+strategy_version: performance_router_v1
+execution_profile: high_confidence
+ALLOW_LIVE_TRADING_REQUIRED: true  # documentation — real gate is env ALLOW_LIVE_TRADING=1
+
+# Micros only for initial pilot
+universe:
+  - MES
+  - MNQ
+  - MGC
+  - MCL
+
+# Full-size disabled
+disabled_symbols:
+  - ES
+  - NQ
+  - GC
+  - CL
+  - MYM
+  - M2K
+
+quantity:
+  default_quantity: 1
+  max_quantity: 1
+  quantity_by_tier:
+    "A+": 1
+    A: 1
+  max_contracts_per_order: 1
+
+execution:
+  dry_run: false  # only when intentionally activated with credentials
+  broker_backend: tradovate
+  kill_switch_path: data/execution_kill_switch.json
+  kill_switch_existing_position_mode: MANAGE_EXISTING
+  # Never treat Yahoo delayed as live
+  require_realtime_provider: true
+
+market_data:
+  provider: broker_realtime  # NOT yahoo_delayed for live
+  bar_interval: 1m
+  realtime_stale_seconds: 30
+
+performance_router:
+  enabled: true
+  min_sample: 30
+
+performance_router_v2:
+  enabled: false  # enable only after paper OOS evidence + explicit approval
+  min_sample: 30
+
+high_confidence:
+  enabled: true
+  shadow_parallel: false
+  deploy_to_paper: false
+  min_predicted_probability: 0.65
+  min_expectancy_r: 0.0
+  min_profit_factor: 1.2
+  min_sample: 30
+
+trade_quality_model:
+  enabled: true
+  allow_paper_auto_promote: false
+  allow_live_auto_promote: false  # NEVER true
+
+risk:
+  risk_per_trade_pct: 0.005
+  max_account_risk_per_trade: 150
+  max_risk_dollars_per_trade: 150
+  max_open_positions: 4
+  max_total_open_risk_dollars: 400
+  max_daily_loss_dollars: 300
+  max_correlated_risk_dollars: 200
+  daily_loss_kill_pct: 0.03
+  daily_loss_kill_dollars: 300
+  max_correlated_index_positions: 2
+  no_martingale: true
+  no_averaging_down: true
+  no_size_escalation_after_wins: true
+
+portfolio:
+  product_families:
+    MES: ES_FAMILY
+    MNQ: NQ_FAMILY
+    MGC: GC_FAMILY
+    MCL: CL_FAMILY
+
+research_only_engines:
+  - ema_pullback
+  - trend_continuation
+  - trend_pullback
+  - liquidity_reversal
+  - vwap_reclaim
+  - indicator_parity
+  - nq_ny_open_momentum
+
+# Explicit activation checklist (human):
+# 1) Realtime MD healthy
+# 2) Broker sim brackets OK on demo
+# 3) Kill switch tested
+# 4) ALLOW_LIVE_TRADING=1 set intentionally
+# 5) Explicit user approval recorded
+activation_status: NOT_ACTIVATED

@@ -48,6 +48,16 @@ def run_healthcheck() -> bool:
     return r.returncode == 0
 
 
+def run_paper_preflight() -> bool:
+    """Fail start if paper path wiring is broken (restart cannot patch code bugs)."""
+    say("Checking paper execution path (preflight)...")
+    r = subprocess.run(
+        [str(PYTHON), str(ROOT / "scripts" / "preflight_paper_path.py")],
+        cwd=str(ROOT),
+    )
+    return r.returncode == 0
+
+
 def install_autostart() -> None:
     flags = 0x08000000 if sys.platform == "win32" else 0  # CREATE_NO_WINDOW
     si = None
@@ -147,6 +157,11 @@ def main() -> int:
         say("Health check failed — not starting.")
         return 1
 
+    if not run_paper_preflight():
+        say("Paper path preflight FAILED — not starting (fix code, then retry).")
+        say("See scripts/preflight_paper_path.py / DEBUG.md bug P.")
+        return 1
+
     say("Installing login autostart (if allowed)...")
     install_autostart()
 
@@ -163,6 +178,9 @@ def main() -> int:
                 say(f"  heartbeat_age_sec: {st.get('heartbeat_age_sec')}")
             except Exception:
                 pass
+        say("Overnight: sleep/hibernate disabled + lid Do Nothing while running.")
+        say("Watchdog auto-restarts hung HB / supersede / exec errors / 90m drought.")
+        say("CODE_BUG still needs a patch (no restart thrash). Prefer leave PC plugged in.")
     else:
         say("WARNING: started, but could not confirm yet.")
         say("Check data\\agent_supervisor.log")
@@ -171,7 +189,7 @@ def main() -> int:
     open_paper_view()
     say("")
     say(f"Log: {DATA / 'agent_supervisor.log'}")
-    say("You can close this window — the bot keeps running.")
+    say("You can close this window — the bot keeps running overnight.")
     say(f"Checked at {datetime.now(timezone.utc).isoformat()}")
     return 0 if ok else 2
 

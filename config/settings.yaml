@@ -1,7 +1,10 @@
 mode: paper  # paper | live — live also requires ALLOW_LIVE_TRADING=true in .env
 
 # Version stamp for BEFORE vs AFTER optimization comparison (do not erase old journals)
-config_version: opt_v1
+config_version: router_v1_readiness1
+# Paper stamp: overnight power arm + drought cooldown restart; location MIXED OK; EMA research_only
+strategy_version: performance_router_v1
+execution_profile: balanced  # balanced | high_confidence
 
 # Identity for multi-agent deployments (override per compose profile / agent yaml)
 agent_id: agent_1
@@ -27,6 +30,10 @@ market_data:
   max_retries: 3
   bar_cursor_path: data/bar_cursors.json
   last_evaluation_path: data/last_evaluation.json
+  # Databento historical (research). Keep yahoo_delayed for paper until key works.
+  databento_dataset: GLBX.MDP3
+  databento_schema: ohlcv-1m
+  databento_default_lookback_days: 60
 
 # Shadow B research lifecycle (does not affect paper equity)
 shadow:
@@ -40,53 +47,243 @@ observability:
   scheduler_warning_seconds: 90
   scheduler_stuck_seconds: 150
 
-# Contract sizing — scalable; paper default is 1 (not hard-coded in strategy)
+# Autonomous paper silence / blocker watch (watchdog + live cycle + dashboard)
+# Does not relax quality gates — diagnoses why no fills and alerts / restarts on bug patterns
+trade_silence_watch:
+  enabled: true
+  warn_after_minutes: 90
+  alert_after_minutes: 90   # aligned with drought fault clock
+  lookback_decisions: 250
+  bug_window_minutes: 45   # only recent rejects drive RESEARCH_SUPERSEDE / EXEC_ERROR alerts
+  path: data/trade_silence_status.json
+  log_path: data/trade_silence.log
+  decisions_path: data/execution_decisions.jsonl
+  auto_restart_on_bug_patterns: true
+  restart_cooldown_minutes: 60
+
+# Open-session paper drought = fault (NOT gate easing / NOT EMA spray)
+trade_drought_policy:
+  enabled: true
+  max_quiet_minutes: 90
+  sessions: [london, ny, asia]
+  on_drought: diagnose_and_escalate
+
+# Contract sizing — multi-lot after strategy tighten; always fit under risk hard cap
 quantity:
-  default_quantity: 1
+  default_quantity: 2
   max_quantity: 25
+  # Target lots by tier (fit_quantity_to_risk may shrink to keep ≤ max_risk_dollars_per_trade)
+  quantity_by_tier:
+    A+: 3
+    A: 2
   quantity_by_symbol: {}
   quantity_by_strategy: {}
   quantity_by_agent_profile:
-    balanced: 1
-    momentum: 1
-    liquidity: 1
+    balanced: 2
+    momentum: 2
+    liquidity: 2
+    trend: 2
 
 # Setup tiers: trade A+ and A by default; journal B; reject C for execution
 tiering:
   minimum_trade_tier: A
   a_plus_min_confidence: 85
-  a_min_confidence: 70
+  a_min_confidence: 75
   b_min_confidence: 55
   a_plus_min_r: 1.4
-  a_min_r: 1.2
+  a_min_r: 1.4
   # Used by global-score tier path (score alone cannot mint A+)
   tier_thresholds:
     A_PLUS: 85
-    A: 72
+    A: 75
     B: 58
     C: 0
+
+# IRL-style paper gate (does not narrow universe / max positions / risk dollars)
+# Fewer trades, only when payoff is meaningful and evidence isn't a lone scrape
+execution_quality:
+  enabled: true
+  min_expected_r: 1.6
+  min_reward_dollars: 150
+  min_agreeing_engines: 2   # no single-engine spray (specialists exempt)
+  ema_pullback_requires_partner: true
+  reject_poor_cascade_location: true
+  # Thin engines: still prefer aligned thesis. Location engines (liquidity_sweep etc.)
+  # may paper when MTF is imperfect — cascade stays journaled for research.
+  require_non_mixed_thesis: true
+  location_may_trade_mixed_thesis: true
 
 # Portfolio coordinator across agents on same account
 portfolio:
   allow_opposite_same_symbol: false
   allow_duplicate_same_trade: false
 
-# Engines run independently; agreement boosts confidence but is NOT mandatory
+# Engines run independently; agreement boosts confidence but is NOT mandatory for proposals
 confluence:
   min_engines_agree: 1
   must_include_one_of: []
   engines:
-    - ema_pullback      # trend pullback — works overnight
     - liquidity_sweep   # PDH/PDL sweep reclaim
-    - vwap_acceptance   # includes reclaim variants (see vwap_reclaim note)
+    - vwap_acceptance   # acceptance / location VWAP engine (kept)
     - sweep_retest
     - momentum          # breakout continuation (PRESENT ≠ ENTRY_VALID)
     - breakout_retest   # resistance break + hold/retest (no chase)
-    - trend_continuation # shallow ATR retrace without exact EMA touch
     - opening_range     # London/NY OR breakout+retest / failed OR
+    - vwap_orb          # ORB + VWAP filter (accuracy research)
+    - vwap_mss          # VWAP + MSS + MTF3 (paper vwap_mss_v1)
+    - cl_vwap_prox_momentum  # PAPER: validated CL specialist v1 (exact research definition)
   max_risk_dollars: 180
-  min_reward_dollars: 90
-  min_rr: 1.3
+  min_reward_dollars: 150
+  min_rr: 1.6
+
+# Shadow/research only — still evaluated & journaled, NOT paper-executable
+research_only_engines:
+  - ema_pullback         # was 39/64 lifetime fills; spray engine → shadow until proven with partners
+  - trend_continuation   # thin single-engine scrapes
+  - trend_pullback
+  - liquidity_reversal
+  - vwap_reclaim
+  - indicator_parity  # TV MTF Sweep Retest 1:1 — research/shadow until OOS proves paper worth
+  - nq_ny_open_momentum    # NQ NY-open — SHADOW ONLY (not promoted)
+
+# Paper-executable validated specialists (tier floor A when cascade OK; still hard-risk gated)
+paper_specialist_engines:
+  - cl_vwap_prox_momentum
+
+# Five-layer cascade (additive context; hard risk unchanged)
+trade_cascade:
+  enabled: true
+  hard_reject_poor_fit: true
+  require_for_specialists: true
+
+# Strategy kill / drift lifecycle — EXPLICIT ordered thresholds (no ranges)
+# Evidence: hist maxDD=-5R, MC p95 DD≈-6R → WATCH=-5, SHADOW=-7.5, HARD=-9
+strategy_lifecycle:
+  enabled: true
+  path: data/strategy_lifecycle.json
+  cl_vwap_prox_momentum:
+    watch_dd_r: -5.0
+    shadow_dd_r: -7.5
+    hard_kill_r: -9.0
+    equity_book_key: CL_BOOK   # aggregate CL+MCL R equity
+
+# CL specialist — EXACT validated definition (do not tweak during forward sample)
+cl_vwap_prox_momentum:
+  enabled: true
+  symbols: [CL, MCL]
+  max_abs_vwap_atr: 0.25
+  stop_atr_mult: 1.0
+  target_r_multiple: 2.0
+  strategy_version: cl_vwap_prox_momentum_v1
+  prefer_micro_when_risk_exceeded: true  # remap CL→MCL; never widen stop
+
+# NQ NY-open specialist — promising / not confirmed
+nq_ny_open_momentum:
+  enabled: true
+  symbols: [NQ, MNQ]
+  sessions: [ny_open]
+  stop_atr_mult: 1.0
+  target_r_multiple: 2.0
+  strategy_version: nq_ny_open_momentum_v1
+
+# Multi-session open momentum research (asia/london/ny_open) — SHADOW/research only
+session_open_momentum:
+  enabled: true
+  symbols: [NQ, MNQ, ES, MES]
+  sessions: [asia, london, ny_open]
+  stop_atr_mult: 1.0
+  target_r_multiple: 2.0
+  strategy_version: session_open_momentum_v1
+  paper_executable: false
+
+# Optional evidence table for cascade Layer-1 POOR_FIT (from specialist validation)
+strategy_fit_evidence:
+  cl_vwap_prox_momentum:
+    CL:
+      validated_positive: true
+      n: 121
+      min_n_for_poor_fit: 30
+      poor_vol_regimes: []  # do not skip regimes until adequate negative evidence
+    MCL:
+      validated_positive: true
+      n: 121
+      min_n_for_poor_fit: 30
+  nq_ny_open_momentum:
+    NQ:
+      validated_positive: true
+      n: 71
+      min_n_for_poor_fit: 30
+    MNQ:
+      validated_positive: true
+      n: 71
+      min_n_for_poor_fit: 30
+
+# TradingView MTF Sweep Retest Assistant parity (strict all-3 HTF; 1m preferred)
+indicator_parity:
+  enabled: true
+  use_vwap: true
+  fast_ema: 20
+  slow_ema: 50
+  retest_zone_atr: 0.15
+  sweep_valid_bars: 240
+  stop_atr_mult: 1.0
+  target_r_multiple: 2.0
+  overext_atr: 1.8
+  min_confidence: 0
+  entry_mode: exact
+  bar_interval: 1m
+  bar_period: 7d
+
+# Empirical ranking layer (does NOT bypass hard risk / data / duplicate gates)
+performance_router:
+  enabled: true
+  min_sample: 30
+  preferred_sample: 50
+  include_shadow: true
+  recent_n: 20
+  trade_paths:
+    - data/paper_trades.json
+  shadow_path: data/shadow_trades.json
+
+# router_v2: shrunk WR + calibrated model ranking — enable only after OOS proof
+# Paper execution stays on router_v1 / execution_profile: balanced
+performance_router_v2:
+  enabled: false
+  min_sample: 30
+  preferred_sample: 50
+  prior_strength: 20.0
+
+trade_quality_model:
+  enabled: true
+  models_dir: data/learning/models
+  learning_store: data/learning/candidates.jsonl
+  health_path: data/learning/strategy_cell_health.json
+  retrain_every_resolved: 25
+  retrain_daily: true
+  min_challenger_shadow_decisions: 100
+  champion_name: trade_quality_champion
+  challenger_name: trade_quality_challenger
+  allow_paper_auto_promote: true
+  allow_live_auto_promote: false
+
+# Priority learning cells — detailed forward capture; NOT global rank boosts
+priority_learning_cells:
+  - strategy: liquidity_reversal
+    symbol: CL
+    mode: PRIORITY_SHADOW_LEARNING
+    note: "Investigate subsets; OOS ~49% WR — do not promote from one paper trade"
+
+high_confidence:
+  enabled: true
+  shadow_parallel: true
+  attach_shadow_evidence: true
+  min_predicted_probability: 0.65
+  preferred_probability: 0.70
+  min_expectancy_r: 0.0
+  min_profit_factor: 1.2
+  min_sample: 30
+  # Paper path remains execution_profile: balanced until OOS deploy gate passes
+  deploy_to_paper: false
 
 # Global scoring (additive evidence; hard invalidations always win)
 # primary_setup_base lowered 45→32 so B cannot routinely score 90+
@@ -148,6 +345,31 @@ strategy_regime_weights:
     RANGE: 1.05
     TREND_UP: 1.00
     TREND_DOWN: 1.00
+  vwap_orb:
+    EXPANSION_UP: 1.12
+    EXPANSION_DOWN: 1.12
+    RANGE: 1.05
+    TREND_UP: 1.05
+    TREND_DOWN: 1.05
+  vwap_mss:
+    TREND_UP: 1.15
+    TREND_DOWN: 1.15
+    EXPANSION_UP: 1.10
+    EXPANSION_DOWN: 1.10
+    RANGE: 0.95
+    COMPRESSION: 0.85
+
+# VWAP + MSS + 3-TF alignment (research large-n edge; paper promotion soft gates)
+vwap_mss:
+  enabled: true
+  min_mtf_align: 3
+  target_r: 1.25
+  max_overext_atr: 1.25
+  min_rr: 1.2
+  base_confidence: 74
+  min_confidence: 70
+  max_risk_dollars: 500
+  min_reward_dollars: 50
 
 momentum:
   enabled: true
@@ -191,22 +413,55 @@ trend_continuation:
 # London / NY opening range (15m default research)
 opening_range:
   enabled: true
+  # Accuracy pass: VWAP align raised combined WR ~56.4%→56.8% with similar E;
+  # ES-only ORB+VWAP hit ~62.5% WR / +0.39R (n=16, thin). Premarket ORB hit ~64% WR but weak E.
   duration_minutes: 15
+  duration_minutes_ny: 5
+  duration_minutes_london: 15
+  entry_mode_ny: first_break
+  entry_mode_london: retest
+  max_breakout_body_atr: 1.25
+  require_vwap_align: true
   sessions:
     london: "03:00"
     ny: "09:30"
   stop_atr_mult: 0.85
-  target_r_multiple: 1.6
-  max_risk_dollars: 150
+  target_r_multiple: 1.5
+  # 0 = no local dollar cap (portfolio hard cap also disabled); full-size OR stops exceed $150
+  max_risk_dollars: 0
+  min_reward_dollars: 80
+  min_confidence: 68
+  require_retest: true  # default/fallback style when per-session mode unset
+
+# Simple VWAP reclaim specialist (additive; vwap_acceptance remains)
+vwap_reclaim:
+  enabled: true
+  stop_atr_mult: 0.9
+  target_r_multiple: 1.5
+  max_risk_dollars: 0
   min_reward_dollars: 80
   min_confidence: 64
-  # Do not auto-trade the first break — require hold/retest/fail patterns in engine
+  require_hold_bar: false
 
-# vwap_reclaim: NOT a separate engine — vwap_acceptance already implements
-# below→reclaim→retest (long) and above→lose→retest (short). See strategy note.
-vwap_reclaim:
-  alias_of: vwap_acceptance
-  enabled: false
+trend_pullback:
+  enabled: true
+  touch_atr: 0.40
+  pullback_lookback: 6
+  stop_atr_mult: 1.0
+  target_r_multiple: 1.5
+  max_risk_dollars: 0
+  min_reward_dollars: 80
+  min_confidence: 62
+
+liquidity_reversal:
+  enabled: true
+  swing_lookback: 12
+  min_wick_atr: 0.25
+  stop_atr_mult: 0.85
+  target_r_multiple: 1.5
+  max_risk_dollars: 0
+  min_reward_dollars: 80
+  min_confidence: 64
 
 strategy_versions:
   ema_pullback:
@@ -232,6 +487,21 @@ strategy_versions:
     challengers: []
   opening_range:
     champion: opening_range_v1
+    challengers: []
+  vwap_orb:
+    champion: vwap_orb_v1
+    challengers: []
+  vwap_mss:
+    champion: vwap_mss_v1
+    challengers: []
+  trend_pullback:
+    champion: trend_pullback_v1
+    challengers: []
+  liquidity_reversal:
+    champion: liquidity_reversal_v1
+    challengers: []
+  vwap_reclaim:
+    champion: vwap_reclaim_v1
     challengers: []
 
 adaptive_analysis:
@@ -308,18 +578,18 @@ broker:
   connect_timeout_sec: 15
 
 universe:
-  # BINDING: see PROJECT_MEMORY.md — micros AND full-size; do not shrink without user ask
+  # BINDING: see PROJECT_MEMORY.md — micros AND full-size; full-size listed first for focus
   symbols:
+    - ES    # Full S&P
+    - NQ    # Full Nasdaq
+    - CL    # Full Crude
+    - GC    # Full Gold
     - MES   # Micro S&P
     - MNQ   # Micro Nasdaq
     - MGC   # Micro Gold
     - MYM   # Micro Dow
     - M2K   # Micro Russell
     - MCL   # Micro Crude
-    - ES    # Full S&P
-    - NQ    # Full Nasdaq
-    - CL    # Full Crude
-    - GC    # Full Gold
   currency: USD
   exchange: CME
 
@@ -381,6 +651,8 @@ instruments:
     point_value: 100.0
     sec_type: FUT
 
+# Session filters refined from FB Women in Day Trading research + local backtests
+# (ORB retest on NQ/ES improved with skip-Friday; EMA 9/21/100 stack overtrades — not adopted)
 schedule:
   timezone: America/New_York
   # always_open = enter anytime CME micros are trading (recommended)
@@ -392,6 +664,11 @@ schedule:
   weekend_close: "17:00"  # Friday
   maintenance_start: "17:00"
   maintenance_end: "18:00"
+  # WIT-group + backtest: NQ/ES ORB quality improved when Friday entries skipped
+  skip_friday_entries: true
+  # Optional NY open delay (minutes after 09:30 ET). 0=off; 30≈"no trade before 10am"
+  # Kept off by default — mixed evidence vs ORB participation; enable if desired.
+  ny_open_entry_delay_minutes: 0
   # Optional if you later set entry_mode: windows
   entry_windows:
     - name: asia
@@ -443,10 +720,10 @@ vwap_acceptance:
   bar_interval: 5m
   bar_period: 10d
 
-# Alternate: filtered ORB + VWAP (better on trend days)
+# Alternate: filtered ORB + VWAP (accuracy research — now in confluence engines)
 vwap_orb:
   or_start: "09:30"
-  or_end: "09:45"
+  or_end: "09:35"   # align with NY 5m OR research
   entry_end: "16:55"
   flatten_ct: "16:58"
   fast_ema: 20
@@ -465,11 +742,11 @@ vwap_orb:
   stop_buffer_points: 1.0
   skip_two_sided_days: false
   allow_second_break: true
-  min_confidence: 65
+  min_confidence: 68
   target_r_multiple: 1.5
   target_dollars: 120
   min_reward_dollars: 100
-  max_risk_dollars: 200
+  max_risk_dollars: 0
   bar_interval: 5m
   bar_period: 10d
 
@@ -513,21 +790,26 @@ webhook:
   port: 8787
 
 risk:
-  # Legacy ceiling (quantity.default_quantity is the live sizing control)
-  max_contracts_per_trade: 2
+  # Legacy ceiling (quantity.* is the live sizing control; fit-to-risk may go lower)
+  max_contracts_per_trade: 4
   # Kept for analytics / optional overrides — executor uses quantity.* now
   strong_min_confidence: 80
   strong_contracts: 2
   a_plus_min_confidence: 90
-  a_plus_contracts: 4
+  a_plus_contracts: 3
   # BINDING: user allows many concurrent opens (>>8). See PROJECT_MEMORY.md
   max_open_positions: 50
   max_loss_pct_of_equity_per_trade: 0.02
   # Account protection (paper uses blotter P&L; live uses broker P&L)
   daily_loss_kill_pct: 0.08
   daily_loss_kill_dollars: 4000
-  max_risk_dollars_per_trade: 250
+  # Finite risk architecture (NEVER 0/unlimited). Effective cap = min of these >0.
+  risk_per_trade_pct: 0.01
+  max_account_risk_per_trade: 500
+  max_risk_dollars_per_trade: 500
   max_total_open_risk_dollars: 3500
+  max_daily_loss_dollars: 4000
+  max_correlated_risk_dollars: 1500
   halt_on_stale_data: true
   max_quote_age_sec: 120
   require_defined_risk: false
@@ -567,6 +849,8 @@ execution:
   dry_run: true
   order_type: MKT
   transmit: true
+  kill_switch_path: data/execution_kill_switch.json
+  kill_switch_existing_position_mode: MANAGE_EXISTING
   # Scale out: close half at TP1 (1R), leave half to full target; stop -> breakeven after TP1
   scale_out:
     enabled: true

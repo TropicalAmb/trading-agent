@@ -15,7 +15,12 @@ from agent.context.regime import MarketRegime, MarketRegimeClassifier
 from agent.decision.champion import evaluate_promotion, resolve_execution_mode
 from agent.decision.global_score import score_setup
 from agent.decision.setup import TradeSetup
-from agent.decision.tiering import assign_tier_from_global, can_execute
+from agent.decision.tiering import (
+    assign_tier_from_global,
+    can_execute,
+    execution_reject_reason,
+)
+from agent.decision.ranker import select_executable_detailed
 from agent.execution.directional import apply_paper_friction
 from agent.journal.shadow import ShadowTracker
 from agent.research.exit_models import evaluate_fixed_r
@@ -70,9 +75,10 @@ def _setup(**kwargs):
 
 def test_locked_config_unchanged():
     cfg = _cfg()
-    assert cfg["quantity"]["default_quantity"] == 1
+    assert cfg["quantity"]["default_quantity"] == 2
+    assert cfg["quantity"]["quantity_by_tier"]["A+"] == 3
     assert cfg["quantity"]["max_quantity"] == 25
-    assert cfg["risk"]["max_risk_dollars_per_trade"] == 250
+    assert float(cfg["risk"]["max_risk_dollars_per_trade"]) == 500
     assert cfg["risk"]["max_total_open_risk_dollars"] == 3500
     assert cfg["risk"]["max_open_positions"] == 50
     assert cfg["risk"]["daily_loss_kill_dollars"] == 4000
@@ -180,6 +186,264 @@ def test_lone_ema_remains_b_with_global_score():
     assert tier == "B"
     s.setup_tier = tier
     assert not can_execute(s, cfg)
+
+
+def test_soft_prior_day_location_does_not_promote_lone_ema():
+    """Near PDH/PDL alone must not mint A for ema_pullback."""
+    cfg = _cfg()
+    s = _setup(
+        strategy_name="ema_pullback",
+        metadata={
+            "agreeing_engines": ["ema_pullback"],
+            "location_source": "soft_prior_day",
+        },
+        confidence_score=90,
+        expected_r=1.8,
+        reward_dollars=150,
+    )
+    tier = assign_tier_from_global(
+        s,
+        cfg,
+        global_score=92,
+        families_positive=["EMA_TREND", "VWAP", "MTF", "LOCATION"],
+        has_location=True,
+        contradictions=[],
+    )
+    assert tier == "B"
+    s.setup_tier = tier
+    assert not can_execute(s, cfg)
+
+
+def test_ema_is_research_only_not_executable():
+    cfg = _cfg()
+    assert "ema_pullback" in (cfg.get("research_only_engines") or [])
+    s = _setup(
+        strategy_name="ema_pullback",
+        metadata={
+            "agreeing_engines": ["ema_pullback", "liquidity_sweep"],
+            "location_source": "location_engine",
+            "has_location": True,
+            "research_only": True,
+            "cascade": {
+                "thesis": "LONG_SUPPORT",
+                "location": "ACCEPTABLE_LOCATION",
+                "trigger": "PULLBACK",
+            },
+        },
+        confidence_score=80,
+        expected_r=1.8,
+        reward_dollars=180,
+    )
+    s.setup_tier = "A"
+    assert not can_execute(s, cfg)
+
+
+def test_location_engine_with_thesis_can_execute():
+    cfg = _cfg()
+    s = _setup(
+        strategy_name="liquidity_sweep",
+        metadata={
+            "agreeing_engines": ["liquidity_sweep"],
+            "has_location": True,
+            "cascade": {
+                "thesis": "LONG_SUPPORT",
+                "location": "ACCEPTABLE_LOCATION",
+                "trigger": "BREAKOUT_RETEST",
+            },
+        },
+        confidence_score=80,
+        expected_r=1.8,
+        reward_dollars=180,
+    )
+    s.setup_tier = "A"
+    assert can_execute(s, cfg)
+
+
+def test_execution_quality_rejects_small_reward():
+    cfg = _cfg()
+    s = _setup(
+        strategy_name="liquidity_sweep",
+        metadata={
+            "agreeing_engines": ["liquidity_sweep"],
+            "has_location": True,
+            "cascade": {
+                "thesis": "LONG_SUPPORT",
+                "location": "ACCEPTABLE_LOCATION",
+                "trigger": "BREAKOUT_RETEST",
+            },
+        },
+        confidence_score=80,
+        expected_r=1.8,
+        reward_dollars=40,
+    )
+    s.setup_tier = "A"
+    assert not can_execute(s, cfg)
+
+
+def test_research_only_cannot_steal_paper_slot():
+    """Shadow EMA/trend must not supersede an executable location engine."""
+    from agent.decision.ranker import boost_for_agreement
+
+    cfg = _cfg()
+    paper = _setup(
+        strategy_name="liquidity_sweep",
+        symbol="MGC",
+        setup_tier="A",
+        confidence_score=80,
+        expected_r=1.8,
+        reward_dollars=180,
+        metadata={
+            "has_location": True,
+            "agreeing_engines": ["liquidity_sweep"],
+            "global_score": 80,
+            "families_positive": ["LOCATION", "VWAP", "MTF"],
+            "cascade": {
+                "thesis": "LONG_SUPPORT",
+                "location": "ACCEPTABLE_LOCATION",
+                "trigger": "BREAKOUT_RETEST",
+            },
+        },
+    )
+    shadow = _setup(
+        strategy_name="ema_pullback",
+        symbol="MGC",
+        setup_tier="A+",
+        confidence_score=95,
+        expected_r=2.0,
+        reward_dollars=200,
+        metadata={
+            "research_only": True,
+            "execution_mode": "SHADOW",
+            "agreeing_engines": ["ema_pullback"],
+            "global_score": 95,
+            "families_positive": ["EMA_TREND", "VWAP", "MTF"],
+        },
+    )
+    kept, superseded = boost_for_agreement([paper, shadow], cfg)
+    assert len(kept) == 1
+    assert kept[0].strategy_name == "liquidity_sweep"
+    assert any(loser.strategy_name == "ema_pullback" for loser, _ in superseded)
+
+
+def test_mixed_thesis_allows_location_engine():
+    """Location A may paper when MTF is imperfect — factors won't always agree."""
+    cfg = _cfg()
+    eq = dict(cfg.get("execution_quality") or {})
+    eq["location_may_trade_mixed_thesis"] = True
+    cfg["execution_quality"] = eq
+    s = _setup(
+        strategy_name="liquidity_sweep",
+        metadata={
+            "agreeing_engines": ["liquidity_sweep"],
+            "has_location": True,
+            "cascade": {
+                "thesis": "MIXED",
+                "location": "ACCEPTABLE_LOCATION",
+                "trigger": "BREAKOUT_RETEST",
+            },
+        },
+        confidence_score=80,
+        expected_r=1.8,
+        reward_dollars=180,
+    )
+    s.setup_tier = "A"
+    assert can_execute(s, cfg)
+    assert execution_reject_reason(s, cfg) is None
+
+
+def test_mixed_thesis_still_blocks_thin_engine():
+    cfg = _cfg()
+    eq = dict(cfg.get("execution_quality") or {})
+    eq["location_may_trade_mixed_thesis"] = True
+    eq["require_non_mixed_thesis"] = True
+    cfg["execution_quality"] = eq
+    s = _setup(
+        strategy_name="momentum",
+        metadata={
+            "agreeing_engines": ["momentum", "breakout_retest"],
+            "cascade": {
+                "thesis": "MIXED",
+                "location": "ACCEPTABLE_LOCATION",
+                "trigger": "MOMENTUM",
+            },
+        },
+        confidence_score=80,
+        expected_r=1.8,
+        reward_dollars=180,
+    )
+    s.setup_tier = "A"
+    assert not can_execute(s, cfg)
+    assert execution_reject_reason(s, cfg) == "EXECUTION_QUALITY:thesis_MIXED"
+
+
+def test_unknown_cascade_thesis_does_not_block():
+    """Missing cascade features must not default-block as MIXED."""
+    cfg = _cfg()
+    s = _setup(
+        strategy_name="liquidity_sweep",
+        metadata={
+            "agreeing_engines": ["liquidity_sweep"],
+            "has_location": True,
+            "cascade": {
+                "thesis": "",
+                "location": "ACCEPTABLE_LOCATION",
+                "trigger": "NONE",
+            },
+        },
+        confidence_score=80,
+        expected_r=1.8,
+        reward_dollars=180,
+    )
+    s.setup_tier = "A"
+    assert can_execute(s, cfg)
+    assert execution_reject_reason(s, cfg) is None
+
+
+def test_agreement_keeps_paperable_before_quality_filter():
+    """Location A with MIXED thesis stays in agreement pool for ledgered reject."""
+    cfg = _cfg()
+    paper = _setup(
+        strategy_name="liquidity_sweep",
+        metadata={
+            "agreeing_engines": ["liquidity_sweep", "ema_pullback"],
+            "has_location": True,
+            "cascade": {
+                "thesis": "MIXED",
+                "location": "ACCEPTABLE_LOCATION",
+                "trigger": "BREAKOUT_RETEST",
+            },
+        },
+        confidence_score=76,
+        expected_r=2.2,
+        reward_dollars=220,
+    )
+    paper.setup_tier = "A"
+    paper.symbol = "MYM"
+    paper.direction = "BUY"
+    shadow = _setup(
+        strategy_name="ema_pullback",
+        metadata={
+            "agreeing_engines": ["liquidity_sweep", "ema_pullback"],
+            "research_only": True,
+            "execution_mode": "SHADOW",
+            "cascade": {
+                "thesis": "MIXED",
+                "location": "ACCEPTABLE_LOCATION",
+                "trigger": "PULLBACK",
+            },
+        },
+        confidence_score=84,
+        expected_r=5.0,
+        reward_dollars=100,
+    )
+    shadow.setup_tier = "A"
+    shadow.symbol = "MYM"
+    shadow.direction = "BUY"
+    kept, _ = select_executable_detailed([paper, shadow], cfg)
+    assert len(kept) == 1
+    assert kept[0].strategy_name == "liquidity_sweep"
+    # quality2g: location engines may paper with MIXED thesis
+    assert can_execute(kept[0], cfg)
 
 
 def test_score_alone_cannot_mint_a_plus():

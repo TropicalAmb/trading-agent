@@ -31,6 +31,13 @@ from agent.decision.tiering import (
     LOCATION_STRATEGIES,
     assign_tier_for_setup,
     can_execute,
+    execution_reject_reason,
+)
+from agent.execution.risk_budget import suggest_micro_symbol
+from agent.execution.sizing import (
+    fit_quantity_to_risk,
+    hard_cap_from_cfg,
+    resolve_trade_quantity,
 )
 from agent.risk.circuit_breakers import CircuitBreakerStore, StrategyHealth
 from agent.runtime.observability_store import LastEvaluationStore
@@ -148,7 +155,16 @@ class DecisionPipeline:
             "sweep_retest",
             "momentum",
         ]
-        self.engine_names = list(engines)
+        research_only = list(cfg.get("research_only_engines") or [])
+        # Additive: evaluate research specialists but never execute them
+        seen = set()
+        names: list[str] = []
+        for n in list(engines) + research_only:
+            if n not in seen:
+                seen.add(n)
+                names.append(n)
+        self.engine_names = names
+        self.research_only_engines = set(research_only)
         id_path = (
             cfg.get("market_data", {}).get("setup_identity_path")
             or "data/setup_identities.json"
@@ -158,6 +174,12 @@ class DecisionPipeline:
         self.circuits = CircuitBreakerStore(
             cfg.get("circuit_breakers", {}).get("path", "data/circuit_breakers.json")
         )
+        from agent.risk.strategy_lifecycle import StrategyLifecycleStore
+
+        lc_path = (cfg.get("strategy_lifecycle") or {}).get(
+            "path", "data/strategy_lifecycle.json"
+        )
+        self.lifecycle = StrategyLifecycleStore(lc_path)
         self.config_version = str(cfg.get("config_version") or "opt_v1")
         obs_path = (
             cfg.get("market_data", {}).get("last_evaluation_path")
@@ -165,41 +187,152 @@ class DecisionPipeline:
         )
         self.last_eval = LastEvaluationStore(Path(obs_path))
 
-    def _qty(self, symbol: str, strategy: str) -> int:
-        q = self.cfg.get("quantity", {})
-        default = int(q.get("default_quantity", 1))
-        by_sym = q.get("quantity_by_symbol") or {}
-        by_strat = q.get("quantity_by_strategy") or {}
-        by_agent = q.get("quantity_by_agent_profile") or {}
+    def _qty(self, symbol: str, strategy: str, *, tier: str | None = None) -> int:
         profile = self.cfg.get("agent_profile") or self.cfg.get("agent_id") or self.agent_id
-        qty = int(
-            by_sym.get(symbol)
-            or by_strat.get(strategy)
-            or by_agent.get(profile)
-            or default
+        return resolve_trade_quantity(
+            self.cfg,
+            symbol=symbol,
+            strategy=strategy,
+            agent_id=str(profile),
+            tier=tier,
         )
-        max_q = int(q.get("max_quantity", 25))
-        return max(1, min(qty, max_q))
+
+    def _size_setup(self, setup: TradeSetup) -> TradeSetup:
+        """Apply tier target qty, then shrink to fit hard risk cap.
+
+        If even 1 contract exceeds budget: for CL specialist remap to MCL
+        (same stop distance, never widen stop). Otherwise SHADOW observe.
+        """
+        pv = float(
+            (setup.metadata or {}).get("point_value")
+            or self.cfg.get("instruments", {}).get(setup.symbol, {}).get("point_value", 5.0)
+        )
+        hard = hard_cap_from_cfg(self.cfg)
+        max_q = int((self.cfg.get("quantity") or {}).get("max_quantity", 25))
+        desired = resolve_trade_quantity(
+            self.cfg,
+            symbol=setup.symbol,
+            strategy=setup.strategy_name,
+            agent_id=setup.agent_id or self.agent_id,
+            tier=setup.setup_tier,
+        )
+        qty = fit_quantity_to_risk(
+            desired_qty=desired,
+            entry=setup.entry,
+            stop=setup.stop,
+            point_value=pv,
+            hard_cap_dollars=hard,
+            max_quantity=max_q,
+        )
+        meta = dict(setup.metadata or {})
+        # CL specialist: remap to MCL when full-size CL cannot fit $ risk (stop unchanged)
+        cl_cfg = self.cfg.get("cl_vwap_prox_momentum") or {}
+        if (
+            qty < 1
+            and setup.strategy_name == "cl_vwap_prox_momentum"
+            and bool(cl_cfg.get("prefer_micro_when_risk_exceeded", True))
+        ):
+            micro = suggest_micro_symbol(setup.symbol)
+            if micro and micro.upper() != setup.symbol.upper():
+                mpv = float(
+                    self.cfg.get("instruments", {}).get(micro, {}).get("point_value", 100.0)
+                )
+                mqty = fit_quantity_to_risk(
+                    desired_qty=max(desired, 1),
+                    entry=setup.entry,
+                    stop=setup.stop,
+                    point_value=mpv,
+                    hard_cap_dollars=hard,
+                    max_quantity=max_q,
+                )
+                if mqty >= 1:
+                    meta["remapped_from"] = setup.symbol
+                    setup.symbol = micro.upper()
+                    pv = mpv
+                    qty = mqty
+                    meta["contract_remap"] = f"{meta['remapped_from']}→{setup.symbol}"
+        setup.quantity = int(qty)
+        setup.risk_dollars = abs(setup.entry - setup.stop) * pv * max(qty, 0)
+        setup.reward_dollars = abs(setup.target - setup.entry) * pv * max(qty, 0)
+        meta["point_value"] = pv
+        meta["desired_quantity"] = desired
+        meta["sized_quantity"] = qty
+        meta["risk_cap_dollars"] = hard
+        if qty < 1:
+            meta["sizing_reject"] = f"RISK_LIMIT even 1 contract > ${hard:.0f}"
+            meta["execution_mode"] = "SHADOW"
+            micro = suggest_micro_symbol(setup.symbol)
+            if micro:
+                meta["suggest_micro"] = micro
+                meta["sizing_reject"] += f" (prefer {micro} or reject)"
+        # Refresh cascade RISK line after sizing
+        if meta.get("cascade_log"):
+            try:
+                from agent.decision.cascade import format_cascade_summary
+
+                setup.metadata = meta
+                # temporarily attach sized fields
+                cas = dict(meta.get("cascade") or {})
+                risk_line = (
+                    f"RISK: PASS — {setup.symbol} {qty} contract(s), "
+                    f"${setup.risk_dollars:.0f} risk (cap ${hard:.0f})"
+                    if qty >= 1
+                    else f"RISK: FAIL — exceeds ${hard:.0f} even at 1 lot"
+                )
+                log = [x for x in list(meta.get("cascade_log") or []) if not str(x).startswith("RISK")]
+                # replace RISK READY line
+                log = [x for x in log if not str(x).startswith("RISK:")]
+                log.append(risk_line)
+                if qty >= 1 and meta.get("cascade_decision") == "EXECUTE_PAPER":
+                    log.append("Decision: EXECUTE PAPER")
+                    meta["cascade_decision"] = "EXECUTE_PAPER"
+                elif qty < 1:
+                    log.append("Decision: SHADOW — risk cap")
+                    meta["cascade_decision"] = "SHADOW"
+                meta["cascade_log"] = log
+                cas["layer_log"] = log
+                meta["cascade"] = cas
+                meta["cascade_summary"] = format_cascade_summary(setup)
+            except Exception:
+                pass
+        setup.metadata = meta
+        return setup
 
     def _hard_risk_ok(self, setup: TradeSetup) -> tuple[bool, str]:
-        hard = float(
-            self.cfg.get("risk", {}).get("max_risk_dollars_per_trade", 250)
-        )
+        hard = hard_cap_from_cfg(self.cfg)
         # Position-level risk already includes quantity
+        if setup.quantity < 1:
+            return False, (setup.metadata or {}).get("sizing_reject") or "RISK_LIMIT qty=0"
         if setup.risk_dollars > hard + 1e-9:
             return False, f"RISK_LIMIT ${setup.risk_dollars:.2f} > ${hard:.2f}"
         return True, "ok"
 
-    def _eval_engines(self, symbol: str, df, point_value: float) -> list[tuple[str, Any, Optional[str]]]:
+    def _eval_engines(
+        self,
+        symbol: str,
+        df,
+        point_value: float,
+        *,
+        engine_dfs: dict[str, Any] | None = None,
+    ) -> list[tuple[str, Any, Optional[str]]]:
         from agent.strategy.breakout_retest import evaluate_breakout_retest
         from agent.strategy.ema_pullback import evaluate_ema_pullback
+        from agent.strategy.liquidity_reversal import evaluate_liquidity_reversal
         from agent.strategy.liquidity_sweep import evaluate_liquidity_sweep
         from agent.strategy.momentum import evaluate_momentum
         from agent.strategy.opening_range import evaluate_opening_range
         from agent.strategy.sweep_retest import evaluate_sweep_retest
         from agent.strategy.trend_continuation import evaluate_trend_continuation
+        from agent.strategy.trend_pullback import evaluate_trend_pullback
         from agent.strategy.vwap_acceptance import evaluate_vwap_acceptance
+        from agent.strategy.vwap_mss import evaluate_vwap_mss
         from agent.strategy.vwap_orb import evaluate_vwap_orb
+        from agent.strategy.vwap_reclaim import evaluate_vwap_reclaim
+        from agent.strategy.indicator_parity import evaluate_indicator_parity
+        from agent.strategy.specialist_momentum import (
+            evaluate_cl_vwap_prox_momentum,
+            evaluate_nq_ny_open_momentum,
+        )
 
         fns: dict[str, Callable] = {
             "ema_pullback": evaluate_ema_pullback,
@@ -207,11 +340,20 @@ class DecisionPipeline:
             "vwap_acceptance": evaluate_vwap_acceptance,
             "sweep_retest": evaluate_sweep_retest,
             "vwap_orb": evaluate_vwap_orb,
+            "vwap_mss": evaluate_vwap_mss,
             "momentum": evaluate_momentum,
             "breakout_retest": evaluate_breakout_retest,
             "trend_continuation": evaluate_trend_continuation,
             "opening_range": evaluate_opening_range,
+            # Additive simple specialists (same TradeSetup interface)
+            "trend_pullback": evaluate_trend_pullback,
+            "liquidity_reversal": evaluate_liquidity_reversal,
+            "vwap_reclaim": evaluate_vwap_reclaim,
+            "indicator_parity": evaluate_indicator_parity,
+            "cl_vwap_prox_momentum": evaluate_cl_vwap_prox_momentum,
+            "nq_ny_open_momentum": evaluate_nq_ny_open_momentum,
         }
+        engine_dfs = engine_dfs or {}
         out: list[tuple[str, Any, Optional[str]]] = []
         for name in self.engine_names:
             fn = fns.get(name)
@@ -219,7 +361,8 @@ class DecisionPipeline:
                 out.append((name, None, "unknown_engine"))
                 continue
             try:
-                sig = fn(symbol, df, self.cfg, point_value=point_value)
+                use_df = engine_dfs.get(name, df)
+                sig = fn(symbol, use_df, self.cfg, point_value=point_value)
                 if sig is None:
                     out.append((name, None, "no_setup"))
                 else:
@@ -353,6 +496,27 @@ class DecisionPipeline:
             # Accumulate engine votes across pending bars (last vote wins per engine)
             engine_votes: dict[str, dict[str, Any]] = {}
 
+            # Strategy-specific 1m bars for indicator_parity (does not change book 5m path)
+            engine_dfs_base: dict[str, Any] = {}
+            if "indicator_parity" in self.engine_names:
+                ip_cfg = self.cfg.get("indicator_parity") or {}
+                ip_interval = str(ip_cfg.get("bar_interval") or "1m")
+                ip_period = str(ip_cfg.get("bar_period") or "7d")
+                try:
+                    ip_bars = self.provider.get_bars(
+                        symbol, interval=ip_interval, period=ip_period
+                    )
+                    if ip_bars:
+                        engine_dfs_base["indicator_parity"] = self.provider.to_dataframe(
+                            ip_bars
+                        )
+                except Exception as exc:
+                    logger.warning(
+                        "indicator_parity 1m fetch failed %s: %s (fallback to book bars)",
+                        symbol,
+                        exc,
+                    )
+
             for bar in pending:
                 df_all = self.provider.to_dataframe(bars)
                 try:
@@ -362,7 +526,17 @@ class DecisionPipeline:
                 if len(df) < 30:
                     self.cursor.set(symbol, bar.timestamp)
                     continue
-                engine_results = self._eval_engines(symbol, df, pv)
+                engine_dfs = dict(engine_dfs_base)
+                if "indicator_parity" in engine_dfs:
+                    try:
+                        engine_dfs["indicator_parity"] = engine_dfs[
+                            "indicator_parity"
+                        ].loc[: bar.timestamp]
+                    except Exception:
+                        pass
+                engine_results = self._eval_engines(
+                    symbol, df, pv, engine_dfs=engine_dfs
+                )
                 for name, sig, why in engine_results:
                     if sig is None:
                         # Do not erase a real vote from an earlier pending bar
@@ -375,7 +549,7 @@ class DecisionPipeline:
                             "market_bar": bar.timestamp.isoformat(),
                         }
                         continue
-                    qty = self._qty(symbol, name)
+                    # Provisional 1-lot for fingerprinting; final qty after tier + risk fit
                     setup = _from_engine_signal(
                         strategy_name=name,
                         sig=sig,
@@ -384,7 +558,7 @@ class DecisionPipeline:
                         agent_id=self.agent_id,
                         session=session,
                         point_value=pv,
-                        qty=qty,
+                        qty=1,
                     )
                     ok_risk, risk_why = self._hard_risk_ok(setup)
                     if not ok_risk:
@@ -573,11 +747,66 @@ class DecisionPipeline:
                 meta["regime"] = ctx.regime.value
                 meta["regime_confidence"] = ctx.regime_confidence
                 meta["config_version"] = self.config_version
-                meta["strategy_version"] = champion_name(self.cfg, s.strategy_name)
+                # Per-strategy version (CL specialist keeps explicit v1 stamp)
+                strat_ver_cfg = (self.cfg.get(s.strategy_name) or {}).get("strategy_version")
+                meta["strategy_version"] = str(
+                    strat_ver_cfg or champion_name(self.cfg, s.strategy_name)
+                )
+                # Global paper stamp (book-level) for before/after journals
+                meta["book_strategy_version"] = str(
+                    self.cfg.get("strategy_version") or meta["strategy_version"]
+                )
+                meta["paper_config_version"] = self.config_version
+                if s.strategy_name in self.research_only_engines:
+                    meta["research_only"] = True
+                    meta["execution_mode"] = "SHADOW"
+                # Strategy lifecycle (kill/drift) — additive; does not replace circuit breakers
+                try:
+                    lc_state = self.lifecycle.get_state(s.strategy_name, s.symbol)
+                    meta["lifecycle_state"] = lc_state
+                    if lc_state in {"SHADOW_ONLY", "HARD_PAUSED"}:
+                        meta["execution_mode"] = "SHADOW"
+                        meta["cell_health"] = lc_state
+                        hard = list(meta.get("hard_invalidations") or [])
+                        hard.append(f"LIFECYCLE_{lc_state}")
+                        meta["hard_invalidations"] = hard
+                    elif lc_state == "WATCH":
+                        meta["lifecycle_watch"] = True
+                except Exception:
+                    meta["lifecycle_state"] = "ACTIVE"
+                # Five-layer cascade (context + optional POOR_FIT hard reject)
+                s.metadata = meta
+                if bool((self.cfg.get("trade_cascade") or {}).get("enabled", True)):
+                    try:
+                        from agent.decision.cascade import attach_cascade_to_setup
+
+                        s = attach_cascade_to_setup(
+                            s,
+                            df_ctx,
+                            self.cfg,
+                            lifecycle_state=str(meta.get("lifecycle_state") or "ACTIVE"),
+                        )
+                        meta = dict(s.metadata or {})
+                    except Exception:
+                        pass
+                # Entry-time feature snapshot for learning loop (no lookahead)
+                try:
+                    from agent.learning.features import snapshot_entry_features
+
+                    meta["entry_features"] = snapshot_entry_features(
+                        s,
+                        ctx,
+                        agreeing_n=len(list(meta.get("agreeing_engines") or [])),
+                    )
+                except Exception:
+                    pass
                 s.metadata = meta
                 # Keep strategy-local score; confidence_score becomes global for ranking display
                 s.confidence_score = int(round(gs.score))
                 s.setup_tier = assign_tier_for_setup(s, self.cfg)
+                self._size_setup(s)
+                meta = dict(s.metadata or {})
+                s.metadata = meta
                 if s.strategy_name in report["engines"]:
                     report["engines"][s.strategy_name]["tier"] = s.setup_tier
                     report["engines"][s.strategy_name]["global_score"] = gs.score
@@ -585,6 +814,22 @@ class DecisionPipeline:
                         "strategy_local_score"
                     )
                     report["engines"][s.strategy_name]["breakdown"] = meta["score_breakdown"]
+                    report["engines"][s.strategy_name]["quantity"] = s.quantity
+                    report["engines"][s.strategy_name]["desired_quantity"] = meta.get(
+                        "desired_quantity"
+                    )
+                if s.quantity < 1:
+                    # Finite risk kept — observe as SHADOW research, do not execute
+                    meta["execution_mode"] = "SHADOW"
+                    s.metadata = meta
+                    suppressed.append(
+                        {
+                            "symbol": symbol,
+                            "strategy": s.strategy_name,
+                            "reason": meta.get("sizing_reject") or "RISK_LIMIT qty=0 → SHADOW",
+                            "tier": s.setup_tier,
+                        }
+                    )
                 scored.append(s)
 
             scored.sort(
@@ -604,11 +849,24 @@ class DecisionPipeline:
                     "strategy_local_score": (s.metadata or {}).get("strategy_local_score"),
                     "local_score": (s.metadata or {}).get("strategy_local_score"),
                     "global_score": (s.metadata or {}).get("global_score"),
+                    "router_evidence": (s.metadata or {}).get("router_evidence"),
+                    "entry_features": (s.metadata or {}).get("entry_features"),
+                    "quality_predictions": (s.metadata or {}).get("quality_predictions"),
+                    "router_v1_decision": (s.metadata or {}).get("router_v1_decision"),
+                    "high_confidence_shadow": (s.metadata or {}).get("high_confidence_shadow"),
                     "regime": (s.metadata or {}).get("regime"),
                     "score_breakdown": (s.metadata or {}).get("score_breakdown"),
                     "setup_id": (s.metadata or {}).get("setup_id"),
                     "structural_key": (s.metadata or {}).get("structural_key"),
                     "expected_r": round(s.expected_r, 2),
+                    "quantity": s.quantity,
+                    "desired_quantity": (s.metadata or {}).get("desired_quantity"),
+                    "risk_dollars": round(s.risk_dollars, 2),
+                    "reward_dollars": round(float(s.reward_dollars or 0), 2),
+                    "cascade": (s.metadata or {}).get("cascade"),
+                    "execution_reject_reason": execution_reject_reason(s, self.cfg),
+                    "research_only": bool((s.metadata or {}).get("research_only")),
+                    "execution_mode": (s.metadata or {}).get("execution_mode"),
                     "entry": s.entry,
                     "stop": s.stop,
                     "target": s.target,
@@ -667,17 +925,51 @@ class DecisionPipeline:
                 )
             symbol_reports[symbol] = report
 
-        # Agreement boost across symbols; capture superseded A/A+ (must not vanish)
+        # Agreement boost + empirical router rank; capture superseded A/A+ (must not vanish)
         executable, superseded = select_executable_detailed(raw_setups, self.cfg)
         for s in executable:
             s.setup_tier = assign_tier_for_setup(s, self.cfg)
-        executable = [s for s in executable if can_execute(s, self.cfg)]
+            self._size_setup(s)
+        quality_rejected: list[tuple[TradeSetup, str]] = []
+        kept_exec: list[TradeSetup] = []
+        for s in executable:
+            if s.quantity < 1:
+                quality_rejected.append(
+                    (
+                        s,
+                        str(
+                            (s.metadata or {}).get("sizing_reject")
+                            or "RISK_LIMIT:qty=0"
+                        ),
+                    )
+                )
+                continue
+            reason = execution_reject_reason(s, self.cfg)
+            if reason is None:
+                kept_exec.append(s)
+            else:
+                quality_rejected.append((s, reason))
+                meta = dict(s.metadata or {})
+                meta["nonselected_reason"] = reason
+                s.metadata = meta
+        executable = kept_exec
         journal_only = select_journal_only(raw_setups, self.cfg)
 
         # Flat list of every candidate responsible for setup counts
         all_candidates = []
         for rep in symbol_reports.values():
             all_candidates.extend(rep.get("candidates") or [])
+        # Attach router evidence onto candidate report rows after ranking stage
+        by_id = {
+            (s.metadata or {}).get("setup_id"): s
+            for s in raw_setups
+            if (s.metadata or {}).get("setup_id")
+        }
+        for c in all_candidates:
+            sid = c.get("setup_id")
+            if sid and sid in by_id:
+                c["router_evidence"] = (by_id[sid].metadata or {}).get("router_evidence")
+                c["global_score"] = (by_id[sid].metadata or {}).get("global_score", c.get("global_score"))
         if all_candidates:
             bar_times = [
                 c.get("market_timestamp")
@@ -692,6 +984,128 @@ class DecisionPipeline:
             symbol_reports, executable_count=len(executable)
         )
 
+        def _shadow_row(s: TradeSetup, *, reason: str) -> dict[str, Any]:
+            return {
+                "symbol": s.symbol,
+                "side": s.direction,
+                "direction": s.direction,
+                "tier": s.setup_tier,
+                "confidence": s.confidence_score,
+                "strategy": s.strategy_name,
+                "strategy_name": s.strategy_name,
+                "entry": s.entry,
+                "stop": s.stop,
+                "target": s.target,
+                "expected_r": s.expected_r,
+                "quantity": s.quantity,
+                "point_value": (s.metadata or {}).get("point_value", 5.0),
+                "market_timestamp": str(s.market_timestamp),
+                "received_timestamp": str(s.received_timestamp),
+                "session": s.session,
+                "agent_id": s.agent_id,
+                "global_score": (s.metadata or {}).get("global_score"),
+                "strategy_local_score": (s.metadata or {}).get("strategy_local_score"),
+                "score_breakdown": (s.metadata or {}).get("score_breakdown"),
+                "regime": (s.metadata or {}).get("regime"),
+                "router_evidence": (s.metadata or {}).get("router_evidence"),
+                "config_version": (s.metadata or {}).get("config_version"),
+                "strategy_version": (s.metadata or {}).get("strategy_version"),
+                "setup_id": (s.metadata or {}).get("setup_id"),
+                "structural_key": (s.metadata or {}).get("structural_key"),
+                "nonselected_reason": reason,
+                "shadow_track": True,
+            }
+
+        nonselected_valid = [
+            _shadow_row(a, reason=f"AGREEMENT_SUPERSEDED_BY_{b.strategy_name}")
+            for a, b in superseded
+            if can_execute(a, self.cfg) or str(a.setup_tier).upper() in {"A", "A+", "B"}
+        ]
+        for s, reason in quality_rejected:
+            if str(s.setup_tier).upper() in {"A", "A+", "B"}:
+                nonselected_valid.append(_shadow_row(s, reason=reason))
+
+        superseded_rows = [
+            {
+                "loser": {
+                    "symbol": a.symbol,
+                    "strategy": a.strategy_name,
+                    "tier": a.setup_tier,
+                    "setup_id": (a.metadata or {}).get("setup_id"),
+                    "global_score": (a.metadata or {}).get("global_score"),
+                    "router_evidence": (a.metadata or {}).get("router_evidence"),
+                    "entry": a.entry,
+                    "stop": a.stop,
+                    "target": a.target,
+                    "direction": a.direction,
+                    "session": a.session,
+                    "regime": (a.metadata or {}).get("regime"),
+                    "structural_key": (a.metadata or {}).get("structural_key"),
+                    "point_value": (a.metadata or {}).get("point_value", 5.0),
+                    "quantity": a.quantity,
+                    "expected_r": a.expected_r,
+                    "confidence": a.confidence_score,
+                    "strategy_local_score": (a.metadata or {}).get(
+                        "strategy_local_score"
+                    ),
+                    "score_breakdown": (a.metadata or {}).get("score_breakdown"),
+                    "config_version": (a.metadata or {}).get("config_version"),
+                    "strategy_version": (a.metadata or {}).get("strategy_version"),
+                    "market_timestamp": str(a.market_timestamp),
+                    "received_timestamp": str(a.received_timestamp),
+                    "agent_id": a.agent_id,
+                },
+                "winner": {
+                    "symbol": b.symbol,
+                    "strategy": b.strategy_name,
+                    "tier": b.setup_tier,
+                    "setup_id": (b.metadata or {}).get("setup_id"),
+                    "global_score": (b.metadata or {}).get("global_score"),
+                    "router_evidence": (b.metadata or {}).get("router_evidence"),
+                },
+                "reason": f"AGREEMENT_SUPERSEDED_BY_{b.strategy_name}",
+            }
+            for a, b in superseded
+        ]
+        # Paperable A/A+ killed by quality gates must appear in the ledger (not vanish)
+        for s, reason in quality_rejected:
+            if str(s.setup_tier).upper() not in {"A", "A+"}:
+                continue
+            superseded_rows.append(
+                {
+                    "loser": {
+                        "symbol": s.symbol,
+                        "strategy": s.strategy_name,
+                        "tier": s.setup_tier,
+                        "setup_id": (s.metadata or {}).get("setup_id"),
+                        "global_score": (s.metadata or {}).get("global_score"),
+                        "router_evidence": (s.metadata or {}).get("router_evidence"),
+                        "entry": s.entry,
+                        "stop": s.stop,
+                        "target": s.target,
+                        "direction": s.direction,
+                        "session": s.session,
+                        "regime": (s.metadata or {}).get("regime"),
+                        "structural_key": (s.metadata or {}).get("structural_key"),
+                        "point_value": (s.metadata or {}).get("point_value", 5.0),
+                        "quantity": s.quantity,
+                        "expected_r": s.expected_r,
+                        "confidence": s.confidence_score,
+                        "strategy_local_score": (s.metadata or {}).get(
+                            "strategy_local_score"
+                        ),
+                        "score_breakdown": (s.metadata or {}).get("score_breakdown"),
+                        "config_version": (s.metadata or {}).get("config_version"),
+                        "strategy_version": (s.metadata or {}).get("strategy_version"),
+                        "market_timestamp": str(s.market_timestamp),
+                        "received_timestamp": str(s.received_timestamp),
+                        "agent_id": s.agent_id,
+                    },
+                    "winner": {},
+                    "reason": reason,
+                }
+            )
+
         return {
             "received_time": received.isoformat(),
             "session": session,
@@ -699,26 +1113,12 @@ class DecisionPipeline:
             "symbol_reports": symbol_reports,
             "executable": executable,
             "journal_only": journal_only,
-            "superseded": [
-                {
-                    "loser": {
-                        "symbol": a.symbol,
-                        "strategy": a.strategy_name,
-                        "tier": a.setup_tier,
-                        "setup_id": (a.metadata or {}).get("setup_id"),
-                        "global_score": (a.metadata or {}).get("global_score"),
-                    },
-                    "winner": {
-                        "symbol": b.symbol,
-                        "strategy": b.strategy_name,
-                        "tier": b.setup_tier,
-                        "setup_id": (b.metadata or {}).get("setup_id"),
-                        "global_score": (b.metadata or {}).get("global_score"),
-                    },
-                    "reason": f"AGREEMENT_SUPERSEDED_BY_{b.strategy_name}",
-                }
-                for a, b in superseded
+            "nonselected_valid": nonselected_valid,
+            "quality_rejected": [
+                {"symbol": s.symbol, "strategy": s.strategy_name, "tier": s.setup_tier, "reason": r}
+                for s, r in quality_rejected
             ],
+            "superseded": superseded_rows,
             "all_candidates": all_candidates,
             "last_evaluated_candidates": last_candidates,
             "suppressed": suppressed,

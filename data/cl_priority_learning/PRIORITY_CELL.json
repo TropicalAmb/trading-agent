@@ -1,0 +1,7 @@
+{
+  "cell": "CL|liquidity_reversal",
+  "mode": "PRIORITY_SHADOW_LEARNING",
+  "do_not_globally_promote": true,
+  "engine_status": "research_only (existing)",
+  "updated_at": "2026-08-11T15:13:20.826784+00:00"
+}

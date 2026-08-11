@@ -106,5 +106,21 @@ def session_ok(cfg: dict[str, Any], now: datetime | None = None) -> tuple[bool, 
     ok, info = futures_market_open(cfg, now)
     if not ok:
         return False, info
+
+    now_et = _now_et(cfg, now)
+    mins = now_et.hour * 60 + now_et.minute
+
+    # Research-backed optional filters (Women in Day Trading group + our backtests).
+    # Do not alter Globex weekend/maintenance logic above.
+    if bool(sched.get("skip_friday_entries", False)) and now_et.weekday() == 4:
+        # Still allow early Friday before weekend_close — but group evidence prefers no Fri entries
+        return False, "skip_friday_entries (research filter)"
+
+    delay = int(sched.get("ny_open_entry_delay_minutes", 0) or 0)
+    if delay > 0:
+        ny_open = _parse_hhmm("09:30")
+        if ny_open <= mins < ny_open + delay:
+            return False, f"ny_open_entry_delay ({delay}m after 09:30 ET)"
+
     label = active_session_name(cfg, now) or "globex_open"
     return True, label

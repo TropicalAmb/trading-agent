@@ -37,6 +37,16 @@ data/_tmp_*
 data/_boot_*
 !data/.gitkeep
 
+# Research artifacts: keep markdown reports; skip bulky binaries / caches
+data/**/*.joblib
+data/**/*.pkl
+data/**/models/
+data/**/*_trades.csv
+data/**/parity_state*.csv
+data/**/unified_candidates.csv
+data/**/run_log.txt
+data/**/*_log.txt
+
 # Local scratch
 _tmp_*
 *.tmp

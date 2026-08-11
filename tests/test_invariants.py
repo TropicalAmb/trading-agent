@@ -29,9 +29,9 @@ def _cfg():
     return load_settings(ROOT / "config" / "settings.yaml")
 
 
-def _setup(tier="A", conf=75, symbol="MES", side="BUY", agent="agent_1", r=1.5):
+def _setup(tier="A", conf=75, symbol="MES", side="BUY", agent="agent_1", r=1.6):
     return TradeSetup(
-        strategy_name="ema_pullback",
+        strategy_name="liquidity_sweep",
         symbol=symbol,
         direction=side,
         setup_tier=tier,
@@ -45,6 +45,17 @@ def _setup(tier="A", conf=75, symbol="MES", side="BUY", agent="agent_1", r=1.5):
         reasons=["test"],
         agent_id=agent,
         quantity=1,
+        reward_dollars=160.0,
+        metadata={
+            "has_location": True,
+            "agreeing_engines": ["liquidity_sweep"],
+            "location_source": "location_engine",
+            "cascade": {
+                "thesis": "LONG_SUPPORT",
+                "location": "ACCEPTABLE_LOCATION",
+                "trigger": "BREAKOUT_RETEST",
+            },
+        },
     )
 
 
@@ -55,12 +66,14 @@ def test_one_minute_scan_config():
 
 def test_asia_london_ny_tradable_when_exchange_open():
     cfg = _cfg()
+    # Use non-Friday dates (skip_friday_entries may block Fri)
     # Thu Asia overnight
     ok, label = session_ok(cfg, datetime(2026, 8, 6, 21, 0, tzinfo=ET))
     assert ok and label == "asia"
-    ok, label = session_ok(cfg, datetime(2026, 8, 7, 5, 0, tzinfo=ET))
+    # Thu London / NY
+    ok, label = session_ok(cfg, datetime(2026, 8, 6, 5, 0, tzinfo=ET))
     assert ok and label == "london"
-    ok, label = session_ok(cfg, datetime(2026, 8, 7, 11, 0, tzinfo=ET))
+    ok, label = session_ok(cfg, datetime(2026, 8, 6, 11, 0, tzinfo=ET))
     assert ok and ("ny" in label or label == "ny")
 
 
@@ -81,8 +94,9 @@ def test_symbol_universe_not_mes_mnq_only():
 
 def test_quantity_configurable_not_hardcoded():
     cfg = _cfg()
-    assert int(cfg["quantity"]["default_quantity"]) == 1
-    assert resolve_trade_quantity(cfg, symbol="MES") == 1
+    assert int(cfg["quantity"]["default_quantity"]) == 2
+    assert resolve_trade_quantity(cfg, symbol="MES") == 2
+    assert resolve_trade_quantity(cfg, symbol="MES", tier="A+") == 3
     cfg2 = dict(cfg)
     cfg2["quantity"] = {
         "default_quantity": 5,
@@ -160,7 +174,7 @@ def test_assign_tier_from_confidence():
     assert (
         assign_tier(
             75,
-            expected_r=1.3,
+            expected_r=1.5,
             reason_count=2,
             cfg=cfg,
             strategy_name="liquidity_sweep",
@@ -214,19 +228,22 @@ def test_hard_risk_limit_rejects_over_cap():
     from agent.models import AccountSnapshot
 
     cfg = _cfg()
+    cfg = dict(cfg)
+    cfg["risk"] = dict(cfg.get("risk") or {})
+    cfg["risk"]["max_risk_dollars_per_trade"] = 500  # re-enable for this unit test
     risk = DirectionalRiskEngine(cfg)
     sig = SweepSignal(
         symbol="MGC",
         side="BUY",
         entry=2400,
-        stop=2373,  # 27 pts * $10 = $270 > $250 hard cap
+        stop=2340,  # 60 pts * $10 = $600 > $500 hard cap
         target=2450,
         confidence=90,
         reason="x",
         pdh=1,
         pdl=1,
         ts=datetime.now(timezone.utc),
-        risk_dollars=270.0,
+        risk_dollars=600.0,
         reward_dollars=500.0,
     )
     setattr(sig, "quantity", 1)
@@ -240,6 +257,14 @@ def test_hard_risk_limit_rejects_over_cap():
     ok, reasons = risk.evaluate(sig, acct, [], skip_session_check=True)
     assert not ok
     assert any("RISK_LIMIT" in r for r in reasons)
+
+
+def test_hard_risk_cap_finite_in_live_settings():
+    from agent.execution.risk_budget import effective_max_risk_dollars
+
+    cfg = _cfg()
+    assert float(cfg["risk"]["max_risk_dollars_per_trade"]) == 500
+    assert effective_max_risk_dollars(cfg) == 500.0
 
 
 def test_instrument_point_values_and_stop_risk():
@@ -284,8 +309,10 @@ def test_setup_identity_suppresses_duplicate(tmp_path):
 def test_single_engine_can_qualify_without_mandatory_confluence():
     cfg = _cfg()
     # must_include_one_of empty; min agree not used by decision pipeline
+    # Non-EMA engines can still execute alone; EMA is the partner exception
     assert cfg.get("confluence", {}).get("must_include_one_of") in ([], None)
     s = _setup("A", 80)
+    assert s.strategy_name == "liquidity_sweep"
     assert can_execute(s, cfg)
 
 
@@ -297,6 +324,16 @@ def test_multiple_aa_setups_selected_same_cycle():
         s.strategy_name = "liquidity_sweep"
         s.reasons = ["strategy:liquidity_sweep", "pdh sweep reclaim", "vwap support"]
         s.metadata = {"has_location": True, "agreeing_engines": ["liquidity_sweep"]}
+        s.reward_dollars = 160.0
+        s.expected_r = 1.6
+        s.metadata = {
+            **(s.metadata or {}),
+            "cascade": {
+                "thesis": "LONG_SUPPORT",
+                "location": "ACCEPTABLE_LOCATION",
+                "trigger": "BREAKOUT_RETEST",
+            },
+        }
         s.setup_tier = tier
         setups.append(s)
     exe = select_executable(setups, cfg)
@@ -408,5 +445,6 @@ def test_settings_yaml_poll_and_universe_locked():
     raw = yaml.safe_load((ROOT / "config" / "settings.yaml").read_text(encoding="utf-8"))
     assert raw["schedule"]["poll_interval_minutes"] == 1
     assert "MGC" in raw["universe"]["symbols"]
-    assert raw["quantity"]["default_quantity"] == 1
+    assert raw["quantity"]["default_quantity"] == 2
+    assert raw["quantity"]["quantity_by_tier"]["A"] == 2
     assert raw["tiering"]["minimum_trade_tier"] == "A"

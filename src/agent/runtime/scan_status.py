@@ -145,14 +145,45 @@ def classify_cycle(
         r.get("decision") == "CANDIDATE" or (r.get("candidates") or r.get("last_candidates"))
         for r in symbol_reports.values()
     ):
-        # Bar evaluated but nothing >= minimum tier
-        n_cands = sum(
-            len(r.get("candidates") or r.get("last_candidates") or [])
-            for r in symbol_reports.values()
+        # Bar evaluated but nothing paper-executable this cycle
+        cands = []
+        for r in symbol_reports.values():
+            cands.extend(r.get("candidates") or r.get("last_candidates") or [])
+        n_cands = len(cands)
+        n_a = sum(1 for c in cands if str(c.get("tier") or "").upper() in {"A", "A+"})
+        n_research = sum(
+            1
+            for c in cands
+            if c.get("research_only")
+            or str(c.get("execution_mode") or "") == "SHADOW"
+            or str(c.get("execution_reject_reason") or "").startswith("RESEARCH_ONLY")
         )
+        quality = [
+            str(c.get("execution_reject_reason") or "")
+            for c in cands
+            if str(c.get("execution_reject_reason") or "").startswith("EXECUTION_QUALITY")
+        ]
+        if quality:
+            primary = "PASS — PAPERABLE FILTERED BY QUALITY"
+            detail = (
+                f"Bar processed; {n_a} A/A+ of {n_cands} candidate(s); "
+                f"top quality block: {quality[0]}"
+            )
+        elif n_a > 0 and n_research >= n_a:
+            primary = "PASS — ONLY RESEARCH/SHADOW A"
+            detail = (
+                f"Bar processed; {n_a} A/A+ candidate(s) are research_only/shadow "
+                f"(not paper-executable)"
+            )
+        else:
+            primary = "PASS — NO PAPERABLE CANDIDATE >= A"
+            detail = (
+                f"Bar processed; {n_cands} candidate(s) below minimum_trade_tier "
+                f"or filtered ({n_a} A/A+ seen)"
+            )
         return CycleStatus(
-            "PASS — NO CANDIDATE >= A",
-            f"Bar processed; {n_cands} candidate(s) below minimum_trade_tier or filtered",
+            primary,
+            detail,
             ScanState.PASS_NO_CANDIDATE.value,
             tuple(processed[:6]) or ("PASS_NO_CANDIDATE",),
         )

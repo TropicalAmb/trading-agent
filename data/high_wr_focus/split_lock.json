@@ -1,0 +1,63 @@
+{
+  "locked_at": "2026-08-10T11:59:29.218557+00:00",
+  "rule": "newest 20% FINAL holdout; DEV 70/30",
+  "splits": {
+    "NQ": {
+      "train_end": "2025-07-17 00:00:00-04:00",
+      "val_end": "2026-02-13 00:00:00-05:00",
+      "final_start": "2026-02-15 00:00:00-05:00",
+      "n_days_train": 406,
+      "n_days_val": 174,
+      "n_days_final": 145
+    },
+    "ES": {
+      "train_end": "2025-07-17 00:00:00-04:00",
+      "val_end": "2026-02-13 00:00:00-05:00",
+      "final_start": "2026-02-15 00:00:00-05:00",
+      "n_days_train": 406,
+      "n_days_val": 174,
+      "n_days_final": 145
+    },
+    "GC": {
+      "train_end": "2025-07-17 00:00:00-04:00",
+      "val_end": "2026-02-15 00:00:00-05:00",
+      "final_start": "2026-02-17 00:00:00-05:00",
+      "n_days_train": 406,
+      "n_days_val": 175,
+      "n_days_final": 145
+    },
+    "CL": {
+      "train_end": "2025-07-17 00:00:00-04:00",
+      "val_end": "2026-02-13 00:00:00-05:00",
+      "final_start": "2026-02-15 00:00:00-05:00",
+      "n_days_train": 406,
+      "n_days_val": 174,
+      "n_days_final": 145
+    },
+    "MNQ": {
+      "train_end": "2025-07-17 00:00:00-04:00",
+      "val_end": "2026-02-13 00:00:00-05:00",
+      "final_start": "2026-02-15 00:00:00-05:00",
+      "n_days_train": 406,
+      "n_days_val": 174,
+      "n_days_final": 145
+    },
+    "MES": {
+      "train_end": "2025-07-17 00:00:00-04:00",
+      "val_end": "2026-02-13 00:00:00-05:00",
+      "final_start": "2026-02-15 00:00:00-05:00",
+      "n_days_train": 406,
+      "n_days_val": 174,
+      "n_days_final": 145
+    }
+  },
+  "paper_gates": {
+    "min_wr": 0.0,
+    "min_pf": 1.2,
+    "min_expectancy_r": 0.0,
+    "min_n": 30,
+    "max_worst_loss_r": -5.0,
+    "min_med_win_over_med_loss": 0.35
+  },
+  "aspirational_wr": 0.65
+}

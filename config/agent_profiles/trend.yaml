@@ -2,12 +2,15 @@ agent_id: agent_trend
 agent_profile: trend
 active_strategy: decision_pipeline
 quantity:
-  default_quantity: 1
+  default_quantity: 2
 confluence:
   engines:
-    - ema_pullback
     - momentum
     - vwap_acceptance
+    - breakout_retest
+research_only_engines:
+  - ema_pullback
+  - trend_continuation
 tiering:
   minimum_trade_tier: A
 # Template only — does not replace the active agent until explicitly loaded

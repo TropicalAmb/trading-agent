@@ -1,0 +1,9 @@
+{
+  "armed": false,
+  "existing_position_mode": "MANAGE_EXISTING",
+  "armed_at": "2026-08-11T15:48:19.474854+00:00",
+  "reason": "",
+  "source": "manual",
+  "updated_at": "2026-08-11T15:48:19.496726+00:00",
+  "disarmed_at": "2026-08-11T15:48:19.496697+00:00"
+}

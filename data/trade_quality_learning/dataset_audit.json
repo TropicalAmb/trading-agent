@@ -1,0 +1,128 @@
+{
+  "usable_rows": 109,
+  "date_min": "2026-08-06 20:30:04.889042+00:00",
+  "date_max": "2026-08-07 13:21:55.882791+00:00",
+  "by_strategy": {
+    "unknown": 10,
+    "ema_pullback": 86,
+    "vwap_acceptance": 2,
+    "liquidity_sweep": 3,
+    "trend_continuation": 2,
+    "opening_range": 1,
+    "breakout_retest": 3,
+    "trend_pullback": 2
+  },
+  "by_symbol": {
+    "MNQ": 23,
+    "ES": 4,
+    "GC": 2,
+    "CL": 5,
+    "MES": 22,
+    "M2K": 12,
+    "MCL": 12,
+    "MYM": 19,
+    "MGC": 10
+  },
+  "by_session": {
+    "ny": 76,
+    "asia": 6,
+    "london": 27
+  },
+  "by_regime": {
+    "TREND_DOWN": 30,
+    "EXPANSION_UP": 7,
+    "RANGE": 10,
+    "HIGH_VOLATILITY": 12,
+    "TREND_UP": 45,
+    "EXPANSION_DOWN": 2,
+    "UNKNOWN": 3
+  },
+  "missingness": {
+    "symbol": 0.0,
+    "strategy": 0.0,
+    "direction": 0.0,
+    "session": 0.0,
+    "regime": 0.0,
+    "dir_15m": 0.1743119266055046,
+    "dir_1h": 0.1743119266055046,
+    "dir_4h": 0.1743119266055046,
+    "mtf_aligned": 0.1743119266055046,
+    "above_vwap": 0.1743119266055046,
+    "below_vwap": 0.1743119266055046,
+    "vwap_dist_atr": 0.1743119266055046,
+    "ema_bull": 0.1743119266055046,
+    "ema_bear": 0.1743119266055046,
+    "price_vs_ema20_atr": 0.1743119266055046,
+    "price_vs_ema50_atr": 0.1743119266055046,
+    "ema20_above_ema50": 0.1743119266055046,
+    "overextended": 0.1743119266055046,
+    "near_pdh": 0.1743119266055046,
+    "near_pdl": 0.1743119266055046,
+    "momentum_aligned": 0.1743119266055046,
+    "body_atr": 0.1743119266055046,
+    "upper_wick_atr": 0.1743119266055046,
+    "lower_wick_atr": 0.1743119266055046,
+    "close_loc": 0.1743119266055046,
+    "atr": 0.1743119266055046,
+    "atr_pctile": 0.1743119266055046,
+    "stop_dist_atr": 0.1743119266055046,
+    "target_r": 0.1743119266055046,
+    "local_score": 0.23853211009174313,
+    "global_score": 0.0,
+    "tier_rank": 0.0,
+    "agreeing_n": 1.0
+  },
+  "class_balance": {
+    "win_rate": 0.1926605504587156,
+    "loss_rate": 0.8073394495412844,
+    "n": 109.0
+  },
+  "duplicate_setup_ids": 0,
+  "legacy_excluded": [
+    {
+      "source": "paper",
+      "id": "PAPER-00062-TP1",
+      "why": "incomplete_levels_or_demo"
+    },
+    {
+      "source": "paper",
+      "id": "PAPER-00043-TP1",
+      "why": "incomplete_levels_or_demo"
+    },
+    {
+      "source": "paper",
+      "id": "PAPER-00022-TP1",
+      "why": "incomplete_levels_or_demo"
+    },
+    {
+      "source": "paper",
+      "id": "PAPER-00003",
+      "why": "incomplete_levels_or_demo"
+    },
+    {
+      "source": "paper",
+      "id": "PAPER-00005",
+      "why": "incomplete_levels_or_demo"
+    },
+    {
+      "source": "paper",
+      "id": "PAPER-00004",
+      "why": "incomplete_levels_or_demo"
+    },
+    {
+      "source": "paper",
+      "id": "PAPER-00009",
+      "why": "incomplete_levels_or_demo"
+    },
+    {
+      "source": "paper",
+      "id": "PAPER-00001",
+      "why": "incomplete_levels_or_demo"
+    }
+  ],
+  "legacy_excluded_count": 8,
+  "sources": {
+    "paper": 26,
+    "shadow": 83
+  }
+}

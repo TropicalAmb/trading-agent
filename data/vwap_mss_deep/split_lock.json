@@ -1,0 +1,90 @@
+{
+  "locked_at": "2026-08-09T17:11:49.554965+00:00",
+  "rule": "NEW holdout: newest 20% days FINAL; DEV=70/30 train/val of remaining. Prior research final OOS contaminated \u2014 not reused.",
+  "splits_1h": {
+    "NQ": {
+      "train_end": "2025-07-16 00:00:00-04:00",
+      "val_end": "2026-02-12 00:00:00-05:00",
+      "final_start": "2026-02-13 00:00:00-05:00",
+      "n_days_train": 406,
+      "n_days_val": 174,
+      "n_days_final": 144
+    },
+    "MNQ": {
+      "train_end": "2025-07-16 00:00:00-04:00",
+      "val_end": "2026-02-12 00:00:00-05:00",
+      "final_start": "2026-02-13 00:00:00-05:00",
+      "n_days_train": 406,
+      "n_days_val": 174,
+      "n_days_final": 144
+    },
+    "ES": {
+      "train_end": "2025-07-16 00:00:00-04:00",
+      "val_end": "2026-02-12 00:00:00-05:00",
+      "final_start": "2026-02-13 00:00:00-05:00",
+      "n_days_train": 406,
+      "n_days_val": 174,
+      "n_days_final": 144
+    },
+    "MES": {
+      "train_end": "2025-07-16 00:00:00-04:00",
+      "val_end": "2026-02-12 00:00:00-05:00",
+      "final_start": "2026-02-13 00:00:00-05:00",
+      "n_days_train": 406,
+      "n_days_val": 174,
+      "n_days_final": 144
+    },
+    "GC": {
+      "train_end": "2025-07-16 00:00:00-04:00",
+      "val_end": "2026-02-12 00:00:00-05:00",
+      "final_start": "2026-02-13 00:00:00-05:00",
+      "n_days_train": 406,
+      "n_days_val": 174,
+      "n_days_final": 145
+    },
+    "MGC": {
+      "train_end": "2025-07-16 00:00:00-04:00",
+      "val_end": "2026-02-12 00:00:00-05:00",
+      "final_start": "2026-02-13 00:00:00-05:00",
+      "n_days_train": 406,
+      "n_days_val": 174,
+      "n_days_final": 145
+    },
+    "CL": {
+      "train_end": "2025-07-16 00:00:00-04:00",
+      "val_end": "2026-02-12 00:00:00-05:00",
+      "final_start": "2026-02-13 00:00:00-05:00",
+      "n_days_train": 406,
+      "n_days_val": 174,
+      "n_days_final": 144
+    },
+    "MCL": {
+      "train_end": "2025-07-11 00:00:00-04:00",
+      "val_end": "2026-02-10 00:00:00-05:00",
+      "final_start": "2026-02-11 00:00:00-05:00",
+      "n_days_train": 401,
+      "n_days_val": 173,
+      "n_days_final": 143
+    }
+  },
+  "gates": {
+    "min_wr": 0.65,
+    "min_pf": 1.5,
+    "min_expectancy_r": 0.25,
+    "min_n": 100,
+    "max_worst_loss_r": -5.0,
+    "min_med_win_over_med_loss": 0.35
+  },
+  "symbols_primary": [
+    "NQ",
+    "MNQ",
+    "ES",
+    "MES"
+  ],
+  "symbols_secondary": [
+    "GC",
+    "MGC",
+    "CL",
+    "MCL"
+  ]
+}

@@ -2,13 +2,34 @@ agent_id: agent_1
 agent_profile: balanced
 active_strategy: decision_pipeline
 quantity:
-  default_quantity: 1
+  default_quantity: 2
 confluence:
   engines:
-    - ema_pullback
     - liquidity_sweep
     - vwap_acceptance
     - sweep_retest
     - momentum
+    - breakout_retest
+    - opening_range
+    - vwap_orb
+    - vwap_mss
+    - cl_vwap_prox_momentum
+research_only_engines:
+  - ema_pullback
+  - trend_continuation
+  - trend_pullback
+  - liquidity_reversal
+  - vwap_reclaim
+  - indicator_parity
+  - nq_ny_open_momentum
+execution_profile: balanced
+performance_router:
+  enabled: true
+  min_sample: 30
+  preferred_sample: 50
+performance_router_v2:
+  enabled: false
+trade_quality_model:
+  enabled: true
 tiering:
   minimum_trade_tier: A

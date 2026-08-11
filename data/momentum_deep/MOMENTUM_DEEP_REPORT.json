@@ -1,0 +1,1658 @@
+{
+  "generated": "2026-08-10T12:56:23.158118+00:00",
+  "primary_book": "momentum_5m_parity_bias",
+  "B_1m_parity_bias_baseline": {
+    "n": 895,
+    "wr": 0.5497206703910614,
+    "pf": 2.4477611940298507,
+    "E": 0.6502793296089385,
+    "max_dd": -7.0,
+    "trades_per_week": 639.2857142857143,
+    "label": "STRONGER SAMPLE"
+  },
+  "B2_1m_trigger_baseline": {
+    "n": 1877,
+    "wr": 0.3143313798614811,
+    "pf": 0.9168609168609169,
+    "E": -0.05700586041555674,
+    "max_dd": -120.0,
+    "trades_per_week": 1340.7142857142858,
+    "label": "STRONGER SAMPLE"
+  },
+  "C_5m_trigger_baseline": {
+    "n": 8231,
+    "wr": 0.32231806584862105,
+    "pf": 0.9508425064910823,
+    "E": -0.03331314527915725,
+    "max_dd": -338.7705953604655,
+    "trades_per_week": 697.542372881356,
+    "label": "STRONGER SAMPLE"
+  },
+  "C2_5m_parity_bias_baseline": {
+    "n": 4579,
+    "wr": 0.5167067045206377,
+    "pf": 2.1361857505564976,
+    "E": 0.5491109556631425,
+    "max_dd": -20.0,
+    "trades_per_week": 388.0508474576271,
+    "label": "STRONGER SAMPLE"
+  },
+  "D_winner_loser": {
+    "n_win": 2366,
+    "n_loss": 2213,
+    "features": {
+      "agree_4h": {
+        "winner_rate": 1.0,
+        "loser_rate": 1.0
+      },
+      "agree_1h": {
+        "winner_rate": 1.0,
+        "loser_rate": 1.0
+      },
+      "agree_15m": {
+        "winner_rate": 1.0,
+        "loser_rate": 1.0
+      },
+      "agree_5m": {
+        "winner_rate": 1.0,
+        "loser_rate": 1.0
+      },
+      "agree_1h_15m": {
+        "winner_rate": 1.0,
+        "loser_rate": 1.0
+      },
+      "agree_1h_15m_5m": {
+        "winner_rate": 1.0,
+        "loser_rate": 1.0
+      },
+      "agree_4h_1h": {
+        "winner_rate": 1.0,
+        "loser_rate": 1.0
+      },
+      "agree_all4": {
+        "winner_rate": 1.0,
+        "loser_rate": 1.0
+      },
+      "vwap_side_ok": {
+        "winner_rate": 1.0,
+        "loser_rate": 1.0
+      },
+      "pullback_recent": {
+        "winner_rate": 1.0,
+        "loser_rate": 1.0
+      },
+      "ema_aligned": {
+        "winner_rate": 0.7041420118343196,
+        "loser_rate": 0.7591504744690465
+      },
+      "overextended": {
+        "winner_rate": 0.194843617920541,
+        "loser_rate": 0.3000451875282422
+      },
+      "breakout": {
+        "winner_rate": 0.2265426880811496,
+        "loser_rate": 0.3271577044735653
+      },
+      "retest": {
+        "winner_rate": 0.037193575655114115,
+        "loser_rate": 0.05241753276095797
+      },
+      "rel_volume": {
+        "winner_mean": 1.3259034090307305,
+        "loser_mean": 1.4518837402390607,
+        "winner_median": 1.033847569575026,
+        "loser_median": 1.100649230198479
+      },
+      "abs_dist_vwap_atr": {
+        "winner_mean": 2.6364280044691597,
+        "loser_mean": 2.9008961230784513,
+        "winner_median": 1.504485160977629,
+        "loser_median": 1.950358211716484
+      },
+      "body_range": {
+        "winner_mean": 0.6478316699023424,
+        "loser_mean": 0.6663028624793612,
+        "winner_median": 0.6785776570830635,
+        "loser_median": 0.6932153392330384
+      },
+      "atr_pctile": {
+        "winner_mean": 0.5167353707739167,
+        "loser_mean": 0.5430339789436506,
+        "winner_median": 0.52,
+        "loser_median": 0.57
+      },
+      "htf_agree_count": {
+        "winner_rate": 4.0,
+        "loser_rate": 4.0
+      }
+    }
+  },
+  "D2_mfe_mae": {
+    "mfe_winner_mean": 9.609989272066311,
+    "mfe_loser_mean": 2.5521422367168425,
+    "mae_winner_mean": 1.3654062950775778,
+    "mae_loser_mean": 4.804515452355512
+  },
+  "E_strongest_single": [
+    {
+      "n": 487,
+      "wr": 0.6119096509240246,
+      "pf": 3.1534391534391535,
+      "E": 0.8357289527720739,
+      "max_dd": -6.0,
+      "trades_per_week": 43.482142857142854,
+      "label": "STRONGER SAMPLE",
+      "conditions": "|VWAP|<=0.25ATR",
+      "n_before": 4579,
+      "pct_retained": 0.10635509936667395
+    },
+    {
+      "n": 241,
+      "wr": 0.5560165975103735,
+      "pf": 2.5046728971962615,
+      "E": 0.6680497925311203,
+      "max_dd": -6.0,
+      "trades_per_week": 26.195652173913043,
+      "label": "STRONGER SAMPLE",
+      "conditions": "session=ny_open",
+      "n_before": 4579,
+      "pct_retained": 0.05263157894736842
+    },
+    {
+      "n": 3454,
+      "wr": 0.5515344528083381,
+      "pf": 2.45750503278505,
+      "E": 0.6536407920625485,
+      "max_dd": -16.0,
+      "trades_per_week": 292.7118644067797,
+      "label": "STRONGER SAMPLE",
+      "conditions": "not overextended",
+      "n_before": 4579,
+      "pct_retained": 0.7543131688141516
+    },
+    {
+      "n": 811,
+      "wr": 0.5511713933415536,
+      "pf": 2.456043956043956,
+      "E": 0.6535141800246609,
+      "max_dd": -8.0,
+      "trades_per_week": 69.91379310344827,
+      "label": "STRONGER SAMPLE",
+      "conditions": "|VWAP| 0.25-0.75ATR",
+      "n_before": 4579,
+      "pct_retained": 0.1771129067481983
+    },
+    {
+      "n": 337,
+      "wr": 0.5370919881305638,
+      "pf": 2.3205128205128207,
+      "E": 0.6112759643916914,
+      "max_dd": -9.0,
+      "trades_per_week": 37.44444444444444,
+      "label": "STRONGER SAMPLE",
+      "conditions": "session=ny_lunch",
+      "n_before": 4579,
+      "pct_retained": 0.07359685520856082
+    },
+    {
+      "n": 1790,
+      "wr": 0.5363128491620112,
+      "pf": 2.3132530120481927,
+      "E": 0.6089385474860335,
+      "max_dd": -11.0,
+      "trades_per_week": 151.6949152542373,
+      "label": "STRONGER SAMPLE",
+      "conditions": "session=asia",
+      "n_before": 4579,
+      "pct_retained": 0.3909150469534833
+    },
+    {
+      "n": 2550,
+      "wr": 0.5360784313725491,
+      "pf": 2.307167426865198,
+      "E": 0.6064231631300114,
+      "max_dd": -14.0,
+      "trades_per_week": 216.10169491525423,
+      "label": "STRONGER SAMPLE",
+      "conditions": "rel_vol<=1.15",
+      "n_before": 4579,
+      "pct_retained": 0.5568901506879231
+    },
+    {
+      "n": 312,
+      "wr": 0.5224358974358975,
+      "pf": 2.179219934211319,
+      "E": 0.5631531096073287,
+      "max_dd": -6.0,
+      "trades_per_week": 32.5,
+      "label": "STRONGER SAMPLE",
+      "conditions": "session=ny_mid_morning",
+      "n_before": 4579,
+      "pct_retained": 0.0681371478488753
+    },
+    {
+      "n": 487,
+      "wr": 0.5215605749486653,
+      "pf": 2.180257510729614,
+      "E": 0.5646817248459959,
+      "max_dd": -7.0,
+      "trades_per_week": 50.72916666666667,
+      "label": "STRONGER SAMPLE",
+      "conditions": "session=ny_afternoon",
+      "n_before": 4579,
+      "pct_retained": 0.10635509936667395
+    },
+    {
+      "n": 4579,
+      "wr": 0.5167067045206377,
+      "pf": 2.1361857505564976,
+      "E": 0.5491109556631425,
+      "max_dd": -20.0,
+      "trades_per_week": 388.0508474576271,
+      "label": "STRONGER SAMPLE",
+      "conditions": "4H agrees",
+      "n_before": 4579,
+      "pct_retained": 1.0
+    },
+    {
+      "n": 4579,
+      "wr": 0.5167067045206377,
+      "pf": 2.1361857505564976,
+      "E": 0.5491109556631425,
+      "max_dd": -20.0,
+      "trades_per_week": 388.0508474576271,
+      "label": "STRONGER SAMPLE",
+      "conditions": "1H agrees",
+      "n_before": 4579,
+      "pct_retained": 1.0
+    },
+    {
+      "n": 4579,
+      "wr": 0.5167067045206377,
+      "pf": 2.1361857505564976,
+      "E": 0.5491109556631425,
+      "max_dd": -20.0,
+      "trades_per_week": 388.0508474576271,
+      "label": "STRONGER SAMPLE",
+      "conditions": "15m agrees",
+      "n_before": 4579,
+      "pct_retained": 1.0
+    },
+    {
+      "n": 4579,
+      "wr": 0.5167067045206377,
+      "pf": 2.1361857505564976,
+      "E": 0.5491109556631425,
+      "max_dd": -20.0,
+      "trades_per_week": 388.0508474576271,
+      "label": "STRONGER SAMPLE",
+      "conditions": "5m agrees",
+      "n_before": 4579,
+      "pct_retained": 1.0
+    },
+    {
+      "n": 4579,
+      "wr": 0.5167067045206377,
+      "pf": 2.1361857505564976,
+      "E": 0.5491109556631425,
+      "max_dd": -20.0,
+      "trades_per_week": 388.0508474576271,
+      "label": "STRONGER SAMPLE",
+      "conditions": "1H+15m agree",
+      "n_before": 4579,
+      "pct_retained": 1.0
+    },
+    {
+      "n": 4579,
+      "wr": 0.5167067045206377,
+      "pf": 2.1361857505564976,
+      "E": 0.5491109556631425,
+      "max_dd": -20.0,
+      "trades_per_week": 388.0508474576271,
+      "label": "STRONGER SAMPLE",
+      "conditions": "1H+15m+5m agree",
+      "n_before": 4579,
+      "pct_retained": 1.0
+    },
+    {
+      "n": 4579,
+      "wr": 0.5167067045206377,
+      "pf": 2.1361857505564976,
+      "E": 0.5491109556631425,
+      "max_dd": -20.0,
+      "trades_per_week": 388.0508474576271,
+      "label": "STRONGER SAMPLE",
+      "conditions": "4H+1H agree",
+      "n_before": 4579,
+      "pct_retained": 1.0
+    },
+    {
+      "n": 4579,
+      "wr": 0.5167067045206377,
+      "pf": 2.1361857505564976,
+      "E": 0.5491109556631425,
+      "max_dd": -20.0,
+      "trades_per_week": 388.0508474576271,
+      "label": "STRONGER SAMPLE",
+      "conditions": "4H+1H+15m agree",
+      "n_before": 4579,
+      "pct_retained": 1.0
+    },
+    {
+      "n": 4579,
+      "wr": 0.5167067045206377,
+      "pf": 2.1361857505564976,
+      "E": 0.5491109556631425,
+      "max_dd": -20.0,
+      "trades_per_week": 388.0508474576271,
+      "label": "STRONGER SAMPLE",
+      "conditions": "all 4 TF agree",
+      "n_before": 4579,
+      "pct_retained": 1.0
+    },
+    {
+      "n": 4579,
+      "wr": 0.5167067045206377,
+      "pf": 2.1361857505564976,
+      "E": 0.5491109556631425,
+      "max_dd": -20.0,
+      "trades_per_week": 388.0508474576271,
+      "label": "STRONGER SAMPLE",
+      "conditions": "VWAP side OK",
+      "n_before": 4579,
+      "pct_retained": 1.0
+    },
+    {
+      "n": 4579,
+      "wr": 0.5167067045206377,
+      "pf": 2.1361857505564976,
+      "E": 0.5491109556631425,
+      "max_dd": -20.0,
+      "trades_per_week": 388.0508474576271,
+      "label": "STRONGER SAMPLE",
+      "conditions": "pullback before",
+      "n_before": 4579,
+      "pct_retained": 1.0
+    }
+  ],
+  "F_G_H_interactions": [
+    {
+      "n": 487,
+      "wr": 0.6119096509240246,
+      "pf": 3.1534391534391535,
+      "E": 0.8357289527720739,
+      "max_dd": -6.0,
+      "trades_per_week": 43.482142857142854,
+      "label": "STRONGER SAMPLE",
+      "conditions": "vwap_side_ok & abs_vwap<=0.25",
+      "n_before": 4579,
+      "pct_retained": 0.10635509936667395
+    },
+    {
+      "n": 1298,
+      "wr": 0.573959938366718,
+      "pf": 2.694394213381555,
+      "E": 0.7218798151001541,
+      "max_dd": -8.0,
+      "trades_per_week": 110.0,
+      "label": "STRONGER SAMPLE",
+      "conditions": "agree_all4==1 & abs_vwap<=0.75",
+      "n_before": 4579,
+      "pct_retained": 0.2834680061148722
+    },
+    {
+      "n": 1087,
+      "wr": 0.5712971481140754,
+      "pf": 2.665236051502146,
+      "E": 0.7138914443422263,
+      "max_dd": -8.0,
+      "trades_per_week": 92.11864406779661,
+      "label": "STRONGER SAMPLE",
+      "conditions": "agree_4h_1h==1 & abs_vwap<=0.6",
+      "n_before": 4579,
+      "pct_retained": 0.23738807599912645
+    },
+    {
+      "n": 3454,
+      "wr": 0.5515344528083381,
+      "pf": 2.45750503278505,
+      "E": 0.6536407920625485,
+      "max_dd": -16.0,
+      "trades_per_week": 292.7118644067797,
+      "label": "STRONGER SAMPLE",
+      "conditions": "not overextended & agree_1h_15m & vwap_ok",
+      "n_before": 4579,
+      "pct_retained": 0.7543131688141516
+    },
+    {
+      "n": 811,
+      "wr": 0.5511713933415536,
+      "pf": 2.456043956043956,
+      "E": 0.6535141800246609,
+      "max_dd": -8.0,
+      "trades_per_week": 69.91379310344827,
+      "label": "STRONGER SAMPLE",
+      "conditions": "vwap_side_ok & abs_vwap 0.25-0.75",
+      "n_before": 4579,
+      "pct_retained": 0.1771129067481983
+    },
+    {
+      "n": 4579,
+      "wr": 0.5167067045206377,
+      "pf": 2.1361857505564976,
+      "E": 0.5491109556631425,
+      "max_dd": -20.0,
+      "trades_per_week": 388.0508474576271,
+      "label": "STRONGER SAMPLE",
+      "conditions": "agree_1h_15m==1",
+      "n_before": 4579,
+      "pct_retained": 1.0
+    },
+    {
+      "n": 4579,
+      "wr": 0.5167067045206377,
+      "pf": 2.1361857505564976,
+      "E": 0.5491109556631425,
+      "max_dd": -20.0,
+      "trades_per_week": 388.0508474576271,
+      "label": "STRONGER SAMPLE",
+      "conditions": "agree_1h_15m==1 & vwap_side_ok",
+      "n_before": 4579,
+      "pct_retained": 1.0
+    },
+    {
+      "n": 4579,
+      "wr": 0.5167067045206377,
+      "pf": 2.1361857505564976,
+      "E": 0.5491109556631425,
+      "max_dd": -20.0,
+      "trades_per_week": 388.0508474576271,
+      "label": "STRONGER SAMPLE",
+      "conditions": "agree_1h_15m==1 & pullback_recent",
+      "n_before": 4579,
+      "pct_retained": 1.0
+    },
+    {
+      "n": 4579,
+      "wr": 0.5167067045206377,
+      "pf": 2.1361857505564976,
+      "E": 0.5491109556631425,
+      "max_dd": -20.0,
+      "trades_per_week": 388.0508474576271,
+      "label": "STRONGER SAMPLE",
+      "conditions": "agree_1h_15m_5m==1 & vwap_side_ok",
+      "n_before": 4579,
+      "pct_retained": 1.0
+    },
+    {
+      "n": 4579,
+      "wr": 0.5167067045206377,
+      "pf": 2.1361857505564976,
+      "E": 0.5491109556631425,
+      "max_dd": -20.0,
+      "trades_per_week": 388.0508474576271,
+      "label": "STRONGER SAMPLE",
+      "conditions": "agree_4h_1h_15m==1 & vwap_side_ok & pullback",
+      "n_before": 4579,
+      "pct_retained": 1.0
+    },
+    {
+      "n": 3519,
+      "wr": 0.508667235009946,
+      "pf": 2.0678884129447828,
+      "E": 0.5246885666330007,
+      "max_dd": -12.0,
+      "trades_per_week": 298.22033898305085,
+      "label": "STRONGER SAMPLE",
+      "conditions": "pullback_recent & body_range>0.5",
+      "n_before": 4579,
+      "pct_retained": 0.768508407949334
+    },
+    {
+      "n": 2029,
+      "wr": 0.4923607688516511,
+      "pf": 1.9398058252427184,
+      "E": 0.4770823065549532,
+      "max_dd": -12.0,
+      "trades_per_week": 171.94915254237287,
+      "label": "STRONGER SAMPLE",
+      "conditions": "agree_15m_5m==1 & rel_vol>1.15",
+      "n_before": 4579,
+      "pct_retained": 0.44310984931207686
+    },
+    {
+      "n": 1362,
+      "wr": 0.4698972099853157,
+      "pf": 1.7728531855955678,
+      "E": 0.40969162995594716,
+      "max_dd": -11.0,
+      "trades_per_week": 115.42372881355932,
+      "label": "STRONGER SAMPLE",
+      "conditions": "agree_1h==1 & ema_aligned & rel_vol>1.15",
+      "n_before": 4579,
+      "pct_retained": 0.2974448569556672
+    },
+    {
+      "n": 204,
+      "wr": 0.43137254901960786,
+      "pf": 1.5172413793103448,
+      "E": 0.29411764705882354,
+      "max_dd": -12.0,
+      "trades_per_week": 23.181818181818183,
+      "label": "STRONGER SAMPLE",
+      "conditions": "retest==1 & agree_1h_15m",
+      "n_before": 4579,
+      "pct_retained": 0.04455121205503385
+    },
+    {
+      "n": 1260,
+      "wr": 0.4253968253968254,
+      "pf": 1.4806629834254144,
+      "E": 0.2761904761904762,
+      "max_dd": -15.0,
+      "trades_per_week": 106.77966101694915,
+      "label": "STRONGER SAMPLE",
+      "conditions": "breakout==1 & agree_1h_15m",
+      "n_before": 4579,
+      "pct_retained": 0.27516925092815026
+    }
+  ],
+  "I_wr_ge_65": [],
+  "J_wr_ge_70": [],
+  "J2_wr_ge_75": [],
+  "I0_wr_ge_60_n30": [
+    {
+      "n": 487,
+      "wr": 0.6119096509240246,
+      "pf": 3.1534391534391535,
+      "E": 0.8357289527720739,
+      "max_dd": -6.0,
+      "trades_per_week": 43.482142857142854,
+      "label": "STRONGER SAMPLE",
+      "conditions": "|VWAP|<=0.25ATR",
+      "n_before": 4579,
+      "pct_retained": 0.10635509936667395
+    },
+    {
+      "n": 487,
+      "wr": 0.6119096509240246,
+      "pf": 3.1534391534391535,
+      "E": 0.8357289527720739,
+      "max_dd": -6.0,
+      "trades_per_week": 43.482142857142854,
+      "label": "STRONGER SAMPLE",
+      "conditions": "vwap_side_ok & abs_vwap<=0.25",
+      "n_before": 4579,
+      "pct_retained": 0.10635509936667395
+    }
+  ],
+  "K_pareto": [
+    {
+      "n": 487,
+      "wr": 0.6119096509240246,
+      "pf": 3.1534391534391535,
+      "E": 0.8357289527720739,
+      "max_dd": -6.0,
+      "trades_per_week": 43.482142857142854,
+      "label": "STRONGER SAMPLE",
+      "conditions": "|VWAP|<=0.25ATR",
+      "n_before": 4579,
+      "pct_retained": 0.10635509936667395
+    },
+    {
+      "n": 487,
+      "wr": 0.6119096509240246,
+      "pf": 3.1534391534391535,
+      "E": 0.8357289527720739,
+      "max_dd": -6.0,
+      "trades_per_week": 43.482142857142854,
+      "label": "STRONGER SAMPLE",
+      "conditions": "vwap_side_ok & abs_vwap<=0.25",
+      "n_before": 4579,
+      "pct_retained": 0.10635509936667395
+    },
+    {
+      "n": 1298,
+      "wr": 0.573959938366718,
+      "pf": 2.694394213381555,
+      "E": 0.7218798151001541,
+      "max_dd": -8.0,
+      "trades_per_week": 110.0,
+      "label": "STRONGER SAMPLE",
+      "conditions": "agree_all4==1 & abs_vwap<=0.75",
+      "n_before": 4579,
+      "pct_retained": 0.2834680061148722
+    },
+    {
+      "n": 3454,
+      "wr": 0.5515344528083381,
+      "pf": 2.45750503278505,
+      "E": 0.6536407920625485,
+      "max_dd": -16.0,
+      "trades_per_week": 292.7118644067797,
+      "label": "STRONGER SAMPLE",
+      "conditions": "not overextended",
+      "n_before": 4579,
+      "pct_retained": 0.7543131688141516
+    },
+    {
+      "n": 3454,
+      "wr": 0.5515344528083381,
+      "pf": 2.45750503278505,
+      "E": 0.6536407920625485,
+      "max_dd": -16.0,
+      "trades_per_week": 292.7118644067797,
+      "label": "STRONGER SAMPLE",
+      "conditions": "not overextended & agree_1h_15m & vwap_ok",
+      "n_before": 4579,
+      "pct_retained": 0.7543131688141516
+    },
+    {
+      "conditions": "BASE",
+      "n": 4579,
+      "wr": 0.5167067045206377,
+      "pf": 2.1361857505564976,
+      "E": 0.5491109556631425,
+      "max_dd": -20.0,
+      "trades_per_week": 388.0508474576271,
+      "label": "STRONGER SAMPLE"
+    },
+    {
+      "n": 4579,
+      "wr": 0.5167067045206377,
+      "pf": 2.1361857505564976,
+      "E": 0.5491109556631425,
+      "max_dd": -20.0,
+      "trades_per_week": 388.0508474576271,
+      "label": "STRONGER SAMPLE",
+      "conditions": "BASE",
+      "n_before": 4579,
+      "pct_retained": 1.0
+    },
+    {
+      "n": 4579,
+      "wr": 0.5167067045206377,
+      "pf": 2.1361857505564976,
+      "E": 0.5491109556631425,
+      "max_dd": -20.0,
+      "trades_per_week": 388.0508474576271,
+      "label": "STRONGER SAMPLE",
+      "conditions": "4H agrees",
+      "n_before": 4579,
+      "pct_retained": 1.0
+    },
+    {
+      "n": 4579,
+      "wr": 0.5167067045206377,
+      "pf": 2.1361857505564976,
+      "E": 0.5491109556631425,
+      "max_dd": -20.0,
+      "trades_per_week": 388.0508474576271,
+      "label": "STRONGER SAMPLE",
+      "conditions": "1H agrees",
+      "n_before": 4579,
+      "pct_retained": 1.0
+    },
+    {
+      "n": 4579,
+      "wr": 0.5167067045206377,
+      "pf": 2.1361857505564976,
+      "E": 0.5491109556631425,
+      "max_dd": -20.0,
+      "trades_per_week": 388.0508474576271,
+      "label": "STRONGER SAMPLE",
+      "conditions": "15m agrees",
+      "n_before": 4579,
+      "pct_retained": 1.0
+    },
+    {
+      "n": 4579,
+      "wr": 0.5167067045206377,
+      "pf": 2.1361857505564976,
+      "E": 0.5491109556631425,
+      "max_dd": -20.0,
+      "trades_per_week": 388.0508474576271,
+      "label": "STRONGER SAMPLE",
+      "conditions": "5m agrees",
+      "n_before": 4579,
+      "pct_retained": 1.0
+    },
+    {
+      "n": 4579,
+      "wr": 0.5167067045206377,
+      "pf": 2.1361857505564976,
+      "E": 0.5491109556631425,
+      "max_dd": -20.0,
+      "trades_per_week": 388.0508474576271,
+      "label": "STRONGER SAMPLE",
+      "conditions": "1H+15m agree",
+      "n_before": 4579,
+      "pct_retained": 1.0
+    },
+    {
+      "n": 4579,
+      "wr": 0.5167067045206377,
+      "pf": 2.1361857505564976,
+      "E": 0.5491109556631425,
+      "max_dd": -20.0,
+      "trades_per_week": 388.0508474576271,
+      "label": "STRONGER SAMPLE",
+      "conditions": "1H+15m+5m agree",
+      "n_before": 4579,
+      "pct_retained": 1.0
+    },
+    {
+      "n": 4579,
+      "wr": 0.5167067045206377,
+      "pf": 2.1361857505564976,
+      "E": 0.5491109556631425,
+      "max_dd": -20.0,
+      "trades_per_week": 388.0508474576271,
+      "label": "STRONGER SAMPLE",
+      "conditions": "4H+1H agree",
+      "n_before": 4579,
+      "pct_retained": 1.0
+    },
+    {
+      "n": 4579,
+      "wr": 0.5167067045206377,
+      "pf": 2.1361857505564976,
+      "E": 0.5491109556631425,
+      "max_dd": -20.0,
+      "trades_per_week": 388.0508474576271,
+      "label": "STRONGER SAMPLE",
+      "conditions": "4H+1H+15m agree",
+      "n_before": 4579,
+      "pct_retained": 1.0
+    },
+    {
+      "n": 4579,
+      "wr": 0.5167067045206377,
+      "pf": 2.1361857505564976,
+      "E": 0.5491109556631425,
+      "max_dd": -20.0,
+      "trades_per_week": 388.0508474576271,
+      "label": "STRONGER SAMPLE",
+      "conditions": "all 4 TF agree",
+      "n_before": 4579,
+      "pct_retained": 1.0
+    },
+    {
+      "n": 4579,
+      "wr": 0.5167067045206377,
+      "pf": 2.1361857505564976,
+      "E": 0.5491109556631425,
+      "max_dd": -20.0,
+      "trades_per_week": 388.0508474576271,
+      "label": "STRONGER SAMPLE",
+      "conditions": "VWAP side OK",
+      "n_before": 4579,
+      "pct_retained": 1.0
+    },
+    {
+      "n": 4579,
+      "wr": 0.5167067045206377,
+      "pf": 2.1361857505564976,
+      "E": 0.5491109556631425,
+      "max_dd": -20.0,
+      "trades_per_week": 388.0508474576271,
+      "label": "STRONGER SAMPLE",
+      "conditions": "pullback before",
+      "n_before": 4579,
+      "pct_retained": 1.0
+    },
+    {
+      "n": 4579,
+      "wr": 0.5167067045206377,
+      "pf": 2.1361857505564976,
+      "E": 0.5491109556631425,
+      "max_dd": -20.0,
+      "trades_per_week": 388.0508474576271,
+      "label": "STRONGER SAMPLE",
+      "conditions": "agree_1h_15m==1",
+      "n_before": 4579,
+      "pct_retained": 1.0
+    },
+    {
+      "n": 4579,
+      "wr": 0.5167067045206377,
+      "pf": 2.1361857505564976,
+      "E": 0.5491109556631425,
+      "max_dd": -20.0,
+      "trades_per_week": 388.0508474576271,
+      "label": "STRONGER SAMPLE",
+      "conditions": "agree_1h_15m==1 & vwap_side_ok",
+      "n_before": 4579,
+      "pct_retained": 1.0
+    }
+  ],
+  "L_NQ": {
+    "baseline": {
+      "n": 1205,
+      "wr": 0.5203319502074689,
+      "pf": 2.169550173010381,
+      "E": 0.5609958506224066,
+      "max_dd": -20.0,
+      "trades_per_week": 102.11864406779661,
+      "label": "STRONGER SAMPLE"
+    },
+    "top_conditions": [
+      {
+        "n": 71,
+        "wr": 0.647887323943662,
+        "pf": 3.68,
+        "E": 0.9436619718309859,
+        "max_dd": -2.0,
+        "trades_per_week": 9.86111111111111,
+        "label": "PROMISING / NOT CONFIRMED",
+        "conditions": "session=ny_open",
+        "n_before": 1205,
+        "pct_retained": 0.05892116182572614
+      },
+      {
+        "n": 473,
+        "wr": 0.5581395348837209,
+        "pf": 2.526315789473684,
+        "E": 0.6744186046511628,
+        "max_dd": -11.0,
+        "trades_per_week": 40.08474576271187,
+        "label": "STRONGER SAMPLE",
+        "conditions": "session=asia",
+        "n_before": 1205,
+        "pct_retained": 0.3925311203319502
+      },
+      {
+        "n": 185,
+        "wr": 0.5567567567567567,
+        "pf": 2.5121951219512195,
+        "E": 0.6702702702702703,
+        "max_dd": -5.0,
+        "trades_per_week": 18.137254901960784,
+        "label": "STRONGER SAMPLE",
+        "conditions": "|VWAP| 0.25-0.75ATR",
+        "n_before": 1205,
+        "pct_retained": 0.15352697095435686
+      },
+      {
+        "n": 185,
+        "wr": 0.5567567567567567,
+        "pf": 2.5121951219512195,
+        "E": 0.6702702702702703,
+        "max_dd": -5.0,
+        "trades_per_week": 18.137254901960784,
+        "label": "STRONGER SAMPLE",
+        "conditions": "vwap_side_ok & abs_vwap 0.25-0.75",
+        "n_before": 1205,
+        "pct_retained": 0.15352697095435686
+      },
+      {
+        "n": 317,
+        "wr": 0.555205047318612,
+        "pf": 2.49645390070922,
+        "E": 0.6656151419558359,
+        "max_dd": -6.0,
+        "trades_per_week": 27.32758620689655,
+        "label": "STRONGER SAMPLE",
+        "conditions": "agree_all4==1 & abs_vwap<=0.75",
+        "n_before": 1205,
+        "pct_retained": 0.26307053941908715
+      },
+      {
+        "n": 132,
+        "wr": 0.553030303030303,
+        "pf": 2.4745762711864407,
+        "E": 0.6590909090909091,
+        "max_dd": -5.0,
+        "trades_per_week": 13.75,
+        "label": "STRONGER SAMPLE",
+        "conditions": "|VWAP|<=0.25ATR",
+        "n_before": 1205,
+        "pct_retained": 0.10954356846473029
+      },
+      {
+        "n": 132,
+        "wr": 0.553030303030303,
+        "pf": 2.4745762711864407,
+        "E": 0.6590909090909091,
+        "max_dd": -5.0,
+        "trades_per_week": 13.75,
+        "label": "STRONGER SAMPLE",
+        "conditions": "vwap_side_ok & abs_vwap<=0.25",
+        "n_before": 1205,
+        "pct_retained": 0.10954356846473029
+      },
+      {
+        "n": 923,
+        "wr": 0.5525460455037919,
+        "pf": 2.469733656174334,
+        "E": 0.6576381365113759,
+        "max_dd": -16.0,
+        "trades_per_week": 78.22033898305085,
+        "label": "STRONGER SAMPLE",
+        "conditions": "not overextended",
+        "n_before": 1205,
+        "pct_retained": 0.7659751037344399
+      },
+      {
+        "n": 923,
+        "wr": 0.5525460455037919,
+        "pf": 2.469733656174334,
+        "E": 0.6576381365113759,
+        "max_dd": -16.0,
+        "trades_per_week": 78.22033898305085,
+        "label": "STRONGER SAMPLE",
+        "conditions": "not overextended & agree_1h_15m & vwap_ok",
+        "n_before": 1205,
+        "pct_retained": 0.7659751037344399
+      },
+      {
+        "n": 269,
+        "wr": 0.550185873605948,
+        "pf": 2.446280991735537,
+        "E": 0.6505576208178439,
+        "max_dd": -6.0,
+        "trades_per_week": 24.017857142857146,
+        "label": "STRONGER SAMPLE",
+        "conditions": "agree_4h_1h==1 & abs_vwap<=0.6",
+        "n_before": 1205,
+        "pct_retained": 0.2232365145228216
+      }
+    ]
+  },
+  "M_ES": {
+    "baseline": {
+      "n": 1173,
+      "wr": 0.5089514066496164,
+      "pf": 2.0706662677039698,
+      "E": 0.5257491647037397,
+      "max_dd": -10.0,
+      "trades_per_week": 99.40677966101696,
+      "label": "STRONGER SAMPLE"
+    },
+    "top_conditions": [
+      {
+        "n": 207,
+        "wr": 0.5845410628019324,
+        "pf": 2.813953488372093,
+        "E": 0.7536231884057971,
+        "max_dd": -4.0,
+        "trades_per_week": 19.528301886792452,
+        "label": "STRONGER SAMPLE",
+        "conditions": "|VWAP| 0.25-0.75ATR",
+        "n_before": 1173,
+        "pct_retained": 0.17647058823529413
+      },
+      {
+        "n": 207,
+        "wr": 0.5845410628019324,
+        "pf": 2.813953488372093,
+        "E": 0.7536231884057971,
+        "max_dd": -4.0,
+        "trades_per_week": 19.528301886792452,
+        "label": "STRONGER SAMPLE",
+        "conditions": "vwap_side_ok & abs_vwap 0.25-0.75",
+        "n_before": 1173,
+        "pct_retained": 0.17647058823529413
+      },
+      {
+        "n": 320,
+        "wr": 0.584375,
+        "pf": 2.81203007518797,
+        "E": 0.753125,
+        "max_dd": -6.0,
+        "trades_per_week": 28.07017543859649,
+        "label": "STRONGER SAMPLE",
+        "conditions": "agree_all4==1 & abs_vwap<=0.75",
+        "n_before": 1173,
+        "pct_retained": 0.2728047740835465
+      },
+      {
+        "n": 113,
+        "wr": 0.584070796460177,
+        "pf": 2.8085106382978724,
+        "E": 0.7522123893805309,
+        "max_dd": -5.0,
+        "trades_per_week": 13.452380952380953,
+        "label": "STRONGER SAMPLE",
+        "conditions": "|VWAP|<=0.25ATR",
+        "n_before": 1173,
+        "pct_retained": 0.09633418584825235
+      },
+      {
+        "n": 113,
+        "wr": 0.584070796460177,
+        "pf": 2.8085106382978724,
+        "E": 0.7522123893805309,
+        "max_dd": -5.0,
+        "trades_per_week": 13.452380952380953,
+        "label": "STRONGER SAMPLE",
+        "conditions": "vwap_side_ok & abs_vwap<=0.25",
+        "n_before": 1173,
+        "pct_retained": 0.09633418584825235
+      },
+      {
+        "n": 91,
+        "wr": 0.5824175824175825,
+        "pf": 2.789473684210526,
+        "E": 0.7472527472527473,
+        "max_dd": -3.0,
+        "trades_per_week": 13.787878787878789,
+        "label": "PROMISING / NOT CONFIRMED",
+        "conditions": "session=ny_lunch",
+        "n_before": 1173,
+        "pct_retained": 0.07757885763000852
+      },
+      {
+        "n": 267,
+        "wr": 0.5767790262172284,
+        "pf": 2.725663716814159,
+        "E": 0.7303370786516854,
+        "max_dd": -6.0,
+        "trades_per_week": 24.272727272727273,
+        "label": "STRONGER SAMPLE",
+        "conditions": "agree_4h_1h==1 & abs_vwap<=0.6",
+        "n_before": 1173,
+        "pct_retained": 0.22762148337595908
+      },
+      {
+        "n": 92,
+        "wr": 0.5760869565217391,
+        "pf": 2.684712056345809,
+        "E": 0.7141714151900712,
+        "max_dd": -6.0,
+        "trades_per_week": 11.219512195121952,
+        "label": "PROMISING / NOT CONFIRMED",
+        "conditions": "session=ny_mid_morning",
+        "n_before": 1173,
+        "pct_retained": 0.0784313725490196
+      },
+      {
+        "n": 889,
+        "wr": 0.5489313835770528,
+        "pf": 2.4339152119700747,
+        "E": 0.6467941507311586,
+        "max_dd": -7.0,
+        "trades_per_week": 75.33898305084746,
+        "label": "STRONGER SAMPLE",
+        "conditions": "not overextended",
+        "n_before": 1173,
+        "pct_retained": 0.7578857630008525
+      },
+      {
+        "n": 889,
+        "wr": 0.5489313835770528,
+        "pf": 2.4339152119700747,
+        "E": 0.6467941507311586,
+        "max_dd": -7.0,
+        "trades_per_week": 75.33898305084746,
+        "label": "STRONGER SAMPLE",
+        "conditions": "not overextended & agree_1h_15m & vwap_ok",
+        "n_before": 1173,
+        "pct_retained": 0.7578857630008525
+      }
+    ]
+  },
+  "N_GC": {
+    "baseline": {
+      "n": 1098,
+      "wr": 0.5091074681238615,
+      "pf": 2.068043220378558,
+      "E": 0.5242944406047747,
+      "max_dd": -12.0,
+      "trades_per_week": 93.05084745762711,
+      "label": "STRONGER SAMPLE"
+    },
+    "top_conditions": [
+      {
+        "n": 121,
+        "wr": 0.6198347107438017,
+        "pf": 3.260869565217391,
+        "E": 0.859504132231405,
+        "max_dd": -6.0,
+        "trades_per_week": 13.75,
+        "label": "STRONGER SAMPLE",
+        "conditions": "|VWAP|<=0.25ATR",
+        "n_before": 1098,
+        "pct_retained": 0.11020036429872496
+      },
+      {
+        "n": 121,
+        "wr": 0.6198347107438017,
+        "pf": 3.260869565217391,
+        "E": 0.859504132231405,
+        "max_dd": -6.0,
+        "trades_per_week": 13.75,
+        "label": "STRONGER SAMPLE",
+        "conditions": "vwap_side_ok & abs_vwap<=0.25",
+        "n_before": 1098,
+        "pct_retained": 0.11020036429872496
+      },
+      {
+        "n": 330,
+        "wr": 0.5848484848484848,
+        "pf": 2.8175182481751824,
+        "E": 0.7545454545454545,
+        "max_dd": -8.0,
+        "trades_per_week": 28.947368421052634,
+        "label": "STRONGER SAMPLE",
+        "conditions": "agree_all4==1 & abs_vwap<=0.75",
+        "n_before": 1098,
+        "pct_retained": 0.3005464480874317
+      },
+      {
+        "n": 120,
+        "wr": 0.575,
+        "pf": 2.7058823529411766,
+        "E": 0.725,
+        "max_dd": -6.0,
+        "trades_per_week": 15.789473684210527,
+        "label": "STRONGER SAMPLE",
+        "conditions": "session=ny_afternoon",
+        "n_before": 1098,
+        "pct_retained": 0.1092896174863388
+      },
+      {
+        "n": 209,
+        "wr": 0.5645933014354066,
+        "pf": 2.5934065934065935,
+        "E": 0.69377990430622,
+        "max_dd": -7.0,
+        "trades_per_week": 19.35185185185185,
+        "label": "STRONGER SAMPLE",
+        "conditions": "|VWAP| 0.25-0.75ATR",
+        "n_before": 1098,
+        "pct_retained": 0.19034608378870674
+      },
+      {
+        "n": 209,
+        "wr": 0.5645933014354066,
+        "pf": 2.5934065934065935,
+        "E": 0.69377990430622,
+        "max_dd": -7.0,
+        "trades_per_week": 19.35185185185185,
+        "label": "STRONGER SAMPLE",
+        "conditions": "vwap_side_ok & abs_vwap 0.25-0.75",
+        "n_before": 1098,
+        "pct_retained": 0.19034608378870674
+      },
+      {
+        "n": 275,
+        "wr": 0.5636363636363636,
+        "pf": 2.5833333333333335,
+        "E": 0.6909090909090909,
+        "max_dd": -8.0,
+        "trades_per_week": 24.122807017543863,
+        "label": "STRONGER SAMPLE",
+        "conditions": "agree_4h_1h==1 & abs_vwap<=0.6",
+        "n_before": 1098,
+        "pct_retained": 0.25045537340619306
+      },
+      {
+        "n": 63,
+        "wr": 0.5555555555555556,
+        "pf": 2.5,
+        "E": 0.6666666666666666,
+        "max_dd": -5.0,
+        "trades_per_week": 9.545454545454547,
+        "label": "PROMISING / NOT CONFIRMED",
+        "conditions": "session=ny_mid_morning",
+        "n_before": 1098,
+        "pct_retained": 0.05737704918032787
+      },
+      {
+        "n": 807,
+        "wr": 0.5464684014869888,
+        "pf": 2.4007521742733404,
+        "E": 0.6352853727187642,
+        "max_dd": -8.0,
+        "trades_per_week": 68.38983050847457,
+        "label": "STRONGER SAMPLE",
+        "conditions": "not overextended",
+        "n_before": 1098,
+        "pct_retained": 0.7349726775956285
+      },
+      {
+        "n": 807,
+        "wr": 0.5464684014869888,
+        "pf": 2.4007521742733404,
+        "E": 0.6352853727187642,
+        "max_dd": -8.0,
+        "trades_per_week": 68.38983050847457,
+        "label": "STRONGER SAMPLE",
+        "conditions": "not overextended & agree_1h_15m & vwap_ok",
+        "n_before": 1098,
+        "pct_retained": 0.7349726775956285
+      }
+    ]
+  },
+  "O_CL": {
+    "baseline": {
+      "n": 1103,
+      "wr": 0.528558476881233,
+      "pf": 2.2423076923076923,
+      "E": 0.585675430643699,
+      "max_dd": -10.0,
+      "trades_per_week": 93.47457627118644,
+      "label": "STRONGER SAMPLE"
+    },
+    "top_conditions": [
+      {
+        "n": 121,
+        "wr": 0.6942148760330579,
+        "pf": 4.54054054054054,
+        "E": 1.0826446280991735,
+        "max_dd": -5.0,
+        "trades_per_week": 13.75,
+        "label": "STRONGER SAMPLE",
+        "conditions": "|VWAP|<=0.25ATR",
+        "n_before": 1103,
+        "pct_retained": 0.10970081595648232
+      },
+      {
+        "n": 121,
+        "wr": 0.6942148760330579,
+        "pf": 4.54054054054054,
+        "E": 1.0826446280991735,
+        "max_dd": -5.0,
+        "trades_per_week": 13.75,
+        "label": "STRONGER SAMPLE",
+        "conditions": "vwap_side_ok & abs_vwap<=0.25",
+        "n_before": 1103,
+        "pct_retained": 0.10970081595648232
+      },
+      {
+        "n": 276,
+        "wr": 0.5942028985507246,
+        "pf": 2.9285714285714284,
+        "E": 0.782608695652174,
+        "max_dd": -6.0,
+        "trades_per_week": 24.642857142857146,
+        "label": "STRONGER SAMPLE",
+        "conditions": "agree_4h_1h==1 & abs_vwap<=0.6",
+        "n_before": 1103,
+        "pct_retained": 0.25022665457842247
+      },
+      {
+        "n": 331,
+        "wr": 0.5709969788519638,
+        "pf": 2.6619718309859155,
+        "E": 0.7129909365558912,
+        "max_dd": -7.0,
+        "trades_per_week": 29.553571428571427,
+        "label": "STRONGER SAMPLE",
+        "conditions": "agree_all4==1 & abs_vwap<=0.75",
+        "n_before": 1103,
+        "pct_retained": 0.300090661831369
+      },
+      {
+        "n": 835,
+        "wr": 0.5580838323353293,
+        "pf": 2.5257452574525745,
+        "E": 0.6742514970059881,
+        "max_dd": -8.0,
+        "trades_per_week": 70.76271186440678,
+        "label": "STRONGER SAMPLE",
+        "conditions": "not overextended",
+        "n_before": 1103,
+        "pct_retained": 0.757026291931097
+      },
+      {
+        "n": 835,
+        "wr": 0.5580838323353293,
+        "pf": 2.5257452574525745,
+        "E": 0.6742514970059881,
+        "max_dd": -8.0,
+        "trades_per_week": 70.76271186440678,
+        "label": "STRONGER SAMPLE",
+        "conditions": "not overextended & agree_1h_15m & vwap_ok",
+        "n_before": 1103,
+        "pct_retained": 0.757026291931097
+      },
+      {
+        "n": 570,
+        "wr": 0.5578947368421052,
+        "pf": 2.5238095238095237,
+        "E": 0.6736842105263158,
+        "max_dd": -10.0,
+        "trades_per_week": 48.305084745762706,
+        "label": "STRONGER SAMPLE",
+        "conditions": "rel_vol<=1.15",
+        "n_before": 1103,
+        "pct_retained": 0.5167724388032638
+      },
+      {
+        "n": 426,
+        "wr": 0.5492957746478874,
+        "pf": 2.4375,
+        "E": 0.647887323943662,
+        "max_dd": -6.0,
+        "trades_per_week": 36.10169491525424,
+        "label": "STRONGER SAMPLE",
+        "conditions": "session=asia",
+        "n_before": 1103,
+        "pct_retained": 0.386219401631913
+      },
+      {
+        "n": 71,
+        "wr": 0.5352112676056338,
+        "pf": 2.303030303030303,
+        "E": 0.6056338028169014,
+        "max_dd": -3.0,
+        "trades_per_week": 11.09375,
+        "label": "PROMISING / NOT CONFIRMED",
+        "conditions": "session=ny_mid_morning",
+        "n_before": 1103,
+        "pct_retained": 0.0643699002719855
+      },
+      {
+        "n": 49,
+        "wr": 0.5306122448979592,
+        "pf": 2.260869565217391,
+        "E": 0.5918367346938775,
+        "max_dd": -4.0,
+        "trades_per_week": 9.423076923076923,
+        "label": "PROMISING / NOT CONFIRMED",
+        "conditions": "session=ny_open",
+        "n_before": 1103,
+        "pct_retained": 0.044424297370806894
+      }
+    ]
+  },
+  "P_sessions": {
+    "asia": {
+      "n": 1790,
+      "wr": 0.5363128491620112,
+      "pf": 2.3132530120481927,
+      "E": 0.6089385474860335,
+      "max_dd": -11.0,
+      "trades_per_week": 151.6949152542373,
+      "label": "STRONGER SAMPLE"
+    },
+    "london": {
+      "n": 1111,
+      "wr": 0.4671467146714671,
+      "pf": 1.7533783783783783,
+      "E": 0.4014401440144014,
+      "max_dd": -18.0,
+      "trades_per_week": 113.36734693877551,
+      "label": "STRONGER SAMPLE"
+    },
+    "ny_afternoon": {
+      "n": 487,
+      "wr": 0.5215605749486653,
+      "pf": 2.180257510729614,
+      "E": 0.5646817248459959,
+      "max_dd": -7.0,
+      "trades_per_week": 50.72916666666667,
+      "label": "STRONGER SAMPLE"
+    },
+    "ny_lunch": {
+      "n": 337,
+      "wr": 0.5370919881305638,
+      "pf": 2.3205128205128207,
+      "E": 0.6112759643916914,
+      "max_dd": -9.0,
+      "trades_per_week": 37.44444444444444,
+      "label": "STRONGER SAMPLE"
+    },
+    "ny_mid_morning": {
+      "n": 312,
+      "wr": 0.5224358974358975,
+      "pf": 2.179219934211319,
+      "E": 0.5631531096073287,
+      "max_dd": -6.0,
+      "trades_per_week": 32.5,
+      "label": "STRONGER SAMPLE"
+    },
+    "ny_open": {
+      "n": 241,
+      "wr": 0.5560165975103735,
+      "pf": 2.5046728971962615,
+      "E": 0.6680497925311203,
+      "max_dd": -6.0,
+      "trades_per_week": 26.195652173913043,
+      "label": "STRONGER SAMPLE"
+    },
+    "ny_premarket": {
+      "n": 301,
+      "wr": 0.5149501661129569,
+      "pf": 2.1005157245482375,
+      "E": 0.5338049693822016,
+      "max_dd": -6.0,
+      "trades_per_week": 30.714285714285715,
+      "label": "STRONGER SAMPLE"
+    }
+  },
+  "Q_tree": {
+    "max_depth": 3,
+    "min_samples_leaf": 30,
+    "train_accuracy": 0.5754531557108539,
+    "tree_text": "|--- overextended <= 0.50\n|   |--- abs_dist_vwap_atr <= 0.42\n|   |   |--- body_range <= 0.38\n|   |   |   |--- class: 1\n|   |   |--- body_range >  0.38\n|   |   |   |--- class: 1\n|   |--- abs_dist_vwap_atr >  0.42\n|   |   |--- abs_dist_vwap_atr <= 0.50\n|   |   |   |--- class: 0\n|   |   |--- abs_dist_vwap_atr >  0.50\n|   |   |   |--- class: 1\n|--- overextended >  0.50\n|   |--- abs_dist_vwap_atr <= 0.91\n|   |   |--- breakout <= 0.50\n|   |   |   |--- class: 1\n|   |   |--- breakout >  0.50\n|   |   |   |--- class: 0\n|   |--- abs_dist_vwap_atr >  0.91\n|   |   |--- abs_dist_vwap_atr <= 10.41\n|   |   |   |--- class: 0\n|   |   |--- abs_dist_vwap_atr >  10.41\n|   |   |   |--- class: 1\n",
+    "feature_importances": {
+      "agree_4h": 0.0,
+      "agree_1h": 0.0,
+      "agree_15m": 0.0,
+      "agree_5m": 0.0,
+      "agree_1h_15m": 0.0,
+      "vwap_side_ok": 0.0,
+      "abs_dist_vwap_atr": 0.38488856024940743,
+      "pullback_recent": 0.0,
+      "rel_volume": 0.0,
+      "ema_aligned": 0.0,
+      "overextended": 0.45757888790126405,
+      "body_range": 0.06142806710627769,
+      "htf_agree_count": 0.0,
+      "breakout": 0.09610448474305072
+    }
+  },
+  "R_oos": [
+    {
+      "name": "|VWAP|<=0.25ATR",
+      "splits": {
+        "TRAIN": {
+          "n": 317,
+          "wr": 0.6151419558359621,
+          "pf": 3.19672131147541,
+          "E": 0.8454258675078864,
+          "max_dd": -7.0,
+          "trades_per_week": 44.02777777777778,
+          "label": "STRONGER SAMPLE",
+          "n_universe": 2747,
+          "pct_retained": 0.11539861667273389
+        },
+        "VALIDATION": {
+          "n": 95,
+          "wr": 0.6210526315789474,
+          "pf": 3.2777777777777777,
+          "E": 0.8631578947368421,
+          "max_dd": -6.0,
+          "trades_per_week": 43.18181818181819,
+          "label": "PROMISING / NOT CONFIRMED",
+          "n_universe": 916,
+          "pct_retained": 0.1037117903930131
+        },
+        "FINAL": {
+          "n": 75,
+          "wr": 0.5866666666666667,
+          "pf": 2.838709677419355,
+          "E": 0.76,
+          "max_dd": -6.0,
+          "trades_per_week": 37.5,
+          "label": "PROMISING / NOT CONFIRMED",
+          "n_universe": 916,
+          "pct_retained": 0.08187772925764192
+        }
+      },
+      "overfit_flag": false,
+      "stable": true
+    },
+    {
+      "name": "vwap_side_ok & abs_vwap<=0.25",
+      "splits": {
+        "TRAIN": {
+          "n": 317,
+          "wr": 0.6151419558359621,
+          "pf": 3.19672131147541,
+          "E": 0.8454258675078864,
+          "max_dd": -7.0,
+          "trades_per_week": 44.02777777777778,
+          "label": "STRONGER SAMPLE",
+          "n_universe": 2747,
+          "pct_retained": 0.11539861667273389
+        },
+        "VALIDATION": {
+          "n": 95,
+          "wr": 0.6210526315789474,
+          "pf": 3.2777777777777777,
+          "E": 0.8631578947368421,
+          "max_dd": -6.0,
+          "trades_per_week": 43.18181818181819,
+          "label": "PROMISING / NOT CONFIRMED",
+          "n_universe": 916,
+          "pct_retained": 0.1037117903930131
+        },
+        "FINAL": {
+          "n": 75,
+          "wr": 0.5866666666666667,
+          "pf": 2.838709677419355,
+          "E": 0.76,
+          "max_dd": -6.0,
+          "trades_per_week": 37.5,
+          "label": "PROMISING / NOT CONFIRMED",
+          "n_universe": 916,
+          "pct_retained": 0.08187772925764192
+        }
+      },
+      "overfit_flag": false,
+      "stable": true
+    }
+  ],
+  "S_pine_boolean": {
+    "source": "data/indicator_parity/MTF_Sweep_Retest_Assistant.pine",
+    "BUY_NOW": "longBias AND longSetup AND (close > open) AND (close > high[1])",
+    "SELL_NOW": "shortBias AND shortSetup AND (close < open) AND (close < low[1])",
+    "longBias": "allBullNow AND (useVWAP ? close > vwap : TRUE)  where allBullNow = (s15==1 AND s1h==1 AND s4h==1)",
+    "shortBias": "allBearNow AND (useVWAP ? close < vwap : TRUE)",
+    "longSetup": "longSweepActive AND longRetestZone AND close > pdl",
+    "shortSetup": "shortSweepActive AND shortRetestZone AND close < pdh",
+    "longSweep": "low < pdl AND close > pdl",
+    "shortSweep": "high > pdh AND close < pdh",
+    "longSweepActive": "bars_since_longSweep <= sweepValidBars (default 240)",
+    "longRetestZone": "low in [pdl - atr*retestZoneATR, pdl + atr*retestZoneATR]",
+    "mandatory_for_BUY_NOW": [
+      "all three HTF bullish (15/60/240)",
+      "VWAP filter when useVWAP=true (default)",
+      "PDL sweep then retest zone active",
+      "close > pdl",
+      "bullish confirmation candle vs prior high"
+    ],
+    "confidence_score_NOT_required_for_BUY_NOW": true,
+    "ema_stack_NOT_required_for_BUY_NOW": true
+  },
+  "T_funnel": {
+    "NQ": {
+      "symbol": "NQ",
+      "interval": "1m",
+      "period": "7d",
+      "bars_total": 7365,
+      "candidate_bars_after_warmup": 7285,
+      "long_all3_htf": 2005,
+      "long_htf_and_vwap": 1738,
+      "long_parity_momentum_bias_trigger": 590,
+      "long_pullback_entry_bars": 1,
+      "final_BUY_NOW": 0,
+      "final_SELL_NOW": 2,
+      "final_signals_either": 2,
+      "why_n_collapsed": "BUY NOW requires ALL of: allBullNow(15+1h+4h) AND VWAP AND longSweepActive+retestZone+close>pdl AND bullish break of prior high. On ~7d of 1m data that intersection is rare (often single-digit per symbol)."
+    },
+    "all": [
+      {
+        "symbol": "NQ",
+        "interval": "1m",
+        "period": "7d",
+        "bars_total": 7365,
+        "candidate_bars_after_warmup": 7285,
+        "long_all3_htf": 2005,
+        "long_htf_and_vwap": 1738,
+        "long_parity_momentum_bias_trigger": 590,
+        "long_pullback_entry_bars": 1,
+        "final_BUY_NOW": 0,
+        "final_SELL_NOW": 2,
+        "final_signals_either": 2,
+        "why_n_collapsed": "BUY NOW requires ALL of: allBullNow(15+1h+4h) AND VWAP AND longSweepActive+retestZone+close>pdl AND bullish break of prior high. On ~7d of 1m data that intersection is rare (often single-digit per symbol)."
+      },
+      {
+        "symbol": "ES",
+        "interval": "1m",
+        "period": "7d",
+        "bars_total": 7365,
+        "candidate_bars_after_warmup": 7285,
+        "long_all3_htf": 2290,
+        "long_htf_and_vwap": 1885,
+        "long_parity_momentum_bias_trigger": 562,
+        "long_pullback_entry_bars": 0,
+        "final_BUY_NOW": 0,
+        "final_SELL_NOW": 3,
+        "final_signals_either": 3,
+        "why_n_collapsed": "BUY NOW requires ALL of: allBullNow(15+1h+4h) AND VWAP AND longSweepActive+retestZone+close>pdl AND bullish break of prior high. On ~7d of 1m data that intersection is rare (often single-digit per symbol)."
+      },
+      {
+        "symbol": "MNQ",
+        "interval": "1m",
+        "period": "7d",
+        "bars_total": 7365,
+        "candidate_bars_after_warmup": 7285,
+        "long_all3_htf": 1960,
+        "long_htf_and_vwap": 1691,
+        "long_parity_momentum_bias_trigger": 556,
+        "long_pullback_entry_bars": 1,
+        "final_BUY_NOW": 0,
+        "final_SELL_NOW": 2,
+        "final_signals_either": 2,
+        "why_n_collapsed": "BUY NOW requires ALL of: allBullNow(15+1h+4h) AND VWAP AND longSweepActive+retestZone+close>pdl AND bullish break of prior high. On ~7d of 1m data that intersection is rare (often single-digit per symbol)."
+      },
+      {
+        "symbol": "MES",
+        "interval": "1m",
+        "period": "7d",
+        "bars_total": 7365,
+        "candidate_bars_after_warmup": 7285,
+        "long_all3_htf": 2320,
+        "long_htf_and_vwap": 1930,
+        "long_parity_momentum_bias_trigger": 543,
+        "long_pullback_entry_bars": 0,
+        "final_BUY_NOW": 0,
+        "final_SELL_NOW": 4,
+        "final_signals_either": 4,
+        "why_n_collapsed": "BUY NOW requires ALL of: allBullNow(15+1h+4h) AND VWAP AND longSweepActive+retestZone+close>pdl AND bullish break of prior high. On ~7d of 1m data that intersection is rare (often single-digit per symbol)."
+      }
+    ]
+  },
+  "U_paper": {
+    "change_active_paper": false,
+    "reason": "Diagnostic pass only; require stable OOS before any paper change.",
+    "interesting": true,
+    "stable_rules": [
+      "|VWAP|<=0.25ATR",
+      "vwap_side_ok & abs_vwap<=0.25"
+    ]
+  },
+  "multi_R": {
+    "1.0R": {
+      "wr": 0.6691417340030574,
+      "n": 4579
+    },
+    "1.25R": {
+      "wr": 0.6221882507097619,
+      "n": 4579
+    },
+    "1.5R": {
+      "wr": 0.580694474776152,
+      "n": 4579
+    },
+    "2.0R": {
+      "wr": 0.5160515396374754,
+      "n": 4579
+    }
+  }
+}

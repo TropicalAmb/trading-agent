@@ -1,0 +1,1677 @@
+{
+  "generated_at": "2026-08-11T18:05:52.451328+00:00",
+  "data_note": "Yahoo 5m ~60d only \u2014 NOT Databento. Results are directional research, not live-proof. Prefer Databento for multi-month CME bars when ready.",
+  "nq_ny_open_specialist": {
+    "cell": "nq_ny_open_momentum_v1",
+    "session": "ny_open",
+    "family": "NQ_FAMILY",
+    "verdict": "KEEP_RESEARCH",
+    "evidence": "DEVELOPING",
+    "stats": {
+      "n": 74,
+      "wr": 0.6486486486486487,
+      "pf": 3.6923076923076925,
+      "E": 0.9459459459459459,
+      "max_dd": -2.0,
+      "trades_per_week": 9.736842105263158,
+      "label": "PROMISING / NOT CONFIRMED",
+      "expectancy_r": 0.9459459459459459,
+      "max_dd_r": -2.0
+    },
+    "walk_forward": [
+      {
+        "fold": 1,
+        "n": 14,
+        "wr": 0.5714285714285714,
+        "pf": 2.6666666666666665,
+        "expectancy_r": 0.7142857142857143,
+        "max_dd_r": -4.0,
+        "label": "ANECDOTAL"
+      },
+      {
+        "fold": 2,
+        "n": 15,
+        "wr": 0.6,
+        "pf": 3.0,
+        "expectancy_r": 0.8,
+        "max_dd_r": -3.0,
+        "label": "ANECDOTAL"
+      },
+      {
+        "fold": 3,
+        "n": 15,
+        "wr": 0.7333333333333333,
+        "pf": 5.5,
+        "expectancy_r": 1.2,
+        "max_dd_r": -4.0,
+        "label": "ANECDOTAL"
+      },
+      {
+        "fold": 4,
+        "n": 15,
+        "wr": 0.6,
+        "pf": 3.0,
+        "expectancy_r": 0.8,
+        "max_dd_r": -4.0,
+        "label": "ANECDOTAL"
+      },
+      {
+        "fold": 5,
+        "n": 15,
+        "wr": 0.7333333333333333,
+        "pf": 5.5,
+        "expectancy_r": 1.2,
+        "max_dd_r": -2.0,
+        "label": "ANECDOTAL"
+      }
+    ],
+    "n": 74,
+    "wr": 0.6486486486486487,
+    "pf": 3.6923076923076925,
+    "expectancy_r": 0.9459459459459459,
+    "max_dd_r": -2.0,
+    "trades_per_week": 9.736842105263158
+  },
+  "session_open_cells": [
+    {
+      "cell": "NQ_FAMILY|asia|parity_mom",
+      "session": "asia",
+      "family": "NQ_FAMILY",
+      "symbols": [
+        "NQ",
+        "MNQ"
+      ],
+      "verdict": "KEEP_RESEARCH",
+      "evidence": "VALIDATED",
+      "stats": {
+        "n": 485,
+        "wr": 0.5628865979381443,
+        "pf": 2.5754716981132075,
+        "E": 0.688659793814433,
+        "max_dd": -11.0,
+        "trades_per_week": 40.41666666666667,
+        "label": "STRONGER SAMPLE",
+        "expectancy_r": 0.688659793814433,
+        "max_dd_r": -11.0
+      },
+      "walk_forward": [
+        {
+          "fold": 1,
+          "n": 97,
+          "wr": 0.6701030927835051,
+          "pf": 4.0625,
+          "expectancy_r": 1.0103092783505154,
+          "max_dd_r": -8.0,
+          "label": "DEVELOPING"
+        },
+        {
+          "fold": 2,
+          "n": 97,
+          "wr": 0.6082474226804123,
+          "pf": 3.1052631578947367,
+          "expectancy_r": 0.8247422680412371,
+          "max_dd_r": -8.0,
+          "label": "DEVELOPING"
+        },
+        {
+          "fold": 3,
+          "n": 97,
+          "wr": 0.5360824742268041,
+          "pf": 2.311111111111111,
+          "expectancy_r": 0.6082474226804123,
+          "max_dd_r": -8.0,
+          "label": "DEVELOPING"
+        },
+        {
+          "fold": 4,
+          "n": 97,
+          "wr": 0.4742268041237113,
+          "pf": 1.803921568627451,
+          "expectancy_r": 0.422680412371134,
+          "max_dd_r": -18.0,
+          "label": "DEVELOPING"
+        },
+        {
+          "fold": 5,
+          "n": 97,
+          "wr": 0.5257731958762887,
+          "pf": 2.217391304347826,
+          "expectancy_r": 0.5773195876288659,
+          "max_dd_r": -9.0,
+          "label": "DEVELOPING"
+        }
+      ],
+      "n": 485,
+      "wr": 0.5628865979381443,
+      "pf": 2.5754716981132075,
+      "expectancy_r": 0.688659793814433,
+      "max_dd_r": -11.0,
+      "trades_per_week": 40.41666666666667
+    },
+    {
+      "cell": "ES_FAMILY|asia|parity_mom",
+      "session": "asia",
+      "family": "ES_FAMILY",
+      "symbols": [
+        "ES",
+        "MES"
+      ],
+      "verdict": "WATCH",
+      "evidence": "VALIDATED",
+      "stats": {
+        "n": 454,
+        "wr": 0.5418502202643172,
+        "pf": 2.3653846153846154,
+        "E": 0.6255506607929515,
+        "max_dd": -8.0,
+        "trades_per_week": 37.83333333333333,
+        "label": "STRONGER SAMPLE",
+        "expectancy_r": 0.6255506607929515,
+        "max_dd_r": -8.0
+      },
+      "walk_forward": [
+        {
+          "fold": 1,
+          "n": 90,
+          "wr": 0.5444444444444444,
+          "pf": 2.3902439024390243,
+          "expectancy_r": 0.6333333333333333,
+          "max_dd_r": -8.0,
+          "label": "DEVELOPING"
+        },
+        {
+          "fold": 2,
+          "n": 91,
+          "wr": 0.5604395604395604,
+          "pf": 2.55,
+          "expectancy_r": 0.6813186813186813,
+          "max_dd_r": -11.0,
+          "label": "DEVELOPING"
+        },
+        {
+          "fold": 3,
+          "n": 91,
+          "wr": 0.5604395604395604,
+          "pf": 2.55,
+          "expectancy_r": 0.6813186813186813,
+          "max_dd_r": -13.0,
+          "label": "DEVELOPING"
+        },
+        {
+          "fold": 4,
+          "n": 91,
+          "wr": 0.5164835164835165,
+          "pf": 2.1363636363636362,
+          "expectancy_r": 0.5494505494505495,
+          "max_dd_r": -8.0,
+          "label": "DEVELOPING"
+        },
+        {
+          "fold": 5,
+          "n": 91,
+          "wr": 0.5274725274725275,
+          "pf": 2.2325581395348837,
+          "expectancy_r": 0.5824175824175825,
+          "max_dd_r": -8.0,
+          "label": "DEVELOPING"
+        }
+      ],
+      "n": 454,
+      "wr": 0.5418502202643172,
+      "pf": 2.3653846153846154,
+      "expectancy_r": 0.6255506607929515,
+      "max_dd_r": -8.0,
+      "trades_per_week": 37.83333333333333
+    },
+    {
+      "cell": "CL_FAMILY|asia|parity_mom",
+      "session": "asia",
+      "family": "CL_FAMILY",
+      "symbols": [
+        "CL",
+        "MCL"
+      ],
+      "verdict": "WATCH",
+      "evidence": "VALIDATED",
+      "stats": {
+        "n": 428,
+        "wr": 0.5467289719626168,
+        "pf": 2.4123711340206184,
+        "E": 0.6401869158878505,
+        "max_dd": -6.0,
+        "trades_per_week": 35.66666666666667,
+        "label": "STRONGER SAMPLE",
+        "expectancy_r": 0.6401869158878505,
+        "max_dd_r": -6.0
+      },
+      "walk_forward": [
+        {
+          "fold": 1,
+          "n": 85,
+          "wr": 0.5529411764705883,
+          "pf": 2.473684210526316,
+          "expectancy_r": 0.6588235294117647,
+          "max_dd_r": -8.0,
+          "label": "DEVELOPING"
+        },
+        {
+          "fold": 2,
+          "n": 86,
+          "wr": 0.5232558139534884,
+          "pf": 2.1951219512195124,
+          "expectancy_r": 0.5697674418604651,
+          "max_dd_r": -7.0,
+          "label": "DEVELOPING"
+        },
+        {
+          "fold": 3,
+          "n": 85,
+          "wr": 0.5411764705882353,
+          "pf": 2.358974358974359,
+          "expectancy_r": 0.6235294117647059,
+          "max_dd_r": -8.0,
+          "label": "DEVELOPING"
+        },
+        {
+          "fold": 4,
+          "n": 86,
+          "wr": 0.5348837209302325,
+          "pf": 2.3,
+          "expectancy_r": 0.6046511627906976,
+          "max_dd_r": -6.0,
+          "label": "DEVELOPING"
+        },
+        {
+          "fold": 5,
+          "n": 86,
+          "wr": 0.5813953488372093,
+          "pf": 2.7777777777777777,
+          "expectancy_r": 0.7441860465116279,
+          "max_dd_r": -5.0,
+          "label": "DEVELOPING"
+        }
+      ],
+      "n": 428,
+      "wr": 0.5467289719626168,
+      "pf": 2.4123711340206184,
+      "expectancy_r": 0.6401869158878505,
+      "max_dd_r": -6.0,
+      "trades_per_week": 35.66666666666667
+    },
+    {
+      "cell": "NQ_FAMILY|london|parity_mom",
+      "session": "london",
+      "family": "NQ_FAMILY",
+      "symbols": [
+        "NQ",
+        "MNQ"
+      ],
+      "verdict": "X_OUT",
+      "evidence": "VALIDATED",
+      "stats": {
+        "n": 280,
+        "wr": 0.4785714285714286,
+        "pf": 1.8356164383561644,
+        "E": 0.4357142857142857,
+        "max_dd": -18.0,
+        "trades_per_week": 28.0,
+        "label": "STRONGER SAMPLE",
+        "expectancy_r": 0.4357142857142857,
+        "max_dd_r": -18.0
+      },
+      "walk_forward": [
+        {
+          "fold": 1,
+          "n": 56,
+          "wr": 0.32142857142857145,
+          "pf": 0.9473684210526315,
+          "expectancy_r": -0.03571428571428571,
+          "max_dd_r": -20.0,
+          "label": "DEVELOPING"
+        },
+        {
+          "fold": 2,
+          "n": 56,
+          "wr": 0.3392857142857143,
+          "pf": 1.027027027027027,
+          "expectancy_r": 0.017857142857142856,
+          "max_dd_r": -12.0,
+          "label": "DEVELOPING"
+        },
+        {
+          "fold": 3,
+          "n": 56,
+          "wr": 0.4642857142857143,
+          "pf": 1.7333333333333334,
+          "expectancy_r": 0.39285714285714285,
+          "max_dd_r": -10.0,
+          "label": "DEVELOPING"
+        },
+        {
+          "fold": 4,
+          "n": 56,
+          "wr": 0.5714285714285714,
+          "pf": 2.6666666666666665,
+          "expectancy_r": 0.7142857142857143,
+          "max_dd_r": -6.0,
+          "label": "DEVELOPING"
+        },
+        {
+          "fold": 5,
+          "n": 56,
+          "wr": 0.6964285714285714,
+          "pf": 4.588235294117647,
+          "expectancy_r": 1.0892857142857142,
+          "max_dd_r": -2.0,
+          "label": "DEVELOPING"
+        }
+      ],
+      "n": 280,
+      "wr": 0.4785714285714286,
+      "pf": 1.8356164383561644,
+      "expectancy_r": 0.4357142857142857,
+      "max_dd_r": -18.0,
+      "trades_per_week": 28.0
+    },
+    {
+      "cell": "ES_FAMILY|london|parity_mom",
+      "session": "london",
+      "family": "ES_FAMILY",
+      "symbols": [
+        "ES",
+        "MES"
+      ],
+      "verdict": "X_OUT",
+      "evidence": "VALIDATED",
+      "stats": {
+        "n": 289,
+        "wr": 0.4290657439446367,
+        "pf": 1.503030303030303,
+        "E": 0.28719723183391005,
+        "max_dd": -14.0,
+        "trades_per_week": 29.48979591836735,
+        "label": "STRONGER SAMPLE",
+        "expectancy_r": 0.28719723183391005,
+        "max_dd_r": -14.0
+      },
+      "walk_forward": [
+        {
+          "fold": 1,
+          "n": 57,
+          "wr": 0.3508771929824561,
+          "pf": 1.0810810810810811,
+          "expectancy_r": 0.05263157894736842,
+          "max_dd_r": -18.0,
+          "label": "DEVELOPING"
+        },
+        {
+          "fold": 2,
+          "n": 58,
+          "wr": 0.3620689655172414,
+          "pf": 1.135135135135135,
+          "expectancy_r": 0.08620689655172414,
+          "max_dd_r": -6.0,
+          "label": "DEVELOPING"
+        },
+        {
+          "fold": 3,
+          "n": 58,
+          "wr": 0.5689655172413793,
+          "pf": 2.64,
+          "expectancy_r": 0.7068965517241379,
+          "max_dd_r": -5.0,
+          "label": "DEVELOPING"
+        },
+        {
+          "fold": 4,
+          "n": 58,
+          "wr": 0.41379310344827586,
+          "pf": 1.411764705882353,
+          "expectancy_r": 0.2413793103448276,
+          "max_dd_r": -8.0,
+          "label": "DEVELOPING"
+        },
+        {
+          "fold": 5,
+          "n": 58,
+          "wr": 0.4482758620689655,
+          "pf": 1.625,
+          "expectancy_r": 0.3448275862068966,
+          "max_dd_r": -8.0,
+          "label": "DEVELOPING"
+        }
+      ],
+      "n": 289,
+      "wr": 0.4290657439446367,
+      "pf": 1.503030303030303,
+      "expectancy_r": 0.28719723183391005,
+      "max_dd_r": -14.0,
+      "trades_per_week": 29.48979591836735
+    },
+    {
+      "cell": "CL_FAMILY|london|parity_mom",
+      "session": "london",
+      "family": "CL_FAMILY",
+      "symbols": [
+        "CL",
+        "MCL"
+      ],
+      "verdict": "WATCH",
+      "evidence": "VALIDATED",
+      "stats": {
+        "n": 281,
+        "wr": 0.5231316725978647,
+        "pf": 2.1940298507462686,
+        "E": 0.5693950177935944,
+        "max_dd": -7.0,
+        "trades_per_week": 28.1,
+        "label": "STRONGER SAMPLE",
+        "expectancy_r": 0.5693950177935944,
+        "max_dd_r": -7.0
+      },
+      "walk_forward": [
+        {
+          "fold": 1,
+          "n": 56,
+          "wr": 0.35714285714285715,
+          "pf": 1.1111111111111112,
+          "expectancy_r": 0.07142857142857142,
+          "max_dd_r": -12.0,
+          "label": "DEVELOPING"
+        },
+        {
+          "fold": 2,
+          "n": 56,
+          "wr": 0.48214285714285715,
+          "pf": 1.8620689655172413,
+          "expectancy_r": 0.44642857142857145,
+          "max_dd_r": -9.0,
+          "label": "DEVELOPING"
+        },
+        {
+          "fold": 3,
+          "n": 56,
+          "wr": 0.5714285714285714,
+          "pf": 2.6666666666666665,
+          "expectancy_r": 0.7142857142857143,
+          "max_dd_r": -4.0,
+          "label": "DEVELOPING"
+        },
+        {
+          "fold": 4,
+          "n": 56,
+          "wr": 0.5178571428571429,
+          "pf": 2.1481481481481484,
+          "expectancy_r": 0.5535714285714286,
+          "max_dd_r": -4.0,
+          "label": "DEVELOPING"
+        },
+        {
+          "fold": 5,
+          "n": 57,
+          "wr": 0.6842105263157895,
+          "pf": 4.333333333333333,
+          "expectancy_r": 1.0526315789473684,
+          "max_dd_r": -6.0,
+          "label": "DEVELOPING"
+        }
+      ],
+      "n": 281,
+      "wr": 0.5231316725978647,
+      "pf": 2.1940298507462686,
+      "expectancy_r": 0.5693950177935944,
+      "max_dd_r": -7.0,
+      "trades_per_week": 28.1
+    },
+    {
+      "cell": "NQ_FAMILY|ny_open|parity_mom",
+      "session": "ny_open",
+      "family": "NQ_FAMILY",
+      "symbols": [
+        "NQ",
+        "MNQ"
+      ],
+      "verdict": "KEEP_RESEARCH",
+      "evidence": "DEVELOPING",
+      "stats": {
+        "n": 74,
+        "wr": 0.6486486486486487,
+        "pf": 3.6923076923076925,
+        "E": 0.9459459459459459,
+        "max_dd": -2.0,
+        "trades_per_week": 9.736842105263158,
+        "label": "PROMISING / NOT CONFIRMED",
+        "expectancy_r": 0.9459459459459459,
+        "max_dd_r": -2.0
+      },
+      "walk_forward": [
+        {
+          "fold": 1,
+          "n": 14,
+          "wr": 0.5714285714285714,
+          "pf": 2.6666666666666665,
+          "expectancy_r": 0.7142857142857143,
+          "max_dd_r": -4.0,
+          "label": "ANECDOTAL"
+        },
+        {
+          "fold": 2,
+          "n": 15,
+          "wr": 0.6,
+          "pf": 3.0,
+          "expectancy_r": 0.8,
+          "max_dd_r": -3.0,
+          "label": "ANECDOTAL"
+        },
+        {
+          "fold": 3,
+          "n": 15,
+          "wr": 0.7333333333333333,
+          "pf": 5.5,
+          "expectancy_r": 1.2,
+          "max_dd_r": -4.0,
+          "label": "ANECDOTAL"
+        },
+        {
+          "fold": 4,
+          "n": 15,
+          "wr": 0.6,
+          "pf": 3.0,
+          "expectancy_r": 0.8,
+          "max_dd_r": -4.0,
+          "label": "ANECDOTAL"
+        },
+        {
+          "fold": 5,
+          "n": 15,
+          "wr": 0.7333333333333333,
+          "pf": 5.5,
+          "expectancy_r": 1.2,
+          "max_dd_r": -2.0,
+          "label": "ANECDOTAL"
+        }
+      ],
+      "n": 74,
+      "wr": 0.6486486486486487,
+      "pf": 3.6923076923076925,
+      "expectancy_r": 0.9459459459459459,
+      "max_dd_r": -2.0,
+      "trades_per_week": 9.736842105263158
+    },
+    {
+      "cell": "ES_FAMILY|ny_open|parity_mom",
+      "session": "ny_open",
+      "family": "ES_FAMILY",
+      "symbols": [
+        "ES",
+        "MES"
+      ],
+      "verdict": "KEEP_RESEARCH",
+      "evidence": "DEVELOPING",
+      "stats": {
+        "n": 76,
+        "wr": 0.5526315789473685,
+        "pf": 2.4705882352941178,
+        "E": 0.6578947368421053,
+        "max_dd": -6.0,
+        "trades_per_week": 9.743589743589743,
+        "label": "PROMISING / NOT CONFIRMED",
+        "expectancy_r": 0.6578947368421053,
+        "max_dd_r": -6.0
+      },
+      "walk_forward": [
+        {
+          "fold": 1,
+          "n": 15,
+          "wr": 0.7333333333333333,
+          "pf": 5.5,
+          "expectancy_r": 1.2,
+          "max_dd_r": -2.0,
+          "label": "ANECDOTAL"
+        },
+        {
+          "fold": 2,
+          "n": 15,
+          "wr": 0.4666666666666667,
+          "pf": 1.75,
+          "expectancy_r": 0.4,
+          "max_dd_r": -4.0,
+          "label": "ANECDOTAL"
+        },
+        {
+          "fold": 3,
+          "n": 15,
+          "wr": 0.3333333333333333,
+          "pf": 1.0,
+          "expectancy_r": 0.0,
+          "max_dd_r": -6.0,
+          "label": "ANECDOTAL"
+        },
+        {
+          "fold": 4,
+          "n": 15,
+          "wr": 0.3333333333333333,
+          "pf": 1.0,
+          "expectancy_r": 0.0,
+          "max_dd_r": -5.0,
+          "label": "ANECDOTAL"
+        },
+        {
+          "fold": 5,
+          "n": 16,
+          "wr": 0.875,
+          "pf": 14.0,
+          "expectancy_r": 1.625,
+          "max_dd_r": -2.0,
+          "label": "ANECDOTAL"
+        }
+      ],
+      "n": 76,
+      "wr": 0.5526315789473685,
+      "pf": 2.4705882352941178,
+      "expectancy_r": 0.6578947368421053,
+      "max_dd_r": -6.0,
+      "trades_per_week": 9.743589743589743
+    },
+    {
+      "cell": "CL_FAMILY|ny_open|parity_mom",
+      "session": "ny_open",
+      "family": "CL_FAMILY",
+      "symbols": [
+        "CL",
+        "MCL"
+      ],
+      "verdict": "WATCH",
+      "evidence": "DEVELOPING",
+      "stats": {
+        "n": 51,
+        "wr": 0.5490196078431373,
+        "pf": 2.4347826086956523,
+        "E": 0.6470588235294118,
+        "max_dd": -4.0,
+        "trades_per_week": 9.444444444444445,
+        "label": "PROMISING / NOT CONFIRMED",
+        "expectancy_r": 0.6470588235294118,
+        "max_dd_r": -4.0
+      },
+      "walk_forward": [
+        {
+          "fold": 1,
+          "n": 10,
+          "wr": 0.3,
+          "pf": 0.8571428571428571,
+          "expectancy_r": -0.1,
+          "max_dd_r": -6.0,
+          "label": "ANECDOTAL"
+        },
+        {
+          "fold": 2,
+          "n": 10,
+          "wr": 0.8,
+          "pf": 8.0,
+          "expectancy_r": 1.4,
+          "max_dd_r": -1.0,
+          "label": "ANECDOTAL"
+        },
+        {
+          "fold": 3,
+          "n": 10,
+          "wr": 0.6,
+          "pf": 3.0,
+          "expectancy_r": 0.8,
+          "max_dd_r": -2.0,
+          "label": "ANECDOTAL"
+        },
+        {
+          "fold": 4,
+          "n": 10,
+          "wr": 0.3,
+          "pf": 0.8571428571428571,
+          "expectancy_r": -0.1,
+          "max_dd_r": -6.0,
+          "label": "ANECDOTAL"
+        },
+        {
+          "fold": 5,
+          "n": 11,
+          "wr": 0.7272727272727273,
+          "pf": 5.333333333333333,
+          "expectancy_r": 1.1818181818181819,
+          "max_dd_r": -2.0,
+          "label": "ANECDOTAL"
+        }
+      ],
+      "n": 51,
+      "wr": 0.5490196078431373,
+      "pf": 2.4347826086956523,
+      "expectancy_r": 0.6470588235294118,
+      "max_dd_r": -4.0,
+      "trades_per_week": 9.444444444444445
+    }
+  ],
+  "learning_store_strategy_cull": [
+    {
+      "strategy": "vwap_mss",
+      "source": "learning_store_unified",
+      "verdict": "ANECDOTAL_WATCH",
+      "n": 11,
+      "wr": 0.5454545454545454,
+      "shrunk_wr": 0.5161290322580645,
+      "pf": 2.0353866317169076,
+      "expectancy_r": 0.21545454545454545,
+      "max_dd_r": -1.549
+    },
+    {
+      "strategy": "trend_continuation",
+      "source": "learning_store_unified",
+      "verdict": "WATCH",
+      "n": 89,
+      "wr": 0.47191011235955055,
+      "shrunk_wr": 0.47706422018348627,
+      "pf": 1.4445231031337809,
+      "expectancy_r": 0.12457533016471496,
+      "max_dd_r": -7.774999999999999
+    },
+    {
+      "strategy": "opening_range",
+      "source": "learning_store_unified",
+      "verdict": "WATCH",
+      "n": 27,
+      "wr": 0.4074074074074074,
+      "shrunk_wr": 0.44680851063829785,
+      "pf": 1.2171358741540703,
+      "expectancy_r": 0.10520918328367351,
+      "max_dd_r": -4.0
+    },
+    {
+      "strategy": "vwap_acceptance",
+      "source": "learning_store_unified",
+      "verdict": "WATCH",
+      "n": 56,
+      "wr": 0.39285714285714285,
+      "shrunk_wr": 0.42105263157894735,
+      "pf": 1.1509714971384242,
+      "expectancy_r": 0.07286140102362286,
+      "max_dd_r": -8.815958767247682
+    },
+    {
+      "strategy": "vwap_reclaim",
+      "source": "learning_store_unified",
+      "verdict": "WATCH",
+      "n": 41,
+      "wr": 0.3170731707317073,
+      "shrunk_wr": 0.3770491803278688,
+      "pf": 1.04178674351585,
+      "expectancy_r": 0.02687804878048779,
+      "max_dd_r": -13.238
+    },
+    {
+      "strategy": "ema_pullback",
+      "source": "learning_store_unified",
+      "verdict": "WATCH",
+      "n": 376,
+      "wr": 0.3776595744680851,
+      "shrunk_wr": 0.3838383838383838,
+      "pf": 0.9232399980120938,
+      "expectancy_r": -0.033766946045666706,
+      "max_dd_r": -33.82966532887447
+    },
+    {
+      "strategy": "liquidity_sweep",
+      "source": "learning_store_unified",
+      "verdict": "ANECDOTAL_WATCH",
+      "n": 15,
+      "wr": 0.26666666666666666,
+      "shrunk_wr": 0.4,
+      "pf": 0.494370079995853,
+      "expectancy_r": -0.08934323156268847,
+      "max_dd_r": -0.895729288012759
+    },
+    {
+      "strategy": "trend_pullback",
+      "source": "learning_store_unified",
+      "verdict": "X_OUT",
+      "n": 122,
+      "wr": 0.30327868852459017,
+      "shrunk_wr": 0.33098591549295775,
+      "pf": 0.7118170075619819,
+      "expectancy_r": -0.1883606557377049,
+      "max_dd_r": -25.877
+    },
+    {
+      "strategy": "unknown",
+      "source": "learning_store_unified",
+      "verdict": "X_OUT",
+      "n": 58,
+      "wr": 0.05172413793103448,
+      "shrunk_wr": 0.16666666666666666,
+      "pf": 0.3080676232093637,
+      "expectancy_r": -0.20923647349142155,
+      "max_dd_r": -14.275715462502456
+    },
+    {
+      "strategy": "liquidity_reversal",
+      "source": "learning_store_unified",
+      "verdict": "ANECDOTAL_WATCH",
+      "n": 19,
+      "wr": 0.21052631578947367,
+      "shrunk_wr": 0.358974358974359,
+      "pf": 0.7125333333333332,
+      "expectancy_r": -0.22694736842105265,
+      "max_dd_r": -6.761
+    },
+    {
+      "strategy": "breakout_retest",
+      "source": "learning_store_unified",
+      "verdict": "X_OUT",
+      "n": 62,
+      "wr": 0.2903225806451613,
+      "shrunk_wr": 0.34146341463414637,
+      "pf": 0.6160866593581086,
+      "expectancy_r": -0.2544354620625389,
+      "max_dd_r": -18.477
+    }
+  ],
+  "x_out": [
+    {
+      "cell": "NQ_FAMILY|london|parity_mom",
+      "session": "london",
+      "family": "NQ_FAMILY",
+      "symbols": [
+        "NQ",
+        "MNQ"
+      ],
+      "verdict": "X_OUT",
+      "evidence": "VALIDATED",
+      "stats": {
+        "n": 280,
+        "wr": 0.4785714285714286,
+        "pf": 1.8356164383561644,
+        "E": 0.4357142857142857,
+        "max_dd": -18.0,
+        "trades_per_week": 28.0,
+        "label": "STRONGER SAMPLE",
+        "expectancy_r": 0.4357142857142857,
+        "max_dd_r": -18.0
+      },
+      "walk_forward": [
+        {
+          "fold": 1,
+          "n": 56,
+          "wr": 0.32142857142857145,
+          "pf": 0.9473684210526315,
+          "expectancy_r": -0.03571428571428571,
+          "max_dd_r": -20.0,
+          "label": "DEVELOPING"
+        },
+        {
+          "fold": 2,
+          "n": 56,
+          "wr": 0.3392857142857143,
+          "pf": 1.027027027027027,
+          "expectancy_r": 0.017857142857142856,
+          "max_dd_r": -12.0,
+          "label": "DEVELOPING"
+        },
+        {
+          "fold": 3,
+          "n": 56,
+          "wr": 0.4642857142857143,
+          "pf": 1.7333333333333334,
+          "expectancy_r": 0.39285714285714285,
+          "max_dd_r": -10.0,
+          "label": "DEVELOPING"
+        },
+        {
+          "fold": 4,
+          "n": 56,
+          "wr": 0.5714285714285714,
+          "pf": 2.6666666666666665,
+          "expectancy_r": 0.7142857142857143,
+          "max_dd_r": -6.0,
+          "label": "DEVELOPING"
+        },
+        {
+          "fold": 5,
+          "n": 56,
+          "wr": 0.6964285714285714,
+          "pf": 4.588235294117647,
+          "expectancy_r": 1.0892857142857142,
+          "max_dd_r": -2.0,
+          "label": "DEVELOPING"
+        }
+      ],
+      "n": 280,
+      "wr": 0.4785714285714286,
+      "pf": 1.8356164383561644,
+      "expectancy_r": 0.4357142857142857,
+      "max_dd_r": -18.0,
+      "trades_per_week": 28.0
+    },
+    {
+      "cell": "ES_FAMILY|london|parity_mom",
+      "session": "london",
+      "family": "ES_FAMILY",
+      "symbols": [
+        "ES",
+        "MES"
+      ],
+      "verdict": "X_OUT",
+      "evidence": "VALIDATED",
+      "stats": {
+        "n": 289,
+        "wr": 0.4290657439446367,
+        "pf": 1.503030303030303,
+        "E": 0.28719723183391005,
+        "max_dd": -14.0,
+        "trades_per_week": 29.48979591836735,
+        "label": "STRONGER SAMPLE",
+        "expectancy_r": 0.28719723183391005,
+        "max_dd_r": -14.0
+      },
+      "walk_forward": [
+        {
+          "fold": 1,
+          "n": 57,
+          "wr": 0.3508771929824561,
+          "pf": 1.0810810810810811,
+          "expectancy_r": 0.05263157894736842,
+          "max_dd_r": -18.0,
+          "label": "DEVELOPING"
+        },
+        {
+          "fold": 2,
+          "n": 58,
+          "wr": 0.3620689655172414,
+          "pf": 1.135135135135135,
+          "expectancy_r": 0.08620689655172414,
+          "max_dd_r": -6.0,
+          "label": "DEVELOPING"
+        },
+        {
+          "fold": 3,
+          "n": 58,
+          "wr": 0.5689655172413793,
+          "pf": 2.64,
+          "expectancy_r": 0.7068965517241379,
+          "max_dd_r": -5.0,
+          "label": "DEVELOPING"
+        },
+        {
+          "fold": 4,
+          "n": 58,
+          "wr": 0.41379310344827586,
+          "pf": 1.411764705882353,
+          "expectancy_r": 0.2413793103448276,
+          "max_dd_r": -8.0,
+          "label": "DEVELOPING"
+        },
+        {
+          "fold": 5,
+          "n": 58,
+          "wr": 0.4482758620689655,
+          "pf": 1.625,
+          "expectancy_r": 0.3448275862068966,
+          "max_dd_r": -8.0,
+          "label": "DEVELOPING"
+        }
+      ],
+      "n": 289,
+      "wr": 0.4290657439446367,
+      "pf": 1.503030303030303,
+      "expectancy_r": 0.28719723183391005,
+      "max_dd_r": -14.0,
+      "trades_per_week": 29.48979591836735
+    },
+    {
+      "strategy": "trend_pullback",
+      "source": "learning_store_unified",
+      "verdict": "X_OUT",
+      "n": 122,
+      "wr": 0.30327868852459017,
+      "shrunk_wr": 0.33098591549295775,
+      "pf": 0.7118170075619819,
+      "expectancy_r": -0.1883606557377049,
+      "max_dd_r": -25.877
+    },
+    {
+      "strategy": "unknown",
+      "source": "learning_store_unified",
+      "verdict": "X_OUT",
+      "n": 58,
+      "wr": 0.05172413793103448,
+      "shrunk_wr": 0.16666666666666666,
+      "pf": 0.3080676232093637,
+      "expectancy_r": -0.20923647349142155,
+      "max_dd_r": -14.275715462502456
+    },
+    {
+      "strategy": "breakout_retest",
+      "source": "learning_store_unified",
+      "verdict": "X_OUT",
+      "n": 62,
+      "wr": 0.2903225806451613,
+      "shrunk_wr": 0.34146341463414637,
+      "pf": 0.6160866593581086,
+      "expectancy_r": -0.2544354620625389,
+      "max_dd_r": -18.477
+    }
+  ],
+  "keep_research": [
+    {
+      "cell": "NQ_FAMILY|asia|parity_mom",
+      "session": "asia",
+      "family": "NQ_FAMILY",
+      "symbols": [
+        "NQ",
+        "MNQ"
+      ],
+      "verdict": "KEEP_RESEARCH",
+      "evidence": "VALIDATED",
+      "stats": {
+        "n": 485,
+        "wr": 0.5628865979381443,
+        "pf": 2.5754716981132075,
+        "E": 0.688659793814433,
+        "max_dd": -11.0,
+        "trades_per_week": 40.41666666666667,
+        "label": "STRONGER SAMPLE",
+        "expectancy_r": 0.688659793814433,
+        "max_dd_r": -11.0
+      },
+      "walk_forward": [
+        {
+          "fold": 1,
+          "n": 97,
+          "wr": 0.6701030927835051,
+          "pf": 4.0625,
+          "expectancy_r": 1.0103092783505154,
+          "max_dd_r": -8.0,
+          "label": "DEVELOPING"
+        },
+        {
+          "fold": 2,
+          "n": 97,
+          "wr": 0.6082474226804123,
+          "pf": 3.1052631578947367,
+          "expectancy_r": 0.8247422680412371,
+          "max_dd_r": -8.0,
+          "label": "DEVELOPING"
+        },
+        {
+          "fold": 3,
+          "n": 97,
+          "wr": 0.5360824742268041,
+          "pf": 2.311111111111111,
+          "expectancy_r": 0.6082474226804123,
+          "max_dd_r": -8.0,
+          "label": "DEVELOPING"
+        },
+        {
+          "fold": 4,
+          "n": 97,
+          "wr": 0.4742268041237113,
+          "pf": 1.803921568627451,
+          "expectancy_r": 0.422680412371134,
+          "max_dd_r": -18.0,
+          "label": "DEVELOPING"
+        },
+        {
+          "fold": 5,
+          "n": 97,
+          "wr": 0.5257731958762887,
+          "pf": 2.217391304347826,
+          "expectancy_r": 0.5773195876288659,
+          "max_dd_r": -9.0,
+          "label": "DEVELOPING"
+        }
+      ],
+      "n": 485,
+      "wr": 0.5628865979381443,
+      "pf": 2.5754716981132075,
+      "expectancy_r": 0.688659793814433,
+      "max_dd_r": -11.0,
+      "trades_per_week": 40.41666666666667
+    },
+    {
+      "cell": "NQ_FAMILY|ny_open|parity_mom",
+      "session": "ny_open",
+      "family": "NQ_FAMILY",
+      "symbols": [
+        "NQ",
+        "MNQ"
+      ],
+      "verdict": "KEEP_RESEARCH",
+      "evidence": "DEVELOPING",
+      "stats": {
+        "n": 74,
+        "wr": 0.6486486486486487,
+        "pf": 3.6923076923076925,
+        "E": 0.9459459459459459,
+        "max_dd": -2.0,
+        "trades_per_week": 9.736842105263158,
+        "label": "PROMISING / NOT CONFIRMED",
+        "expectancy_r": 0.9459459459459459,
+        "max_dd_r": -2.0
+      },
+      "walk_forward": [
+        {
+          "fold": 1,
+          "n": 14,
+          "wr": 0.5714285714285714,
+          "pf": 2.6666666666666665,
+          "expectancy_r": 0.7142857142857143,
+          "max_dd_r": -4.0,
+          "label": "ANECDOTAL"
+        },
+        {
+          "fold": 2,
+          "n": 15,
+          "wr": 0.6,
+          "pf": 3.0,
+          "expectancy_r": 0.8,
+          "max_dd_r": -3.0,
+          "label": "ANECDOTAL"
+        },
+        {
+          "fold": 3,
+          "n": 15,
+          "wr": 0.7333333333333333,
+          "pf": 5.5,
+          "expectancy_r": 1.2,
+          "max_dd_r": -4.0,
+          "label": "ANECDOTAL"
+        },
+        {
+          "fold": 4,
+          "n": 15,
+          "wr": 0.6,
+          "pf": 3.0,
+          "expectancy_r": 0.8,
+          "max_dd_r": -4.0,
+          "label": "ANECDOTAL"
+        },
+        {
+          "fold": 5,
+          "n": 15,
+          "wr": 0.7333333333333333,
+          "pf": 5.5,
+          "expectancy_r": 1.2,
+          "max_dd_r": -2.0,
+          "label": "ANECDOTAL"
+        }
+      ],
+      "n": 74,
+      "wr": 0.6486486486486487,
+      "pf": 3.6923076923076925,
+      "expectancy_r": 0.9459459459459459,
+      "max_dd_r": -2.0,
+      "trades_per_week": 9.736842105263158
+    },
+    {
+      "cell": "ES_FAMILY|ny_open|parity_mom",
+      "session": "ny_open",
+      "family": "ES_FAMILY",
+      "symbols": [
+        "ES",
+        "MES"
+      ],
+      "verdict": "KEEP_RESEARCH",
+      "evidence": "DEVELOPING",
+      "stats": {
+        "n": 76,
+        "wr": 0.5526315789473685,
+        "pf": 2.4705882352941178,
+        "E": 0.6578947368421053,
+        "max_dd": -6.0,
+        "trades_per_week": 9.743589743589743,
+        "label": "PROMISING / NOT CONFIRMED",
+        "expectancy_r": 0.6578947368421053,
+        "max_dd_r": -6.0
+      },
+      "walk_forward": [
+        {
+          "fold": 1,
+          "n": 15,
+          "wr": 0.7333333333333333,
+          "pf": 5.5,
+          "expectancy_r": 1.2,
+          "max_dd_r": -2.0,
+          "label": "ANECDOTAL"
+        },
+        {
+          "fold": 2,
+          "n": 15,
+          "wr": 0.4666666666666667,
+          "pf": 1.75,
+          "expectancy_r": 0.4,
+          "max_dd_r": -4.0,
+          "label": "ANECDOTAL"
+        },
+        {
+          "fold": 3,
+          "n": 15,
+          "wr": 0.3333333333333333,
+          "pf": 1.0,
+          "expectancy_r": 0.0,
+          "max_dd_r": -6.0,
+          "label": "ANECDOTAL"
+        },
+        {
+          "fold": 4,
+          "n": 15,
+          "wr": 0.3333333333333333,
+          "pf": 1.0,
+          "expectancy_r": 0.0,
+          "max_dd_r": -5.0,
+          "label": "ANECDOTAL"
+        },
+        {
+          "fold": 5,
+          "n": 16,
+          "wr": 0.875,
+          "pf": 14.0,
+          "expectancy_r": 1.625,
+          "max_dd_r": -2.0,
+          "label": "ANECDOTAL"
+        }
+      ],
+      "n": 76,
+      "wr": 0.5526315789473685,
+      "pf": 2.4705882352941178,
+      "expectancy_r": 0.6578947368421053,
+      "max_dd_r": -6.0,
+      "trades_per_week": 9.743589743589743
+    }
+  ],
+  "watch": [
+    {
+      "cell": "ES_FAMILY|asia|parity_mom",
+      "session": "asia",
+      "family": "ES_FAMILY",
+      "symbols": [
+        "ES",
+        "MES"
+      ],
+      "verdict": "WATCH",
+      "evidence": "VALIDATED",
+      "stats": {
+        "n": 454,
+        "wr": 0.5418502202643172,
+        "pf": 2.3653846153846154,
+        "E": 0.6255506607929515,
+        "max_dd": -8.0,
+        "trades_per_week": 37.83333333333333,
+        "label": "STRONGER SAMPLE",
+        "expectancy_r": 0.6255506607929515,
+        "max_dd_r": -8.0
+      },
+      "walk_forward": [
+        {
+          "fold": 1,
+          "n": 90,
+          "wr": 0.5444444444444444,
+          "pf": 2.3902439024390243,
+          "expectancy_r": 0.6333333333333333,
+          "max_dd_r": -8.0,
+          "label": "DEVELOPING"
+        },
+        {
+          "fold": 2,
+          "n": 91,
+          "wr": 0.5604395604395604,
+          "pf": 2.55,
+          "expectancy_r": 0.6813186813186813,
+          "max_dd_r": -11.0,
+          "label": "DEVELOPING"
+        },
+        {
+          "fold": 3,
+          "n": 91,
+          "wr": 0.5604395604395604,
+          "pf": 2.55,
+          "expectancy_r": 0.6813186813186813,
+          "max_dd_r": -13.0,
+          "label": "DEVELOPING"
+        },
+        {
+          "fold": 4,
+          "n": 91,
+          "wr": 0.5164835164835165,
+          "pf": 2.1363636363636362,
+          "expectancy_r": 0.5494505494505495,
+          "max_dd_r": -8.0,
+          "label": "DEVELOPING"
+        },
+        {
+          "fold": 5,
+          "n": 91,
+          "wr": 0.5274725274725275,
+          "pf": 2.2325581395348837,
+          "expectancy_r": 0.5824175824175825,
+          "max_dd_r": -8.0,
+          "label": "DEVELOPING"
+        }
+      ],
+      "n": 454,
+      "wr": 0.5418502202643172,
+      "pf": 2.3653846153846154,
+      "expectancy_r": 0.6255506607929515,
+      "max_dd_r": -8.0,
+      "trades_per_week": 37.83333333333333
+    },
+    {
+      "cell": "CL_FAMILY|asia|parity_mom",
+      "session": "asia",
+      "family": "CL_FAMILY",
+      "symbols": [
+        "CL",
+        "MCL"
+      ],
+      "verdict": "WATCH",
+      "evidence": "VALIDATED",
+      "stats": {
+        "n": 428,
+        "wr": 0.5467289719626168,
+        "pf": 2.4123711340206184,
+        "E": 0.6401869158878505,
+        "max_dd": -6.0,
+        "trades_per_week": 35.66666666666667,
+        "label": "STRONGER SAMPLE",
+        "expectancy_r": 0.6401869158878505,
+        "max_dd_r": -6.0
+      },
+      "walk_forward": [
+        {
+          "fold": 1,
+          "n": 85,
+          "wr": 0.5529411764705883,
+          "pf": 2.473684210526316,
+          "expectancy_r": 0.6588235294117647,
+          "max_dd_r": -8.0,
+          "label": "DEVELOPING"
+        },
+        {
+          "fold": 2,
+          "n": 86,
+          "wr": 0.5232558139534884,
+          "pf": 2.1951219512195124,
+          "expectancy_r": 0.5697674418604651,
+          "max_dd_r": -7.0,
+          "label": "DEVELOPING"
+        },
+        {
+          "fold": 3,
+          "n": 85,
+          "wr": 0.5411764705882353,
+          "pf": 2.358974358974359,
+          "expectancy_r": 0.6235294117647059,
+          "max_dd_r": -8.0,
+          "label": "DEVELOPING"
+        },
+        {
+          "fold": 4,
+          "n": 86,
+          "wr": 0.5348837209302325,
+          "pf": 2.3,
+          "expectancy_r": 0.6046511627906976,
+          "max_dd_r": -6.0,
+          "label": "DEVELOPING"
+        },
+        {
+          "fold": 5,
+          "n": 86,
+          "wr": 0.5813953488372093,
+          "pf": 2.7777777777777777,
+          "expectancy_r": 0.7441860465116279,
+          "max_dd_r": -5.0,
+          "label": "DEVELOPING"
+        }
+      ],
+      "n": 428,
+      "wr": 0.5467289719626168,
+      "pf": 2.4123711340206184,
+      "expectancy_r": 0.6401869158878505,
+      "max_dd_r": -6.0,
+      "trades_per_week": 35.66666666666667
+    },
+    {
+      "cell": "CL_FAMILY|london|parity_mom",
+      "session": "london",
+      "family": "CL_FAMILY",
+      "symbols": [
+        "CL",
+        "MCL"
+      ],
+      "verdict": "WATCH",
+      "evidence": "VALIDATED",
+      "stats": {
+        "n": 281,
+        "wr": 0.5231316725978647,
+        "pf": 2.1940298507462686,
+        "E": 0.5693950177935944,
+        "max_dd": -7.0,
+        "trades_per_week": 28.1,
+        "label": "STRONGER SAMPLE",
+        "expectancy_r": 0.5693950177935944,
+        "max_dd_r": -7.0
+      },
+      "walk_forward": [
+        {
+          "fold": 1,
+          "n": 56,
+          "wr": 0.35714285714285715,
+          "pf": 1.1111111111111112,
+          "expectancy_r": 0.07142857142857142,
+          "max_dd_r": -12.0,
+          "label": "DEVELOPING"
+        },
+        {
+          "fold": 2,
+          "n": 56,
+          "wr": 0.48214285714285715,
+          "pf": 1.8620689655172413,
+          "expectancy_r": 0.44642857142857145,
+          "max_dd_r": -9.0,
+          "label": "DEVELOPING"
+        },
+        {
+          "fold": 3,
+          "n": 56,
+          "wr": 0.5714285714285714,
+          "pf": 2.6666666666666665,
+          "expectancy_r": 0.7142857142857143,
+          "max_dd_r": -4.0,
+          "label": "DEVELOPING"
+        },
+        {
+          "fold": 4,
+          "n": 56,
+          "wr": 0.5178571428571429,
+          "pf": 2.1481481481481484,
+          "expectancy_r": 0.5535714285714286,
+          "max_dd_r": -4.0,
+          "label": "DEVELOPING"
+        },
+        {
+          "fold": 5,
+          "n": 57,
+          "wr": 0.6842105263157895,
+          "pf": 4.333333333333333,
+          "expectancy_r": 1.0526315789473684,
+          "max_dd_r": -6.0,
+          "label": "DEVELOPING"
+        }
+      ],
+      "n": 281,
+      "wr": 0.5231316725978647,
+      "pf": 2.1940298507462686,
+      "expectancy_r": 0.5693950177935944,
+      "max_dd_r": -7.0,
+      "trades_per_week": 28.1
+    },
+    {
+      "cell": "CL_FAMILY|ny_open|parity_mom",
+      "session": "ny_open",
+      "family": "CL_FAMILY",
+      "symbols": [
+        "CL",
+        "MCL"
+      ],
+      "verdict": "WATCH",
+      "evidence": "DEVELOPING",
+      "stats": {
+        "n": 51,
+        "wr": 0.5490196078431373,
+        "pf": 2.4347826086956523,
+        "E": 0.6470588235294118,
+        "max_dd": -4.0,
+        "trades_per_week": 9.444444444444445,
+        "label": "PROMISING / NOT CONFIRMED",
+        "expectancy_r": 0.6470588235294118,
+        "max_dd_r": -4.0
+      },
+      "walk_forward": [
+        {
+          "fold": 1,
+          "n": 10,
+          "wr": 0.3,
+          "pf": 0.8571428571428571,
+          "expectancy_r": -0.1,
+          "max_dd_r": -6.0,
+          "label": "ANECDOTAL"
+        },
+        {
+          "fold": 2,
+          "n": 10,
+          "wr": 0.8,
+          "pf": 8.0,
+          "expectancy_r": 1.4,
+          "max_dd_r": -1.0,
+          "label": "ANECDOTAL"
+        },
+        {
+          "fold": 3,
+          "n": 10,
+          "wr": 0.6,
+          "pf": 3.0,
+          "expectancy_r": 0.8,
+          "max_dd_r": -2.0,
+          "label": "ANECDOTAL"
+        },
+        {
+          "fold": 4,
+          "n": 10,
+          "wr": 0.3,
+          "pf": 0.8571428571428571,
+          "expectancy_r": -0.1,
+          "max_dd_r": -6.0,
+          "label": "ANECDOTAL"
+        },
+        {
+          "fold": 5,
+          "n": 11,
+          "wr": 0.7272727272727273,
+          "pf": 5.333333333333333,
+          "expectancy_r": 1.1818181818181819,
+          "max_dd_r": -2.0,
+          "label": "ANECDOTAL"
+        }
+      ],
+      "n": 51,
+      "wr": 0.5490196078431373,
+      "pf": 2.4347826086956523,
+      "expectancy_r": 0.6470588235294118,
+      "max_dd_r": -4.0,
+      "trades_per_week": 9.444444444444445
+    },
+    {
+      "strategy": "vwap_mss",
+      "source": "learning_store_unified",
+      "verdict": "ANECDOTAL_WATCH",
+      "n": 11,
+      "wr": 0.5454545454545454,
+      "shrunk_wr": 0.5161290322580645,
+      "pf": 2.0353866317169076,
+      "expectancy_r": 0.21545454545454545,
+      "max_dd_r": -1.549
+    },
+    {
+      "strategy": "trend_continuation",
+      "source": "learning_store_unified",
+      "verdict": "WATCH",
+      "n": 89,
+      "wr": 0.47191011235955055,
+      "shrunk_wr": 0.47706422018348627,
+      "pf": 1.4445231031337809,
+      "expectancy_r": 0.12457533016471496,
+      "max_dd_r": -7.774999999999999
+    },
+    {
+      "strategy": "opening_range",
+      "source": "learning_store_unified",
+      "verdict": "WATCH",
+      "n": 27,
+      "wr": 0.4074074074074074,
+      "shrunk_wr": 0.44680851063829785,
+      "pf": 1.2171358741540703,
+      "expectancy_r": 0.10520918328367351,
+      "max_dd_r": -4.0
+    },
+    {
+      "strategy": "vwap_acceptance",
+      "source": "learning_store_unified",
+      "verdict": "WATCH",
+      "n": 56,
+      "wr": 0.39285714285714285,
+      "shrunk_wr": 0.42105263157894735,
+      "pf": 1.1509714971384242,
+      "expectancy_r": 0.07286140102362286,
+      "max_dd_r": -8.815958767247682
+    },
+    {
+      "strategy": "vwap_reclaim",
+      "source": "learning_store_unified",
+      "verdict": "WATCH",
+      "n": 41,
+      "wr": 0.3170731707317073,
+      "shrunk_wr": 0.3770491803278688,
+      "pf": 1.04178674351585,
+      "expectancy_r": 0.02687804878048779,
+      "max_dd_r": -13.238
+    },
+    {
+      "strategy": "ema_pullback",
+      "source": "learning_store_unified",
+      "verdict": "WATCH",
+      "n": 376,
+      "wr": 0.3776595744680851,
+      "shrunk_wr": 0.3838383838383838,
+      "pf": 0.9232399980120938,
+      "expectancy_r": -0.033766946045666706,
+      "max_dd_r": -33.82966532887447
+    },
+    {
+      "strategy": "liquidity_sweep",
+      "source": "learning_store_unified",
+      "verdict": "ANECDOTAL_WATCH",
+      "n": 15,
+      "wr": 0.26666666666666666,
+      "shrunk_wr": 0.4,
+      "pf": 0.494370079995853,
+      "expectancy_r": -0.08934323156268847,
+      "max_dd_r": -0.895729288012759
+    },
+    {
+      "strategy": "liquidity_reversal",
+      "source": "learning_store_unified",
+      "verdict": "ANECDOTAL_WATCH",
+      "n": 19,
+      "wr": 0.21052631578947367,
+      "shrunk_wr": 0.358974358974359,
+      "pf": 0.7125333333333332,
+      "expectancy_r": -0.22694736842105265,
+      "max_dd_r": -6.761
+    }
+  ]
+}

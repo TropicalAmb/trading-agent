@@ -13,8 +13,11 @@ class OrderState(str, Enum):
     FILLED = "FILLED"
     CANCEL_PENDING = "CANCEL_PENDING"
     CANCELED = "CANCELED"
+    CANCELLED = "CANCELED"  # alias spelling
     REJECTED = "REJECTED"
+    CLOSED = "CLOSED"
 
 
 # Paper adapter may jump CREATED -> FILLED deterministically.
 # Live adapters must not treat submit_order() as fill.
+# SimulatedBroker exercises the full machine for readiness tests.

@@ -117,6 +117,10 @@ def test_aa_cannot_silently_disappear(tmp_path):
 
 
 def test_agreement_superseded_reported():
+    cfg = _cfg()
+    # Isolate agreement merge from live paper empirical router cells
+    cfg = dict(cfg)
+    cfg["performance_router"] = {"enabled": False}
     winner = _setup(
         setup_tier="A+",
         confidence_score=92,
@@ -143,7 +147,7 @@ def test_agreement_superseded_reported():
             "config_version": "opt_v1",
         },
     )
-    executable, superseded = select_executable_detailed([winner, loser], _cfg())
+    executable, superseded = select_executable_detailed([winner, loser], cfg)
     assert len(executable) == 1
     assert executable[0].strategy_name == "liquidity_sweep"
     assert len(superseded) == 1
@@ -256,12 +260,20 @@ def test_missed_move_research_only():
     assert summary["note"].startswith("research-only")
 
 
-def test_vwap_reclaim_is_alias_not_duplicate_engine():
+def test_specialists_are_research_only_not_executable_engines():
+    """Failed specialists stay in research_only_engines; core engines preserved."""
     cfg = _cfg()
     engines = cfg["confluence"]["engines"]
+    research = cfg.get("research_only_engines") or []
     assert "vwap_acceptance" in engines
     assert "vwap_reclaim" not in engines
-    assert cfg.get("vwap_reclaim", {}).get("alias_of") == "vwap_acceptance"
+    assert "vwap_reclaim" in research
+    assert "trend_pullback" in research
+    assert "liquidity_reversal" in research
+    assert "ema_pullback" in research  # spray engine demoted to shadow (quality2)
+    assert "ema_pullback" not in engines
+    assert (cfg.get("performance_router") or {}).get("enabled", True)
+    assert (cfg.get("performance_router_v2") or {}).get("enabled") is False
 
 
 def test_blotter_risk_context_tz_safe():

@@ -1,0 +1,13 @@
+agent_id: agent_balanced_shadow
+agent_profile: balanced_shadow
+active_strategy: decision_pipeline
+execution_profile: balanced
+# Hypothetical comparison profile — decisions journaled/shadowed for learning
+quantity:
+  default_quantity: 2
+tiering:
+  minimum_trade_tier: A
+performance_router:
+  enabled: true
+performance_router_v2:
+  enabled: false

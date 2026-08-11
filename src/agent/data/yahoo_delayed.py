@@ -238,4 +238,20 @@ def make_provider(cfg: dict[str, Any]) -> MarketDataProvider:
             max_retries=int(md.get("max_retries", 3)),
             default_bar_interval=str(md.get("bar_interval", "5m")),
         )
+    if name in {"historical", "history", "replay"}:
+        from agent.data.historical import HistoricalProvider
+
+        return HistoricalProvider(source="historical")
+    if name in {"databento", "databento_historical", "dbn"}:
+        from agent.data.databento_historical import DatabentoHistoricalProvider
+
+        return DatabentoHistoricalProvider(
+            dataset=str(md.get("databento_dataset", "GLBX.MDP3")),
+            schema=str(md.get("databento_schema", "ohlcv-1m")),
+            default_lookback_days=int(md.get("databento_default_lookback_days", 60)),
+        )
+    if name in {"broker_realtime", "realtime", "tradovate_md", "live_md"}:
+        from agent.data.broker_realtime import BrokerRealtimeProvider
+
+        return BrokerRealtimeProvider(cfg)
     raise ValueError(f"Unknown market_data.provider: {name}")

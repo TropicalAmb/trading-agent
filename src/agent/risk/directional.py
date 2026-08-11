@@ -67,9 +67,12 @@ class DirectionalRiskEngine:
         if signal.side == "SELL" and not (signal.target < signal.entry < signal.stop):
             reasons.append("SELL requires target < entry < stop")
 
-        # HARD pre-trade ceiling from risk.max_risk_dollars_per_trade — no tolerance.
-        # Strategy-local caps may be tighter; never allow above the portfolio hard cap.
-        hard_cap = float(risk.get("max_risk_dollars_per_trade", 250))
+        # Finite hard ceiling — never skip when misconfigured to 0.
+        from agent.execution.risk_budget import effective_max_risk_dollars
+
+        hard_cap = effective_max_risk_dollars(
+            self.cfg, equity=float(getattr(account, "equity", 0) or 0) or None
+        )
         qty = max(1, int(getattr(signal, "quantity", 1) or 1))
         # Engines report per-contract dollars; convert to position risk
         position_risk = float(signal.risk_dollars) * qty
