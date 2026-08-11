@@ -45,12 +45,12 @@ def main() -> int:
     if not key:
         print("API key: MISSING")
         print("  1. Create account: https://databento.com")
-        print("  2. Portal → API keys → copy key starting with db-")
+        print("  2. Portal -> API keys -> copy key starting with db-")
         print("  3. Add to .env: DATABENTO_API_KEY=db-...")
         print("  4. Re-run this script")
         return 2
 
-    print(f"API key: present ({key[:5]}…{key[-4:]})")
+    print(f"API key: present ({key[:5]}...{key[-4:]})")
     from agent.data.databento_historical import DatabentoHistoricalProvider, cost_estimate_note
 
     print(cost_estimate_note())
