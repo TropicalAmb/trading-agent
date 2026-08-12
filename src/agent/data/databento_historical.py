@@ -91,6 +91,80 @@ class DatabentoHistoricalProvider(MarketDataProvider):
         # 5m: request 1m and resample
         return "ohlcv-1m"
 
+    SUPPORTED_SCHEMAS = ("ohlcv-1m", "ohlcv-1s", "trades", "mbp-1")
+
+    def fetch_ohlcv_df(
+        self,
+        symbol: str,
+        *,
+        start: datetime | str,
+        end: datetime | str,
+        schema: str = "ohlcv-1m",
+        stype_in: str = "parent",
+    ) -> pd.DataFrame:
+        """Historical OHLCV (or raw schema) DataFrame for research / finalist validation.
+
+        schema defaults to ohlcv-1m. Optional later: trades, mbp-1, ohlcv-1s.
+        """
+        if schema not in self.SUPPORTED_SCHEMAS and not str(schema).startswith("ohlcv"):
+            raise ValueError(f"Unsupported Databento schema: {schema}")
+        client = self._ensure_client()
+        parent = self._resolve_symbol(symbol)
+        try:
+            store = client.timeseries.get_range(
+                dataset=self.dataset,
+                symbols=parent,
+                schema=schema,
+                stype_in=stype_in,
+                start=start if isinstance(start, str) else start.isoformat(),
+                end=end if isinstance(end, str) else end.isoformat(),
+            )
+            df = store.to_df()
+        except Exception as exc:
+            self._failures += 1
+            self._last_error = str(exc)
+            logger.exception("Databento fetch failed for %s", parent)
+            raise RuntimeError(f"DATA_ERROR: Databento {parent}: {exc}") from exc
+        if df is None or df.empty:
+            self._failures += 1
+            self._last_error = f"empty response for {parent}"
+            raise RuntimeError(f"DATA_ERROR: No Databento bars for {parent}")
+        work = df.copy()
+        work.columns = [str(c).lower() for c in work.columns]
+        if schema.startswith("ohlcv"):
+            for need in ("open", "high", "low", "close"):
+                if need not in work.columns:
+                    raise RuntimeError(f"DATA_ERROR: Databento missing column {need}")
+            if "volume" not in work.columns:
+                work["volume"] = 0.0
+        # Normalize index to UTC then America/New_York for research alignment
+        if getattr(work.index, "tz", None) is None:
+            work.index = pd.to_datetime(work.index, utc=True)
+        else:
+            work.index = work.index.tz_convert("UTC")
+        work.index = work.index.tz_convert("America/New_York")
+        # Parent symbology can emit overlapping contract/spread rows → duplicate timestamps
+        if "symbol" in work.columns:
+            # Prefer outright NQ equity-index futures (exclude calendar spreads / odd prints)
+            sym = work["symbol"].astype(str)
+            outright = sym.str.match(r"^NQ[HJKMNQUZ][0-9]$", case=False)
+            if outright.any():
+                work = work.loc[outright]
+        if work.index.duplicated().any():
+            work = work[~work.index.duplicated(keep="last")]
+        # Hard price sanity for NQ full-size (rejects spread prints ~200s)
+        if {"open", "high", "low", "close"}.issubset(work.columns):
+            px = work["close"].astype(float)
+            work = work.loc[px >= 5000]
+        work.attrs["source"] = "databento"
+        work.attrs["dataset"] = self.dataset
+        work.attrs["parent"] = parent
+        work.attrs["schema"] = schema
+        self._last_success = datetime.now(timezone.utc)
+        self._failures = 0
+        self._last_error = None
+        return work.sort_index()
+
     def get_bars(
         self,
         symbol: str,
@@ -98,8 +172,6 @@ class DatabentoHistoricalProvider(MarketDataProvider):
         interval: str = "5m",
         period: str = "60d",
     ) -> list[Bar]:
-        client = self._ensure_client()
-        parent = self._resolve_symbol(symbol)
         schema = self._schema_for_interval(interval)
         days = self.default_lookback_days
         try:
@@ -111,35 +183,7 @@ class DatabentoHistoricalProvider(MarketDataProvider):
             days = self.default_lookback_days
         end = datetime.now(timezone.utc)
         start = end - timedelta(days=max(days, 7))
-        try:
-            store = client.timeseries.get_range(
-                dataset=self.dataset,
-                symbols=parent,
-                schema=schema,
-                stype_in="parent",
-                start=start.isoformat(),
-                end=end.isoformat(),
-            )
-            df = store.to_df()
-        except Exception as exc:
-            self._failures += 1
-            self._last_error = str(exc)
-            logger.exception("Databento fetch failed for %s", parent)
-            raise RuntimeError(f"DATA_ERROR: Databento {parent}: {exc}") from exc
-
-        if df is None or df.empty:
-            self._failures += 1
-            self._last_error = f"empty response for {parent}"
-            raise RuntimeError(f"DATA_ERROR: No Databento bars for {parent}")
-
-        # Normalize columns
-        work = df.copy()
-        work.columns = [str(c).lower() for c in work.columns]
-        for need in ("open", "high", "low", "close"):
-            if need not in work.columns:
-                raise RuntimeError(f"DATA_ERROR: Databento missing column {need}")
-        if "volume" not in work.columns:
-            work["volume"] = 0.0
+        work = self.fetch_ohlcv_df(symbol, start=start, end=end, schema=schema)
 
         # Resample 1m → 5m when requested
         iv = str(interval).lower()
@@ -151,6 +195,7 @@ class DatabentoHistoricalProvider(MarketDataProvider):
             )
 
         now = datetime.now(timezone.utc)
+        parent = self._resolve_symbol(symbol)
         bars: list[Bar] = []
         for ts, row in work.iterrows():
             t = ts.to_pydatetime() if hasattr(ts, "to_pydatetime") else ts
@@ -173,9 +218,6 @@ class DatabentoHistoricalProvider(MarketDataProvider):
                     metadata={"dataset": self.dataset, "parent": parent, "schema": schema},
                 )
             )
-        self._last_success = now
-        self._failures = 0
-        self._last_error = None
         return bars
 
     def get_latest_bar(self, symbol: str, *, interval: str = "5m", period: str = "10d") -> Bar:

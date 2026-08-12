@@ -115,6 +115,7 @@ def boost_for_agreement(
                     "vwap_mss",
                     "vwap_orb",
                     "cl_vwap_prox_momentum",
+                    "nq_context_entry",
                 }
                 for n in names
             )

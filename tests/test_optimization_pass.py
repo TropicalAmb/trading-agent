@@ -399,6 +399,58 @@ def test_unknown_cascade_thesis_does_not_block():
     assert execution_reject_reason(s, cfg) is None
 
 
+def test_poor_vwap_distance_allows_location_engine():
+    """Breakout/OR often fire >1.5 ATR from VWAP — do not POOR-kill location engines."""
+    cfg = _cfg()
+    eq = dict(cfg.get("execution_quality") or {})
+    eq["reject_poor_cascade_location"] = True
+    eq["location_may_trade_away_from_vwap"] = True
+    cfg["execution_quality"] = eq
+    s = _setup(
+        strategy_name="breakout_retest",
+        metadata={
+            "agreeing_engines": ["breakout_retest"],
+            "has_location": True,
+            "cascade": {
+                "thesis": "LONG_SUPPORT",
+                "location": "POOR_LOCATION",
+                "trigger": "BREAKOUT_RETEST",
+            },
+        },
+        confidence_score=85,
+        expected_r=1.8,
+        reward_dollars=180,
+    )
+    s.setup_tier = "A+"
+    assert can_execute(s, cfg)
+    assert execution_reject_reason(s, cfg) is None
+
+
+def test_poor_vwap_distance_still_blocks_thin_engine():
+    cfg = _cfg()
+    eq = dict(cfg.get("execution_quality") or {})
+    eq["reject_poor_cascade_location"] = True
+    eq["location_may_trade_away_from_vwap"] = True
+    cfg["execution_quality"] = eq
+    s = _setup(
+        strategy_name="momentum",
+        metadata={
+            "agreeing_engines": ["momentum", "breakout_retest"],
+            "cascade": {
+                "thesis": "LONG_SUPPORT",
+                "location": "POOR_LOCATION",
+                "trigger": "MOMENTUM",
+            },
+        },
+        confidence_score=85,
+        expected_r=1.8,
+        reward_dollars=180,
+    )
+    s.setup_tier = "A"
+    assert not can_execute(s, cfg)
+    assert execution_reject_reason(s, cfg) == "EXECUTION_QUALITY:POOR_LOCATION"
+
+
 def test_agreement_keeps_paperable_before_quality_filter():
     """Location A with MIXED thesis stays in agreement pool for ledgered reject."""
     cfg = _cfg()

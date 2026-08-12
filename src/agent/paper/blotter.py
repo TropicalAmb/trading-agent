@@ -669,9 +669,14 @@ class PaperBlotter:
                         closed.append(partial)
                     continue
 
-            # Time stop: only cut losers by default — winners can run to target/trail
+            # Time stop: only cut losers by default — winners can run to target/trail.
+            # Hold clock must use wall/received time, NOT market bar `opened_at`.
+            # Yahoo delayed bars are wall-clock-past; treating them as UTC made
+            # brand-new fills look like they already held 2–4h → instant time_stop.
             if reason is None and max_hold_minutes:
-                opened = _parse_ts(pos.get("opened_at"))
+                opened = _parse_ts(
+                    pos.get("received_at") or pos.get("ts") or pos.get("opened_at")
+                )
                 if opened:
                     held = (datetime.now(timezone.utc) - opened).total_seconds() / 60.0
                     if held >= max_hold_minutes:
@@ -822,7 +827,17 @@ class PaperBlotter:
     ) -> None:
         """Rewrite the HTML every cycle so the browser page proves the agent is alive."""
         now = datetime.now(timezone.utc).isoformat()
-        fm = feed_meta or {}
+        fm = dict(feed_meta or {})
+        if not fm.get("config_version"):
+            try:
+                from agent.config import load_settings
+
+                root = self.json_path.resolve().parent.parent
+                fm["config_version"] = load_settings(root / "config" / "settings.yaml").get(
+                    "config_version"
+                )
+            except Exception:
+                pass
         cands = list(candidates or [])
         last_cands = list(
             last_evaluated_candidates
@@ -859,6 +874,8 @@ class PaperBlotter:
             "last_successful_fetch": fm.get("last_successful_fetch"),
             "execution_decisions": fm.get("execution_decisions") or [],
             "feed_meta": fm,
+            "config_version": fm.get("config_version")
+            or (self._state.get("heartbeat") or {}).get("config_version"),
         }
         hist = list(self._state.get("scan_history", []))
         hist.insert(
@@ -937,15 +954,60 @@ class PaperBlotter:
         if hb_age is None:
             alive = "NO / STALE — click Start Trading Agent"
             agent_health = "UNKNOWN"
+            run_banner_class = "unknown"
+            run_banner_title = "NOT RUNNING"
+            run_banner_plain = "No heartbeat yet. Start the Trading Agent to begin scanning."
+            run_banner_sub = "If you already started it, wait ~1 minute for the first scan cycle."
         elif hb_age > stuck_s:
+            mins = hb_age / 60.0
+            hours = hb_age / 3600.0
+            age_txt = f"{hours:.1f}h" if hours >= 2 else f"{mins:.0f}m"
             alive = f"STUCK — no scheduler heartbeat {hb_age:.0f}s ago"
             agent_health = "STUCK"
+            run_banner_class = "bad"
+            run_banner_title = "NOT ACTIVELY RUNNING (STUCK)"
+            run_banner_plain = (
+                f"Last scan heartbeat was {age_txt} ago. The agent is not ticking the 1-minute loop."
+            )
+            run_banner_sub = (
+                "Supervisor may still show 'running' while recovering. Prefer Start Trading Agent / "
+                "wait for auto-restart. Fresh heartbeat should land within ~1–2 minutes if healthy."
+            )
         elif hb_age > warn_s:
             alive = f"DEGRADED — scheduler heartbeat {hb_age:.0f}s ago"
             agent_health = "DEGRADED"
+            run_banner_class = "warn"
+            run_banner_title = "RUNNING — SLOW / DEGRADED"
+            run_banner_plain = (
+                f"Heartbeat is {hb_age:.0f}s old (warn>{warn_s:.0f}s). Still alive, but lagging."
+            )
+            run_banner_sub = (
+                "If this persists past ~2.5 minutes it becomes STUCK and the supervisor should restart."
+            )
         else:
             alive = f"RUNNING — scheduler tick {hb_age:.0f}s ago"
             agent_health = "RUNNING"
+            run_banner_class = "ok"
+            run_banner_title = "ACTIVELY RUNNING"
+            run_banner_plain = (
+                f"Scan loop is live — last heartbeat {hb_age:.0f}s ago (expect refresh every ~60s)."
+            )
+            # Clarify idle-but-alive vs trading
+            ss = str(hb.get("scan_state") or "")
+            if "NO_NEW" in ss or "WAITING" in ss.upper():
+                run_banner_sub = (
+                    "Actively scanning, but no new completed market bar this tick "
+                    "(normal between 5m bars). Not the same as stopped."
+                )
+            elif int(hb.get("signals_found") or 0) > 0:
+                run_banner_sub = (
+                    f"Actively scanning with {hb.get('signals_found')} executable setup(s) this cycle."
+                )
+            else:
+                run_banner_sub = (
+                    "Actively scanning. Zero executable setups this cycle is OK when quality gates pass nothing."
+                )
+
         sup = {}
         try:
             cand = self.json_path.parent / "supervisor_status.json"
@@ -1103,6 +1165,88 @@ class PaperBlotter:
             mark = prices.get(str(p.get("symbol")))
             if mark is not None:
                 unrealized_total += _money(side, entry, mark, qty, pv)
+
+        # --- Simple at-a-glance trading snapshot ---
+        try:
+            from zoneinfo import ZoneInfo
+
+            et_now = datetime.now(ZoneInfo("America/New_York"))
+        except Exception:
+            et_now = datetime.now(timezone.utc)
+        et_mins = et_now.hour * 60 + et_now.minute
+        nq_window_open = (9 * 60 + 30) <= et_mins < (12 * 60)
+        last_closed = None
+        if closed:
+            last_closed = max(
+                closed,
+                key=lambda t: str(t.get("closed_at") or t.get("ts") or ""),
+            )
+        last_fill_ts = str((last_closed or {}).get("closed_at") or "") if last_closed else ""
+        last_fill_pnl = (last_closed or {}).get("pnl_dollars")
+        last_fill_sym = (last_closed or {}).get("symbol")
+        mins_since_fill = None
+        if last_fill_ts:
+            try:
+                lft = datetime.fromisoformat(last_fill_ts.replace("Z", "+00:00"))
+                if lft.tzinfo is None:
+                    lft = lft.replace(tzinfo=timezone.utc)
+                mins_since_fill = (datetime.now(timezone.utc) - lft).total_seconds() / 60.0
+            except Exception:
+                mins_since_fill = None
+        n_open = len(opens)
+        n_exec = int(hb.get("signals_found") or 0)
+        if agent_health in {"STUCK", "UNKNOWN"}:
+            trade_status = "NOT TRADING — agent not scanning"
+            trade_plain = "Fix / restart the agent before expecting paper fills."
+        elif n_open > 0:
+            trade_status = f"PAPER TRADING — {n_open} open position(s)"
+            trade_plain = "Managing open paper risk live (stops/targets)."
+        elif n_exec > 0:
+            trade_status = f"PAPER ENTRY SIGNAL — {n_exec} executable this scan"
+            trade_plain = "A+/A setup(s) present this cycle; check Open positions."
+        else:
+            trade_status = "SCANNING — flat (no new paper fill this cycle)"
+            if not nq_window_open:
+                trade_plain = (
+                    "Flat is normal outside NQ champion window (09:30–12:00 ET BUY-only). "
+                    f"Clock now ~{et_now.strftime('%H:%M')} ET."
+                )
+            else:
+                trade_plain = (
+                    "Inside NQ window, but no A+/A paper setup cleared gates this tick "
+                    "(selectivity — not the same as dead)."
+                )
+        last_fill_line = "No closed paper trades yet."
+        if last_closed is not None:
+            pnl_s = _fmt_money(float(last_fill_pnl or 0))
+            age_s = (
+                f"{mins_since_fill:.0f}m ago"
+                if mins_since_fill is not None and mins_since_fill < 180
+                else (
+                    f"{(mins_since_fill or 0) / 60:.1f}h ago"
+                    if mins_since_fill is not None
+                    else last_fill_ts[:19]
+                )
+            )
+            last_fill_line = f"Last fill: {last_fill_sym} {pnl_s} · {age_s}"
+        glance_equity = equity + realized + unrealized_total
+        tech_status_html = f"""
+      <div class="eq">AGENT: {agent_health}</div>
+      <div class="meta">{alive}</div>
+      <div class="meta"><b>Config:</b> {hb.get('config_version') or '—'} · <b>Mode:</b> paper / Yahoo delayed</div>
+      <div class="meta"><b>Primary:</b> {decision}</div>
+      <div class="meta"><b>Detail:</b> {hb.get('status_detail') or '—'}</div>
+      <div class="meta"><b>Scheduler:</b> interval={hb.get('scheduler_interval_minutes') or 1}m · last tick {hb_age if hb_age is not None else '—'}s ago · scan_state={hb.get('scan_state') or '—'}</div>
+      <div class="meta"><b>Provider:</b> {hb.get('feed_source', 'yahoo_delayed')} · {'REALTIME' if hb.get('is_realtime') else 'DELAYED Yahoo'} · expected_delay≈{hb.get('expected_delay_seconds') or hb.get('estimated_delay_seconds') or 'n/a'}s · observed_delay≈{hb.get('estimated_delay_seconds') or 'n/a'}s · stale_threshold≈{hb.get('stale_threshold_seconds') or 'n/a'}s</div>
+      <div class="meta">Last fetch attempt: {hb.get('last_fetch_attempt') or '—'} · Last successful fetch: {hb.get('last_successful_fetch') or '—'}</div>
+      <div class="meta"><b>Bar interval (strategy):</b> {hb.get('bar_interval') or '5m'} ({hb.get('bar_interval_seconds') or 300}s) — NOT the same as scheduler 1m ticks</div>
+      <div class="meta">Latest completed market bar: {hb.get('last_market_bar') or '—'} · Last evaluated bar: {hb.get('last_evaluated_market_bar') or hb.get('last_market_bar') or '—'}</div>
+      <div class="meta"><b>Strategy:</b> session={session} · executable this scan={sigs} · current candidates={len(hb.get('candidates') or [])} · last-eval candidates={len(hb.get('last_evaluated_candidates') or [])}</div>
+      <div class="meta">Prices: {price_bits}</div>
+      <div class="meta">{sup_note or "Supervisor status: waiting for first background update"}</div>
+      <div class="meta">Received/heartbeat time (UTC): {hb_ts}</div>
+      {silence_html}
+"""
 
         sess_pnl = self.session_pnl()
         daily_pnl = self.daily_session_pnl()
@@ -1834,69 +1978,63 @@ class PaperBlotter:
     .eq {{ font-size: 1.35rem; font-weight: 700; }}
     .up {{ color: #3dd68c; font-weight: 600; }}
     .down {{ color: #f07178; font-weight: 600; }}
+    .run-banner {{
+      margin: 0 0 14px; padding: 14px 16px; border-radius: 8px;
+      border: 2px solid var(--line); background: #121926;
+    }}
+    .run-banner .title {{
+      font-size: 1.55rem; font-weight: 800; letter-spacing: 0.02em; margin: 0 0 6px;
+    }}
+    .run-banner .plain {{
+      font-size: 0.95rem; color: var(--text); margin: 0 0 4px; line-height: 1.4;
+    }}
+    .run-banner .sub {{
+      font-size: 0.82rem; color: var(--muted); margin: 0; line-height: 1.4;
+    }}
+    .run-banner.ok {{ border-color: #3dd68c; background: #10261c; }}
+    .run-banner.ok .title {{ color: #3dd68c; }}
+    .run-banner.warn {{ border-color: #e6b450; background: #2a2110; }}
+    .run-banner.warn .title {{ color: #e6b450; }}
+    .run-banner.bad {{ border-color: #f07178; background: #2a1418; }}
+    .run-banner.bad .title {{ color: #f07178; }}
+    .run-banner.unknown {{ border-color: #8b9bb4; background: #161b24; }}
+    .run-banner.unknown .title {{ color: #c9d4e5; }}
+    .glance-grid {{
+      display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+      gap: 10px; margin-top: 12px;
+    }}
+    .glance-cell {{
+      background: #121926; border: 1px solid var(--line); border-radius: 8px; padding: 10px 12px;
+    }}
+    .glance-cell .lbl {{ color: var(--muted); font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.04em; }}
+    .glance-cell .val {{ font-size: 1.05rem; font-weight: 700; margin-top: 4px; }}
   </style>
 </head>
 <body>
   <header>
     <h1>Agent Paper Trading View</h1>
-    <p>This page is <b>not</b> TradingView.com. It is your local agent blotter.
-    It reloads every 15 seconds. Feed is DELAYED Yahoo for paper validation — market time ≠ wall clock.
-    Status should refresh every ~1 minute while the agent runs.
-    Dense sections are collapsible — your open/closed choice is remembered across refresh.</p>
+    <p>Local paper blotter (not TradingView.com). Reloads every 15s.
+    Read the top two cards first — everything else is optional detail (collapsed by default).</p>
   </header>
   <div class="grid">
     <div class="card">
-      <h2>Agent / data / strategy status</h2>
-      <div class="eq">AGENT: {agent_health}</div>
-      <div class="meta">{alive}</div>
-      <div class="meta"><b>Primary:</b> {decision}</div>
-      <div class="meta"><b>Detail:</b> {hb.get('status_detail') or '—'}</div>
-      <div class="meta"><b>Scheduler:</b> interval={hb.get('scheduler_interval_minutes') or 1}m · last tick {hb_age if hb_age is not None else '—'}s ago · scan_state={hb.get('scan_state') or '—'}</div>
-      <div class="meta"><b>Provider:</b> {hb.get('feed_source', 'yahoo_delayed')} · {'REALTIME' if hb.get('is_realtime') else 'DELAYED Yahoo'} · expected_delay≈{hb.get('expected_delay_seconds') or hb.get('estimated_delay_seconds') or 'n/a'}s · observed_delay≈{hb.get('estimated_delay_seconds') or 'n/a'}s · stale_threshold≈{hb.get('stale_threshold_seconds') or 'n/a'}s</div>
-      <div class="meta">Last fetch attempt: {hb.get('last_fetch_attempt') or '—'} · Last successful fetch: {hb.get('last_successful_fetch') or '—'}</div>
-      <div class="meta"><b>Bar interval (strategy):</b> {hb.get('bar_interval') or '5m'} ({hb.get('bar_interval_seconds') or 300}s) — NOT the same as scheduler 1m ticks</div>
-      <div class="meta">Latest completed market bar: {hb.get('last_market_bar') or '—'} · Last evaluated bar: {hb.get('last_evaluated_market_bar') or hb.get('last_market_bar') or '—'}</div>
-      <div class="meta"><b>Strategy:</b> session={session} · executable this scan={sigs} · current candidates={len(hb.get('candidates') or [])} · last-eval candidates={len(hb.get('last_evaluated_candidates') or [])}</div>
-      <div class="meta">Prices: {price_bits}</div>
-      <div class="meta">{sup_note or "Supervisor status: waiting for first background update"}</div>
-      <div class="meta">Received/heartbeat time (UTC): {hb_ts}</div>
-      {silence_html}
-    </div>
-    <div class="card">
-      <details class="fold" data-fold="adaptive_learning" open>
-        <summary>Adaptive Learning Status<span class="hint">click to expand/collapse</span></summary>
-        <div class="fold-body">
-          {adaptive_learning_status_html()}
-        </div>
-      </details>
-    </div>
-    <div class="card">
-      <details class="fold" data-fold="cl_winner_why" open>
-        <summary>Why the recent CL winner won<span class="hint">click to expand/collapse</span></summary>
-        <div class="fold-body">
-          {cl_winner_why_html()}
-        </div>
-      </details>
-    </div>
-    <div class="card">
-      <details class="fold" data-fold="why_selected" open>
-        <summary>Why selected / why passed (learning)<span class="hint">click to expand/collapse</span></summary>
-        <div class="fold-body">
-          <div class="meta">{why_selected_html()}</div>
-        </div>
-      </details>
-    </div>
-    <div class="card">
-      <details class="fold" data-fold="scan_tape">
-        <summary>Scan tape (proof of life — updates every minute)<span class="hint">click to expand/collapse</span></summary>
-        <div class="fold-body">
-          <table>
-            <thead><tr><th>Received (UTC)</th><th>Feed</th><th>Session</th><th>Decision</th><th>Setups</th><th>Candidates (exact)</th><th>Per-symbol engines</th><th>Prices</th></tr></thead>
-            <tbody>{rows_scan_tape()}</tbody>
-          </table>
-          <div class="meta">If Setups says N, Candidates must list those N rows. Hidden counts are a bug.</div>
-        </div>
-      </details>
+      <h2>At a glance</h2>
+      <div class="run-banner {run_banner_class}">
+        <div class="title">{run_banner_title}</div>
+        <p class="plain">{run_banner_plain}</p>
+        <p class="sub">{run_banner_sub}</p>
+      </div>
+      <div class="run-banner {'ok' if n_open > 0 or n_exec > 0 else ('warn' if agent_health == 'RUNNING' else run_banner_class)}" style="margin-top:10px">
+        <div class="title" style="font-size:1.2rem">{trade_status}</div>
+        <p class="plain">{trade_plain}</p>
+        <p class="sub">{last_fill_line} · Equity ${_fmt_money(glance_equity).lstrip('+')} · Realized {_fmt_money(realized)} · Open {n_open}</p>
+      </div>
+      <div class="glance-grid">
+        <div class="glance-cell"><div class="lbl">Scan</div><div class="val">{agent_health}</div></div>
+        <div class="glance-cell"><div class="lbl">Session</div><div class="val">{session.split('|')[0].strip() if session else '—'}</div></div>
+        <div class="glance-cell"><div class="lbl">NQ window 9:30–12 ET</div><div class="val">{'OPEN' if nq_window_open else 'CLOSED'}</div></div>
+        <div class="glance-cell"><div class="lbl">Config</div><div class="val" style="font-size:0.9rem">{hb.get('config_version') or '—'}</div></div>
+      </div>
     </div>
     <div class="card">
       <h2>Paper account</h2>
@@ -1913,8 +2051,63 @@ class PaperBlotter:
       </table>
     </div>
     <div class="card">
+      <details class="fold" data-fold="open_positions" open>
+        <summary>Open positions<span class="hint">click to expand/collapse</span></summary>
+        <div class="fold-body">
+          <table>
+            <thead><tr><th>Opened</th><th>Session</th><th>Sym</th><th>Side</th><th>Qty</th><th>Entry</th><th>Mark</th><th>Stop</th><th>TP1</th><th>Target</th><th>Risk $</th><th>Reward $</th><th>uPnL</th></tr></thead>
+            <tbody>{rows_open()}</tbody>
+          </table>
+        </div>
+      </details>
+    </div>
+    <div class="card">
+      <details class="fold" data-fold="tech_status">
+        <summary>Technical status (feed / scheduler / supervisor)<span class="hint">optional detail</span></summary>
+        <div class="fold-body">
+          {tech_status_html}
+        </div>
+      </details>
+    </div>
+    <div class="card">
+      <details class="fold" data-fold="adaptive_learning">
+        <summary>Adaptive Learning Status<span class="hint">optional detail</span></summary>
+        <div class="fold-body">
+          {adaptive_learning_status_html()}
+        </div>
+      </details>
+    </div>
+    <div class="card">
+      <details class="fold" data-fold="cl_winner_why">
+        <summary>Why the recent CL winner won<span class="hint">optional detail</span></summary>
+        <div class="fold-body">
+          {cl_winner_why_html()}
+        </div>
+      </details>
+    </div>
+    <div class="card">
+      <details class="fold" data-fold="why_selected">
+        <summary>Why selected / why passed (learning)<span class="hint">optional detail</span></summary>
+        <div class="fold-body">
+          <div class="meta">{why_selected_html()}</div>
+        </div>
+      </details>
+    </div>
+    <div class="card">
+      <details class="fold" data-fold="scan_tape">
+        <summary>Scan tape (proof of life — updates every minute)<span class="hint">optional detail</span></summary>
+        <div class="fold-body">
+          <table>
+            <thead><tr><th>Received (UTC)</th><th>Feed</th><th>Session</th><th>Decision</th><th>Setups</th><th>Candidates (exact)</th><th>Per-symbol engines</th><th>Prices</th></tr></thead>
+            <tbody>{rows_scan_tape()}</tbody>
+          </table>
+          <div class="meta">If Setups says N, Candidates must list those N rows. Hidden counts are a bug.</div>
+        </div>
+      </details>
+    </div>
+    <div class="card">
       <details class="fold" data-fold="session_pnl">
-        <summary>P&amp;L by session (cumulative)<span class="hint">click to expand/collapse</span></summary>
+        <summary>P&amp;L by session (cumulative)<span class="hint">optional detail</span></summary>
         <div class="fold-body">
           <table>
             <thead><tr><th>Session</th><th>Realized P&amp;L</th><th>Trades</th><th>Wins</th><th>Losses</th></tr></thead>
@@ -1937,24 +2130,8 @@ class PaperBlotter:
       </details>
     </div>
     <div class="card">
-      <details class="fold" data-fold="open_positions" open>
-        <summary>Open positions<span class="hint">click to expand/collapse</span></summary>
-        <div class="fold-body">
-          <table>
-            <thead><tr>
-              <th>Opened (UTC)</th><th>Session</th><th>Symbol</th><th>Side</th><th>Qty left/orig</th>
-              <th>Entry</th><th>Mark</th><th>Stop</th><th>TP1</th><th>Target</th>
-              <th>Risk $</th><th>Target $</th><th>Open P&amp;L $</th>
-            </tr></thead>
-            <tbody>{rows_open()}</tbody>
-          </table>
-          <div class="meta">Scale-out architecture present; activates only when quantity ≥ 2. Paper default quantity = 1.</div>
-        </div>
-      </details>
-    </div>
-    <div class="card">
       <details class="fold" data-fold="regime_context">
-        <summary>Current market regime / context (latest scan)<span class="hint">click to expand/collapse</span></summary>
+        <summary>Current market regime / context (latest scan)<span class="hint">optional detail</span></summary>
         <div class="fold-body">
           <table>
             <thead><tr><th>Symbol</th><th>Regime</th><th>Conf</th><th>15m</th><th>1h</th><th>4h</th><th>VWAP</th><th>EMA</th><th>Overext</th></tr></thead>
@@ -2033,8 +2210,8 @@ class PaperBlotter:
       </details>
     </div>
     <div class="card">
-      <details class="fold" data-fold="cl_specialist" open>
-        <summary>CL SPECIALIST FORWARD TEST<span class="hint">click to expand/collapse</span></summary>
+      <details class="fold" data-fold="cl_specialist">
+        <summary>CL SPECIALIST FORWARD TEST<span class="hint">optional detail</span></summary>
         <div class="fold-body">
           {cl_specialist_forward_html()}
         </div>
@@ -2069,7 +2246,7 @@ class PaperBlotter:
   </div>
   <script>
   (function () {{
-    var KEY = "paper_view_folds_v2";
+    var KEY = "paper_view_folds_v3";
     function load() {{
       try {{ return JSON.parse(localStorage.getItem(KEY) || "{{}}"); }}
       catch (e) {{ return {{}}; }}

@@ -18,6 +18,7 @@ LOCATION_STRATEGIES = {
     "vwap_reclaim",
     "cl_vwap_prox_momentum",
     "nq_ny_open_momentum",
+    "nq_context_entry",
 }
 
 
@@ -275,7 +276,13 @@ def execution_reject_reason(setup: TradeSetup, cfg: dict[str, Any]) -> str | Non
         paper_specs = {str(x) for x in (cfg.get("paper_specialist_engines") or [])}
         is_specialist = setup.strategy_name in paper_specs
         min_r = float(eq.get("min_expected_r", 0) or 0)
-        if min_r > 0 and float(setup.expected_r or 0) < min_r:
+        # Paper specialists may use their validated target R (e.g. NQ champion 1.15R)
+        # instead of the global scrape floor.
+        if (
+            min_r > 0
+            and float(setup.expected_r or 0) < min_r
+            and not is_specialist
+        ):
             return f"EXECUTION_QUALITY:R<{min_r}"
         min_reward = float(eq.get("min_reward_dollars", 0) or 0)
         if min_reward > 0 and float(setup.reward_dollars or 0) < min_reward:
@@ -286,7 +293,14 @@ def execution_reject_reason(setup: TradeSetup, cfg: dict[str, Any]) -> str | Non
         cas = meta.get("cascade") or {}
         if bool(eq.get("reject_poor_cascade_location", False)):
             if str(cas.get("location") or "") == "POOR_LOCATION":
-                return "EXECUTION_QUALITY:POOR_LOCATION"
+                # Structural location engines (breakout/OR/sweep/VWAP) often fire
+                # >1.5 ATR from session VWAP — that is not "bad location" for them.
+                # Mirror MIXED exemption; keep VWAP POOR hard-kill for thin engines.
+                allow_ext = bool(eq.get("location_may_trade_away_from_vwap", True))
+                if not (
+                    allow_ext and setup.strategy_name in LOCATION_STRATEGIES
+                ):
+                    return "EXECUTION_QUALITY:POOR_LOCATION"
         if bool(eq.get("require_non_mixed_thesis", False)) and not is_specialist:
             # Location engines may paper with imperfect MTF (IRL: factors disagree).
             # Cascade thesis stays journaled for research; do not hard-kill good location A's.

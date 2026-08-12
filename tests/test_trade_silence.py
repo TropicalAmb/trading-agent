@@ -47,6 +47,13 @@ def _cfg(**extra):
             "reject_poor_cascade_location": True,
             "require_non_mixed_thesis": True,
         },
+        "research_only_engines": [
+            "ema_pullback",
+            "trend_continuation",
+            "trend_pullback",
+            "liquidity_reversal",
+            "vwap_reclaim",
+        ],
         "tiering": {"minimum_trade_tier": "A"},
         "config_version": "test",
     }
@@ -286,3 +293,50 @@ def test_persist_status(tmp_path: Path):
     report = run_trade_silence_watch(tmp_path, cfg, now=now)
     assert report.severity == "OK"
     assert (data / "trade_silence_status.json").exists()
+
+
+def test_research_vs_research_supersede_is_not_steal(tmp_path: Path):
+    """Research beating research must not set RESEARCH_SUPERSEDE_DOMINANT."""
+    data = tmp_path / "data"
+    data.mkdir()
+    _copy_preflight(tmp_path)
+    now = datetime(2026, 8, 10, 19, 0, tzinfo=timezone.utc)
+    last_open = (now - timedelta(hours=4)).strftime("%Y-%m-%d %H:%M:%S")
+    _seed_regime(data, now - timedelta(hours=5))
+    (data / "paper_trades.json").write_text(
+        json.dumps(
+            {
+                "trades": [
+                    {
+                        "symbol": "MGC",
+                        "strategy_name": "liquidity_sweep",
+                        "opened_at": last_open,
+                        "status": "closed",
+                    }
+                ],
+                "open_positions": [],
+                "heartbeat": {"ts": now.isoformat(), "scan_state": "NO_NEW_BAR"},
+            }
+        ),
+        encoding="utf-8",
+    )
+    lines = []
+    for _ in range(20):
+        lines.append(
+            json.dumps(
+                {
+                    "decision": "REJECTED",
+                    "reason": "AGREEMENT_SUPERSEDED_BY_trend_pullback",
+                    "cycle_ts": now.isoformat(),
+                    "symbol": "MGC",
+                    "strategy": "ema_pullback",
+                }
+            )
+        )
+    (data / "execution_decisions.jsonl").write_text("\n".join(lines) + "\n", encoding="utf-8")
+    cfg = _cfg()
+    cfg["trade_silence_watch"]["decisions_path"] = str(data / "execution_decisions.jsonl")
+    report = diagnose_trade_silence(root=tmp_path, cfg=cfg, now=now)
+    assert BLOCKER_RESEARCH_SUPERSEDE not in report.blocker_codes
+    assert report.severity == "ALERT"
+    assert BLOCKER_PIPELINE_DROUGHT in report.blocker_codes

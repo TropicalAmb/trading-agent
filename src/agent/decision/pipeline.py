@@ -225,12 +225,14 @@ class DecisionPipeline:
             max_quantity=max_q,
         )
         meta = dict(setup.metadata or {})
-        # CL specialist: remap to MCL when full-size CL cannot fit $ risk (stop unchanged)
-        cl_cfg = self.cfg.get("cl_vwap_prox_momentum") or {}
+        # Specialists: remap to micro when full-size cannot fit $ risk (stop unchanged)
+        spec_cfg = self.cfg.get(setup.strategy_name) or {}
+        prefer_micro = bool(spec_cfg.get("prefer_micro_when_risk_exceeded", False))
         if (
             qty < 1
-            and setup.strategy_name == "cl_vwap_prox_momentum"
-            and bool(cl_cfg.get("prefer_micro_when_risk_exceeded", True))
+            and prefer_micro
+            and setup.strategy_name
+            in {"cl_vwap_prox_momentum", "nq_context_entry"}
         ):
             micro = suggest_micro_symbol(setup.symbol)
             if micro and micro.upper() != setup.symbol.upper():
@@ -333,6 +335,7 @@ class DecisionPipeline:
             evaluate_cl_vwap_prox_momentum,
             evaluate_nq_ny_open_momentum,
         )
+        from agent.strategy.nq_context_entry import evaluate_nq_context_entry
 
         fns: dict[str, Callable] = {
             "ema_pullback": evaluate_ema_pullback,
@@ -352,6 +355,7 @@ class DecisionPipeline:
             "indicator_parity": evaluate_indicator_parity,
             "cl_vwap_prox_momentum": evaluate_cl_vwap_prox_momentum,
             "nq_ny_open_momentum": evaluate_nq_ny_open_momentum,
+            "nq_context_entry": evaluate_nq_context_entry,
         }
         engine_dfs = engine_dfs or {}
         out: list[tuple[str, Any, Optional[str]]] = []

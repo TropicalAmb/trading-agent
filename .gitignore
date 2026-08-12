@@ -47,6 +47,19 @@ data/**/unified_candidates.csv
 data/**/run_log.txt
 data/**/*_log.txt
 
+# Large raw research datasets (Kaggle / Databento caches) — do not commit
+data/kaggle/
+data/databento/
+data/raw/
+*.csv.gz
+Dataset_NQ_1min*.csv
+
+# Credentials / secrets (defense in depth beyond .env)
+**/credentials*
+**/*api*key*
+**/secrets/
+kaggle.json
+
 # Local scratch
 _tmp_*
 *.tmp

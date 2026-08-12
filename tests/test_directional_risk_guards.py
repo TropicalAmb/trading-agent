@@ -98,3 +98,55 @@ def test_opposite_correlated_blocked():
     )
     assert not ok
     assert any("opposite correlated" in r for r in reasons)
+
+
+def test_min_reward_uses_position_dollars_not_per_contract():
+    """A+ qty=3 must not fail because reward/qty < stale sweep floor."""
+    cfg = {
+        "risk": {"max_open_positions": 50, "max_risk_dollars_per_trade": 500},
+        "growth_plan": {"active": {"min_confidence": 50}},
+        "execution_quality": {"min_reward_dollars": 150},
+        "confluence": {"min_reward_dollars": 150},
+        "sweep_retest": {
+            "min_confidence": 50,
+            "max_risk_dollars": 500,
+            "min_reward_dollars": 90,
+        },
+        "schedule": {
+            "timezone": "America/New_York",
+            "entry_mode": "always_open",
+            "weekend_open": "18:00",
+            "weekend_close": "17:00",
+            "maintenance_start": "17:00",
+            "maintenance_end": "18:00",
+        },
+    }
+    eng = DirectionalRiskEngine(cfg)
+    # Per-contract $80 × qty 3 = $240 position reward ≥ $150 EQ floor
+    sig = _sig(reward_dollars=80.0, risk_dollars=45.0)
+    setattr(sig, "quantity", 3)
+    ok, reasons = eng.evaluate(sig, _acct(), [], skip_session_check=True)
+    assert ok, reasons
+
+
+def test_min_reward_still_blocks_thin_position_reward():
+    cfg = {
+        "risk": {"max_open_positions": 50, "max_risk_dollars_per_trade": 500},
+        "growth_plan": {"active": {"min_confidence": 50}},
+        "execution_quality": {"min_reward_dollars": 150},
+        "sweep_retest": {"min_confidence": 50, "max_risk_dollars": 500, "min_reward_dollars": 90},
+        "schedule": {
+            "timezone": "America/New_York",
+            "entry_mode": "always_open",
+            "weekend_open": "18:00",
+            "weekend_close": "17:00",
+            "maintenance_start": "17:00",
+            "maintenance_end": "18:00",
+        },
+    }
+    eng = DirectionalRiskEngine(cfg)
+    sig = _sig(reward_dollars=40.0, risk_dollars=20.0)
+    setattr(sig, "quantity", 2)  # position reward $80 < $150
+    ok, reasons = eng.evaluate(sig, _acct(), [], skip_session_check=True)
+    assert not ok
+    assert any("reward $" in r and "< min" in r for r in reasons)

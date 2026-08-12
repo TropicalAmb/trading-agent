@@ -15,6 +15,7 @@ confluence:
     - vwap_orb
     - vwap_mss
     - cl_vwap_prox_momentum
+    - nq_context_entry
 research_only_engines:
   - ema_pullback
   - trend_continuation

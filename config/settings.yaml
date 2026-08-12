@@ -1,8 +1,8 @@
 mode: paper  # paper | live — live also requires ALLOW_LIVE_TRADING=true in .env
 
 # Version stamp for BEFORE vs AFTER optimization comparison (do not erase old journals)
-config_version: router_v1_readiness1
-# Paper stamp: overnight power arm + drought cooldown restart; location MIXED OK; EMA research_only
+config_version: router_v1_paperfix1
+# Paper stamp: location engines aligned to R>=1.6 + no false VWAP POOR kill; NQ specialist wired; EMA research_only
 strategy_version: performance_router_v1
 execution_profile: balanced  # balanced | high_confidence
 
@@ -112,6 +112,8 @@ execution_quality:
   # may paper when MTF is imperfect — cascade stays journaled for research.
   require_non_mixed_thesis: true
   location_may_trade_mixed_thesis: true
+  # Breakout/OR/sweep often print >1.5 ATR from VWAP; do not VWAP-distance-kill them.
+  location_may_trade_away_from_vwap: true
 
 # Portfolio coordinator across agents on same account
 portfolio:
@@ -132,6 +134,7 @@ confluence:
     - vwap_orb          # ORB + VWAP filter (accuracy research)
     - vwap_mss          # VWAP + MSS + MTF3 (paper vwap_mss_v1)
     - cl_vwap_prox_momentum  # PAPER: validated CL specialist v1 (exact research definition)
+    - nq_context_entry       # PAPER: Databento WR>=65% PULLBACK BUY champion
   max_risk_dollars: 180
   min_reward_dollars: 150
   min_rr: 1.6
@@ -149,6 +152,7 @@ research_only_engines:
 # Paper-executable validated specialists (tier floor A when cascade OK; still hard-risk gated)
 paper_specialist_engines:
   - cl_vwap_prox_momentum
+  - nq_context_entry
 
 # Five-layer cascade (additive context; hard risk unchanged)
 trade_cascade:
@@ -166,6 +170,11 @@ strategy_lifecycle:
     shadow_dd_r: -7.5
     hard_kill_r: -9.0
     equity_book_key: CL_BOOK   # aggregate CL+MCL R equity
+  nq_context_entry:
+    watch_dd_r: -5.0
+    shadow_dd_r: -7.5
+    hard_kill_r: -9.0
+    equity_book_key: NQ_BOOK   # aggregate NQ+MNQ R equity
 
 # CL specialist — EXACT validated definition (do not tweak during forward sample)
 cl_vwap_prox_momentum:
@@ -176,6 +185,23 @@ cl_vwap_prox_momentum:
   target_r_multiple: 2.0
   strategy_version: cl_vwap_prox_momentum_v1
   prefer_micro_when_risk_exceeded: true  # remap CL→MCL; never widen stop
+
+# NQ_CONTEXT_ENTRY — locked Databento WR>=65% champion (do not tweak during forward sample)
+nq_context_entry:
+  enabled: true
+  symbols: [NQ, MNQ]
+  trigger: PULLBACK
+  window: "0930_1200"
+  confirmation: signal_close
+  sides: [BUY]
+  zone_atr: 0.30
+  stop_atr: 0.55
+  vwap_buffer_atr: 0.20
+  cooldown_bars: 2
+  target_r_multiple: 1.15
+  min_stop_atr: 0.385
+  strategy_version: nq_context_entry_pullback_v1
+  prefer_micro_when_risk_exceeded: true  # remap NQ→MNQ; never widen stop
 
 # NQ NY-open specialist — promising / not confirmed
 nq_ny_open_momentum:
@@ -217,6 +243,17 @@ strategy_fit_evidence:
       validated_positive: true
       n: 71
       min_n_for_poor_fit: 30
+  nq_context_entry:
+    NQ:
+      validated_positive: true
+      n: 57
+      min_n_for_poor_fit: 30
+      note: "Databento holdout WR~74% strict folds min>=65%"
+    MNQ:
+      validated_positive: true
+      n: 57
+      min_n_for_poor_fit: 30
+      note: "Same rules as NQ; micro remap when risk cap binds"
 
 # TradingView MTF Sweep Retest Assistant parity (strict all-3 HTF; 1m preferred)
 indicator_parity:
@@ -363,7 +400,7 @@ strategy_regime_weights:
 vwap_mss:
   enabled: true
   min_mtf_align: 3
-  target_r: 1.25
+  target_r: 1.6
   max_overext_atr: 1.25
   min_rr: 1.2
   base_confidence: 74
@@ -426,7 +463,7 @@ opening_range:
     london: "03:00"
     ny: "09:30"
   stop_atr_mult: 0.85
-  target_r_multiple: 1.5
+  target_r_multiple: 1.6
   # 0 = no local dollar cap (portfolio hard cap also disabled); full-size OR stops exceed $150
   max_risk_dollars: 0
   min_reward_dollars: 80
@@ -713,7 +750,7 @@ vwap_acceptance:
   skip_trend_days: false
   trend_day_atr_mult: 1.8
   min_confidence: 65
-  target_r_multiple: 1.5
+  target_r_multiple: 1.6
   target_dollars: 120
   min_reward_dollars: 100
   max_risk_dollars: 200
@@ -743,7 +780,7 @@ vwap_orb:
   skip_two_sided_days: false
   allow_second_break: true
   min_confidence: 68
-  target_r_multiple: 1.5
+  target_r_multiple: 1.6
   target_dollars: 120
   min_reward_dollars: 100
   max_risk_dollars: 0
@@ -777,7 +814,7 @@ sweep_retest:
   sweep_valid_bars: 400
   min_confidence: 60
   stop_atr_mult: 1.0
-  target_r_multiple: 1.5
+  target_r_multiple: 1.6
   target_dollars: 110
   min_reward_dollars: 90
   max_risk_dollars: 160

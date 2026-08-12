@@ -1,7 +1,59 @@
 # DEBUG.md — Trading Agent (known bugs, traps, fixes)
 
-**Last updated:** 2026-08-11  
+**Last updated:** 2026-08-12  
 **Purpose:** Prevent Cursor from reintroducing bugs we already fixed. Read with `PROJECT_MEMORY.md`.
+
+---
+
+## Z — Time stop used market-bar clock → instant scratches (2026-08-12)
+
+| | |
+|--|--|
+| **Symptom** | Fresh paper fills (MES/MYM/MNQ breakout qty=3) exit `time_stop` within minutes for tiny losses. |
+| **Fact** | `opened_at` stores **market bar time** (honest for delayed Yahoo). Hold math did `now(UTC) - opened_at` and treated naive ET bar stamps as UTC → brand-new fills looked 2–4h old. With `time_stop_only_if_losing: true`, one tick of slippage → scratch. |
+| **Fix** | Hold clock uses `received_at` / `ts` (wall), not market `opened_at`. Intentional max hold remains growth_plan **120m** for losers only. |
+| **Do not** | Measure hold from delayed market timestamps. Do not remove time stops entirely without user ask. |
+
+---
+
+## Y — London flat while scanning: mis-gates ≠ “only NQ trades” (2026-08-12)
+
+| | |
+|--|--|
+| **Symptom** | CME open (London), agent scanning, 0 paper fills for hours; silence ALERT `RESEARCH_SUPERSEDE_DOMINANT`; user expects multi-engine book to paper whenever a market is open. |
+| **Fact** | NQ `nq_context_entry` quiet outside 09:30–12:00 ET is **correct**. Paper A/A+ from `breakout_retest` / `opening_range` still died on (1) `EXECUTION_QUALITY:POOR_LOCATION` — cascade VWAP-distance kill wrongly applied to structural location engines; (2) `EXECUTION_QUALITY:R<1.6` while engine `target_r_multiple` was still **1.5** (permanent mismatch). Many “supersedes” were research-vs-research ledger noise. |
+| **Fix** | Stamp `router_v1_paperfix1`: `location_may_trade_away_from_vwap` skips POOR kill for `LOCATION_STRATEGIES`; align paper location targets ≥1.6; `_classify_reject` only counts RESEARCH_SUPERSEDE when **loser is paperable** and winner is research_only. Also: `DirectionalRiskEngine` must compare **position** reward (`per_contract × qty`) to `execution_quality`/`confluence` floors — not per-contract vs stale `sweep_retest` $90 (killed A+ qty=3 with $240 position reward as “$80 < $90”). `active_strategy: decision_pipeline` must mirror EQ/confluence into sweep keys. |
+| **Do not** | Treat NQ NY window as the only trading window. Do not re-enable EMA spray or ease min R/$ to “force” fills. Do not restart forever on research-vs-research supersede counts. Do not compare per-contract dollars to position-level floors. |
+
+---
+
+## X — Paper View “HEALTHY / NO NEW BAR” ≠ proof of life (2026-08-12)
+
+| | |
+|--|--|
+| **Symptom** | Agent View shows primary text like `AGENT HEALTHY — NO NEW MARKET BAR` while the bot has been dead for hours. |
+| **Fact** | That string is the **last scan decision**, frozen in `paper_trades.json` until the next heartbeat rewrite. Overnight 2026-08-11 ~19:47 ET → 2026-08-12 ~08:02 ET: ~12h no scheduler tick; supervisor eventually restarted (`scheduler_heartbeat_stuck_*`). |
+| **Fix** | Big run-status banner on Paper View: **ACTIVELY RUNNING** / **DEGRADED** / **NOT ACTIVELY RUNNING (STUCK)** from heartbeat age (warn 90s / stuck 150s). Idle between 5m bars still shows ACTIVELY RUNNING with plain-English note. **At a glance** card separates *scanning* vs *paper trading* (open positions / entry signals / flat). Dense sections collapsed by default. |
+| **Do not** | Treat “NO NEW BAR” or supervisor `state=running` alone as proof of scanning — check heartbeat age / banner color. Keep overnight AC + `overnight_power`. Flat ≠ broken outside NQ 09:30–12:00 ET window. |
+
+---
+
+## W — NQ research must not restart the architecture loop (2026-08-11)
+
+| | |
+|--|--|
+| **Symptom** | Mega-spec for “prove one NQ strategy” gets answered by another universal multi-engine / ML rebuild. |
+| **Fact** | User ordered **STOP THE STRATEGY ITERATION LOOP**. Preserve provider/supervisor/paper/risk/learning/router/shadow/journal/dashboard/replay/broker/live_pilot/tests. Simplify **primary research target** only: `NQ_CONTEXT_ENTRY` on NQ 1m (Kaggle broad + Databento finalists). |
+| **Do not** | Rebuild backend, stop paper agent, activate live, promote router_v2 to paper, or engineer WR to 70%. Report honest frontier + `READY FOR DEMO` / `NOT YET GOOD ENOUGH`. |
+| **Data trap** | Building a DataFrame with `index=timestamps` from Series that still have `RangeIndex` → **all-NaN OHLC** (silent). Always `.to_numpy()` when assigning columns onto a new DatetimeIndex. |
+| **Data trap 2** | Kaggle `Dataset_NQ_1min_2022_2025` is **not** CME-grade vs Databento GLBX.MDP3 (median ~258pt abs close gap; ~0 RTH return corr). Finalists must be validated on Databento; do not declare demo-ready from Kaggle WR alone. |
+| **Data trap 3** | Databento `NQ.FUT` parent can mix **calendar-spread prints (~$200–300)** into OHLCV. Always filter `close >= 5000` (or outright symbol match) before research or stops explode. Cache filtered parquet under `data/databento/`. |
+| **WR trap** | Soft “comfortable” (mean fold ≥65%, min fold ≥55%, holdout n≥40) can still hide a weak fold (~61%). For “consistently ≥65%”, require **min fold WR ≥65%** too (`scripts/run_nq_wr65_strict.py` / `run_nq_wr65_lock.py`). |
+| **Report trap** | Writing research MD with `≥` under Windows default cp1252 → `UnicodeEncodeError`. Always `Path.write_text(..., encoding="utf-8")`. |
+| **Spend** | Do not bulk-download years of 1m blindly. Prefer local cache + incremental ≤60–90d pulls after `metadata.get_cost`. |
+| **Secrets** | Never commit `DATABENTO_API_KEY`. If pasted in chat, rotate the key in the Databento portal. |
+| **Locked champion (research)** | PULLBACK BUY-only `0930_1200` signal_close 1.15R zone0.30 stop0.55 vwap0.20 cd2 — holdout n=57 WR≈74% minF≈68%. |
+| **Paper wire (`router_v1_nqctx1`)** | Live evaluator `evaluate_nq_context_entry` + YAML engines/`paper_specialist_engines`. Do **not** put in `research_only_engines`. Do **not** silently raise target to 1.6R to pass global quality — specialists are exempt from min_expected_r; champion is 1.15R. Do not tweak champion params during forward sample. |
 
 ---
 
@@ -273,9 +325,10 @@ cd C:\Users\patri\trading-agent
 ```
 
 Expect tests green (`pytest tests/ -q`).  
-Live once-scan should show DELAYED feed, per-symbol engine reasons; EMA research_only → shadow/PASS not paper EXECUTED.
+Live once-scan should show DELAYED feed, per-symbol engine reasons; EMA research_only → shadow/PASS not paper EXECUTED.  
+Stamp check: `config_version` should be `router_v1_paperfix1` (multi-engine + NQ specialist + time-stop wall clock).
 
-When diagnosing **zero paper trades**: check (1) heartbeat/`NO_NEW_BAR`, (2) shadow open count, (3) `AGREEMENT_SUPERSEDED_BY_*` in `execution_decisions.jsonl`, (4) `execution_quality` / MIXED thesis rejects — not just “markets quiet.”
+When diagnosing **zero paper trades**: check (1) heartbeat/`NO_NEW_BAR`, (2) shadow open count, (3) `AGREEMENT_SUPERSEDED_BY_*` in `execution_decisions.jsonl` (only paperable-loser→research is a steal), (4) `execution_quality` / MIXED / POOR_LOCATION rejects, (5) instant `time_stop` on new fills → bug Z wall-clock hold, (6) not just “markets quiet.”
 
 ---
 

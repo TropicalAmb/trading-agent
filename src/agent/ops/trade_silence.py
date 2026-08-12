@@ -141,16 +141,22 @@ def _is_code_bug_reason(reason: str) -> bool:
     return any(m in r for m in _CODE_BUG_MARKERS)
 
 
-def _classify_reject(reason: str) -> str:
+def _classify_reject(reason: str, *, strategy: str = "", cfg: dict[str, Any] | None = None) -> str:
     r = (reason or "").upper()
     if _is_code_bug_reason(reason):
         return BLOCKER_CODE_BUG
-    if "AGREEMENT_SUPERSEDED_BY_EMA" in r or "AGREEMENT_SUPERSEDED_BY_TREND_CONTINUATION" in r:
-        return BLOCKER_RESEARCH_SUPERSEDE
-    if "AGREEMENT_SUPERSEDED_BY_TREND_PULLBACK" in r or "AGREEMENT_SUPERSEDED_BY_VWAP_RECLAIM" in r:
-        return BLOCKER_RESEARCH_SUPERSEDE
-    if "AGREEMENT_SUPERSEDED_BY_LIQUIDITY_REVERSAL" in r or "AGREEMENT_SUPERSEDED_BY_INDICATOR" in r:
-        return BLOCKER_RESEARCH_SUPERSEDE
+    if "AGREEMENT_SUPERSEDED_BY_" in r:
+        research = {str(x) for x in ((cfg or {}).get("research_only_engines") or [])}
+        loser = str(strategy or "")
+        # Research-vs-research supersedes are ledger noise, not paper steal.
+        if loser and loser in research:
+            return "RESEARCH_NOISE"
+        winner = r.split("AGREEMENT_SUPERSEDED_BY_", 1)[-1].strip().lower()
+        # Normalize winner token to engine id (underscores already)
+        if winner in research or any(w.replace("-", "_") == winner for w in research):
+            return BLOCKER_RESEARCH_SUPERSEDE
+        # Paperable beat by another paperable — not research steal
+        return "AGREEMENT_PAPER"
     if any(
         x in r
         for x in (
@@ -296,7 +302,13 @@ def diagnose_trade_silence(
 
     class_counts: Counter[str] = Counter()
     for r in bug_rejected:
-        class_counts[_classify_reject(str(r.get("reason") or ""))] += 1
+        class_counts[
+            _classify_reject(
+                str(r.get("reason") or ""),
+                strategy=str(r.get("strategy") or ""),
+                cfg=cfg,
+            )
+        ] += 1
 
     blockers: list[str] = []
     severity = SEVERITY_OK

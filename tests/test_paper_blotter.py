@@ -136,8 +136,14 @@ def test_time_stop_skips_winners(tmp_path):
     from datetime import datetime, timedelta, timezone
 
     old = (datetime.now(timezone.utc) - timedelta(hours=3)).isoformat()
+    # Hold clock uses received_at/ts (wall), not market-bar opened_at
     t["opened_at"] = old
-    b.open_positions()[0]["opened_at"] = old
+    t["received_at"] = old
+    t["ts"] = old
+    pos = b.open_positions()[0]
+    pos["opened_at"] = old
+    pos["received_at"] = old
+    pos["ts"] = old
     b._save()
 
     # In profit — should NOT time stop
@@ -157,6 +163,38 @@ def test_time_stop_skips_winners(tmp_path):
     )
     assert len(ev2) == 1
     assert ev2[0]["exit_reason"] == "time_stop"
+
+
+def test_time_stop_ignores_stale_market_bar_opened_at(tmp_path):
+    """Delayed Yahoo market timestamps must not invent hours of hold time."""
+    b = PaperBlotter(
+        json_path=tmp_path / "t.json",
+        html_path=tmp_path / "t.html",
+        csv_path=tmp_path / "t.csv",
+    )
+    from datetime import datetime, timedelta, timezone
+
+    b.record_paper_fill(
+        symbol="MES",
+        side="BUY",
+        entry=7700,
+        stop=7680,
+        target=7740,
+        qty=1,
+        point_value=5.0,
+        market_timestamp=(datetime.now(timezone.utc) - timedelta(hours=3)).strftime(
+            "%Y-%m-%d %H:%M:%S"
+        ),
+        received_timestamp=datetime.now(timezone.utc).isoformat(),
+    )
+    # Slightly underwater right after fill — must NOT time-stop from bar lag
+    ev = b.manage_open(
+        {"MES": 7695.0},
+        max_hold_minutes=60,
+        time_stop_only_if_losing=True,
+    )
+    assert ev == []
+    assert len(b.open_positions()) == 1
 
 
 def test_profit_protection_prevents_full_giveback(tmp_path):

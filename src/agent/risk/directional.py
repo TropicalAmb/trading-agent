@@ -74,17 +74,29 @@ class DirectionalRiskEngine:
             self.cfg, equity=float(getattr(account, "equity", 0) or 0) or None
         )
         qty = max(1, int(getattr(signal, "quantity", 1) or 1))
-        # Engines report per-contract dollars; convert to position risk
+        # Engines / adapters report per-contract dollars; convert to position $.
         position_risk = float(signal.risk_dollars) * qty
         if position_risk > hard_cap + 1e-9:
             reasons.append(
                 f"RISK_LIMIT ${position_risk:.2f} > hard cap ${hard_cap:.2f}"
             )
 
-        min_reward = float(self.cfg.get("sweep_retest", {}).get("min_reward_dollars", 100))
-        if signal.reward_dollars < min_reward:
+        position_reward = float(signal.reward_dollars) * qty
+        # Prefer execution_quality / confluence floors (decision_pipeline path).
+        # Do not hard-code sweep_retest-only mins against per-contract dollars —
+        # that kills multi-lot A/A+ location engines (qty≥2 → reward/qty < floor).
+        eq = self.cfg.get("execution_quality") or {}
+        conf = self.cfg.get("confluence") or {}
+        sweep = self.cfg.get("sweep_retest") or {}
+        min_reward = float(
+            eq.get("min_reward_dollars")
+            or conf.get("min_reward_dollars")
+            or sweep.get("min_reward_dollars")
+            or 0
+        )
+        if min_reward > 0 and position_reward + 1e-9 < min_reward:
             reasons.append(
-                f"reward ${signal.reward_dollars:.0f} < min ${min_reward:.0f}"
+                f"reward ${position_reward:.0f} < min ${min_reward:.0f}"
             )
 
         max_open = int(risk.get("max_open_positions", 50))

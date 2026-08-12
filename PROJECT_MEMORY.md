@@ -1,7 +1,7 @@
 # PROJECT MEMORY — Trading Agent (binding)
 
-**Last updated:** 2026-08-11  
-**Paper stamps:** `config_version: router_v1_readiness1`. Databento historical provider scaffolded (`DATABENTO_API_KEY` in `.env`); paper still uses Yahoo delayed. Learning / HC shadow parallel; `live_pilot.yaml` NOT activated. Do **not** promote CL `liquidity_reversal` from one paper trade.  
+**Last updated:** 2026-08-12  
+**Paper stamps:** `config_version: router_v1_paperfix1`. Paper still Yahoo delayed. Multi-engine book stays paperable whenever CME is open (Asia/London/NY) — NQ specialist quiet outside 09:30–12:00 ET is expected; other location engines must still fill. **`nq_context_entry` PAPER-WIRED** (Databento WR≥65% PULLBACK BUY champion). Learning / HC shadow parallel; `live_pilot.yaml` NOT activated. Do **not** promote CL `liquidity_reversal` from one paper trade.  
 
 **Rule:** Assistants must follow this file. Do not “optimize away” user preferences.  
 **Also read:** [DEBUG.md](./DEBUG.md) for bugs already fixed and traps to avoid reintroducing.
@@ -114,6 +114,16 @@ If you believe a risk value should change: **REPORT IT** — do not silently edi
 - Session is metadata/analytics + optional strategy context — **not** a global trade kill-switch.
 - Respect CME maintenance (~17:00–18:00 ET) and weekend close.
 - Do **not** impose one strategy’s NY opening window on all engines.
+- **`nq_context_entry` only** is gated to 09:30–12:00 ET BUY pullbacks — that is not a book-wide NY filter.
+
+### Time stop (paper manage)
+
+- Growth-plan **active**: `max_hold_minutes: 120`, `time_stop_only_if_losing: true` (cut stale losers; winners can run).
+- Hold duration must use wall **`received_at` / `ts`**, never delayed market-bar `opened_at` (bug Z — caused instant scratches on 2026-08-12 MES/MYM/MNQ fills).
+
+### EMA spray verdict (do not re-litigate)
+
+- **Not successful.** Spray episode ~64 closes / ~+$93; ~39 were `ema_pullback`; big winners canceled by many small losers. User rejected as not IRL → stays `research_only`. Do not re-enable to “look busy.”
 
 ---
 
@@ -133,9 +143,12 @@ Engines (independent; propose only — do not place orders):
 7. `vwap_orb`
 8. `vwap_mss` (VWAP + MSS close-through + MTF3)
 9. `cl_vwap_prox_momentum` (validated CL specialist)
+10. `nq_context_entry` (validated NQ PULLBACK BUY champion — Databento strict WR≥65%)
 
 **Research/shadow only (still evaluated, not paper-executed):**  
 `ema_pullback`, `trend_continuation`, `trend_pullback`, `liquidity_reversal`, `vwap_reclaim`, `indicator_parity`, `nq_ny_open_momentum`
+
+**Paper specialists** (`paper_specialist_engines`): `cl_vwap_prox_momentum`, `nq_context_entry` — tier floor A when cascade OK; exempt from global `execution_quality.min_expected_r` (use validated target R; NQ champion = **1.15R**). Still gated by min reward $, hard risk, lifecycle, SHADOW mode.
 
 Flow: engines → `TradeSetup` → **global** A+/A/B/C tiering (metadata/gates) → **StrategyPerformanceRouter** empirical rank among executables → portfolio/risk → paper/live execution adapter.
 
@@ -159,7 +172,7 @@ Flow: engines → `TradeSetup` → **global** A+/A/B/C tiering (metadata/gates) 
 **Critical:** strategy-local score ≠ global trade quality.  
 `ema_pullback` is **research_only** after paper spray (dozens of fills for ~breakeven). Soft PDH/PDL must not mint A for EMA if ever re-enabled.
 
-`execution_quality` (enabled): min R 1.6, min reward $150, reject `POOR_LOCATION`, require non-MIXED cascade thesis for non-specialists. Location engines may fire alone; thin engines need 2 agreeing engines. Does not narrow universe or lower max positions.
+`execution_quality` (enabled): min R 1.6, min reward $150, reject `POOR_LOCATION` for **thin** engines, require non-MIXED cascade thesis for non-specialists. Location engines may fire alone; may paper with MIXED thesis and may paper when cascade marks VWAP-distance `POOR_LOCATION` (`location_may_trade_away_from_vwap`) — breakout/OR/sweep often legitimately print away from VWAP. Thin engines need 2 agreeing engines. Paper location `target_r_multiple` aligned to ≥1.6 so strategy targets are not permanently below the gate. Does not narrow universe or lower max positions.
 - Multiple A/A+ setups may open in one cycle if portfolio risk allows.
 - Setup identity (`data/setup_identities.json`) suppresses re-entry from the **same** structural setup (not a blind cooldown-only fix).
 
@@ -245,6 +258,15 @@ Overnight on this laptop: stay-awake + no sleep while running (prefer AC power).
 
 ## Change log
 
+- 2026-08-12: **Time-stop clock fix** — hold duration uses wall `received_at`/`ts`, not delayed market-bar `opened_at` (was instantly scratching new multi-lot breakouts). Still multi-engine paper book; NQ specialist is one engine only. EMA stays research_only (spray was not successful).
+- 2026-08-12: **`router_v1_paperfix1`** — London/full-book paper path: location engines exempt from cascade VWAP-distance `POOR_LOCATION` kill; paper location targets ≥1.6R; silence watch only flags RESEARCH_SUPERSEDE when a **paperable** loser is beaten by research_only; risk engine uses **position** reward vs EQ/confluence floor (fixes multi-lot A+ dying as `$80 < $90`). NQ window ≠ only trade window. EMA stays research_only; risk/qty/universe unchanged.
+- 2026-08-12: **Paper View simplified** — top “At a glance” (running vs paper-trading vs flat) + equity/open; dense learning/tech sections collapsed by default (`paper_view_folds_v3`). Keep all detail available on expand.
+- 2026-08-12: **Paper View run banner** — big ACTIVELY RUNNING / DEGRADED / NOT ACTIVELY RUNNING (STUCK) banner on `paper_trading_view.html` so wall-clock scan health is unmistakable vs “NO NEW BAR” idle. Shows config stamp. Overnight ~12h heartbeat freeze (19:47→08:02 ET) auto-recovered by supervisor; prefer AC + overnight_power.
+- 2026-08-11: **`router_v1_nqctx1`** — wire `nq_context_entry` as paper specialist (PULLBACK BUY-only `0930_1200` signal_close 1.15R zone0.30 stop0.55 vwap0.20 cd2). Pipeline/cascade/lifecycle/fit evidence + NQ→MNQ remap. Specialists exempt from global min R 1.6. `nq_ny_open_momentum` stays research_only. Live not activated.
+- 2026-08-11: **NQ WR≥65% locked (strict)** — Databento cache (~224k bars, 2025-04-16→2025-12-11). Champion `NQ_CONTEXT_ENTRY` **PULLBACK BUY-only** `0930_1200` / `signal_close` / `1.15R` / zone=0.30 / stop=0.55 / vwap_buf=0.20 / cd=2. Holdout **n=57 WR≈73.7% PF≈4.9 E≈+0.64R**; mean fold WR≈75.2%; **min fold WR≈68.4%** (all folds ≥65%); val n=288 WR≈76%. Soft boost earlier: `1000_1200` 1.0R family also comfortable (n=42 WR≈69%). Reports: `data/nq_focused_research/NQ_WR65_STRICT_REPORT.md`, `NQ_WR65_BOOST_REPORT.md`. Verdict **`NQ STRATEGY READY FOR DEMO`**. Paper/risk/universe/live unchanged — research lock only; do not auto-enable as paper engine.
+- 2026-08-11: **Databento finetune (cheap)** — cached NQ 1m locally (`data/databento/NQ_1m_cache.parquet`, ~180d, ~$0.90 total). Filtered junk ~$233 spread prints. Structural exits removed from selection. PULLBACK next_bar shows **val** edge (~53% WR / PF~1.7 / E~+0.3R) but holdout still thin/negative → verdict remains **NOT YET GOOD ENOUGH**. No large Databento spends; paper unchanged.
+- 2026-08-11: **Databento API live** — local `.env` key only. Kaggle vs Databento NQ 1m **materially inconsistent** → `USE_DATABENTO_AS_TRUTH`. Kaggle-selected `NQ_CONTEXT_ENTRY` finalists **fail** on Databento 120d holdout (balanced cell WR~40% / PF~0). Verdict remains **NOT YET GOOD ENOUGH**. Paper unchanged.
+- 2026-08-11: **NQ-focused research pass (stop strategy-iteration spray)** — primary research target = prove one NQ NY-morning family `NQ_CONTEXT_ENTRY` (PULLBACK / LIQUIDITY / BREAKOUT_RETEST only). Kaggle 1m loader (`tgtanalytics` Dataset_NQ_1min_2022_2025) + quality audit + Databento `fetch_ohlcv_df` / cross-check; walk-forward + holdout via `scripts/run_nq_focused_research.py` → `data/nq_focused_research/`. Yahoo kept for paper diagnostics only. Git tag `baseline-before-nq-focused-research`. Paper/risk/universe/router_v2 enablement unchanged; live not activated.
 - 2026-08-11: Session-open momentum walk-forward cull (`scripts/run_session_open_walkforward_cull.py`) — Yahoo 5m/60d research only. KEEP: NQ asia + NQ/ES ny_open. X_OUT: NQ/ES london open (WR<50%). Paper unchanged; Databento still preferred for longer history.
 - 2026-08-11: **`router_v1_quality2i`** — adaptive closed learning loop: persist entry_features/setup_id on paper fills; HC shadow parallel + v2 evidence attach without enabling v2 paper ranking; CL priority learning report (`data/cl_priority_learning/`); discovery shadow registry; dashboard Adaptive Learning + Why CL Winner sections. No risk/qty/universe change. router_v2 **not** deployed to paper.
 - 2026-08-10: **`router_v1_quality2h`** — overnight power arm (sleep/lid); drought/roadblock cooldown auto-restart; CODE_BUG still no thrash.

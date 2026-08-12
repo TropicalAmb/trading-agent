@@ -155,6 +155,7 @@ def score_setup(
         "vwap_reclaim",
         "cl_vwap_prox_momentum",
         "nq_ny_open_momentum",
+        "nq_context_entry",
     }
     loc_quality = str((setup.metadata or {}).get("location_quality") or "")
     meta_mut = dict(setup.metadata or {})

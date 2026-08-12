@@ -216,7 +216,16 @@ def main(argv: list[str] | None = None) -> int:
     assert_safe_to_trade(cfg)
     # Directional risk reads sweep_retest.* keys — mirror active engine limits
     active = cfg.get("active_strategy", "confluence")
-    src = cfg.get("confluence") if active == "confluence" else cfg.get(active) or {}
+    if active == "confluence":
+        src = cfg.get("confluence") or {}
+    elif active == "decision_pipeline":
+        # Paper path uses execution_quality + confluence floors, not a lone engine block
+        src = {
+            **(cfg.get("confluence") or {}),
+            **(cfg.get("execution_quality") or {}),
+        }
+    else:
+        src = cfg.get(active) or {}
     cfg["sweep_retest"] = {
         **cfg.get("sweep_retest", {}),
         "max_risk_dollars": src.get(
