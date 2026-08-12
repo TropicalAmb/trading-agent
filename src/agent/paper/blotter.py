@@ -1230,6 +1230,77 @@ class PaperBlotter:
             )
             last_fill_line = f"Last fill: {last_fill_sym} {pnl_s} · {age_s}"
         glance_equity = equity + realized + unrealized_total
+
+        def wr_cohort_dashboard_html() -> str:
+            """Display-only WR panels — does not change strategy/config."""
+            from datetime import date as _date
+
+            today = _date.today().isoformat()
+            cohorts = {
+                "TODAY ALL": [],
+                "POST-PAPERFIX2": [],
+                "BREAKOUT POST-FIX2": [],
+                "OVERNIGHT SESSIONS": [],
+            }
+            for t in trades:
+                if str(t.get("status") or "").upper() == "OPEN" or not t.get("closed_at"):
+                    continue
+                pnl = t.get("pnl_dollars")
+                if pnl is None:
+                    pnl = t.get("realized_pnl")
+                if pnl is None:
+                    pnl = t.get("pnl")
+                try:
+                    pnl_f = float(pnl)
+                except (TypeError, ValueError):
+                    continue
+                cv = str(
+                    t.get("config_version")
+                    or (t.get("metadata") or {}).get("config_version")
+                    or ""
+                )
+                opened = str(t.get("opened_at") or t.get("ts") or "")
+                sess = str(t.get("session") or "").lower()
+                row = {"pnl": pnl_f, "win": pnl_f > 0}
+                if today in opened or today in str(t.get("closed_at") or ""):
+                    cohorts["TODAY ALL"].append(row)
+                if cv.endswith("paperfix2") or cv == "router_v1_paperfix2":
+                    cohorts["POST-PAPERFIX2"].append(row)
+                    if str(t.get("strategy_name") or "") == "breakout_retest":
+                        cohorts["BREAKOUT POST-FIX2"].append(row)
+                if sess in {"asia", "london"} and (
+                    cv.endswith("paperfix2") or today in opened
+                ):
+                    cohorts["OVERNIGHT SESSIONS"].append(row)
+
+            def _fmt(name: str, rows: list) -> str:
+                if not rows:
+                    return (
+                        f"<div class='glance-cell'><div class='lbl'>{name}</div>"
+                        f"<div class='val' style='font-size:0.85rem'>n=0</div></div>"
+                    )
+                n = len(rows)
+                wins = sum(1 for r in rows if r["win"])
+                wr = wins / n
+                gp = sum(r["pnl"] for r in rows if r["pnl"] > 0)
+                gl = abs(sum(r["pnl"] for r in rows if r["pnl"] < 0))
+                pf = (gp / gl) if gl > 0 else 0.0
+                pnl = sum(r["pnl"] for r in rows)
+                return (
+                    f"<div class='glance-cell'><div class='lbl'>{name}</div>"
+                    f"<div class='val' style='font-size:0.85rem'>"
+                    f"n={n} WR={wr:.0%} PF={pf:.2f}<br/>PnL={pnl:+.0f}"
+                    f"</div></div>"
+                )
+
+            cells = "".join(_fmt(k, v) for k, v in cohorts.items())
+            return (
+                "<div class='meta' style='margin-bottom:8px'>"
+                "Clean cohorts (old broken stamps excluded from POST-FIX2). "
+                "Research display only — no strategy change.</div>"
+                f"<div class='glance-grid'>{cells}</div>"
+            )
+
         tech_status_html = f"""
       <div class="eq">AGENT: {agent_health}</div>
       <div class="meta">{alive}</div>
@@ -2035,6 +2106,10 @@ class PaperBlotter:
         <div class="glance-cell"><div class="lbl">NQ window 9:30–12 ET</div><div class="val">{'OPEN' if nq_window_open else 'CLOSED'}</div></div>
         <div class="glance-cell"><div class="lbl">Config</div><div class="val" style="font-size:0.9rem">{hb.get('config_version') or '—'}</div></div>
       </div>
+    </div>
+    <div class="card">
+      <h2>Win-rate dashboard (clean cohorts)</h2>
+      {wr_cohort_dashboard_html()}
     </div>
     <div class="card">
       <h2>Paper account</h2>

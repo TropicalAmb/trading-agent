@@ -1,0 +1,1928 @@
+{
+  "generated_at": "2026-08-12T22:46:16.592203+00:00",
+  "active_stamp_expected": "router_v1_paperfix2",
+  "heartbeat_stamp": "router_v1_paperfix2",
+  "research_only": true,
+  "no_config_changes": true,
+  "paper_agent_health": {
+    "scan_state": "PASS_NO_CANDIDATE",
+    "decision": "PASS \u2014 ONLY RESEARCH/SHADOW A",
+    "ts": "2026-08-12T22:45:48.571786+00:00",
+    "session": "asia | mode=active"
+  },
+  "post_paperfix2_all_strategies": {
+    "n": 12,
+    "wins": 6,
+    "losses": 6,
+    "wr": 0.5,
+    "pf": 7.3388,
+    "pnl": 1785.96,
+    "expectancy_r": 0.2256,
+    "max_dd_r": -1.284
+  },
+  "pre_paperfix2_all_strategies": {
+    "n": 73,
+    "wins": 11,
+    "losses": 62,
+    "wr": 0.1507,
+    "pf": 0.7723,
+    "pnl": -470.99,
+    "expectancy_r": 0.0691,
+    "max_dd_r": -2.9
+  },
+  "post_paperfix2_breakout_retest": {
+    "n": 10,
+    "wins": 5,
+    "losses": 5,
+    "wr": 0.5,
+    "pf": 2.964,
+    "expectancy_r": 0.2837,
+    "max_dd_r": -0.978,
+    "pnl": 1794.71,
+    "avg_win_usd": 403.79,
+    "avg_loss_usd": -44.85,
+    "n_with_r": 10
+  },
+  "pre_paperfix2_breakout_retest": {
+    "n": 7,
+    "wins": 0,
+    "losses": 7,
+    "wr": 0.0,
+    "pf": 0.0,
+    "expectancy_r": -0.275,
+    "max_dd_r": -1.296,
+    "pnl": -765.49,
+    "avg_win_usd": 0.0,
+    "avg_loss_usd": -109.36,
+    "n_with_r": 7
+  },
+  "breakout_by_symbol_post": [
+    {
+      "cell": "MNQ",
+      "evidence": "ANECDOTAL",
+      "n": 4,
+      "wins": 1,
+      "losses": 3,
+      "wr": 0.25,
+      "pf": 1.513,
+      "expectancy_r": 0.0599,
+      "max_dd_r": -0.416,
+      "pnl": -21.5,
+      "avg_win_usd": 127.0,
+      "avg_loss_usd": -49.5,
+      "n_with_r": 4,
+      "raw_wr": 0.25,
+      "shrunk_wr": 0.4583,
+      "prior_mean": 0.5
+    },
+    {
+      "cell": "CL",
+      "evidence": "ANECDOTAL",
+      "n": 1,
+      "wins": 1,
+      "losses": 0,
+      "wr": 1.0,
+      "pf": 999.0,
+      "expectancy_r": 1.3762,
+      "max_dd_r": 0.0,
+      "pnl": 389.99,
+      "avg_win_usd": 389.99,
+      "avg_loss_usd": 0.0,
+      "n_with_r": 1,
+      "raw_wr": 1.0,
+      "shrunk_wr": 0.5238,
+      "prior_mean": 0.5
+    },
+    {
+      "cell": "ES",
+      "evidence": "ANECDOTAL",
+      "n": 1,
+      "wins": 1,
+      "losses": 0,
+      "wr": 1.0,
+      "pf": 999.0,
+      "expectancy_r": 0.7956,
+      "max_dd_r": 0.0,
+      "pnl": 475.0,
+      "avg_win_usd": 475.0,
+      "avg_loss_usd": 0.0,
+      "n_with_r": 1,
+      "raw_wr": 1.0,
+      "shrunk_wr": 0.5238,
+      "prior_mean": 0.5
+    },
+    {
+      "cell": "GC",
+      "evidence": "ANECDOTAL",
+      "n": 1,
+      "wins": 1,
+      "losses": 0,
+      "wr": 1.0,
+      "pf": 999.0,
+      "expectancy_r": 0.753,
+      "max_dd_r": 0.0,
+      "pnl": 989.97,
+      "avg_win_usd": 989.97,
+      "avg_loss_usd": 0.0,
+      "n_with_r": 1,
+      "raw_wr": 1.0,
+      "shrunk_wr": 0.5238,
+      "prior_mean": 0.5
+    },
+    {
+      "cell": "M2K",
+      "evidence": "ANECDOTAL",
+      "n": 1,
+      "wins": 0,
+      "losses": 1,
+      "wr": 0.0,
+      "pf": 0.0,
+      "expectancy_r": -0.4934,
+      "max_dd_r": 0.0,
+      "pnl": -19.5,
+      "avg_win_usd": 0.0,
+      "avg_loss_usd": -19.5,
+      "n_with_r": 1,
+      "raw_wr": 0.0,
+      "shrunk_wr": 0.4762,
+      "prior_mean": 0.5
+    },
+    {
+      "cell": "MES",
+      "evidence": "ANECDOTAL",
+      "n": 1,
+      "wins": 0,
+      "losses": 1,
+      "wr": 0.0,
+      "pf": 0.0,
+      "expectancy_r": -0.4851,
+      "max_dd_r": 0.0,
+      "pnl": -56.25,
+      "avg_win_usd": 0.0,
+      "avg_loss_usd": -56.25,
+      "n_with_r": 1,
+      "raw_wr": 0.0,
+      "shrunk_wr": 0.4762,
+      "prior_mean": 0.5
+    },
+    {
+      "cell": "MYM",
+      "evidence": "ANECDOTAL",
+      "n": 1,
+      "wins": 1,
+      "losses": 0,
+      "wr": 1.0,
+      "pf": 999.0,
+      "expectancy_r": 0.6514,
+      "max_dd_r": 0.0,
+      "pnl": 37.0,
+      "avg_win_usd": 37.0,
+      "avg_loss_usd": 0.0,
+      "n_with_r": 1,
+      "raw_wr": 1.0,
+      "shrunk_wr": 0.5238,
+      "prior_mean": 0.5
+    }
+  ],
+  "breakout_by_session_post": [
+    {
+      "cell": "ny",
+      "evidence": "ANECDOTAL",
+      "n": 10,
+      "wins": 5,
+      "losses": 5,
+      "wr": 0.5,
+      "pf": 2.964,
+      "expectancy_r": 0.2837,
+      "max_dd_r": -0.978,
+      "pnl": 1794.71,
+      "avg_win_usd": 403.79,
+      "avg_loss_usd": -44.85,
+      "n_with_r": 10,
+      "raw_wr": 0.5,
+      "shrunk_wr": 0.5,
+      "prior_mean": 0.5
+    }
+  ],
+  "breakout_by_contract_post": [
+    {
+      "cell": "micro",
+      "evidence": "ANECDOTAL",
+      "n": 7,
+      "wins": 2,
+      "losses": 5,
+      "wr": 0.2857,
+      "pf": 0.939,
+      "expectancy_r": -0.0125,
+      "max_dd_r": -1.395,
+      "pnl": -60.25,
+      "avg_win_usd": 82.0,
+      "avg_loss_usd": -44.85,
+      "n_with_r": 7,
+      "raw_wr": 0.2857,
+      "shrunk_wr": 0.4444,
+      "prior_mean": 0.5
+    },
+    {
+      "cell": "full",
+      "evidence": "ANECDOTAL",
+      "n": 3,
+      "wins": 3,
+      "losses": 0,
+      "wr": 1.0,
+      "pf": 999.0,
+      "expectancy_r": 0.975,
+      "max_dd_r": 0.0,
+      "pnl": 1854.96,
+      "avg_win_usd": 618.32,
+      "avg_loss_usd": 0.0,
+      "n_with_r": 3,
+      "raw_wr": 1.0,
+      "shrunk_wr": 0.5652,
+      "prior_mean": 0.5
+    }
+  ],
+  "learning_breakout_by_symbol": [
+    {
+      "cell": "MNQ",
+      "evidence": "ANECDOTAL",
+      "n": 6,
+      "wins": 2,
+      "losses": 4,
+      "wr": 0.3333,
+      "pf": 0.863,
+      "expectancy_r": -0.0475,
+      "max_dd_r": -1.023,
+      "pnl": 0,
+      "avg_win_usd": 0.0,
+      "avg_loss_usd": 0.0,
+      "n_with_r": 3,
+      "raw_wr": 0.3333,
+      "shrunk_wr": 0.4231,
+      "prior_mean": 0.45
+    },
+    {
+      "cell": "MES",
+      "evidence": "ANECDOTAL",
+      "n": 4,
+      "wins": 0,
+      "losses": 4,
+      "wr": 0.0,
+      "pf": 0.0,
+      "expectancy_r": -0.8979,
+      "max_dd_r": -3.385,
+      "pnl": 0,
+      "avg_win_usd": 0.0,
+      "avg_loss_usd": 0.0,
+      "n_with_r": 4,
+      "raw_wr": 0.0,
+      "shrunk_wr": 0.375,
+      "prior_mean": 0.45
+    },
+    {
+      "cell": "CL",
+      "evidence": "ANECDOTAL",
+      "n": 3,
+      "wins": 2,
+      "losses": 1,
+      "wr": 0.6667,
+      "pf": 1.058,
+      "expectancy_r": 0.0322,
+      "max_dd_r": 0.0,
+      "pnl": 0,
+      "avg_win_usd": 0.0,
+      "avg_loss_usd": 0.0,
+      "n_with_r": 2,
+      "raw_wr": 0.6667,
+      "shrunk_wr": 0.4783,
+      "prior_mean": 0.45
+    },
+    {
+      "cell": "MYM",
+      "evidence": "ANECDOTAL",
+      "n": 3,
+      "wins": 2,
+      "losses": 1,
+      "wr": 0.6667,
+      "pf": 10.792,
+      "expectancy_r": 0.4262,
+      "max_dd_r": 0.0,
+      "pnl": 0,
+      "avg_win_usd": 0.0,
+      "avg_loss_usd": 0.0,
+      "n_with_r": 2,
+      "raw_wr": 0.6667,
+      "shrunk_wr": 0.4783,
+      "prior_mean": 0.45
+    },
+    {
+      "cell": "ES",
+      "evidence": "ANECDOTAL",
+      "n": 2,
+      "wins": 2,
+      "losses": 0,
+      "wr": 1.0,
+      "pf": 999.0,
+      "expectancy_r": 1.3664,
+      "max_dd_r": 0.0,
+      "pnl": 0,
+      "avg_win_usd": 0.0,
+      "avg_loss_usd": 0.0,
+      "n_with_r": 1,
+      "raw_wr": 1.0,
+      "shrunk_wr": 0.5,
+      "prior_mean": 0.45
+    },
+    {
+      "cell": "GC",
+      "evidence": "ANECDOTAL",
+      "n": 1,
+      "wins": 1,
+      "losses": 0,
+      "wr": 1.0,
+      "pf": 999.0,
+      "expectancy_r": 1.2138,
+      "max_dd_r": 0.0,
+      "pnl": 0,
+      "avg_win_usd": 0.0,
+      "avg_loss_usd": 0.0,
+      "n_with_r": 1,
+      "raw_wr": 1.0,
+      "shrunk_wr": 0.4762,
+      "prior_mean": 0.45
+    },
+    {
+      "cell": "M2K",
+      "evidence": "ANECDOTAL",
+      "n": 1,
+      "wins": 0,
+      "losses": 1,
+      "wr": 0.0,
+      "pf": 0.0,
+      "expectancy_r": -1.2056,
+      "max_dd_r": 0.0,
+      "pnl": 0,
+      "avg_win_usd": 0.0,
+      "avg_loss_usd": 0.0,
+      "n_with_r": 1,
+      "raw_wr": 0.0,
+      "shrunk_wr": 0.4286,
+      "prior_mean": 0.45
+    }
+  ],
+  "learning_breakout_by_session": [
+    {
+      "cell": "ny",
+      "evidence": "ANECDOTAL",
+      "n": 17,
+      "wins": 9,
+      "losses": 8,
+      "wr": 0.5294,
+      "pf": 0.832,
+      "expectancy_r": -0.1025,
+      "max_dd_r": -4.247,
+      "pnl": 0,
+      "avg_win_usd": 0.0,
+      "avg_loss_usd": 0.0,
+      "n_with_r": 11,
+      "raw_wr": 0.5294,
+      "shrunk_wr": 0.4865,
+      "prior_mean": 0.45
+    },
+    {
+      "cell": "london",
+      "evidence": "ANECDOTAL",
+      "n": 3,
+      "wins": 0,
+      "losses": 3,
+      "wr": 0.0,
+      "pf": 0.0,
+      "expectancy_r": -0.1051,
+      "max_dd_r": -0.109,
+      "pnl": 0,
+      "avg_win_usd": 0.0,
+      "avg_loss_usd": 0.0,
+      "n_with_r": 3,
+      "raw_wr": 0.0,
+      "shrunk_wr": 0.3913,
+      "prior_mean": 0.45
+    }
+  ],
+  "learning_breakout_overall": {
+    "n": 20,
+    "wins": 9,
+    "losses": 11,
+    "wr": 0.45,
+    "pf": 0.795,
+    "expectancy_r": -0.103,
+    "max_dd_r": -5.464,
+    "pnl": 0,
+    "avg_win_usd": 0.0,
+    "avg_loss_usd": 0.0,
+    "n_with_r": 14
+  },
+  "shadow_breakout_overall": {
+    "n": 78,
+    "wins": 22,
+    "losses": 56,
+    "wr": 0.2821,
+    "pf": 0.575,
+    "expectancy_r": -0.2933,
+    "max_dd_r": -25.053,
+    "pnl": -3137.29,
+    "avg_win_usd": 92.21,
+    "avg_loss_usd": -92.25,
+    "n_with_r": 78
+  },
+  "feature_compare_post_fix2": [
+    {
+      "feature": "dir_15m",
+      "winner_n": 5,
+      "loser_n": 5,
+      "winner_median": -1.0,
+      "loser_median": -1.0,
+      "diff_median": 0.0,
+      "evidence": "ANECDOTAL"
+    },
+    {
+      "feature": "dir_1h",
+      "winner_n": 5,
+      "loser_n": 5,
+      "winner_median": -1.0,
+      "loser_median": 1.0,
+      "diff_median": -2.0,
+      "evidence": "ANECDOTAL"
+    },
+    {
+      "feature": "dir_4h",
+      "winner_n": 5,
+      "loser_n": 5,
+      "winner_median": -1.0,
+      "loser_median": 1.0,
+      "diff_median": -2.0,
+      "evidence": "ANECDOTAL"
+    },
+    {
+      "feature": "mtf_aligned",
+      "winner_n": 5,
+      "loser_n": 5,
+      "winner_median": 2.0,
+      "loser_median": 2.0,
+      "diff_median": 0.0,
+      "evidence": "ANECDOTAL"
+    },
+    {
+      "feature": "above_vwap",
+      "winner_n": 5,
+      "loser_n": 5,
+      "winner_median": 0.0,
+      "loser_median": 1.0,
+      "diff_median": -1.0,
+      "evidence": "ANECDOTAL"
+    },
+    {
+      "feature": "below_vwap",
+      "winner_n": 5,
+      "loser_n": 5,
+      "winner_median": 1.0,
+      "loser_median": 0.0,
+      "diff_median": 1.0,
+      "evidence": "ANECDOTAL"
+    },
+    {
+      "feature": "ema_bull",
+      "winner_n": 5,
+      "loser_n": 5,
+      "winner_median": 0.0,
+      "loser_median": 1.0,
+      "diff_median": -1.0,
+      "evidence": "ANECDOTAL"
+    },
+    {
+      "feature": "ema_bear",
+      "winner_n": 5,
+      "loser_n": 5,
+      "winner_median": 1.0,
+      "loser_median": 0.0,
+      "diff_median": 1.0,
+      "evidence": "ANECDOTAL"
+    },
+    {
+      "feature": "overextended",
+      "winner_n": 5,
+      "loser_n": 5,
+      "winner_median": 0.0,
+      "loser_median": 0.0,
+      "diff_median": 0.0,
+      "evidence": "ANECDOTAL"
+    },
+    {
+      "feature": "near_pdh",
+      "winner_n": 5,
+      "loser_n": 5,
+      "winner_median": 0.0,
+      "loser_median": 0.0,
+      "diff_median": 0.0,
+      "evidence": "ANECDOTAL"
+    },
+    {
+      "feature": "near_pdl",
+      "winner_n": 5,
+      "loser_n": 5,
+      "winner_median": 0.0,
+      "loser_median": 0.0,
+      "diff_median": 0.0,
+      "evidence": "ANECDOTAL"
+    },
+    {
+      "feature": "momentum_aligned",
+      "winner_n": 5,
+      "loser_n": 5,
+      "winner_median": 0.0,
+      "loser_median": 0.0,
+      "diff_median": 0.0,
+      "evidence": "ANECDOTAL"
+    },
+    {
+      "feature": "agreeing_n",
+      "winner_n": 5,
+      "loser_n": 5,
+      "winner_median": 3.0,
+      "loser_median": 2.0,
+      "diff_median": 1.0,
+      "evidence": "ANECDOTAL"
+    },
+    {
+      "feature": "target_r",
+      "winner_n": 5,
+      "loser_n": 5,
+      "winner_median": 1.7,
+      "loser_median": 3.0047,
+      "diff_median": -1.3047,
+      "evidence": "ANECDOTAL"
+    },
+    {
+      "feature": "global_score",
+      "winner_n": 5,
+      "loser_n": 5,
+      "winner_median": 97.0,
+      "loser_median": 100.0,
+      "diff_median": -3.0,
+      "evidence": "ANECDOTAL"
+    },
+    {
+      "feature": "local_score",
+      "winner_n": 5,
+      "loser_n": 5,
+      "winner_median": 82.0,
+      "loser_median": 82.0,
+      "diff_median": 0.0,
+      "evidence": "ANECDOTAL"
+    },
+    {
+      "feature": "cascade_location=ACCEPTABLE_LOCATION",
+      "winner_n": 5,
+      "loser_n": 5,
+      "winner_freq": 0.6,
+      "loser_freq": 0.4,
+      "diff_freq": 0.2,
+      "evidence": "ANECDOTAL"
+    },
+    {
+      "feature": "cascade_location=POOR_LOCATION",
+      "winner_n": 5,
+      "loser_n": 5,
+      "winner_freq": 0.4,
+      "loser_freq": 0.6,
+      "diff_freq": -0.2,
+      "evidence": "ANECDOTAL"
+    },
+    {
+      "feature": "cascade_thesis=LONG_SUPPORT",
+      "winner_n": 5,
+      "loser_n": 5,
+      "winner_freq": 0.0,
+      "loser_freq": 0.2,
+      "diff_freq": -0.2,
+      "evidence": "ANECDOTAL"
+    },
+    {
+      "feature": "cascade_thesis=MIXED",
+      "winner_n": 5,
+      "loser_n": 5,
+      "winner_freq": 0.4,
+      "loser_freq": 0.4,
+      "diff_freq": 0.0,
+      "evidence": "ANECDOTAL"
+    },
+    {
+      "feature": "cascade_thesis=SHORT_SUPPORT",
+      "winner_n": 5,
+      "loser_n": 5,
+      "winner_freq": 0.6,
+      "loser_freq": 0.4,
+      "diff_freq": 0.2,
+      "evidence": "ANECDOTAL"
+    }
+  ],
+  "feature_compare_learning_historical": [
+    {
+      "feature": "dir_15m",
+      "winner_n": 9,
+      "loser_n": 11,
+      "winner_median": -1.0,
+      "loser_median": -1.0,
+      "diff_median": 0.0,
+      "evidence": "ANECDOTAL"
+    },
+    {
+      "feature": "dir_1h",
+      "winner_n": 9,
+      "loser_n": 11,
+      "winner_median": -1.0,
+      "loser_median": 1.0,
+      "diff_median": -2.0,
+      "evidence": "ANECDOTAL"
+    },
+    {
+      "feature": "dir_4h",
+      "winner_n": 9,
+      "loser_n": 11,
+      "winner_median": -1.0,
+      "loser_median": 1.0,
+      "diff_median": -2.0,
+      "evidence": "ANECDOTAL"
+    },
+    {
+      "feature": "mtf_aligned",
+      "winner_n": 9,
+      "loser_n": 11,
+      "winner_median": 2.0,
+      "loser_median": 2.0,
+      "diff_median": 0.0,
+      "evidence": "ANECDOTAL"
+    },
+    {
+      "feature": "above_vwap",
+      "winner_n": 9,
+      "loser_n": 11,
+      "winner_median": 0.0,
+      "loser_median": 1.0,
+      "diff_median": -1.0,
+      "evidence": "ANECDOTAL"
+    },
+    {
+      "feature": "below_vwap",
+      "winner_n": 9,
+      "loser_n": 11,
+      "winner_median": 1.0,
+      "loser_median": 0.0,
+      "diff_median": 1.0,
+      "evidence": "ANECDOTAL"
+    },
+    {
+      "feature": "ema_bull",
+      "winner_n": 9,
+      "loser_n": 11,
+      "winner_median": 0.0,
+      "loser_median": 1.0,
+      "diff_median": -1.0,
+      "evidence": "ANECDOTAL"
+    },
+    {
+      "feature": "ema_bear",
+      "winner_n": 9,
+      "loser_n": 11,
+      "winner_median": 1.0,
+      "loser_median": 0.0,
+      "diff_median": 1.0,
+      "evidence": "ANECDOTAL"
+    },
+    {
+      "feature": "overextended",
+      "winner_n": 9,
+      "loser_n": 11,
+      "winner_median": 0.0,
+      "loser_median": 0.0,
+      "diff_median": 0.0,
+      "evidence": "ANECDOTAL"
+    },
+    {
+      "feature": "near_pdh",
+      "winner_n": 9,
+      "loser_n": 11,
+      "winner_median": 0.0,
+      "loser_median": 0.0,
+      "diff_median": 0.0,
+      "evidence": "ANECDOTAL"
+    },
+    {
+      "feature": "near_pdl",
+      "winner_n": 9,
+      "loser_n": 11,
+      "winner_median": 0.0,
+      "loser_median": 0.0,
+      "diff_median": 0.0,
+      "evidence": "ANECDOTAL"
+    },
+    {
+      "feature": "momentum_aligned",
+      "winner_n": 9,
+      "loser_n": 11,
+      "winner_median": 0.0,
+      "loser_median": 0.0,
+      "diff_median": 0.0,
+      "evidence": "ANECDOTAL"
+    },
+    {
+      "feature": "agreeing_n",
+      "winner_n": 9,
+      "loser_n": 11,
+      "winner_median": 3.0,
+      "loser_median": 2.0,
+      "diff_median": 1.0,
+      "evidence": "ANECDOTAL"
+    },
+    {
+      "feature": "target_r",
+      "winner_n": 9,
+      "loser_n": 11,
+      "winner_median": 1.7,
+      "loser_median": 2.8864,
+      "diff_median": -1.1864,
+      "evidence": "ANECDOTAL"
+    },
+    {
+      "feature": "global_score",
+      "winner_n": 9,
+      "loser_n": 11,
+      "winner_median": 97.0,
+      "loser_median": 90.0,
+      "diff_median": 7.0,
+      "evidence": "ANECDOTAL"
+    },
+    {
+      "feature": "local_score",
+      "winner_n": 9,
+      "loser_n": 11,
+      "winner_median": 82.0,
+      "loser_median": 82.0,
+      "diff_median": 0.0,
+      "evidence": "ANECDOTAL"
+    },
+    {
+      "feature": "cascade_location=ACCEPTABLE_LOCATION",
+      "winner_n": 9,
+      "loser_n": 11,
+      "winner_freq": 0.6667,
+      "loser_freq": 0.3636,
+      "diff_freq": 0.303,
+      "evidence": "ANECDOTAL"
+    },
+    {
+      "feature": "cascade_location=POOR_LOCATION",
+      "winner_n": 9,
+      "loser_n": 11,
+      "winner_freq": 0.3333,
+      "loser_freq": 0.6364,
+      "diff_freq": -0.303,
+      "evidence": "ANECDOTAL"
+    },
+    {
+      "feature": "cascade_thesis=LONG_SUPPORT",
+      "winner_n": 9,
+      "loser_n": 11,
+      "winner_freq": 0.0,
+      "loser_freq": 0.3636,
+      "diff_freq": -0.3636,
+      "evidence": "ANECDOTAL"
+    },
+    {
+      "feature": "cascade_thesis=MIXED",
+      "winner_n": 9,
+      "loser_n": 11,
+      "winner_freq": 0.4444,
+      "loser_freq": 0.1818,
+      "diff_freq": 0.2626,
+      "evidence": "ANECDOTAL"
+    },
+    {
+      "feature": "cascade_thesis=SHORT_SUPPORT",
+      "winner_n": 9,
+      "loser_n": 11,
+      "winner_freq": 0.5556,
+      "loser_freq": 0.4545,
+      "diff_freq": 0.101,
+      "evidence": "ANECDOTAL"
+    }
+  ],
+  "forensics": [
+    {
+      "trade_id": "PAPER-00213",
+      "symbol": "GC",
+      "contract_class": "full",
+      "direction": "SELL",
+      "session": "ny",
+      "regime": "TREND_DOWN",
+      "tier": "A+",
+      "qty": 3,
+      "pnl_dollars": 989.97,
+      "realized_r": 0.7530341340359837,
+      "exit_reason": "target",
+      "market_timestamp": "2026-08-12 16:25:00",
+      "config_version": "router_v1_paperfix2",
+      "features": {
+        "symbol": "GC",
+        "strategy": "breakout_retest",
+        "direction": "SHORT",
+        "session": "ny",
+        "regime": "TREND_DOWN",
+        "local_score": 82,
+        "global_score": 89.0,
+        "tier_rank": 1,
+        "agreeing_n": 1,
+        "target_r": 1.7000000000001245,
+        "dir_15m": -1,
+        "dir_1h": 1,
+        "dir_4h": -1,
+        "mtf_aligned": 2,
+        "above_vwap": 0,
+        "below_vwap": 1,
+        "ema_bull": 0,
+        "ema_bear": 1,
+        "overextended": 0,
+        "near_pdh": 0,
+        "near_pdl": 0,
+        "momentum_aligned": 0,
+        "cascade_location": "POOR_LOCATION",
+        "cascade_thesis": "SHORT_SUPPORT"
+      },
+      "shrink_hierarchy": [
+        {
+          "level": "strat+sym+sess+regime+dir",
+          "key": [
+            "GC",
+            "ny",
+            "TREND_DOWN",
+            "SELL"
+          ],
+          "n": 1,
+          "raw_wr": 1.0,
+          "shrunk_wr": 0.5857,
+          "prior": 0.565
+        },
+        {
+          "level": "strat+sym+sess+regime",
+          "key": [
+            "GC",
+            "ny",
+            "TREND_DOWN"
+          ],
+          "n": 2,
+          "raw_wr": 1.0,
+          "shrunk_wr": 0.565,
+          "prior": 0.5215
+        },
+        {
+          "level": "strat+sym+sess",
+          "key": [
+            "GC",
+            "ny"
+          ],
+          "n": 2,
+          "raw_wr": 1.0,
+          "shrunk_wr": 0.5215,
+          "prior": 0.4737
+        },
+        {
+          "level": "strat+sym",
+          "key": [
+            "GC"
+          ],
+          "n": 2,
+          "raw_wr": 1.0,
+          "shrunk_wr": 0.4737,
+          "prior": 0.4211
+        },
+        {
+          "level": "strat",
+          "key": [],
+          "n": 37,
+          "raw_wr": 0.3784,
+          "shrunk_wr": 0.4211,
+          "prior": 0.5
+        }
+      ],
+      "label": "ANECDOTAL TODAY"
+    },
+    {
+      "trade_id": "PAPER-00210",
+      "symbol": "CL",
+      "contract_class": "full",
+      "direction": "SELL",
+      "session": "ny",
+      "regime": "TREND_DOWN",
+      "tier": "A+",
+      "qty": 2,
+      "pnl_dollars": 389.99,
+      "realized_r": 1.3762304243956776,
+      "exit_reason": "target",
+      "market_timestamp": "2026-08-12 16:15:00",
+      "config_version": "router_v1_paperfix2",
+      "features": {
+        "symbol": "CL",
+        "strategy": "breakout_retest",
+        "direction": "SHORT",
+        "session": "ny",
+        "regime": "TREND_DOWN",
+        "local_score": 82,
+        "global_score": 100.0,
+        "tier_rank": 1,
+        "agreeing_n": 2,
+        "target_r": 1.6999999999999098,
+        "dir_15m": -1,
+        "dir_1h": -1,
+        "dir_4h": -1,
+        "mtf_aligned": 3,
+        "above_vwap": 0,
+        "below_vwap": 1,
+        "ema_bull": 0,
+        "ema_bear": 1,
+        "overextended": 0,
+        "near_pdh": 0,
+        "near_pdl": 0,
+        "momentum_aligned": 0,
+        "cascade_location": "POOR_LOCATION",
+        "cascade_thesis": "SHORT_SUPPORT"
+      },
+      "shrink_hierarchy": [
+        {
+          "level": "strat+sym+sess+regime+dir",
+          "key": [
+            "CL",
+            "ny",
+            "TREND_DOWN",
+            "SELL"
+          ],
+          "n": 2,
+          "raw_wr": 0.5,
+          "shrunk_wr": 0.4783,
+          "prior": 0.4762
+        },
+        {
+          "level": "strat+sym+sess+regime",
+          "key": [
+            "CL",
+            "ny",
+            "TREND_DOWN"
+          ],
+          "n": 4,
+          "raw_wr": 0.5,
+          "shrunk_wr": 0.4762,
+          "prior": 0.4714
+        },
+        {
+          "level": "strat+sym+sess",
+          "key": [
+            "CL",
+            "ny"
+          ],
+          "n": 5,
+          "raw_wr": 0.6,
+          "shrunk_wr": 0.4714,
+          "prior": 0.4393
+        },
+        {
+          "level": "strat+sym",
+          "key": [
+            "CL"
+          ],
+          "n": 6,
+          "raw_wr": 0.5,
+          "shrunk_wr": 0.4393,
+          "prior": 0.4211
+        },
+        {
+          "level": "strat",
+          "key": [],
+          "n": 37,
+          "raw_wr": 0.3784,
+          "shrunk_wr": 0.4211,
+          "prior": 0.5
+        }
+      ],
+      "label": "ANECDOTAL TODAY"
+    },
+    {
+      "trade_id": "PAPER-00209",
+      "symbol": "MNQ",
+      "contract_class": "micro",
+      "direction": "SELL",
+      "session": "ny",
+      "regime": "TREND_DOWN",
+      "tier": "A+",
+      "qty": 2,
+      "pnl_dollars": 127.0,
+      "realized_r": 0.705879083468771,
+      "exit_reason": "stop",
+      "market_timestamp": "2026-08-12 16:15:00",
+      "config_version": "router_v1_paperfix2",
+      "features": {
+        "symbol": "MNQ",
+        "strategy": "breakout_retest",
+        "direction": "SHORT",
+        "session": "ny",
+        "regime": "TREND_DOWN",
+        "local_score": 82,
+        "global_score": 100.0,
+        "tier_rank": 1,
+        "agreeing_n": 3,
+        "target_r": 2.667889449330788,
+        "dir_15m": -1,
+        "dir_1h": -1,
+        "dir_4h": 1,
+        "mtf_aligned": 2,
+        "above_vwap": 0,
+        "below_vwap": 1,
+        "ema_bull": 0,
+        "ema_bear": 1,
+        "overextended": 0,
+        "near_pdh": 0,
+        "near_pdl": 0,
+        "momentum_aligned": 0,
+        "cascade_location": "ACCEPTABLE_LOCATION",
+        "cascade_thesis": "SHORT_SUPPORT"
+      },
+      "shrink_hierarchy": [
+        {
+          "level": "strat+sym+sess+regime+dir",
+          "key": [
+            "MNQ",
+            "ny",
+            "TREND_DOWN",
+            "SELL"
+          ],
+          "n": 3,
+          "raw_wr": 0.3333,
+          "shrunk_wr": 0.3495,
+          "prior": 0.3519
+        },
+        {
+          "level": "strat+sym+sess+regime",
+          "key": [
+            "MNQ",
+            "ny",
+            "TREND_DOWN"
+          ],
+          "n": 6,
+          "raw_wr": 0.3333,
+          "shrunk_wr": 0.3519,
+          "prior": 0.3575
+        },
+        {
+          "level": "strat+sym+sess",
+          "key": [
+            "MNQ",
+            "ny"
+          ],
+          "n": 9,
+          "raw_wr": 0.3333,
+          "shrunk_wr": 0.3575,
+          "prior": 0.3684
+        },
+        {
+          "level": "strat+sym",
+          "key": [
+            "MNQ"
+          ],
+          "n": 11,
+          "raw_wr": 0.2727,
+          "shrunk_wr": 0.3684,
+          "prior": 0.4211
+        },
+        {
+          "level": "strat",
+          "key": [],
+          "n": 37,
+          "raw_wr": 0.3784,
+          "shrunk_wr": 0.4211,
+          "prior": 0.5
+        }
+      ],
+      "label": "ANECDOTAL TODAY"
+    },
+    {
+      "trade_id": "PAPER-00198",
+      "symbol": "ES",
+      "contract_class": "full",
+      "direction": "BUY",
+      "session": "ny",
+      "regime": "TREND_UP",
+      "tier": "A+",
+      "qty": 2,
+      "pnl_dollars": 475.0,
+      "realized_r": 0.7956448911223654,
+      "exit_reason": "target",
+      "market_timestamp": "2026-08-12 13:20:00",
+      "config_version": "router_v1_paperfix2",
+      "features": {
+        "symbol": "ES",
+        "strategy": "breakout_retest",
+        "direction": "LONG",
+        "session": "ny",
+        "regime": "TREND_UP",
+        "local_score": 82,
+        "global_score": 97.0,
+        "tier_rank": 1,
+        "agreeing_n": 3,
+        "target_r": 1.7000000000000914,
+        "dir_15m": 1,
+        "dir_1h": 1,
+        "dir_4h": -1,
+        "mtf_aligned": 2,
+        "above_vwap": 1,
+        "below_vwap": 0,
+        "ema_bull": 1,
+        "ema_bear": 0,
+        "overextended": 0,
+        "near_pdh": 0,
+        "near_pdl": 0,
+        "momentum_aligned": 0,
+        "cascade_location": "ACCEPTABLE_LOCATION",
+        "cascade_thesis": "MIXED"
+      },
+      "shrink_hierarchy": [
+        {
+          "level": "strat+sym+sess+regime+dir",
+          "key": [
+            "ES",
+            "ny",
+            "TREND_UP",
+            "BUY"
+          ],
+          "n": 1,
+          "raw_wr": 1.0,
+          "shrunk_wr": 0.621,
+          "prior": 0.602
+        },
+        {
+          "level": "strat+sym+sess+regime",
+          "key": [
+            "ES",
+            "ny",
+            "TREND_UP"
+          ],
+          "n": 2,
+          "raw_wr": 1.0,
+          "shrunk_wr": 0.602,
+          "prior": 0.5622
+        },
+        {
+          "level": "strat+sym+sess",
+          "key": [
+            "ES",
+            "ny"
+          ],
+          "n": 3,
+          "raw_wr": 1.0,
+          "shrunk_wr": 0.5622,
+          "prior": 0.4966
+        },
+        {
+          "level": "strat+sym",
+          "key": [
+            "ES"
+          ],
+          "n": 3,
+          "raw_wr": 1.0,
+          "shrunk_wr": 0.4966,
+          "prior": 0.4211
+        },
+        {
+          "level": "strat",
+          "key": [],
+          "n": 37,
+          "raw_wr": 0.3784,
+          "shrunk_wr": 0.4211,
+          "prior": 0.5
+        }
+      ],
+      "label": "ANECDOTAL TODAY"
+    }
+  ],
+  "open_cl_trade": {
+    "trade_id": "PAPER-00222",
+    "side": "SELL",
+    "qty": 3,
+    "entry": 82.74,
+    "stop": 82.83555095672608,
+    "target": 82.62156337356566,
+    "opened_at": "2026-08-12 18:10:00",
+    "session": "asia",
+    "risk_dollars": 226.65287017822777,
+    "reward_dollars": 385.30987930300853,
+    "status": "OPEN"
+  },
+  "time_stop_audit": [
+    {
+      "id": "PAPER-00173",
+      "symbol": "MNQ",
+      "opened_at": "2026-08-12 09:05:00",
+      "received_at": "2026-08-12 13:15:42.260732+00:00",
+      "closed_at": "2026-08-12T13:23:31.525482+00:00",
+      "hold_minutes": 258.53,
+      "config_version": "router_v1_paperfix1",
+      "era": "pre_paperfix2",
+      "note": "pre-fix stamps may show inflated hold_minutes; post_paperfix2 should age from received_at"
+    },
+    {
+      "id": "PAPER-00171",
+      "symbol": "MYM",
+      "opened_at": "2026-08-12 08:55:00",
+      "received_at": "2026-08-12 13:08:39.708912+00:00",
+      "closed_at": "2026-08-12T13:10:30.984530+00:00",
+      "hold_minutes": 255.52,
+      "config_version": "router_v1_paperfix1",
+      "era": "pre_paperfix2",
+      "note": "pre-fix stamps may show inflated hold_minutes; post_paperfix2 should age from received_at"
+    },
+    {
+      "id": "PAPER-00169",
+      "symbol": "MES",
+      "opened_at": "2026-08-12 08:20:00",
+      "received_at": "2026-08-12 12:30:28.102269+00:00",
+      "closed_at": "2026-08-12T12:32:19.024046+00:00",
+      "hold_minutes": 252.32,
+      "config_version": "router_v1_paperfix1",
+      "era": "pre_paperfix2",
+      "note": "pre-fix stamps may show inflated hold_minutes; post_paperfix2 should age from received_at"
+    },
+    {
+      "id": "PAPER-00167",
+      "symbol": "MES",
+      "opened_at": "2026-08-11 10:50:00",
+      "received_at": "2026-08-11 15:00:56.754340+00:00",
+      "closed_at": "2026-08-11T15:02:37.695565+00:00",
+      "hold_minutes": 252.63,
+      "config_version": "router_v1_quality2h",
+      "era": "pre_paperfix2",
+      "note": "pre-fix stamps may show inflated hold_minutes; post_paperfix2 should age from received_at"
+    },
+    {
+      "id": "PAPER-00165",
+      "symbol": "MNQ",
+      "opened_at": "2026-08-11 10:05:00",
+      "received_at": "2026-08-11 14:15:57.973447+00:00",
+      "closed_at": "2026-08-11T14:24:35.529270+00:00",
+      "hold_minutes": 259.59,
+      "config_version": "router_v1_quality2h",
+      "era": "pre_paperfix2",
+      "note": "pre-fix stamps may show inflated hold_minutes; post_paperfix2 should age from received_at"
+    },
+    {
+      "id": "PAPER-00160",
+      "symbol": "M2K",
+      "opened_at": "2026-08-11 04:00:00",
+      "received_at": "2026-08-11 08:11:10.535280+00:00",
+      "closed_at": "2026-08-11T08:11:56.679659+00:00",
+      "hold_minutes": 251.94,
+      "config_version": "router_v1_quality2h",
+      "era": "pre_paperfix2",
+      "note": "pre-fix stamps may show inflated hold_minutes; post_paperfix2 should age from received_at"
+    },
+    {
+      "id": "PAPER-00158",
+      "symbol": "M2K",
+      "opened_at": "2026-08-11 03:35:00",
+      "received_at": "2026-08-11 07:46:12.280805+00:00",
+      "closed_at": "2026-08-11T07:46:56.283371+00:00",
+      "hold_minutes": 251.94,
+      "config_version": "router_v1_quality2h",
+      "era": "pre_paperfix2",
+      "note": "pre-fix stamps may show inflated hold_minutes; post_paperfix2 should age from received_at"
+    },
+    {
+      "id": "PAPER-00156",
+      "symbol": "M2K",
+      "opened_at": "2026-08-11 02:15:00",
+      "received_at": "2026-08-11 06:26:15.744259+00:00",
+      "closed_at": "2026-08-11T06:26:58.825547+00:00",
+      "hold_minutes": 251.98,
+      "config_version": "router_v1_quality2h",
+      "era": "pre_paperfix2",
+      "note": "pre-fix stamps may show inflated hold_minutes; post_paperfix2 should age from received_at"
+    },
+    {
+      "id": "PAPER-00152",
+      "symbol": "MYM",
+      "opened_at": "2026-08-11 01:50:00",
+      "received_at": "2026-08-11 06:01:10.888337+00:00",
+      "closed_at": "2026-08-11T06:01:58.538471+00:00",
+      "hold_minutes": 251.98,
+      "config_version": "router_v1_quality2h",
+      "era": "pre_paperfix2",
+      "note": "pre-fix stamps may show inflated hold_minutes; post_paperfix2 should age from received_at"
+    },
+    {
+      "id": "PAPER-00147",
+      "symbol": "MES",
+      "opened_at": "2026-08-11 01:35:00",
+      "received_at": "2026-08-11 05:46:08.087812+00:00",
+      "closed_at": "2026-08-11T05:47:58.556220+00:00",
+      "hold_minutes": 252.98,
+      "config_version": "router_v1_quality2h",
+      "era": "pre_paperfix2",
+      "note": "pre-fix stamps may show inflated hold_minutes; post_paperfix2 should age from received_at"
+    },
+    {
+      "id": "PAPER-00146",
+      "symbol": "MNQ",
+      "opened_at": "2026-08-11 01:35:00",
+      "received_at": "2026-08-11 05:46:10.211682+00:00",
+      "closed_at": "2026-08-11T05:47:58.329116+00:00",
+      "hold_minutes": 252.97,
+      "config_version": "router_v1_quality2h",
+      "era": "pre_paperfix2",
+      "note": "pre-fix stamps may show inflated hold_minutes; post_paperfix2 should age from received_at"
+    },
+    {
+      "id": "PAPER-00145",
+      "symbol": "M2K",
+      "opened_at": "2026-08-11 01:35:00",
+      "received_at": "2026-08-11 05:46:17.154966+00:00",
+      "closed_at": "2026-08-11T05:47:58.056652+00:00",
+      "hold_minutes": 252.97,
+      "config_version": "router_v1_quality2h",
+      "era": "pre_paperfix2",
+      "note": "pre-fix stamps may show inflated hold_minutes; post_paperfix2 should age from received_at"
+    },
+    {
+      "id": "PAPER-00143",
+      "symbol": "MYM",
+      "opened_at": "2026-08-10 22:40:00",
+      "received_at": "2026-08-11 02:51:14.582866+00:00",
+      "closed_at": "2026-08-11T02:52:55.618084+00:00",
+      "hold_minutes": 252.93,
+      "config_version": "router_v1_quality2h",
+      "era": "pre_paperfix2",
+      "note": "pre-fix stamps may show inflated hold_minutes; post_paperfix2 should age from received_at"
+    },
+    {
+      "id": "PAPER-00141",
+      "symbol": "MYM",
+      "opened_at": "2026-08-10 22:35:00",
+      "received_at": "2026-08-11 02:46:11.023965+00:00",
+      "closed_at": "2026-08-11T02:46:55.688972+00:00",
+      "hold_minutes": 251.93,
+      "config_version": "router_v1_quality2h",
+      "era": "pre_paperfix2",
+      "note": "pre-fix stamps may show inflated hold_minutes; post_paperfix2 should age from received_at"
+    },
+    {
+      "id": "PAPER-00139",
+      "symbol": "MNQ",
+      "opened_at": "2026-08-10 22:30:00",
+      "received_at": "2026-08-11 02:41:07.619933+00:00",
+      "closed_at": "2026-08-11T02:41:56.032329+00:00",
+      "hold_minutes": 251.93,
+      "config_version": "router_v1_quality2h",
+      "era": "pre_paperfix2",
+      "note": "pre-fix stamps may show inflated hold_minutes; post_paperfix2 should age from received_at"
+    },
+    {
+      "id": "PAPER-00137",
+      "symbol": "MYM",
+      "opened_at": "2026-08-10 21:15:00",
+      "received_at": "2026-08-11 01:26:08.690665+00:00",
+      "closed_at": "2026-08-11T01:26:50.856638+00:00",
+      "hold_minutes": 251.85,
+      "config_version": "router_v1_quality2h",
+      "era": "pre_paperfix2",
+      "note": "pre-fix stamps may show inflated hold_minutes; post_paperfix2 should age from received_at"
+    },
+    {
+      "id": "PAPER-00132",
+      "symbol": "MES",
+      "opened_at": "2026-08-10 11:45:00",
+      "received_at": "2026-08-10 15:55:34.763474+00:00",
+      "closed_at": "2026-08-10T15:56:31.906206+00:00",
+      "hold_minutes": 251.53,
+      "config_version": "router_v1",
+      "era": "pre_paperfix2",
+      "note": "pre-fix stamps may show inflated hold_minutes; post_paperfix2 should age from received_at"
+    },
+    {
+      "id": "PAPER-00130",
+      "symbol": "MGC",
+      "opened_at": "2026-08-10 11:40:00",
+      "received_at": "2026-08-10 15:50:36.112306+00:00",
+      "closed_at": "2026-08-10T15:51:33.241524+00:00",
+      "hold_minutes": 251.55,
+      "config_version": "router_v1",
+      "era": "pre_paperfix2",
+      "note": "pre-fix stamps may show inflated hold_minutes; post_paperfix2 should age from received_at"
+    },
+    {
+      "id": "PAPER-00128",
+      "symbol": "MGC",
+      "opened_at": "2026-08-10 11:35:00",
+      "received_at": "2026-08-10 15:45:37.147387+00:00",
+      "closed_at": "2026-08-10T15:49:32.266876+00:00",
+      "hold_minutes": 254.54,
+      "config_version": "router_v1",
+      "era": "pre_paperfix2",
+      "note": "pre-fix stamps may show inflated hold_minutes; post_paperfix2 should age from received_at"
+    },
+    {
+      "id": "PAPER-00125",
+      "symbol": "MGC",
+      "opened_at": "2026-08-10 11:30:00",
+      "received_at": "2026-08-10 15:40:39.223596+00:00",
+      "closed_at": "2026-08-10T15:41:32.621822+00:00",
+      "hold_minutes": 251.54,
+      "config_version": "router_v1",
+      "era": "pre_paperfix2",
+      "note": "pre-fix stamps may show inflated hold_minutes; post_paperfix2 should age from received_at"
+    },
+    {
+      "id": "PAPER-00124",
+      "symbol": "MYM",
+      "opened_at": "2026-08-10 11:30:00",
+      "received_at": "2026-08-10 15:40:40.981716+00:00",
+      "closed_at": "2026-08-10T15:41:32.458551+00:00",
+      "hold_minutes": 251.54,
+      "config_version": "router_v1",
+      "era": "pre_paperfix2",
+      "note": "pre-fix stamps may show inflated hold_minutes; post_paperfix2 should age from received_at"
+    },
+    {
+      "id": "PAPER-00121",
+      "symbol": "M2K",
+      "opened_at": "2026-08-10 11:25:00",
+      "received_at": "2026-08-10 15:35:38.712838+00:00",
+      "closed_at": "2026-08-10T15:37:32.000244+00:00",
+      "hold_minutes": 252.53,
+      "config_version": "router_v1",
+      "era": "pre_paperfix2",
+      "note": "pre-fix stamps may show inflated hold_minutes; post_paperfix2 should age from received_at"
+    },
+    {
+      "id": "PAPER-00119",
+      "symbol": "MYM",
+      "opened_at": "2026-08-10 11:20:00",
+      "received_at": "2026-08-10 15:30:37.470539+00:00",
+      "closed_at": "2026-08-10T15:35:31.926262+00:00",
+      "hold_minutes": 255.53,
+      "config_version": "router_v1",
+      "era": "pre_paperfix2",
+      "note": "pre-fix stamps may show inflated hold_minutes; post_paperfix2 should age from received_at"
+    },
+    {
+      "id": "PAPER-00118",
+      "symbol": "MGC",
+      "opened_at": "2026-08-10 11:15:00",
+      "received_at": "2026-08-10 15:25:36.583264+00:00",
+      "closed_at": "2026-08-10T15:36:32.727772+00:00",
+      "hold_minutes": 261.55,
+      "config_version": "router_v1",
+      "era": "pre_paperfix2",
+      "note": "pre-fix stamps may show inflated hold_minutes; post_paperfix2 should age from received_at"
+    },
+    {
+      "id": "PAPER-00115",
+      "symbol": "MES",
+      "opened_at": "2026-08-10 11:00:00",
+      "received_at": "2026-08-10 15:10:35.297068+00:00",
+      "closed_at": "2026-08-10T15:11:33.876868+00:00",
+      "hold_minutes": 251.56,
+      "config_version": "router_v1",
+      "era": "pre_paperfix2",
+      "note": "pre-fix stamps may show inflated hold_minutes; post_paperfix2 should age from received_at"
+    },
+    {
+      "id": "PAPER-00114",
+      "symbol": "M2K",
+      "opened_at": "2026-08-10 11:00:00",
+      "received_at": "2026-08-10 15:10:38.034121+00:00",
+      "closed_at": "2026-08-10T15:11:33.673854+00:00",
+      "hold_minutes": 251.56,
+      "config_version": "router_v1",
+      "era": "pre_paperfix2",
+      "note": "pre-fix stamps may show inflated hold_minutes; post_paperfix2 should age from received_at"
+    },
+    {
+      "id": "PAPER-00111",
+      "symbol": "MYM",
+      "opened_at": "2026-08-10 10:55:00",
+      "received_at": "2026-08-10 15:05:37.300904+00:00",
+      "closed_at": "2026-08-10T15:09:32.476940+00:00",
+      "hold_minutes": 254.54,
+      "config_version": "router_v1",
+      "era": "pre_paperfix2",
+      "note": "pre-fix stamps may show inflated hold_minutes; post_paperfix2 should age from received_at"
+    },
+    {
+      "id": "PAPER-00110",
+      "symbol": "MES",
+      "opened_at": "2026-08-10 10:55:00",
+      "received_at": "2026-08-10 15:05:35.281632+00:00",
+      "closed_at": "2026-08-10T15:07:32.555620+00:00",
+      "hold_minutes": 252.54,
+      "config_version": "router_v1",
+      "era": "pre_paperfix2",
+      "note": "pre-fix stamps may show inflated hold_minutes; post_paperfix2 should age from received_at"
+    },
+    {
+      "id": "PAPER-00108",
+      "symbol": "MES",
+      "opened_at": "2026-08-10 10:45:00",
+      "received_at": "2026-08-10 14:55:35.079072+00:00",
+      "closed_at": "2026-08-10T15:02:32.158366+00:00",
+      "hold_minutes": 257.54,
+      "config_version": "router_v1",
+      "era": "pre_paperfix2",
+      "note": "pre-fix stamps may show inflated hold_minutes; post_paperfix2 should age from received_at"
+    },
+    {
+      "id": "PAPER-00106",
+      "symbol": "MES",
+      "opened_at": "2026-08-10 10:40:00",
+      "received_at": "2026-08-10 14:50:35.427824+00:00",
+      "closed_at": "2026-08-10T14:51:32.093728+00:00",
+      "hold_minutes": 251.53,
+      "config_version": "router_v1",
+      "era": "pre_paperfix2",
+      "note": "pre-fix stamps may show inflated hold_minutes; post_paperfix2 should age from received_at"
+    },
+    {
+      "id": "PAPER-00104",
+      "symbol": "MES",
+      "opened_at": "2026-08-10 10:35:00",
+      "received_at": "2026-08-10 14:45:35.313053+00:00",
+      "closed_at": "2026-08-10T14:46:32.628981+00:00",
+      "hold_minutes": 251.54,
+      "config_version": "router_v1",
+      "era": "pre_paperfix2",
+      "note": "pre-fix stamps may show inflated hold_minutes; post_paperfix2 should age from received_at"
+    },
+    {
+      "id": "PAPER-00102",
+      "symbol": "MCL",
+      "opened_at": "2026-08-10 10:30:00",
+      "received_at": "2026-08-10 14:40:38.891043+00:00",
+      "closed_at": "2026-08-10T14:41:32.086456+00:00",
+      "hold_minutes": 251.53,
+      "config_version": "router_v1",
+      "era": "pre_paperfix2",
+      "note": "pre-fix stamps may show inflated hold_minutes; post_paperfix2 should age from received_at"
+    },
+    {
+      "id": "PAPER-00100",
+      "symbol": "MYM",
+      "opened_at": "2026-08-10 10:20:00",
+      "received_at": "2026-08-10 14:30:38.051659+00:00",
+      "closed_at": "2026-08-10T14:31:32.103657+00:00",
+      "hold_minutes": 251.54,
+      "config_version": "router_v1",
+      "era": "pre_paperfix2",
+      "note": "pre-fix stamps may show inflated hold_minutes; post_paperfix2 should age from received_at"
+    },
+    {
+      "id": "PAPER-00098",
+      "symbol": "ES",
+      "opened_at": "2026-08-10 10:10:00",
+      "received_at": "2026-08-10 14:20:32.604263+00:00",
+      "closed_at": "2026-08-10T14:21:32.120912+00:00",
+      "hold_minutes": 251.54,
+      "config_version": "router_v1",
+      "era": "pre_paperfix2",
+      "note": "pre-fix stamps may show inflated hold_minutes; post_paperfix2 should age from received_at"
+    },
+    {
+      "id": "PAPER-00095",
+      "symbol": "MYM",
+      "opened_at": "2026-08-10 10:05:00",
+      "received_at": "2026-08-10 14:15:40.692450+00:00",
+      "closed_at": "2026-08-10T14:16:32.058179+00:00",
+      "hold_minutes": 251.53,
+      "config_version": "router_v1",
+      "era": "pre_paperfix2",
+      "note": "pre-fix stamps may show inflated hold_minutes; post_paperfix2 should age from received_at"
+    },
+    {
+      "id": "PAPER-00094",
+      "symbol": "M2K",
+      "opened_at": "2026-08-10 10:05:00",
+      "received_at": "2026-08-10 14:15:41.395420+00:00",
+      "closed_at": "2026-08-10T14:20:31.945316+00:00",
+      "hold_minutes": 255.53,
+      "config_version": "router_v1",
+      "era": "pre_paperfix2",
+      "note": "pre-fix stamps may show inflated hold_minutes; post_paperfix2 should age from received_at"
+    },
+    {
+      "id": "PAPER-00090",
+      "symbol": "MNQ",
+      "opened_at": "2026-08-10 09:55:00",
+      "received_at": "2026-08-10 14:05:35.628988+00:00",
+      "closed_at": "2026-08-10T14:06:32.118903+00:00",
+      "hold_minutes": 251.54,
+      "config_version": "router_v1",
+      "era": "pre_paperfix2",
+      "note": "pre-fix stamps may show inflated hold_minutes; post_paperfix2 should age from received_at"
+    },
+    {
+      "id": "PAPER-00084",
+      "symbol": "MGC",
+      "opened_at": "2026-08-10 09:30:00",
+      "received_at": "2026-08-10 13:40:37.220093+00:00",
+      "closed_at": "2026-08-10T13:41:32.188783+00:00",
+      "hold_minutes": 251.54,
+      "config_version": "router_v1",
+      "era": "pre_paperfix2",
+      "note": "pre-fix stamps may show inflated hold_minutes; post_paperfix2 should age from received_at"
+    },
+    {
+      "id": "PAPER-00083",
+      "symbol": "M2K",
+      "opened_at": "2026-08-10 09:30:00",
+      "received_at": "2026-08-10 13:40:38.615310+00:00",
+      "closed_at": "2026-08-10T13:41:32.000575+00:00",
+      "hold_minutes": 251.53,
+      "config_version": "router_v1",
+      "era": "pre_paperfix2",
+      "note": "pre-fix stamps may show inflated hold_minutes; post_paperfix2 should age from received_at"
+    },
+    {
+      "id": "PAPER-00080",
+      "symbol": "MNQ",
+      "opened_at": "2026-08-10 09:25:00",
+      "received_at": "2026-08-10 13:35:35.917516+00:00",
+      "closed_at": "2026-08-10T13:36:32.945077+00:00",
+      "hold_minutes": 251.55,
+      "config_version": "router_v1",
+      "era": "pre_paperfix2",
+      "note": "pre-fix stamps may show inflated hold_minutes; post_paperfix2 should age from received_at"
+    },
+    {
+      "id": "PAPER-00077",
+      "symbol": "MYM",
+      "opened_at": "2026-08-10 09:15:00",
+      "received_at": "2026-08-10 13:25:36.669263+00:00",
+      "closed_at": "2026-08-10T13:27:31.827681+00:00",
+      "hold_minutes": 252.53,
+      "config_version": "router_v1",
+      "era": "pre_paperfix2",
+      "note": "pre-fix stamps may show inflated hold_minutes; post_paperfix2 should age from received_at"
+    },
+    {
+      "id": "PAPER-00067",
+      "symbol": "CL",
+      "opened_at": "2026-08-10 08:15:00",
+      "received_at": "2026-08-10 12:25:20.048264+00:00",
+      "closed_at": "2026-08-10T12:27:17.564966+00:00",
+      "hold_minutes": 252.29,
+      "config_version": "router_v1",
+      "era": "pre_paperfix2",
+      "note": "pre-fix stamps may show inflated hold_minutes; post_paperfix2 should age from received_at"
+    },
+    {
+      "id": "PAPER-00061",
+      "symbol": "MCL",
+      "opened_at": "2026-08-10 08:10:00",
+      "received_at": "2026-08-10 12:20:24.332177+00:00",
+      "closed_at": "2026-08-10T12:21:17.715079+00:00",
+      "hold_minutes": 251.3,
+      "config_version": "router_v1",
+      "era": "pre_paperfix2",
+      "note": "pre-fix stamps may show inflated hold_minutes; post_paperfix2 should age from received_at"
+    },
+    {
+      "id": "PAPER-00058",
+      "symbol": "MCL",
+      "opened_at": "2026-08-10 08:05:00",
+      "received_at": "2026-08-10 12:15:23.631626+00:00",
+      "closed_at": "2026-08-10T12:16:17.945018+00:00",
+      "hold_minutes": 251.3,
+      "config_version": "router_v1",
+      "era": "pre_paperfix2",
+      "note": "pre-fix stamps may show inflated hold_minutes; post_paperfix2 should age from received_at"
+    },
+    {
+      "id": "PAPER-00057",
+      "symbol": "MES",
+      "opened_at": "2026-08-10 08:05:00",
+      "received_at": "2026-08-10 12:15:20.364428+00:00",
+      "closed_at": "2026-08-10T12:18:18.538855+00:00",
+      "hold_minutes": 253.31,
+      "config_version": "router_v1",
+      "era": "pre_paperfix2",
+      "note": "pre-fix stamps may show inflated hold_minutes; post_paperfix2 should age from received_at"
+    },
+    {
+      "id": "PAPER-00055",
+      "symbol": "MNQ",
+      "opened_at": "2026-08-10 08:00:00",
+      "received_at": "2026-08-10 12:10:07.737640+00:00",
+      "closed_at": "2026-08-10T12:11:07.415893+00:00",
+      "hold_minutes": 251.12,
+      "config_version": "opt_v2",
+      "era": "pre_paperfix2",
+      "note": "pre-fix stamps may show inflated hold_minutes; post_paperfix2 should age from received_at"
+    },
+    {
+      "id": "PAPER-00053",
+      "symbol": "MNQ",
+      "opened_at": "2026-08-10 07:55:00",
+      "received_at": "2026-08-10 12:05:07.316503+00:00",
+      "closed_at": "2026-08-10T12:06:04.589462+00:00",
+      "hold_minutes": 251.08,
+      "config_version": "opt_v2",
+      "era": "pre_paperfix2",
+      "note": "pre-fix stamps may show inflated hold_minutes; post_paperfix2 should age from received_at"
+    },
+    {
+      "id": "PAPER-00051",
+      "symbol": "MES",
+      "opened_at": "2026-08-10 07:50:00",
+      "received_at": "2026-08-10 12:00:07.071663+00:00",
+      "closed_at": "2026-08-10T12:01:04.034122+00:00",
+      "hold_minutes": 251.07,
+      "config_version": "opt_v2",
+      "era": "pre_paperfix2",
+      "note": "pre-fix stamps may show inflated hold_minutes; post_paperfix2 should age from received_at"
+    },
+    {
+      "id": "PAPER-00045",
+      "symbol": "MYM",
+      "opened_at": "2026-08-10 07:35:00",
+      "received_at": "2026-08-10 11:47:51.195883+00:00",
+      "closed_at": "2026-08-10T11:51:05.329842+00:00",
+      "hold_minutes": 256.09,
+      "config_version": "opt_v2",
+      "era": "pre_paperfix2",
+      "note": "pre-fix stamps may show inflated hold_minutes; post_paperfix2 should age from received_at"
+    },
+    {
+      "id": "PAPER-00044",
+      "symbol": "M2K",
+      "opened_at": "2026-08-10 07:35:00",
+      "received_at": "2026-08-10 11:47:53.447851+00:00",
+      "closed_at": "2026-08-10T11:50:06.524259+00:00",
+      "hold_minutes": 255.11,
+      "config_version": "opt_v2",
+      "era": "pre_paperfix2",
+      "note": "pre-fix stamps may show inflated hold_minutes; post_paperfix2 should age from received_at"
+    },
+    {
+      "id": "PAPER-00042",
+      "symbol": "MES",
+      "opened_at": "2026-08-10 07:35:00",
+      "received_at": "2026-08-10 11:47:48.220837+00:00",
+      "closed_at": "2026-08-10T11:51:05.196242+00:00",
+      "hold_minutes": 256.09,
+      "config_version": "opt_v2",
+      "era": "pre_paperfix2",
+      "note": "pre-fix stamps may show inflated hold_minutes; post_paperfix2 should age from received_at"
+    },
+    {
+      "id": "PAPER-00038",
+      "symbol": "MNQ",
+      "opened_at": "2026-08-07 16:55:00",
+      "received_at": "2026-08-09 22:10:10.464015+00:00",
+      "closed_at": "2026-08-09T22:11:06.391654+00:00",
+      "hold_minutes": 3196.11,
+      "config_version": "opt_v2",
+      "era": "pre_paperfix2",
+      "note": "pre-fix stamps may show inflated hold_minutes; post_paperfix2 should age from received_at"
+    },
+    {
+      "id": "PAPER-00037",
+      "symbol": "M2K",
+      "opened_at": "2026-08-07 16:55:00",
+      "received_at": "2026-08-09 22:10:13.168212+00:00",
+      "closed_at": "2026-08-09T22:11:06.270829+00:00",
+      "hold_minutes": 3196.1,
+      "config_version": "opt_v2",
+      "era": "pre_paperfix2",
+      "note": "pre-fix stamps may show inflated hold_minutes; post_paperfix2 should age from received_at"
+    },
+    {
+      "id": "PAPER-00036",
+      "symbol": "MYM",
+      "opened_at": "2026-08-07 16:55:00",
+      "received_at": "2026-08-09 22:10:12.326459+00:00",
+      "closed_at": "2026-08-09T22:11:06.152936+00:00",
+      "hold_minutes": 3196.1,
+      "config_version": "opt_v2",
+      "era": "pre_paperfix2",
+      "note": "pre-fix stamps may show inflated hold_minutes; post_paperfix2 should age from received_at"
+    },
+    {
+      "id": "PAPER-00002",
+      "symbol": "MNQ",
+      "opened_at": "2026-08-06T20:30:04.889042+00:00",
+      "received_at": "2026-08-06T20:30:04.889042+00:00",
+      "closed_at": "2026-08-06T22:00:06.702292+00:00",
+      "hold_minutes": 90.03,
+      "config_version": null,
+      "era": "unknown",
+      "note": "pre-fix stamps may show inflated hold_minutes; post_paperfix2 should age from received_at"
+    },
+    {
+      "id": "PAPER-00001",
+      "symbol": "MES",
+      "opened_at": "2026-08-06T19:31:00.105104+00:00",
+      "received_at": "2026-08-06T19:31:00.105104+00:00",
+      "closed_at": "2026-08-06T21:10:06.549609+00:00",
+      "hold_minutes": 99.11,
+      "config_version": null,
+      "era": "unknown",
+      "note": "pre-fix stamps may show inflated hold_minutes; post_paperfix2 should age from received_at"
+    }
+  ],
+  "counts": {
+    "paper_breakout_rows": 18,
+    "learning_resolved_breakout": 20,
+    "shadow_closed_breakout": 78,
+    "post_br_closed": 10
+  },
+  "answers_preview": {
+    "1_clean_paperfix2_wr": 0.5,
+    "2_clean_paperfix2_pf": 7.3388,
+    "3_clean_expectancy_r": 0.2837,
+    "4_breakout_post_wr": 0.5,
+    "5_breakout_post_pf": 2.964,
+    "6_strongest_symbol_cell": {
+      "cell": "MNQ",
+      "evidence": "ANECDOTAL",
+      "n": 4,
+      "wins": 1,
+      "losses": 3,
+      "wr": 0.25,
+      "pf": 1.513,
+      "expectancy_r": 0.0599,
+      "max_dd_r": -0.416,
+      "pnl": -21.5,
+      "avg_win_usd": 127.0,
+      "avg_loss_usd": -49.5,
+      "n_with_r": 4,
+      "raw_wr": 0.25,
+      "shrunk_wr": 0.4583,
+      "prior_mean": 0.5
+    },
+    "7_strongest_session_cell": {
+      "cell": "ny",
+      "evidence": "ANECDOTAL",
+      "n": 10,
+      "wins": 5,
+      "losses": 5,
+      "wr": 0.5,
+      "pf": 2.964,
+      "expectancy_r": 0.2837,
+      "max_dd_r": -0.978,
+      "pnl": 1794.71,
+      "avg_win_usd": 403.79,
+      "avg_loss_usd": -44.85,
+      "n_with_r": 10,
+      "raw_wr": 0.5,
+      "shrunk_wr": 0.5,
+      "prior_mean": 0.5
+    },
+    "8_shared_traits_big_winners_anecdotal": [
+      {
+        "dir_4h": "-1"
+      },
+      {
+        "overextended": "0"
+      },
+      {
+        "near_pdh": "0"
+      },
+      {
+        "near_pdl": "0"
+      },
+      {
+        "momentum_aligned": "0"
+      },
+      {
+        "local_score": "82"
+      }
+    ],
+    "10_feature_rows_post": 21,
+    "13_open_cl": {
+      "trade_id": "PAPER-00222",
+      "side": "SELL",
+      "qty": 3,
+      "entry": 82.74,
+      "stop": 82.83555095672608,
+      "target": 82.62156337356566,
+      "opened_at": "2026-08-12 18:10:00",
+      "session": "asia",
+      "risk_dollars": 226.65287017822777,
+      "reward_dollars": 385.30987930300853,
+      "status": "OPEN"
+    },
+    "17_verdict": "ANECDOTAL \u2014 post_paperfix2 breakout n is small; do not promote. Collect overnight Asia/London before judging."
+  }
+}

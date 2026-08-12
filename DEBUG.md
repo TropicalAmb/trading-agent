@@ -5,6 +5,17 @@
 
 ---
 
+## AB — Overnight forward research ≠ permission to retune (2026-08-12)
+
+| | |
+|--|--|
+| **Symptom** | Strong paperfix2 winners (ES/CL/GC breakout targets) tempt same-day filter/promotion changes. |
+| **Fact** | User locked `router_v1_paperfix2` for clean overnight Asia/London forward sample. Breakout_retest is priority **research family**, not promoted. |
+| **Fix / process** | Observation tools only: `scripts/run_breakout_retest_forward_report.py` → `data/research/breakout_retest_forward_<DATE>.md`. Re-run tomorrow morning. No risk/qty/threshold/engine/router_v2/family-policy changes unless a genuine software defect. |
+| **Do not** | Auto-tune from 3 overnight wins or losses. Do not restart agent for research convenience. |
+
+---
+
 ## AA — Micros monopolized family slot vs ES/NQ (2026-08-12)
 
 | | |

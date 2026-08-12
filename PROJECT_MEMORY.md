@@ -258,6 +258,7 @@ Overnight on this laptop: stay-awake + no sleep while running (prefer AC power).
 
 ## Change log
 
+- 2026-08-12: **Breakout_retest forward research pass (observation only)** — locked `router_v1_paperfix2` overnight (no strategy/risk/qty/engine/router changes). Added `scripts/run_breakout_retest_forward_report.py` + `src/agent/research/breakout_retest_forward.py` for winner/loser datasets, PRE vs POST-fix2 cohorts, shrunk cells, forensics. Paper View adds display-only clean WR cohorts. Agent kept running; do not auto-tune from overnight tiny samples.
 - 2026-08-12: **`router_v1_paperfix2`** — prefer full-size over micro within product family (ES/NQ before MES/MNQ same side) so family max=1 does not silently micros-only the book. Still one opportunity per family; risk remap NQ→MNQ only when hard $ risk binds.
 - 2026-08-12: **Time-stop clock fix** — hold duration uses wall `received_at`/`ts`, not delayed market-bar `opened_at` (was instantly scratching new multi-lot breakouts). Still multi-engine paper book; NQ specialist is one engine only. EMA stays research_only (spray was not successful).
 - 2026-08-12: **`router_v1_paperfix1`** — London/full-book paper path: location engines exempt from cascade VWAP-distance `POOR_LOCATION` kill; paper location targets ≥1.6R; silence watch only flags RESEARCH_SUPERSEDE when a **paperable** loser is beaten by research_only; risk engine uses **position** reward vs EQ/confluence floor (fixes multi-lot A+ dying as `$80 < $90`). NQ window ≠ only trade window. EMA stays research_only; risk/qty/universe unchanged.
