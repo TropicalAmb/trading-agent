@@ -5,6 +5,17 @@
 
 ---
 
+## AA — Micros monopolized family slot vs ES/NQ (2026-08-12)
+
+| | |
+|--|--|
+| **Symptom** | Universe has ES+NQ but paper fills skew MES/MNQ; ES rejected `product family limit … MES already has …`. |
+| **Fact** | `max_same_direction_per_family: 1` is correct (MES+ES = same bet). Micros often ranked/filled first → full-size blocked for the rest of the hold. Not a universe cut. |
+| **Fix** | `prefer_full_size_in_family: true` + ranker collapses family+side to full-size when both paperable (`router_v1_paperfix2`). Remap full→micro only when hard $ risk cannot fit 1 contract. |
+| **Do not** | Remove ES/NQ from universe, or raise family max to 2 without user ask (that doubles the same underlying). |
+
+---
+
 ## Z — Time stop used market-bar clock → instant scratches (2026-08-12)
 
 | | |
@@ -326,7 +337,7 @@ cd C:\Users\patri\trading-agent
 
 Expect tests green (`pytest tests/ -q`).  
 Live once-scan should show DELAYED feed, per-symbol engine reasons; EMA research_only → shadow/PASS not paper EXECUTED.  
-Stamp check: `config_version` should be `router_v1_paperfix1` (multi-engine + NQ specialist + time-stop wall clock).
+Stamp check: `config_version` should be `router_v1_paperfix2` (prefer full-size in family + multi-engine + NQ specialist + time-stop wall clock).
 
 When diagnosing **zero paper trades**: check (1) heartbeat/`NO_NEW_BAR`, (2) shadow open count, (3) `AGREEMENT_SUPERSEDED_BY_*` in `execution_decisions.jsonl` (only paperable-loser→research is a steal), (4) `execution_quality` / MIXED / POOR_LOCATION rejects, (5) instant `time_stop` on new fills → bug Z wall-clock hold, (6) not just “markets quiet.”
 

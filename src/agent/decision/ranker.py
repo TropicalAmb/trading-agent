@@ -16,16 +16,89 @@ from agent.decision.performance_router import (
 )
 from agent.decision.setup import TradeSetup
 from agent.decision.tiering import assign_tier_for_setup, can_execute, tier_rank
+from agent.execution.risk_budget import (
+    FULL_SIZE_OF,
+    MICRO_OF,
+    contract_size_preference,
+)
 
 
 def _rank_key(setup: TradeSetup, cfg: dict[str, Any]) -> tuple:
     profile = str(cfg.get("execution_profile") or "balanced").lower()
     v2 = bool((cfg.get("performance_router_v2") or {}).get("enabled", False))
+    # Prefer full-size (ES/NQ/…) over micro twin when scores tie — user lock.
+    size_pref = contract_size_preference(setup.symbol)
     if v2:
         from agent.decision.performance_router_v2 import empirical_rank_tuple_v2
 
-        return (empirical_rank_tuple_v2(setup, profile=profile), tier_rank(setup.setup_tier))
-    return (empirical_rank_tuple(setup), tier_rank(setup.setup_tier))
+        return (
+            empirical_rank_tuple_v2(setup, profile=profile),
+            tier_rank(setup.setup_tier),
+            size_pref,
+        )
+    return (empirical_rank_tuple(setup), tier_rank(setup.setup_tier), size_pref)
+
+
+def _family_key(symbol: str, cfg: dict[str, Any]) -> str | None:
+    """Return stable family id for micro/full twin groups."""
+    su = str(symbol or "").upper()
+    families = (cfg.get("risk") or {}).get("product_families") or {
+        "SP500": ["MES", "ES"],
+        "NASDAQ": ["MNQ", "NQ"],
+        "GOLD": ["MGC", "GC"],
+        "CRUDE": ["MCL", "CL"],
+    }
+    if isinstance(families, dict):
+        for name, members in families.items():
+            if su in {str(x).upper() for x in members}:
+                return str(name)
+    # Fallback via MICRO_OF map
+    if su in MICRO_OF:
+        return f"FULL:{su}"
+    if su in FULL_SIZE_OF:
+        return f"FULL:{FULL_SIZE_OF[su]}"
+    return None
+
+
+def prefer_full_size_within_family(
+    setups: list[TradeSetup],
+    cfg: dict[str, Any],
+) -> list[TradeSetup]:
+    """If MES+ES (or MNQ+NQ) both paperable same side, keep full-size only.
+
+    Product-family max=1 otherwise lets the micro fill first and permanently
+    block ES/NQ — which reads as 'micros only' despite a full-size universe.
+    """
+    risk = cfg.get("risk") or {}
+    if not bool(risk.get("prefer_full_size_in_family", True)):
+        return setups
+    groups: dict[tuple[str, str], list[TradeSetup]] = defaultdict(list)
+    passthrough: list[TradeSetup] = []
+    for s in setups:
+        fam = _family_key(s.symbol, cfg)
+        if not fam:
+            passthrough.append(s)
+            continue
+        groups[(fam, str(s.direction or "").upper())].append(s)
+    out: list[TradeSetup] = list(passthrough)
+    for (_fam, _side), lst in groups.items():
+        if len(lst) == 1:
+            out.append(lst[0])
+            continue
+        full = [x for x in lst if str(x.symbol).upper() in MICRO_OF]
+        if full:
+            # Keep best full-size; micros in this family+side are dropped
+            best = max(full, key=lambda x: _rank_key(x, cfg))
+            out.append(best)
+            for x in lst:
+                if x is best:
+                    continue
+                m = dict(x.metadata or {})
+                m["nonselected_reason"] = f"FAMILY_PREFER_FULL_SIZE:{best.symbol}"
+                x.metadata = m
+        else:
+            out.extend(lst)
+    return out
 
 
 def _is_research_only_setup(setup: TradeSetup, cfg: dict[str, Any]) -> bool:
@@ -200,7 +273,12 @@ def select_executable(
         s.setup_tier = assign_tier_for_setup(s, cfg)
     # Pre-quality paper candidates; caller must apply can_execute after sizing
     executable = [s for s in kept if _is_paper_agreement_candidate(s, cfg)]
-    return rank_setups([s for s in executable if can_execute(s, cfg)], cfg)
+    return rank_setups(
+        prefer_full_size_within_family(
+            [s for s in executable if can_execute(s, cfg)], cfg
+        ),
+        cfg,
+    )
 
 
 def select_executable_detailed(
@@ -228,7 +306,10 @@ def select_executable_detailed(
     # Return paper agreement winners before execution_quality so pipeline can
     # size then ledger EXECUTION_QUALITY:* rejects (thesis/reward/etc.).
     executable = rank_setups(
-        [s for s in kept if _is_paper_agreement_candidate(s, cfg)], cfg
+        prefer_full_size_within_family(
+            [s for s in kept if _is_paper_agreement_candidate(s, cfg)], cfg
+        ),
+        cfg,
     )
     try:
         from agent.decision.hc_shadow import attach_high_confidence_shadow_decisions

@@ -1,8 +1,8 @@
 mode: paper  # paper | live — live also requires ALLOW_LIVE_TRADING=true in .env
 
 # Version stamp for BEFORE vs AFTER optimization comparison (do not erase old journals)
-config_version: router_v1_paperfix1
-# Paper stamp: location engines aligned to R>=1.6 + no false VWAP POOR kill; NQ specialist wired; EMA research_only
+config_version: router_v1_paperfix2
+# Paper stamp: prefer full-size (ES/NQ) over micro twin in family; location R>=1.6; NQ specialist; EMA research_only
 strategy_version: performance_router_v1
 execution_profile: balanced  # balanced | high_confidence
 
@@ -867,6 +867,9 @@ risk:
     GOLD: [MGC, GC]
     CRUDE: [MCL, CL]
   max_same_direction_per_family: 1
+  # When both micro + full-size are paperable same side, take ES/NQ/GC/CL first
+  # (not MES/MNQ) so the book is not silently micros-only.
+  prefer_full_size_in_family: true
   # Optional conscious multi-index longs (MES+MNQ) still allowed within correlation_groups
   # as long as directions match; family rule only blocks MES+ES / MNQ+NQ duplicates.
 

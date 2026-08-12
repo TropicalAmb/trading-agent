@@ -222,6 +222,50 @@ def test_product_family_blocks_mes_es_duplicate():
     assert "family" in reason.lower() or "MES" in reason
 
 
+def test_prefer_full_size_over_micro_in_family():
+    """MES+ES same side → keep ES so micros don't monopolize the family slot."""
+    from agent.decision.ranker import prefer_full_size_within_family
+    from agent.decision.setup import TradeSetup
+
+    cfg = _cfg()
+    cfg = dict(cfg)
+    cfg["risk"] = dict(cfg.get("risk") or {})
+    cfg["risk"]["prefer_full_size_in_family"] = True
+    mes = TradeSetup(
+        strategy_name="breakout_retest",
+        symbol="MES",
+        direction="BUY",
+        setup_tier="A+",
+        confidence_score=90,
+        entry=5000.0,
+        stop=4990.0,
+        target=5020.0,
+        expected_r=2.0,
+        market_timestamp=datetime.now(timezone.utc),
+        received_timestamp=datetime.now(timezone.utc),
+        reasons=["mes"],
+        metadata={"agreeing_engines": ["breakout_retest"], "global_score": 90},
+    )
+    es = TradeSetup(
+        strategy_name="breakout_retest",
+        symbol="ES",
+        direction="BUY",
+        setup_tier="A+",
+        confidence_score=90,
+        entry=5000.0,
+        stop=4990.0,
+        target=5020.0,
+        expected_r=2.0,
+        market_timestamp=datetime.now(timezone.utc),
+        received_timestamp=datetime.now(timezone.utc),
+        reasons=["es"],
+        metadata={"agreeing_engines": ["breakout_retest"], "global_score": 90},
+    )
+    kept = prefer_full_size_within_family([mes, es], cfg)
+    assert len(kept) == 1
+    assert kept[0].symbol == "ES"
+
+
 def test_hard_risk_limit_rejects_over_cap():
     from agent.risk.directional import DirectionalRiskEngine
     from agent.strategy.sweep_retest import SweepSignal

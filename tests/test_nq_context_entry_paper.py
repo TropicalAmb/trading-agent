@@ -55,7 +55,7 @@ def test_config_wires_nq_context_entry_paper():
     assert "nq_context_entry" in engines
     assert "nq_context_entry" not in research
     assert "nq_context_entry" in specs
-    assert cfg.get("config_version") == "router_v1_paperfix1"
+    assert cfg.get("config_version") == "router_v1_paperfix2"
     nq = cfg.get("nq_context_entry") or {}
     assert nq.get("window") == "0930_1200"
     assert float(nq.get("target_r_multiple")) == 1.15

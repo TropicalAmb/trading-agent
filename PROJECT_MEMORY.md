@@ -1,7 +1,7 @@
 # PROJECT MEMORY — Trading Agent (binding)
 
 **Last updated:** 2026-08-12  
-**Paper stamps:** `config_version: router_v1_paperfix1`. Paper still Yahoo delayed. Multi-engine book stays paperable whenever CME is open (Asia/London/NY) — NQ specialist quiet outside 09:30–12:00 ET is expected; other location engines must still fill. **`nq_context_entry` PAPER-WIRED** (Databento WR≥65% PULLBACK BUY champion). Learning / HC shadow parallel; `live_pilot.yaml` NOT activated. Do **not** promote CL `liquidity_reversal` from one paper trade.  
+**Paper stamps:** `config_version: router_v1_paperfix2`. Paper still Yahoo delayed. Multi-engine book stays paperable whenever CME is open (Asia/London/NY). **Prefer full-size within product family** (`prefer_full_size_in_family`) — ES/NQ/GC/CL before MES/MNQ/MGC/MCL when both compete same side; family max still 1 (not double the same bet). NQ specialist quiet outside 09:30–12:00 ET is expected; other location engines must still fill. **`nq_context_entry` PAPER-WIRED** (Databento WR≥65% PULLBACK BUY champion; may remap NQ→MNQ only when $500 risk binds). Learning / HC shadow parallel; `live_pilot.yaml` NOT activated. Do **not** promote CL `liquidity_reversal` from one paper trade.  
 
 **Rule:** Assistants must follow this file. Do not “optimize away” user preferences.  
 **Also read:** [DEBUG.md](./DEBUG.md) for bugs already fixed and traps to avoid reintroducing.
@@ -258,6 +258,7 @@ Overnight on this laptop: stay-awake + no sleep while running (prefer AC power).
 
 ## Change log
 
+- 2026-08-12: **`router_v1_paperfix2`** — prefer full-size over micro within product family (ES/NQ before MES/MNQ same side) so family max=1 does not silently micros-only the book. Still one opportunity per family; risk remap NQ→MNQ only when hard $ risk binds.
 - 2026-08-12: **Time-stop clock fix** — hold duration uses wall `received_at`/`ts`, not delayed market-bar `opened_at` (was instantly scratching new multi-lot breakouts). Still multi-engine paper book; NQ specialist is one engine only. EMA stays research_only (spray was not successful).
 - 2026-08-12: **`router_v1_paperfix1`** — London/full-book paper path: location engines exempt from cascade VWAP-distance `POOR_LOCATION` kill; paper location targets ≥1.6R; silence watch only flags RESEARCH_SUPERSEDE when a **paperable** loser is beaten by research_only; risk engine uses **position** reward vs EQ/confluence floor (fixes multi-lot A+ dying as `$80 < $90`). NQ window ≠ only trade window. EMA stays research_only; risk/qty/universe unchanged.
 - 2026-08-12: **Paper View simplified** — top “At a glance” (running vs paper-trading vs flat) + equity/open; dense learning/tech sections collapsed by default (`paper_view_folds_v3`). Keep all detail available on expand.

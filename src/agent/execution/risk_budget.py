@@ -15,6 +15,9 @@ MICRO_OF: dict[str, str] = {
     "RTY": "M2K",
 }
 
+# Micro → full-size twin (for prefer-full-size ranking)
+FULL_SIZE_OF: dict[str, str] = {micro: full for full, micro in MICRO_OF.items()}
+
 
 def effective_max_risk_dollars(
     cfg: dict[str, Any],
@@ -51,3 +54,17 @@ def effective_max_risk_dollars(
 
 def suggest_micro_symbol(symbol: str) -> str | None:
     return MICRO_OF.get(str(symbol).upper())
+
+
+def suggest_full_size_symbol(symbol: str) -> str | None:
+    return FULL_SIZE_OF.get(str(symbol).upper())
+
+
+def contract_size_preference(symbol: str) -> int:
+    """Higher sorts first. Full-size preferred over its micro twin."""
+    s = str(symbol or "").upper()
+    if s in MICRO_OF:
+        return 2  # full-size
+    if s in FULL_SIZE_OF:
+        return 1  # micro
+    return 1
