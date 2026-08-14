@@ -139,6 +139,36 @@ SOURCE_CATALOG: dict[str, dict[str, str]] = {
         "title": "Beginner friendly 9/20 EMA trend pullback",
         "url": "https://www.reddit.com/r/FuturesTrading/comments/1kh3081/beginner_friendly_strategy/",
     },
+    "opening_shock_reversal": {
+        "kind": "Primary technical research",
+        "title": "Intraday Price Reversals in the US Stock Index Futures Market: A 15-Year Study",
+        "url": "https://papers.ssrn.com/sol3/papers.cfm?abstract_id=689282",
+    },
+    "post_settlement_gap": {
+        "kind": "Primary technical research",
+        "title": "The Invisible Segment of the Night Market: Predicting the Opening Gap Based on Post-Settlement Distortions",
+        "url": "https://papers.ssrn.com/sol3/papers.cfm?abstract_id=6743758",
+    },
+    "gap_regime": {
+        "kind": "Reddit strategy hypothesis",
+        "title": "Gap and Fill versus Gap and Go in index futures",
+        "url": "https://www.reddit.com/r/FuturesTrading/comments/1tdz9zt/ive_become_fixated_on_gap_trades_any_advice_on/",
+    },
+    "initial_balance_vwap": {
+        "kind": "Reddit strategy hypothesis",
+        "title": "Initial balance, current-day volume-profile levels, and VWAP after the first hour",
+        "url": "https://www.reddit.com/r/FuturesTrading/comments/1uto3kr/initial_balance_strategy/",
+    },
+    "tested_level_break": {
+        "kind": "Reddit strategy hypothesis",
+        "title": "Support/resistance tested repeatedly before a confirmed break",
+        "url": "https://www.reddit.com/r/FuturesTrading/comments/1joy48s/15_minute_opening_range_break_strategy/",
+    },
+    "volume_rejection": {
+        "kind": "Reddit implementation hypothesis",
+        "title": "Price action and volume analysis on completed NQ bars",
+        "url": "https://www.reddit.com/r/FuturesTrading/comments/1vll43k/what_timeframe_do_you_trade_for_nqmnq/",
+    },
 }
 
 FAMILY_SOURCE: dict[str, str] = {
@@ -167,6 +197,13 @@ FAMILY_SOURCE: dict[str, str] = {
     "ny_open_three_bar_continuation": "ny_open_three_bar",
     "nq_15m_opening_range_retest": "nq_15m_orb",
     "nq_premarket_ema_engulfing": "premarket_ema_pullback",
+    "nq_opening_shock_reversal": "opening_shock_reversal",
+    "gap_reject_then_go": "gap_regime",
+    "initial_balance_vwap_retest": "initial_balance_vwap",
+    "volume_climax_rejection": "volume_rejection",
+    "lunch_vwap_reclaim": "vwap_reversion",
+    "two_test_range_breakout": "tested_level_break",
+    "nq_post_settlement_alignment": "post_settlement_gap",
 }
 
 
@@ -2351,6 +2388,412 @@ def generate_nq_premarket_ema_engulfing(
     return out
 
 
+def generate_nq_opening_shock_reversal(
+    bars_1m: pd.DataFrame,
+    bars_5m: pd.DataFrame,
+    symbol: str,
+    spec: dict[str, Any],
+) -> list[Candidate]:
+    """Fade an unusually large first-30m NQ move only after a completed failure bar."""
+    if symbol != "NQ":
+        return []
+    f = bars_5m.copy()
+    f["atr"] = _atr(f)
+    day_frames = _rth_day_frames(f, "NQ", minimum_rows=60)
+    prior_ranges: list[float] = []
+    out: list[Candidate] = []
+    for day, rth in day_frames.items():
+        range_ref = float(np.median(prior_ranges[-20:])) if len(prior_ranges) >= 10 else np.nan
+        prior_ranges.append(float(rth["high"].max() - rth["low"].min()))
+        opening = rth.iloc[:6]
+        if len(opening) < 6 or not np.isfinite(range_ref) or range_ref <= 0:
+            continue
+        impulse = float(opening["close"].iloc[-1] - opening["open"].iloc[0])
+        if abs(impulse) < float(spec["shock_daily_range"]) * range_ref:
+            continue
+        opening_high = float(opening["high"].max())
+        opening_low = float(opening["low"].min())
+        midpoint = (opening_high + opening_low) / 2.0
+        for ts, row in rth.iloc[6 : 6 + int(spec["confirmation_bars"])].iterrows():
+            atr = float(row["atr"])
+            if not np.isfinite(atr) or atr <= 0:
+                continue
+            if impulse > 0 and float(row["close"]) < midpoint and float(row["close"]) < float(row["open"]):
+                side = "SELL"
+                stop = opening_high + float(spec["stop_buffer_atr"]) * atr
+            elif impulse < 0 and float(row["close"]) > midpoint and float(row["close"]) > float(row["open"]):
+                side = "BUY"
+                stop = opening_low - float(spec["stop_buffer_atr"]) * atr
+            else:
+                continue
+            cand = _candidate(
+                bars_1m=bars_1m,
+                signal_ts=pd.Timestamp(ts),
+                signal_minutes=5,
+                family="nq_opening_shock_reversal",
+                variant=str(spec["id"]),
+                source_id="opening_shock_reversal",
+                symbol="NQ",
+                side=side,
+                stop=stop,
+                target_r=1.6,
+                forced_exit_ts=day + pd.Timedelta(hours=12),
+                notes="Large first-30m index-futures shock followed by a completed midpoint failure",
+            )
+            if cand:
+                out.append(cand)
+            break
+    return out
+
+
+def generate_gap_reject_then_go(
+    bars_1m: pd.DataFrame,
+    bars_5m: pd.DataFrame,
+    symbol: str,
+    spec: dict[str, Any],
+) -> list[Candidate]:
+    """Trade a gap-and-go only after an initial fill attempt fails and reverses."""
+    f = bars_5m.copy()
+    f["atr"] = _atr(f)
+    day_frames = _rth_day_frames(f, symbol, minimum_rows=40)
+    prior_close: float | None = None
+    prior_ranges: list[float] = []
+    out: list[Candidate] = []
+    for day, rth in day_frames.items():
+        range_ref = float(np.median(prior_ranges[-20:])) if len(prior_ranges) >= 10 else np.nan
+        current_open = float(rth["open"].iloc[0])
+        if prior_close is not None and np.isfinite(range_ref) and range_ref > 0 and len(rth) >= 6:
+            gap = current_open - prior_close
+            if abs(gap) >= float(spec["gap_daily_range"]) * range_ref:
+                first = rth.iloc[:3]
+                confirm = rth.iloc[3:6]
+                first_close = float(first["close"].iloc[-1])
+                confirm_close = float(confirm["close"].iloc[-1])
+                fill = float(spec["minimum_fill_fraction"]) * abs(gap)
+                if gap > 0 and first_close <= current_open - fill and confirm_close > current_open:
+                    side = "BUY"
+                    stop = float(pd.concat([first["low"], confirm["low"]]).min()) - 0.10 * float(confirm["atr"].iloc[-1])
+                elif gap < 0 and first_close >= current_open + fill and confirm_close < current_open:
+                    side = "SELL"
+                    stop = float(pd.concat([first["high"], confirm["high"]]).max()) + 0.10 * float(confirm["atr"].iloc[-1])
+                else:
+                    side = ""
+                    stop = np.nan
+                if side and np.isfinite(stop):
+                    cand = _candidate(
+                        bars_1m=bars_1m,
+                        signal_ts=pd.Timestamp(confirm.index[-1]),
+                        signal_minutes=5,
+                        family="gap_reject_then_go",
+                        variant=str(spec["id"]),
+                        source_id="gap_regime",
+                        symbol=symbol,
+                        side=side,
+                        stop=float(stop),
+                        target_r=1.6,
+                        forced_exit_ts=_clock(day, _session_clock(symbol)[1]),
+                        notes="Large RTH gap, initial fill attempt, then completed-bar reversal back in gap direction",
+                    )
+                    if cand:
+                        out.append(cand)
+        prior_close = float(rth["close"].iloc[-1])
+        prior_ranges.append(float(rth["high"].max() - rth["low"].min()))
+    return out
+
+
+def generate_initial_balance_vwap_retest(
+    bars_1m: pd.DataFrame,
+    bars_5m: pd.DataFrame,
+    symbol: str,
+    spec: dict[str, Any],
+) -> list[Candidate]:
+    """Require a compressed one-hour IB, VWAP-aligned break, and successful retest."""
+    f = _session_vwap_features(bars_5m)
+    f["volume_ref"] = f["volume"].shift(1).rolling(50, min_periods=20).median()
+    day_frames = _rth_day_frames(f, symbol, minimum_rows=40)
+    prior_ranges: list[float] = []
+    out: list[Candidate] = []
+    for day, rth in day_frames.items():
+        range_ref = float(np.median(prior_ranges[-20:])) if len(prior_ranges) >= 10 else np.nan
+        prior_ranges.append(float(rth["high"].max() - rth["low"].min()))
+        if len(rth) < 20 or not np.isfinite(range_ref) or range_ref <= 0:
+            continue
+        initial = rth.iloc[:12]
+        ib_high = float(initial["high"].max())
+        ib_low = float(initial["low"].min())
+        if ib_high - ib_low > float(spec["maximum_ib_daily_range"]) * range_ref:
+            continue
+        post = rth.iloc[12:36]
+        break_side: str | None = None
+        break_level = np.nan
+        remaining = 0
+        for ts, row in post.iterrows():
+            atr = float(row["atr"])
+            volume_ref = float(row["volume_ref"])
+            if not np.isfinite(atr) or atr <= 0 or not np.isfinite(volume_ref) or volume_ref <= 0:
+                continue
+            if break_side is None:
+                enough_volume = float(row["volume"]) >= float(spec["minimum_relative_volume"]) * volume_ref
+                if enough_volume and float(row["close"]) > ib_high and float(row["close"]) > float(row["vwap"]):
+                    break_side, break_level, remaining = "BUY", ib_high, int(spec["maximum_retest_bars"])
+                elif enough_volume and float(row["close"]) < ib_low and float(row["close"]) < float(row["vwap"]):
+                    break_side, break_level, remaining = "SELL", ib_low, int(spec["maximum_retest_bars"])
+                continue
+            remaining -= 1
+            depth = float(spec["maximum_retest_depth_atr"]) * atr
+            if break_side == "BUY" and float(row["low"]) <= break_level + depth and float(row["close"]) > break_level and float(row["close"]) > float(row["vwap"]):
+                stop = min(float(row["low"]), break_level - 0.20 * atr)
+            elif break_side == "SELL" and float(row["high"]) >= break_level - depth and float(row["close"]) < break_level and float(row["close"]) < float(row["vwap"]):
+                stop = max(float(row["high"]), break_level + 0.20 * atr)
+            else:
+                if remaining <= 0:
+                    break_side = None
+                continue
+            cand = _candidate(
+                bars_1m=bars_1m,
+                signal_ts=pd.Timestamp(ts),
+                signal_minutes=5,
+                family="initial_balance_vwap_retest",
+                variant=str(spec["id"]),
+                source_id="initial_balance_vwap",
+                symbol=symbol,
+                side=break_side,
+                stop=stop,
+                target_r=1.6,
+                forced_exit_ts=_clock(day, _session_clock(symbol)[1]),
+                notes="Compressed one-hour initial balance; volume/VWAP break; completed successful retest",
+            )
+            if cand:
+                out.append(cand)
+            break
+    return out
+
+
+def generate_volume_climax_rejection(
+    bars_1m: pd.DataFrame,
+    bars_5m: pd.DataFrame,
+    symbol: str,
+    spec: dict[str, Any],
+) -> list[Candidate]:
+    """Fade only wide, extreme-volume bars that close with a strong rejection wick."""
+    f = _session_vwap_features(bars_5m)
+    f["volume_ref"] = f["volume"].shift(1).rolling(50, min_periods=25).median()
+    out: list[Candidate] = []
+    last_signal: pd.Timestamp | None = None
+    for ts, row in f.iterrows():
+        ts = pd.Timestamp(ts)
+        minute = ts.hour * 60 + ts.minute
+        end_minute = 13 * 60 if symbol == "CL" else 15 * 60
+        if minute < 10 * 60 or minute > end_minute:
+            continue
+        if last_signal is not None and ts - last_signal < pd.Timedelta(hours=2):
+            continue
+        atr = float(row["atr"])
+        volume_ref = float(row["volume_ref"])
+        bar_range = float(row["high"] - row["low"])
+        if not np.isfinite(atr) or atr <= 0 or not np.isfinite(volume_ref) or volume_ref <= 0 or bar_range <= 0:
+            continue
+        if float(row["volume"]) < float(spec["volume_multiple"]) * volume_ref or bar_range < float(spec["range_atr"]) * atr:
+            continue
+        close_location = float((row["close"] - row["low"]) / bar_range)
+        distance = float(row["close"] - row["vwap"])
+        if close_location <= float(spec["edge_fraction"]) and distance >= float(spec["minimum_vwap_atr"]) * atr:
+            side, stop = "SELL", float(row["high"]) + 0.10 * atr
+        elif close_location >= 1.0 - float(spec["edge_fraction"]) and distance <= -float(spec["minimum_vwap_atr"]) * atr:
+            side, stop = "BUY", float(row["low"]) - 0.10 * atr
+        else:
+            continue
+        cand = _candidate(
+            bars_1m=bars_1m,
+            signal_ts=ts,
+            signal_minutes=5,
+            family="volume_climax_rejection",
+            variant=str(spec["id"]),
+            source_id="volume_rejection",
+            symbol=symbol,
+            side=side,
+            stop=stop,
+            target_r=1.6,
+            notes="Completed 5m extreme-volume/range bar with rejection close away from session VWAP",
+        )
+        if cand:
+            out.append(cand)
+            last_signal = ts
+    return out
+
+
+def generate_lunch_vwap_reclaim(
+    bars_1m: pd.DataFrame,
+    bars_5m: pd.DataFrame,
+    symbol: str,
+    spec: dict[str, Any],
+) -> list[Candidate]:
+    """Time-box a morning inventory stretch and require a lunch reversal toward VWAP."""
+    f = _session_vwap_features(bars_5m)
+    day_frames = _rth_day_frames(f, symbol, minimum_rows=40)
+    out: list[Candidate] = []
+    for day, rth in day_frames.items():
+        lunch_start = day + pd.Timedelta(hours=11 if symbol == "CL" else 11, minutes=30 if symbol != "CL" else 0)
+        lunch_end = day + pd.Timedelta(hours=13)
+        morning = rth[rth.index < lunch_start]
+        lunch = rth[(rth.index >= lunch_start) & (rth.index < lunch_end)]
+        if len(morning) < 20 or lunch.empty:
+            continue
+        morning_z_min = float(pd.to_numeric(morning["vwap_z"], errors="coerce").min())
+        morning_z_max = float(pd.to_numeric(morning["vwap_z"], errors="coerce").max())
+        for ts, row in lunch.iterrows():
+            atr = float(row["atr"])
+            z = float(row["vwap_z"])
+            if not np.isfinite(atr) or atr <= 0 or not np.isfinite(z):
+                continue
+            recent = rth.loc[:ts].tail(4)
+            if morning_z_min <= -float(spec["morning_stretch_z"]) and z >= -float(spec["reclaim_z"]) and float(row["close"]) > float(row["open"]):
+                side = "BUY"
+                stop = float(recent["low"].min()) - 0.10 * atr
+            elif morning_z_max >= float(spec["morning_stretch_z"]) and z <= float(spec["reclaim_z"]) and float(row["close"]) < float(row["open"]):
+                side = "SELL"
+                stop = float(recent["high"].max()) + 0.10 * atr
+            else:
+                continue
+            cand = _candidate(
+                bars_1m=bars_1m,
+                signal_ts=pd.Timestamp(ts),
+                signal_minutes=5,
+                family="lunch_vwap_reclaim",
+                variant=str(spec["id"]),
+                source_id="vwap_reversion",
+                symbol=symbol,
+                side=side,
+                stop=stop,
+                target_r=1.6,
+                forced_exit_ts=_clock(day, _session_clock(symbol)[1]),
+                notes="Morning VWAP inventory stretch followed by a completed lunch-session reclaim",
+            )
+            if cand:
+                out.append(cand)
+            break
+    return out
+
+
+def generate_two_test_range_breakout(
+    bars_1m: pd.DataFrame,
+    bars_5m: pd.DataFrame,
+    symbol: str,
+    spec: dict[str, Any],
+) -> list[Candidate]:
+    """Break a compact rolling range only after the level was tested at least twice."""
+    f = _session_vwap_features(bars_5m)
+    f["volume_ref"] = f["volume"].shift(1).rolling(50, min_periods=25).median()
+    lookback = int(spec["lookback_bars"])
+    out: list[Candidate] = []
+    last_signal: pd.Timestamp | None = None
+    for i in range(max(55, lookback + 1), len(f)):
+        ts = pd.Timestamp(f.index[i])
+        minute = ts.hour * 60 + ts.minute
+        end_minute = 13 * 60 if symbol == "CL" else 15 * 60
+        if minute < 10 * 60 or minute > end_minute:
+            continue
+        if last_signal is not None and ts - last_signal < pd.Timedelta(hours=4):
+            continue
+        row = f.iloc[i]
+        prior = f.iloc[i - lookback : i]
+        atr = float(row["atr"])
+        volume_ref = float(row["volume_ref"])
+        if not np.isfinite(atr) or atr <= 0 or not np.isfinite(volume_ref) or volume_ref <= 0:
+            continue
+        upper = float(prior["high"].max())
+        lower = float(prior["low"].min())
+        if upper - lower > float(spec["maximum_range_atr"]) * atr:
+            continue
+        tolerance = float(spec["test_tolerance_atr"]) * atr
+        upper_tests = np.flatnonzero(pd.to_numeric(prior["high"], errors="coerce").to_numpy() >= upper - tolerance)
+        lower_tests = np.flatnonzero(pd.to_numeric(prior["low"], errors="coerce").to_numpy() <= lower + tolerance)
+        enough_volume = float(row["volume"]) >= float(spec["minimum_relative_volume"]) * volume_ref
+        break_distance = float(spec["break_atr"]) * atr
+        upper_separated = len(upper_tests) >= 2 and int(upper_tests[-1] - upper_tests[0]) >= 3
+        lower_separated = len(lower_tests) >= 2 and int(lower_tests[-1] - lower_tests[0]) >= 3
+        if upper_separated and enough_volume and float(row["close"]) > upper + break_distance and float(row["close"]) > float(row["vwap"]):
+            side, stop = "BUY", upper - 0.50 * atr
+        elif lower_separated and enough_volume and float(row["close"]) < lower - break_distance and float(row["close"]) < float(row["vwap"]):
+            side, stop = "SELL", lower + 0.50 * atr
+        else:
+            continue
+        cand = _candidate(
+            bars_1m=bars_1m,
+            signal_ts=ts,
+            signal_minutes=5,
+            family="two_test_range_breakout",
+            variant=str(spec["id"]),
+            source_id="tested_level_break",
+            symbol=symbol,
+            side=side,
+            stop=stop,
+            target_r=1.6,
+            notes="Compact 5m range, two separated tests, relative-volume break, and VWAP alignment",
+        )
+        if cand:
+            out.append(cand)
+            last_signal = ts
+    return out
+
+
+def generate_nq_post_settlement_alignment(
+    bars_1m: pd.DataFrame,
+    bars_5m: pd.DataFrame,
+    symbol: str,
+    spec: dict[str, Any],
+) -> list[Candidate]:
+    """Test whether a post-settlement distortion plus aligned gap/first-15m persists."""
+    if symbol != "NQ":
+        return []
+    f = bars_5m.copy()
+    day_groups = {pd.Timestamp(day): frame for day, frame in f.groupby(f.index.normalize())}
+    out: list[Candidate] = []
+    previous: dict[str, float] | None = None
+    for day in sorted(day_groups):
+        frame = day_groups[day]
+        rth = frame[(frame.index >= day + pd.Timedelta(hours=9, minutes=30)) & (frame.index < day + pd.Timedelta(hours=16))]
+        post = frame[(frame.index >= day + pd.Timedelta(hours=16)) & (frame.index < day + pd.Timedelta(hours=17))]
+        if previous is not None and len(rth) >= 3:
+            drift = float(previous["post_drift"])
+            prior_range = float(previous["rth_range"])
+            gap = float(rth["open"].iloc[0] - previous["rth_close"])
+            first = rth.iloc[:3]
+            first_move = float(first["close"].iloc[-1] - first["open"].iloc[0])
+            aligned = np.sign(drift) == np.sign(gap) == np.sign(first_move) and np.sign(drift) != 0
+            if (
+                aligned
+                and prior_range > 0
+                and abs(drift) >= float(spec["minimum_post_drift_range"]) * prior_range
+                and abs(gap) >= float(spec["minimum_gap_range"]) * prior_range
+            ):
+                side = "BUY" if drift > 0 else "SELL"
+                stop = float(first["low"].min()) if side == "BUY" else float(first["high"].max())
+                cand = _candidate(
+                    bars_1m=bars_1m,
+                    signal_ts=pd.Timestamp(first.index[-1]),
+                    signal_minutes=5,
+                    family="nq_post_settlement_alignment",
+                    variant=str(spec["id"]),
+                    source_id="post_settlement_gap",
+                    symbol="NQ",
+                    side=side,
+                    stop=stop,
+                    target_r=1.6,
+                    forced_exit_ts=day + pd.Timedelta(hours=12),
+                    notes="Prior post-settlement distortion, next RTH gap, and first-15m move all aligned",
+                )
+                if cand:
+                    out.append(cand)
+        if len(rth) >= 60 and len(post) >= 6:
+            previous = {
+                "rth_close": float(rth["close"].iloc[-1]),
+                "rth_range": float(rth["high"].max() - rth["low"].min()),
+                "post_drift": float(post["close"].iloc[-1] - post["open"].iloc[0]),
+            }
+    return out
+
+
 FAMILY_SPECS: tuple[tuple[str, Generator, tuple[dict[str, Any], ...]], ...] = (
     (
         "vwap_band_reentry",
@@ -2683,6 +3126,88 @@ FAMILY_SPECS: tuple[tuple[str, Generator, tuple[dict[str, Any], ...]], ...] = (
         (
             {"id": "sep010", "minimum_separation_atr": 0.10},
             {"id": "sep020", "minimum_separation_atr": 0.20},
+        ),
+    ),
+    (
+        "nq_opening_shock_reversal",
+        generate_nq_opening_shock_reversal,
+        (
+            {"id": "shock40_confirm4", "shock_daily_range": 0.40, "confirmation_bars": 4, "stop_buffer_atr": 0.10},
+            {"id": "shock60_confirm3", "shock_daily_range": 0.60, "confirmation_bars": 3, "stop_buffer_atr": 0.15},
+        ),
+    ),
+    (
+        "gap_reject_then_go",
+        generate_gap_reject_then_go,
+        (
+            {"id": "gap25_fill20", "gap_daily_range": 0.25, "minimum_fill_fraction": 0.20},
+            {"id": "gap40_fill30", "gap_daily_range": 0.40, "minimum_fill_fraction": 0.30},
+        ),
+    ),
+    (
+        "initial_balance_vwap_retest",
+        generate_initial_balance_vwap_retest,
+        (
+            {
+                "id": "ib80_rvol10_depth25",
+                "maximum_ib_daily_range": 0.80,
+                "minimum_relative_volume": 1.0,
+                "maximum_retest_bars": 4,
+                "maximum_retest_depth_atr": 0.25,
+            },
+            {
+                "id": "ib60_rvol12_depth20",
+                "maximum_ib_daily_range": 0.60,
+                "minimum_relative_volume": 1.2,
+                "maximum_retest_bars": 3,
+                "maximum_retest_depth_atr": 0.20,
+            },
+        ),
+    ),
+    (
+        "volume_climax_rejection",
+        generate_volume_climax_rejection,
+        (
+            {"id": "vol20_range15_edge25", "volume_multiple": 2.0, "range_atr": 1.5, "edge_fraction": 0.25, "minimum_vwap_atr": 0.50},
+            {"id": "vol30_range20_edge20", "volume_multiple": 3.0, "range_atr": 2.0, "edge_fraction": 0.20, "minimum_vwap_atr": 0.75},
+        ),
+    ),
+    (
+        "lunch_vwap_reclaim",
+        generate_lunch_vwap_reclaim,
+        (
+            {"id": "stretch20_reclaim075", "morning_stretch_z": 2.0, "reclaim_z": 0.75},
+            {"id": "stretch25_reclaim050", "morning_stretch_z": 2.5, "reclaim_z": 0.50},
+        ),
+    ),
+    (
+        "two_test_range_breakout",
+        generate_two_test_range_breakout,
+        (
+            {
+                "id": "look24_range40_rvol12",
+                "lookback_bars": 24,
+                "maximum_range_atr": 4.0,
+                "test_tolerance_atr": 0.15,
+                "minimum_relative_volume": 1.2,
+                "break_atr": 0.05,
+            },
+            {
+                "id": "look36_range50_rvol15",
+                "lookback_bars": 36,
+                "maximum_range_atr": 5.0,
+                "test_tolerance_atr": 0.10,
+                "minimum_relative_volume": 1.5,
+                "break_atr": 0.10,
+            },
+        ),
+    ),
+    (
+        "nq_post_settlement_alignment",
+        generate_nq_post_settlement_alignment,
+        (
+            {"id": "drift05_gap10", "minimum_post_drift_range": 0.05, "minimum_gap_range": 0.10},
+            {"id": "drift10_gap20", "minimum_post_drift_range": 0.10, "minimum_gap_range": 0.20},
         ),
     ),
 )

@@ -59,6 +59,13 @@ LONG_HISTORY_FAMILIES = (
     "ny_open_three_bar_continuation",
     "nq_15m_opening_range_retest",
     "nq_premarket_ema_engulfing",
+    "nq_opening_shock_reversal",
+    "gap_reject_then_go",
+    "initial_balance_vwap_retest",
+    "volume_climax_rejection",
+    "lunch_vwap_reclaim",
+    "two_test_range_breakout",
+    "nq_post_settlement_alignment",
 )
 
 Progress = Callable[[str], None]

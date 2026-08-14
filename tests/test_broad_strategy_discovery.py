@@ -90,7 +90,7 @@ def test_entry_features_use_only_a_completed_five_minute_bar() -> None:
 
 def test_all_frozen_families_have_sources() -> None:
     families = {family for family, _generator, _specs in FAMILY_SPECS}
-    assert len(families) == 25
+    assert len(families) == 32
     assert families <= set(FAMILY_SOURCE)
 
 

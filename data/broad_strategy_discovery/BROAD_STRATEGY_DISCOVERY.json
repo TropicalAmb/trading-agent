@@ -1,5 +1,5 @@
 {
-  "generated_at_utc": "2026-08-14T22:19:54.339764+00:00",
+  "generated_at_utc": "2026-08-14T23:00:54.169905+00:00",
   "status": "NO_70_PERCENT_STRATEGY_VALIDATED",
   "purpose": "Broad strategy-family restart using corrected paid Databento NQ/CL and an untouched chronological holdout",
   "data_policy": {
@@ -218,10 +218,40 @@
       "kind": "Reddit strategy hypothesis",
       "title": "Beginner friendly 9/20 EMA trend pullback",
       "url": "https://www.reddit.com/r/FuturesTrading/comments/1kh3081/beginner_friendly_strategy/"
+    },
+    "opening_shock_reversal": {
+      "kind": "Primary technical research",
+      "title": "Intraday Price Reversals in the US Stock Index Futures Market: A 15-Year Study",
+      "url": "https://papers.ssrn.com/sol3/papers.cfm?abstract_id=689282"
+    },
+    "post_settlement_gap": {
+      "kind": "Primary technical research",
+      "title": "The Invisible Segment of the Night Market: Predicting the Opening Gap Based on Post-Settlement Distortions",
+      "url": "https://papers.ssrn.com/sol3/papers.cfm?abstract_id=6743758"
+    },
+    "gap_regime": {
+      "kind": "Reddit strategy hypothesis",
+      "title": "Gap and Fill versus Gap and Go in index futures",
+      "url": "https://www.reddit.com/r/FuturesTrading/comments/1tdz9zt/ive_become_fixated_on_gap_trades_any_advice_on/"
+    },
+    "initial_balance_vwap": {
+      "kind": "Reddit strategy hypothesis",
+      "title": "Initial balance, current-day volume-profile levels, and VWAP after the first hour",
+      "url": "https://www.reddit.com/r/FuturesTrading/comments/1uto3kr/initial_balance_strategy/"
+    },
+    "tested_level_break": {
+      "kind": "Reddit strategy hypothesis",
+      "title": "Support/resistance tested repeatedly before a confirmed break",
+      "url": "https://www.reddit.com/r/FuturesTrading/comments/1joy48s/15_minute_opening_range_break_strategy/"
+    },
+    "volume_rejection": {
+      "kind": "Reddit implementation hypothesis",
+      "title": "Price action and volume analysis on completed NQ bars",
+      "url": "https://www.reddit.com/r/FuturesTrading/comments/1vll43k/what_timeframe_do_you_trade_for_nqmnq/"
     }
   },
-  "n_families": 25,
-  "n_variants": 102,
+  "n_families": 32,
+  "n_variants": 130,
   "variants_development_validation_only": [
     {
       "family": "vwap_band_reentry",
@@ -7214,6 +7244,1942 @@
         "p_wr_gt_50": 1.0
       },
       "selected": false
+    },
+    {
+      "family": "nq_opening_shock_reversal",
+      "variant": "shock40_confirm4",
+      "symbol": "NQ",
+      "spec": {
+        "id": "shock40_confirm4",
+        "shock_daily_range": 0.4,
+        "confirmation_bars": 4,
+        "stop_buffer_atr": 0.1
+      },
+      "source_id": "opening_shock_reversal",
+      "development": {
+        "n": 2,
+        "wins": 1,
+        "losses": 1,
+        "wr": 0.5,
+        "wr_ci95": [
+          0.0,
+          1.0
+        ],
+        "pf": 4.249,
+        "expectancy_r": 0.3742,
+        "max_dd_r": 0.0,
+        "avg_win_r": 0.979,
+        "avg_loss_r": -0.23,
+        "med_win_r": 0.979,
+        "med_loss_r": -0.23,
+        "worst_r": -0.23,
+        "p95_loss_r": -0.23,
+        "trades_per_week": 0.36,
+        "longest_losing_streak": 1,
+        "anti_cheat_ok": true,
+        "anti_cheat_reasons": [],
+        "wr_wilson_95": [
+          0.0945,
+          0.9055
+        ],
+        "p_wr_gt_50": 0.75
+      },
+      "validation": {
+        "n": 3,
+        "wins": 0,
+        "losses": 3,
+        "wr": 0.0,
+        "wr_ci95": [
+          0.0,
+          0.0
+        ],
+        "pf": 0.0,
+        "expectancy_r": -0.4809,
+        "max_dd_r": -1.011,
+        "avg_win_r": 0.0,
+        "avg_loss_r": -0.481,
+        "med_win_r": 0.0,
+        "med_loss_r": -0.431,
+        "worst_r": -1.004,
+        "p95_loss_r": -0.947,
+        "trades_per_week": 1.5,
+        "longest_losing_streak": 3,
+        "anti_cheat_ok": true,
+        "anti_cheat_reasons": [],
+        "wr_wilson_95": [
+          0.0,
+          0.5615
+        ],
+        "p_wr_gt_50": 1.0
+      },
+      "selected": false
+    },
+    {
+      "family": "nq_opening_shock_reversal",
+      "variant": "shock40_confirm4",
+      "symbol": "CL",
+      "spec": {
+        "id": "shock40_confirm4",
+        "shock_daily_range": 0.4,
+        "confirmation_bars": 4,
+        "stop_buffer_atr": 0.1
+      },
+      "source_id": "opening_shock_reversal",
+      "development": {
+        "n": 0,
+        "wins": 0,
+        "losses": 0,
+        "wr": 0.0,
+        "wr_ci95": [
+          0.0,
+          0.0
+        ],
+        "pf": 0.0,
+        "expectancy_r": 0.0,
+        "max_dd_r": 0.0,
+        "avg_win_r": 0.0,
+        "avg_loss_r": 0.0,
+        "med_win_r": 0.0,
+        "med_loss_r": 0.0,
+        "worst_r": 0.0,
+        "p95_loss_r": 0.0,
+        "trades_per_week": 0.0,
+        "longest_losing_streak": 0,
+        "anti_cheat_ok": true,
+        "anti_cheat_reasons": [],
+        "wr_wilson_95": [
+          0.0,
+          0.0
+        ],
+        "p_wr_gt_50": 1.0
+      },
+      "validation": {
+        "n": 0,
+        "wins": 0,
+        "losses": 0,
+        "wr": 0.0,
+        "wr_ci95": [
+          0.0,
+          0.0
+        ],
+        "pf": 0.0,
+        "expectancy_r": 0.0,
+        "max_dd_r": 0.0,
+        "avg_win_r": 0.0,
+        "avg_loss_r": 0.0,
+        "med_win_r": 0.0,
+        "med_loss_r": 0.0,
+        "worst_r": 0.0,
+        "p95_loss_r": 0.0,
+        "trades_per_week": 0.0,
+        "longest_losing_streak": 0,
+        "anti_cheat_ok": true,
+        "anti_cheat_reasons": [],
+        "wr_wilson_95": [
+          0.0,
+          0.0
+        ],
+        "p_wr_gt_50": 1.0
+      },
+      "selected": true
+    },
+    {
+      "family": "nq_opening_shock_reversal",
+      "variant": "shock60_confirm3",
+      "symbol": "NQ",
+      "spec": {
+        "id": "shock60_confirm3",
+        "shock_daily_range": 0.6,
+        "confirmation_bars": 3,
+        "stop_buffer_atr": 0.15
+      },
+      "source_id": "opening_shock_reversal",
+      "development": {
+        "n": 0,
+        "wins": 0,
+        "losses": 0,
+        "wr": 0.0,
+        "wr_ci95": [
+          0.0,
+          0.0
+        ],
+        "pf": 0.0,
+        "expectancy_r": 0.0,
+        "max_dd_r": 0.0,
+        "avg_win_r": 0.0,
+        "avg_loss_r": 0.0,
+        "med_win_r": 0.0,
+        "med_loss_r": 0.0,
+        "worst_r": 0.0,
+        "p95_loss_r": 0.0,
+        "trades_per_week": 0.0,
+        "longest_losing_streak": 0,
+        "anti_cheat_ok": true,
+        "anti_cheat_reasons": [],
+        "wr_wilson_95": [
+          0.0,
+          0.0
+        ],
+        "p_wr_gt_50": 1.0
+      },
+      "validation": {
+        "n": 0,
+        "wins": 0,
+        "losses": 0,
+        "wr": 0.0,
+        "wr_ci95": [
+          0.0,
+          0.0
+        ],
+        "pf": 0.0,
+        "expectancy_r": 0.0,
+        "max_dd_r": 0.0,
+        "avg_win_r": 0.0,
+        "avg_loss_r": 0.0,
+        "med_win_r": 0.0,
+        "med_loss_r": 0.0,
+        "worst_r": 0.0,
+        "p95_loss_r": 0.0,
+        "trades_per_week": 0.0,
+        "longest_losing_streak": 0,
+        "anti_cheat_ok": true,
+        "anti_cheat_reasons": [],
+        "wr_wilson_95": [
+          0.0,
+          0.0
+        ],
+        "p_wr_gt_50": 1.0
+      },
+      "selected": true
+    },
+    {
+      "family": "nq_opening_shock_reversal",
+      "variant": "shock60_confirm3",
+      "symbol": "CL",
+      "spec": {
+        "id": "shock60_confirm3",
+        "shock_daily_range": 0.6,
+        "confirmation_bars": 3,
+        "stop_buffer_atr": 0.15
+      },
+      "source_id": "opening_shock_reversal",
+      "development": {
+        "n": 0,
+        "wins": 0,
+        "losses": 0,
+        "wr": 0.0,
+        "wr_ci95": [
+          0.0,
+          0.0
+        ],
+        "pf": 0.0,
+        "expectancy_r": 0.0,
+        "max_dd_r": 0.0,
+        "avg_win_r": 0.0,
+        "avg_loss_r": 0.0,
+        "med_win_r": 0.0,
+        "med_loss_r": 0.0,
+        "worst_r": 0.0,
+        "p95_loss_r": 0.0,
+        "trades_per_week": 0.0,
+        "longest_losing_streak": 0,
+        "anti_cheat_ok": true,
+        "anti_cheat_reasons": [],
+        "wr_wilson_95": [
+          0.0,
+          0.0
+        ],
+        "p_wr_gt_50": 1.0
+      },
+      "validation": {
+        "n": 0,
+        "wins": 0,
+        "losses": 0,
+        "wr": 0.0,
+        "wr_ci95": [
+          0.0,
+          0.0
+        ],
+        "pf": 0.0,
+        "expectancy_r": 0.0,
+        "max_dd_r": 0.0,
+        "avg_win_r": 0.0,
+        "avg_loss_r": 0.0,
+        "med_win_r": 0.0,
+        "med_loss_r": 0.0,
+        "worst_r": 0.0,
+        "p95_loss_r": 0.0,
+        "trades_per_week": 0.0,
+        "longest_losing_streak": 0,
+        "anti_cheat_ok": true,
+        "anti_cheat_reasons": [],
+        "wr_wilson_95": [
+          0.0,
+          0.0
+        ],
+        "p_wr_gt_50": 1.0
+      },
+      "selected": false
+    },
+    {
+      "family": "gap_reject_then_go",
+      "variant": "gap25_fill20",
+      "symbol": "NQ",
+      "spec": {
+        "id": "gap25_fill20",
+        "gap_daily_range": 0.25,
+        "minimum_fill_fraction": 0.2
+      },
+      "source_id": "gap_regime",
+      "development": {
+        "n": 1,
+        "wins": 1,
+        "losses": 0,
+        "wr": 1.0,
+        "wr_ci95": [
+          1.0,
+          1.0
+        ],
+        "pf": 999.0,
+        "expectancy_r": 1.1137,
+        "max_dd_r": 0.0,
+        "avg_win_r": 1.114,
+        "avg_loss_r": 0.0,
+        "med_win_r": 1.114,
+        "med_loss_r": 0.0,
+        "worst_r": 1.114,
+        "p95_loss_r": 0.0,
+        "trades_per_week": 1.0,
+        "longest_losing_streak": 0,
+        "anti_cheat_ok": true,
+        "anti_cheat_reasons": [],
+        "wr_wilson_95": [
+          0.2065,
+          1.0
+        ],
+        "p_wr_gt_50": 0.5
+      },
+      "validation": {
+        "n": 0,
+        "wins": 0,
+        "losses": 0,
+        "wr": 0.0,
+        "wr_ci95": [
+          0.0,
+          0.0
+        ],
+        "pf": 0.0,
+        "expectancy_r": 0.0,
+        "max_dd_r": 0.0,
+        "avg_win_r": 0.0,
+        "avg_loss_r": 0.0,
+        "med_win_r": 0.0,
+        "med_loss_r": 0.0,
+        "worst_r": 0.0,
+        "p95_loss_r": 0.0,
+        "trades_per_week": 0.0,
+        "longest_losing_streak": 0,
+        "anti_cheat_ok": true,
+        "anti_cheat_reasons": [],
+        "wr_wilson_95": [
+          0.0,
+          0.0
+        ],
+        "p_wr_gt_50": 1.0
+      },
+      "selected": true
+    },
+    {
+      "family": "gap_reject_then_go",
+      "variant": "gap25_fill20",
+      "symbol": "CL",
+      "spec": {
+        "id": "gap25_fill20",
+        "gap_daily_range": 0.25,
+        "minimum_fill_fraction": 0.2
+      },
+      "source_id": "gap_regime",
+      "development": {
+        "n": 0,
+        "wins": 0,
+        "losses": 0,
+        "wr": 0.0,
+        "wr_ci95": [
+          0.0,
+          0.0
+        ],
+        "pf": 0.0,
+        "expectancy_r": 0.0,
+        "max_dd_r": 0.0,
+        "avg_win_r": 0.0,
+        "avg_loss_r": 0.0,
+        "med_win_r": 0.0,
+        "med_loss_r": 0.0,
+        "worst_r": 0.0,
+        "p95_loss_r": 0.0,
+        "trades_per_week": 0.0,
+        "longest_losing_streak": 0,
+        "anti_cheat_ok": true,
+        "anti_cheat_reasons": [],
+        "wr_wilson_95": [
+          0.0,
+          0.0
+        ],
+        "p_wr_gt_50": 1.0
+      },
+      "validation": {
+        "n": 0,
+        "wins": 0,
+        "losses": 0,
+        "wr": 0.0,
+        "wr_ci95": [
+          0.0,
+          0.0
+        ],
+        "pf": 0.0,
+        "expectancy_r": 0.0,
+        "max_dd_r": 0.0,
+        "avg_win_r": 0.0,
+        "avg_loss_r": 0.0,
+        "med_win_r": 0.0,
+        "med_loss_r": 0.0,
+        "worst_r": 0.0,
+        "p95_loss_r": 0.0,
+        "trades_per_week": 0.0,
+        "longest_losing_streak": 0,
+        "anti_cheat_ok": true,
+        "anti_cheat_reasons": [],
+        "wr_wilson_95": [
+          0.0,
+          0.0
+        ],
+        "p_wr_gt_50": 1.0
+      },
+      "selected": true
+    },
+    {
+      "family": "gap_reject_then_go",
+      "variant": "gap40_fill30",
+      "symbol": "NQ",
+      "spec": {
+        "id": "gap40_fill30",
+        "gap_daily_range": 0.4,
+        "minimum_fill_fraction": 0.3
+      },
+      "source_id": "gap_regime",
+      "development": {
+        "n": 1,
+        "wins": 1,
+        "losses": 0,
+        "wr": 1.0,
+        "wr_ci95": [
+          1.0,
+          1.0
+        ],
+        "pf": 999.0,
+        "expectancy_r": 1.1137,
+        "max_dd_r": 0.0,
+        "avg_win_r": 1.114,
+        "avg_loss_r": 0.0,
+        "med_win_r": 1.114,
+        "med_loss_r": 0.0,
+        "worst_r": 1.114,
+        "p95_loss_r": 0.0,
+        "trades_per_week": 1.0,
+        "longest_losing_streak": 0,
+        "anti_cheat_ok": true,
+        "anti_cheat_reasons": [],
+        "wr_wilson_95": [
+          0.2065,
+          1.0
+        ],
+        "p_wr_gt_50": 0.5
+      },
+      "validation": {
+        "n": 0,
+        "wins": 0,
+        "losses": 0,
+        "wr": 0.0,
+        "wr_ci95": [
+          0.0,
+          0.0
+        ],
+        "pf": 0.0,
+        "expectancy_r": 0.0,
+        "max_dd_r": 0.0,
+        "avg_win_r": 0.0,
+        "avg_loss_r": 0.0,
+        "med_win_r": 0.0,
+        "med_loss_r": 0.0,
+        "worst_r": 0.0,
+        "p95_loss_r": 0.0,
+        "trades_per_week": 0.0,
+        "longest_losing_streak": 0,
+        "anti_cheat_ok": true,
+        "anti_cheat_reasons": [],
+        "wr_wilson_95": [
+          0.0,
+          0.0
+        ],
+        "p_wr_gt_50": 1.0
+      },
+      "selected": false
+    },
+    {
+      "family": "gap_reject_then_go",
+      "variant": "gap40_fill30",
+      "symbol": "CL",
+      "spec": {
+        "id": "gap40_fill30",
+        "gap_daily_range": 0.4,
+        "minimum_fill_fraction": 0.3
+      },
+      "source_id": "gap_regime",
+      "development": {
+        "n": 0,
+        "wins": 0,
+        "losses": 0,
+        "wr": 0.0,
+        "wr_ci95": [
+          0.0,
+          0.0
+        ],
+        "pf": 0.0,
+        "expectancy_r": 0.0,
+        "max_dd_r": 0.0,
+        "avg_win_r": 0.0,
+        "avg_loss_r": 0.0,
+        "med_win_r": 0.0,
+        "med_loss_r": 0.0,
+        "worst_r": 0.0,
+        "p95_loss_r": 0.0,
+        "trades_per_week": 0.0,
+        "longest_losing_streak": 0,
+        "anti_cheat_ok": true,
+        "anti_cheat_reasons": [],
+        "wr_wilson_95": [
+          0.0,
+          0.0
+        ],
+        "p_wr_gt_50": 1.0
+      },
+      "validation": {
+        "n": 0,
+        "wins": 0,
+        "losses": 0,
+        "wr": 0.0,
+        "wr_ci95": [
+          0.0,
+          0.0
+        ],
+        "pf": 0.0,
+        "expectancy_r": 0.0,
+        "max_dd_r": 0.0,
+        "avg_win_r": 0.0,
+        "avg_loss_r": 0.0,
+        "med_win_r": 0.0,
+        "med_loss_r": 0.0,
+        "worst_r": 0.0,
+        "p95_loss_r": 0.0,
+        "trades_per_week": 0.0,
+        "longest_losing_streak": 0,
+        "anti_cheat_ok": true,
+        "anti_cheat_reasons": [],
+        "wr_wilson_95": [
+          0.0,
+          0.0
+        ],
+        "p_wr_gt_50": 1.0
+      },
+      "selected": false
+    },
+    {
+      "family": "initial_balance_vwap_retest",
+      "variant": "ib80_rvol10_depth25",
+      "symbol": "NQ",
+      "spec": {
+        "id": "ib80_rvol10_depth25",
+        "maximum_ib_daily_range": 0.8,
+        "minimum_relative_volume": 1.0,
+        "maximum_retest_bars": 4,
+        "maximum_retest_depth_atr": 0.25
+      },
+      "source_id": "initial_balance_vwap",
+      "development": {
+        "n": 28,
+        "wins": 13,
+        "losses": 15,
+        "wr": 0.4643,
+        "wr_ci95": [
+          0.2848,
+          0.6429
+        ],
+        "pf": 1.277,
+        "expectancy_r": 0.0975,
+        "max_dd_r": -4.233,
+        "avg_win_r": 0.969,
+        "avg_loss_r": -0.658,
+        "med_win_r": 0.994,
+        "med_loss_r": -1.012,
+        "worst_r": -1.034,
+        "p95_loss_r": -1.031,
+        "trades_per_week": 2.8,
+        "longest_losing_streak": 5,
+        "anti_cheat_ok": true,
+        "anti_cheat_reasons": [],
+        "wr_wilson_95": [
+          0.2953,
+          0.6419
+        ],
+        "p_wr_gt_50": 0.714206
+      },
+      "validation": {
+        "n": 14,
+        "wins": 10,
+        "losses": 4,
+        "wr": 0.7143,
+        "wr_ci95": [
+          0.5,
+          0.9286
+        ],
+        "pf": 3.494,
+        "expectancy_r": 0.5602,
+        "max_dd_r": -1.118,
+        "avg_win_r": 1.099,
+        "avg_loss_r": -0.786,
+        "med_win_r": 1.045,
+        "med_loss_r": -1.019,
+        "worst_r": -1.086,
+        "p95_loss_r": -1.076,
+        "trades_per_week": 2.28,
+        "longest_losing_streak": 1,
+        "anti_cheat_ok": true,
+        "anti_cheat_reasons": [],
+        "wr_wilson_95": [
+          0.4535,
+          0.8828
+        ],
+        "p_wr_gt_50": 0.089783
+      },
+      "selected": true
+    },
+    {
+      "family": "initial_balance_vwap_retest",
+      "variant": "ib80_rvol10_depth25",
+      "symbol": "CL",
+      "spec": {
+        "id": "ib80_rvol10_depth25",
+        "maximum_ib_daily_range": 0.8,
+        "minimum_relative_volume": 1.0,
+        "maximum_retest_bars": 4,
+        "maximum_retest_depth_atr": 0.25
+      },
+      "source_id": "initial_balance_vwap",
+      "development": {
+        "n": 23,
+        "wins": 5,
+        "losses": 18,
+        "wr": 0.2174,
+        "wr_ci95": [
+          0.0859,
+          0.3913
+        ],
+        "pf": 0.287,
+        "expectancy_r": -0.5347,
+        "max_dd_r": -12.459,
+        "avg_win_r": 0.992,
+        "avg_loss_r": -0.959,
+        "med_win_r": 0.905,
+        "med_loss_r": -1.07,
+        "worst_r": -1.07,
+        "p95_loss_r": -1.07,
+        "trades_per_week": 2.77,
+        "longest_losing_streak": 8,
+        "anti_cheat_ok": true,
+        "anti_cheat_reasons": [],
+        "wr_wilson_95": [
+          0.0966,
+          0.419
+        ],
+        "p_wr_gt_50": 0.9987
+      },
+      "validation": {
+        "n": 17,
+        "wins": 9,
+        "losses": 8,
+        "wr": 0.5294,
+        "wr_ci95": [
+          0.2941,
+          0.7647
+        ],
+        "pf": 1.386,
+        "expectancy_r": 0.1264,
+        "max_dd_r": -2.596,
+        "avg_win_r": 0.856,
+        "avg_loss_r": -0.695,
+        "med_win_r": 0.819,
+        "med_loss_r": -1.07,
+        "worst_r": -1.07,
+        "p95_loss_r": -1.07,
+        "trades_per_week": 2.9,
+        "longest_losing_streak": 2,
+        "anti_cheat_ok": true,
+        "anti_cheat_reasons": [],
+        "wr_wilson_95": [
+          0.3096,
+          0.7384
+        ],
+        "p_wr_gt_50": 0.5
+      },
+      "selected": true
+    },
+    {
+      "family": "initial_balance_vwap_retest",
+      "variant": "ib60_rvol12_depth20",
+      "symbol": "NQ",
+      "spec": {
+        "id": "ib60_rvol12_depth20",
+        "maximum_ib_daily_range": 0.6,
+        "minimum_relative_volume": 1.2,
+        "maximum_retest_bars": 3,
+        "maximum_retest_depth_atr": 0.2
+      },
+      "source_id": "initial_balance_vwap",
+      "development": {
+        "n": 24,
+        "wins": 12,
+        "losses": 12,
+        "wr": 0.5,
+        "wr_ci95": [
+          0.2917,
+          0.7094
+        ],
+        "pf": 1.384,
+        "expectancy_r": 0.1407,
+        "max_dd_r": -3.672,
+        "avg_win_r": 1.015,
+        "avg_loss_r": -0.733,
+        "med_win_r": 1.0,
+        "med_loss_r": -1.013,
+        "worst_r": -1.034,
+        "p95_loss_r": -1.032,
+        "trades_per_week": 2.51,
+        "longest_losing_streak": 5,
+        "anti_cheat_ok": true,
+        "anti_cheat_reasons": [],
+        "wr_wilson_95": [
+          0.3143,
+          0.6857
+        ],
+        "p_wr_gt_50": 0.58059
+      },
+      "validation": {
+        "n": 7,
+        "wins": 5,
+        "losses": 2,
+        "wr": 0.7143,
+        "wr_ci95": [
+          0.2857,
+          1.0
+        ],
+        "pf": 4.783,
+        "expectancy_r": 0.5598,
+        "max_dd_r": -0.022,
+        "avg_win_r": 0.991,
+        "avg_loss_r": -0.518,
+        "med_win_r": 0.991,
+        "med_loss_r": -0.518,
+        "worst_r": -1.014,
+        "p95_loss_r": -0.964,
+        "trades_per_week": 2.04,
+        "longest_losing_streak": 1,
+        "anti_cheat_ok": true,
+        "anti_cheat_reasons": [],
+        "wr_wilson_95": [
+          0.3589,
+          0.9178
+        ],
+        "p_wr_gt_50": 0.226562
+      },
+      "selected": false
+    },
+    {
+      "family": "initial_balance_vwap_retest",
+      "variant": "ib60_rvol12_depth20",
+      "symbol": "CL",
+      "spec": {
+        "id": "ib60_rvol12_depth20",
+        "maximum_ib_daily_range": 0.6,
+        "minimum_relative_volume": 1.2,
+        "maximum_retest_bars": 3,
+        "maximum_retest_depth_atr": 0.2
+      },
+      "source_id": "initial_balance_vwap",
+      "development": {
+        "n": 18,
+        "wins": 5,
+        "losses": 13,
+        "wr": 0.2778,
+        "wr_ci95": [
+          0.1111,
+          0.5
+        ],
+        "pf": 0.498,
+        "expectancy_r": -0.3603,
+        "max_dd_r": -6.945,
+        "avg_win_r": 1.285,
+        "avg_loss_r": -0.993,
+        "med_win_r": 1.23,
+        "med_loss_r": -1.07,
+        "worst_r": -1.07,
+        "p95_loss_r": -1.07,
+        "trades_per_week": 2.29,
+        "longest_losing_streak": 5,
+        "anti_cheat_ok": true,
+        "anti_cheat_reasons": [],
+        "wr_wilson_95": [
+          0.125,
+          0.5087
+        ],
+        "p_wr_gt_50": 0.984558
+      },
+      "validation": {
+        "n": 11,
+        "wins": 5,
+        "losses": 6,
+        "wr": 0.4545,
+        "wr_ci95": [
+          0.1818,
+          0.7273
+        ],
+        "pf": 0.899,
+        "expectancy_r": -0.0405,
+        "max_dd_r": -2.14,
+        "avg_win_r": 0.795,
+        "avg_loss_r": -0.737,
+        "med_win_r": 0.774,
+        "med_loss_r": -1.07,
+        "worst_r": -1.07,
+        "p95_loss_r": -1.07,
+        "trades_per_week": 2.14,
+        "longest_losing_streak": 2,
+        "anti_cheat_ok": true,
+        "anti_cheat_reasons": [],
+        "wr_wilson_95": [
+          0.2127,
+          0.7199
+        ],
+        "p_wr_gt_50": 0.725586
+      },
+      "selected": false
+    },
+    {
+      "family": "volume_climax_rejection",
+      "variant": "vol20_range15_edge25",
+      "symbol": "NQ",
+      "spec": {
+        "id": "vol20_range15_edge25",
+        "volume_multiple": 2.0,
+        "range_atr": 1.5,
+        "edge_fraction": 0.25,
+        "minimum_vwap_atr": 0.5
+      },
+      "source_id": "volume_rejection",
+      "development": {
+        "n": 30,
+        "wins": 9,
+        "losses": 21,
+        "wr": 0.3,
+        "wr_ci95": [
+          0.1658,
+          0.4667
+        ],
+        "pf": 0.589,
+        "expectancy_r": -0.1938,
+        "max_dd_r": -5.794,
+        "avg_win_r": 0.924,
+        "avg_loss_r": -0.673,
+        "med_win_r": 0.979,
+        "med_loss_r": -1.008,
+        "worst_r": -1.019,
+        "p95_loss_r": -1.017,
+        "trades_per_week": 2.47,
+        "longest_losing_streak": 5,
+        "anti_cheat_ok": true,
+        "anti_cheat_reasons": [],
+        "wr_wilson_95": [
+          0.1666,
+          0.4788
+        ],
+        "p_wr_gt_50": 0.991938
+      },
+      "validation": {
+        "n": 17,
+        "wins": 11,
+        "losses": 6,
+        "wr": 0.6471,
+        "wr_ci95": [
+          0.4118,
+          0.8824
+        ],
+        "pf": 2.163,
+        "expectancy_r": 0.3451,
+        "max_dd_r": -1.013,
+        "avg_win_r": 0.992,
+        "avg_loss_r": -0.841,
+        "med_win_r": 1.001,
+        "med_loss_r": -1.007,
+        "worst_r": -1.012,
+        "p95_loss_r": -1.011,
+        "trades_per_week": 3.71,
+        "longest_losing_streak": 2,
+        "anti_cheat_ok": true,
+        "anti_cheat_reasons": [],
+        "wr_wilson_95": [
+          0.413,
+          0.8269
+        ],
+        "p_wr_gt_50": 0.166153
+      },
+      "selected": true
+    },
+    {
+      "family": "volume_climax_rejection",
+      "variant": "vol20_range15_edge25",
+      "symbol": "CL",
+      "spec": {
+        "id": "vol20_range15_edge25",
+        "volume_multiple": 2.0,
+        "range_atr": 1.5,
+        "edge_fraction": 0.25,
+        "minimum_vwap_atr": 0.5
+      },
+      "source_id": "volume_rejection",
+      "development": {
+        "n": 22,
+        "wins": 12,
+        "losses": 10,
+        "wr": 0.5455,
+        "wr_ci95": [
+          0.3636,
+          0.7727
+        ],
+        "pf": 1.623,
+        "expectancy_r": 0.1896,
+        "max_dd_r": -2.726,
+        "avg_win_r": 0.906,
+        "avg_loss_r": -0.67,
+        "med_win_r": 0.843,
+        "med_loss_r": -1.07,
+        "worst_r": -1.07,
+        "p95_loss_r": -1.07,
+        "trades_per_week": 1.95,
+        "longest_losing_streak": 4,
+        "anti_cheat_ok": true,
+        "anti_cheat_reasons": [],
+        "wr_wilson_95": [
+          0.3466,
+          0.7308
+        ],
+        "p_wr_gt_50": 0.415906
+      },
+      "validation": {
+        "n": 7,
+        "wins": 3,
+        "losses": 4,
+        "wr": 0.4286,
+        "wr_ci95": [
+          0.1429,
+          0.7143
+        ],
+        "pf": 1.187,
+        "expectancy_r": 0.0797,
+        "max_dd_r": -1.132,
+        "avg_win_r": 1.179,
+        "avg_loss_r": -0.745,
+        "med_win_r": 1.23,
+        "med_loss_r": -0.843,
+        "worst_r": -1.07,
+        "p95_loss_r": -1.07,
+        "trades_per_week": 1.25,
+        "longest_losing_streak": 2,
+        "anti_cheat_ok": true,
+        "anti_cheat_reasons": [],
+        "wr_wilson_95": [
+          0.1582,
+          0.7495
+        ],
+        "p_wr_gt_50": 0.773438
+      },
+      "selected": true
+    },
+    {
+      "family": "volume_climax_rejection",
+      "variant": "vol30_range20_edge20",
+      "symbol": "NQ",
+      "spec": {
+        "id": "vol30_range20_edge20",
+        "volume_multiple": 3.0,
+        "range_atr": 2.0,
+        "edge_fraction": 0.2,
+        "minimum_vwap_atr": 0.75
+      },
+      "source_id": "volume_rejection",
+      "development": {
+        "n": 2,
+        "wins": 0,
+        "losses": 2,
+        "wr": 0.0,
+        "wr_ci95": [
+          0.0,
+          0.0
+        ],
+        "pf": 0.0,
+        "expectancy_r": -1.0109,
+        "max_dd_r": -1.013,
+        "avg_win_r": 0.0,
+        "avg_loss_r": -1.011,
+        "med_win_r": 0.0,
+        "med_loss_r": -1.011,
+        "worst_r": -1.013,
+        "p95_loss_r": -1.013,
+        "trades_per_week": 1.0,
+        "longest_losing_streak": 2,
+        "anti_cheat_ok": true,
+        "anti_cheat_reasons": [],
+        "wr_wilson_95": [
+          0.0,
+          0.6576
+        ],
+        "p_wr_gt_50": 1.0
+      },
+      "validation": {
+        "n": 2,
+        "wins": 2,
+        "losses": 0,
+        "wr": 1.0,
+        "wr_ci95": [
+          1.0,
+          1.0
+        ],
+        "pf": 999.0,
+        "expectancy_r": 1.0489,
+        "max_dd_r": 0.0,
+        "avg_win_r": 1.049,
+        "avg_loss_r": 0.0,
+        "med_win_r": 1.049,
+        "med_loss_r": 0.0,
+        "worst_r": 1.001,
+        "p95_loss_r": 0.0,
+        "trades_per_week": 0.6,
+        "longest_losing_streak": 0,
+        "anti_cheat_ok": true,
+        "anti_cheat_reasons": [],
+        "wr_wilson_95": [
+          0.3424,
+          1.0
+        ],
+        "p_wr_gt_50": 0.25
+      },
+      "selected": false
+    },
+    {
+      "family": "volume_climax_rejection",
+      "variant": "vol30_range20_edge20",
+      "symbol": "CL",
+      "spec": {
+        "id": "vol30_range20_edge20",
+        "volume_multiple": 3.0,
+        "range_atr": 2.0,
+        "edge_fraction": 0.2,
+        "minimum_vwap_atr": 0.75
+      },
+      "source_id": "volume_rejection",
+      "development": {
+        "n": 3,
+        "wins": 0,
+        "losses": 3,
+        "wr": 0.0,
+        "wr_ci95": [
+          0.0,
+          0.0
+        ],
+        "pf": 0.0,
+        "expectancy_r": -0.7367,
+        "max_dd_r": -1.14,
+        "avg_win_r": 0.0,
+        "avg_loss_r": -0.737,
+        "med_win_r": 0.0,
+        "med_loss_r": -1.07,
+        "worst_r": -1.07,
+        "p95_loss_r": -1.07,
+        "trades_per_week": 1.11,
+        "longest_losing_streak": 3,
+        "anti_cheat_ok": true,
+        "anti_cheat_reasons": [],
+        "wr_wilson_95": [
+          0.0,
+          0.5615
+        ],
+        "p_wr_gt_50": 1.0
+      },
+      "validation": {
+        "n": 3,
+        "wins": 1,
+        "losses": 2,
+        "wr": 0.3333,
+        "wr_ci95": [
+          0.0,
+          1.0
+        ],
+        "pf": 0.602,
+        "expectancy_r": -0.1718,
+        "max_dd_r": -0.223,
+        "avg_win_r": 0.778,
+        "avg_loss_r": -0.647,
+        "med_win_r": 0.778,
+        "med_loss_r": -0.647,
+        "worst_r": -1.07,
+        "p95_loss_r": -1.028,
+        "trades_per_week": 0.57,
+        "longest_losing_streak": 1,
+        "anti_cheat_ok": true,
+        "anti_cheat_reasons": [],
+        "wr_wilson_95": [
+          0.0615,
+          0.7923
+        ],
+        "p_wr_gt_50": 0.875
+      },
+      "selected": false
+    },
+    {
+      "family": "lunch_vwap_reclaim",
+      "variant": "stretch20_reclaim075",
+      "symbol": "NQ",
+      "spec": {
+        "id": "stretch20_reclaim075",
+        "morning_stretch_z": 2.0,
+        "reclaim_z": 0.75
+      },
+      "source_id": "vwap_reversion",
+      "development": {
+        "n": 21,
+        "wins": 6,
+        "losses": 15,
+        "wr": 0.2857,
+        "wr_ci95": [
+          0.0952,
+          0.4762
+        ],
+        "pf": 0.817,
+        "expectancy_r": -0.0692,
+        "max_dd_r": -2.72,
+        "avg_win_r": 1.078,
+        "avg_loss_r": -0.528,
+        "med_win_r": 1.029,
+        "med_loss_r": -0.564,
+        "worst_r": -1.018,
+        "p95_loss_r": -1.017,
+        "trades_per_week": 1.84,
+        "longest_losing_streak": 6,
+        "anti_cheat_ok": true,
+        "anti_cheat_reasons": [],
+        "wr_wilson_95": [
+          0.1381,
+          0.4996
+        ],
+        "p_wr_gt_50": 0.986698
+      },
+      "validation": {
+        "n": 9,
+        "wins": 6,
+        "losses": 3,
+        "wr": 0.6667,
+        "wr_ci95": [
+          0.3333,
+          1.0
+        ],
+        "pf": 3.053,
+        "expectancy_r": 0.464,
+        "max_dd_r": -1.015,
+        "avg_win_r": 1.035,
+        "avg_loss_r": -0.678,
+        "med_win_r": 1.038,
+        "med_loss_r": -1.015,
+        "worst_r": -1.015,
+        "p95_loss_r": -1.015,
+        "trades_per_week": 1.54,
+        "longest_losing_streak": 1,
+        "anti_cheat_ok": true,
+        "anti_cheat_reasons": [],
+        "wr_wilson_95": [
+          0.3542,
+          0.8794
+        ],
+        "p_wr_gt_50": 0.253906
+      },
+      "selected": true
+    },
+    {
+      "family": "lunch_vwap_reclaim",
+      "variant": "stretch20_reclaim075",
+      "symbol": "CL",
+      "spec": {
+        "id": "stretch20_reclaim075",
+        "morning_stretch_z": 2.0,
+        "reclaim_z": 0.75
+      },
+      "source_id": "vwap_reversion",
+      "development": {
+        "n": 11,
+        "wins": 5,
+        "losses": 6,
+        "wr": 0.4545,
+        "wr_ci95": [
+          0.1818,
+          0.8182
+        ],
+        "pf": 0.56,
+        "expectancy_r": -0.2567,
+        "max_dd_r": -4.52,
+        "avg_win_r": 0.719,
+        "avg_loss_r": -1.07,
+        "med_win_r": 0.83,
+        "med_loss_r": -1.07,
+        "worst_r": -1.07,
+        "p95_loss_r": -1.07,
+        "trades_per_week": 0.99,
+        "longest_losing_streak": 4,
+        "anti_cheat_ok": true,
+        "anti_cheat_reasons": [],
+        "wr_wilson_95": [
+          0.2127,
+          0.7199
+        ],
+        "p_wr_gt_50": 0.725586
+      },
+      "validation": {
+        "n": 9,
+        "wins": 3,
+        "losses": 6,
+        "wr": 0.3333,
+        "wr_ci95": [
+          0.0,
+          0.6667
+        ],
+        "pf": 0.356,
+        "expectancy_r": -0.3371,
+        "max_dd_r": -3.505,
+        "avg_win_r": 0.558,
+        "avg_loss_r": -0.785,
+        "med_win_r": 0.781,
+        "med_loss_r": -1.07,
+        "worst_r": -1.07,
+        "p95_loss_r": -1.07,
+        "trades_per_week": 1.75,
+        "longest_losing_streak": 3,
+        "anti_cheat_ok": true,
+        "anti_cheat_reasons": [],
+        "wr_wilson_95": [
+          0.1206,
+          0.6458
+        ],
+        "p_wr_gt_50": 0.910156
+      },
+      "selected": false
+    },
+    {
+      "family": "lunch_vwap_reclaim",
+      "variant": "stretch25_reclaim050",
+      "symbol": "NQ",
+      "spec": {
+        "id": "stretch25_reclaim050",
+        "morning_stretch_z": 2.5,
+        "reclaim_z": 0.5
+      },
+      "source_id": "vwap_reversion",
+      "development": {
+        "n": 2,
+        "wins": 1,
+        "losses": 1,
+        "wr": 0.5,
+        "wr_ci95": [
+          0.0,
+          1.0
+        ],
+        "pf": 0.926,
+        "expectancy_r": -0.0377,
+        "max_dd_r": -1.019,
+        "avg_win_r": 0.944,
+        "avg_loss_r": -1.019,
+        "med_win_r": 0.944,
+        "med_loss_r": -1.019,
+        "worst_r": -1.019,
+        "p95_loss_r": -1.019,
+        "trades_per_week": 0.93,
+        "longest_losing_streak": 1,
+        "anti_cheat_ok": true,
+        "anti_cheat_reasons": [],
+        "wr_wilson_95": [
+          0.0945,
+          0.9055
+        ],
+        "p_wr_gt_50": 0.75
+      },
+      "validation": {
+        "n": 1,
+        "wins": 1,
+        "losses": 0,
+        "wr": 1.0,
+        "wr_ci95": [
+          1.0,
+          1.0
+        ],
+        "pf": 999.0,
+        "expectancy_r": 0.9167,
+        "max_dd_r": 0.0,
+        "avg_win_r": 0.917,
+        "avg_loss_r": 0.0,
+        "med_win_r": 0.917,
+        "med_loss_r": 0.0,
+        "worst_r": 0.917,
+        "p95_loss_r": 0.0,
+        "trades_per_week": 1.0,
+        "longest_losing_streak": 0,
+        "anti_cheat_ok": true,
+        "anti_cheat_reasons": [],
+        "wr_wilson_95": [
+          0.2065,
+          1.0
+        ],
+        "p_wr_gt_50": 0.5
+      },
+      "selected": false
+    },
+    {
+      "family": "lunch_vwap_reclaim",
+      "variant": "stretch25_reclaim050",
+      "symbol": "CL",
+      "spec": {
+        "id": "stretch25_reclaim050",
+        "morning_stretch_z": 2.5,
+        "reclaim_z": 0.5
+      },
+      "source_id": "vwap_reversion",
+      "development": {
+        "n": 3,
+        "wins": 1,
+        "losses": 2,
+        "wr": 0.3333,
+        "wr_ci95": [
+          0.0,
+          1.0
+        ],
+        "pf": 0.433,
+        "expectancy_r": -0.4048,
+        "max_dd_r": -1.07,
+        "avg_win_r": 0.926,
+        "avg_loss_r": -1.07,
+        "med_win_r": 0.926,
+        "med_loss_r": -1.07,
+        "worst_r": -1.07,
+        "p95_loss_r": -1.07,
+        "trades_per_week": 0.7,
+        "longest_losing_streak": 2,
+        "anti_cheat_ok": true,
+        "anti_cheat_reasons": [],
+        "wr_wilson_95": [
+          0.0615,
+          0.7923
+        ],
+        "p_wr_gt_50": 0.875
+      },
+      "validation": {
+        "n": 2,
+        "wins": 1,
+        "losses": 1,
+        "wr": 0.5,
+        "wr_ci95": [
+          0.0,
+          1.0
+        ],
+        "pf": 0.724,
+        "expectancy_r": -0.1476,
+        "max_dd_r": 0.0,
+        "avg_win_r": 0.775,
+        "avg_loss_r": -1.07,
+        "med_win_r": 0.775,
+        "med_loss_r": -1.07,
+        "worst_r": -1.07,
+        "p95_loss_r": -1.07,
+        "trades_per_week": 3.46,
+        "longest_losing_streak": 1,
+        "anti_cheat_ok": true,
+        "anti_cheat_reasons": [],
+        "wr_wilson_95": [
+          0.0945,
+          0.9055
+        ],
+        "p_wr_gt_50": 0.75
+      },
+      "selected": true
+    },
+    {
+      "family": "two_test_range_breakout",
+      "variant": "look24_range40_rvol12",
+      "symbol": "NQ",
+      "spec": {
+        "id": "look24_range40_rvol12",
+        "lookback_bars": 24,
+        "maximum_range_atr": 4.0,
+        "test_tolerance_atr": 0.15,
+        "minimum_relative_volume": 1.2,
+        "break_atr": 0.05
+      },
+      "source_id": "tested_level_break",
+      "development": {
+        "n": 18,
+        "wins": 6,
+        "losses": 12,
+        "wr": 0.3333,
+        "wr_ci95": [
+          0.1111,
+          0.5556
+        ],
+        "pf": 0.868,
+        "expectancy_r": -0.0532,
+        "max_dd_r": -4.087,
+        "avg_win_r": 1.046,
+        "avg_loss_r": -0.603,
+        "med_win_r": 0.966,
+        "med_loss_r": -1.012,
+        "worst_r": -1.036,
+        "p95_loss_r": -1.032,
+        "trades_per_week": 1.8,
+        "longest_losing_streak": 5,
+        "anti_cheat_ok": true,
+        "anti_cheat_reasons": [],
+        "wr_wilson_95": [
+          0.1628,
+          0.5625
+        ],
+        "p_wr_gt_50": 0.951874
+      },
+      "validation": {
+        "n": 7,
+        "wins": 4,
+        "losses": 3,
+        "wr": 0.5714,
+        "wr_ci95": [
+          0.1429,
+          0.8571
+        ],
+        "pf": 1.894,
+        "expectancy_r": 0.2654,
+        "max_dd_r": -2.075,
+        "avg_win_r": 0.984,
+        "avg_loss_r": -0.693,
+        "med_win_r": 0.915,
+        "med_loss_r": -1.02,
+        "worst_r": -1.054,
+        "p95_loss_r": -1.051,
+        "trades_per_week": 1.53,
+        "longest_losing_streak": 2,
+        "anti_cheat_ok": true,
+        "anti_cheat_reasons": [],
+        "wr_wilson_95": [
+          0.2505,
+          0.8418
+        ],
+        "p_wr_gt_50": 0.5
+      },
+      "selected": true
+    },
+    {
+      "family": "two_test_range_breakout",
+      "variant": "look24_range40_rvol12",
+      "symbol": "CL",
+      "spec": {
+        "id": "look24_range40_rvol12",
+        "lookback_bars": 24,
+        "maximum_range_atr": 4.0,
+        "test_tolerance_atr": 0.15,
+        "minimum_relative_volume": 1.2,
+        "break_atr": 0.05
+      },
+      "source_id": "tested_level_break",
+      "development": {
+        "n": 12,
+        "wins": 7,
+        "losses": 5,
+        "wr": 0.5833,
+        "wr_ci95": [
+          0.3333,
+          0.8333
+        ],
+        "pf": 1.661,
+        "expectancy_r": 0.2397,
+        "max_dd_r": -1.07,
+        "avg_win_r": 1.032,
+        "avg_loss_r": -0.87,
+        "med_win_r": 0.868,
+        "med_loss_r": -1.07,
+        "worst_r": -1.07,
+        "p95_loss_r": -1.07,
+        "trades_per_week": 1.14,
+        "longest_losing_streak": 2,
+        "anti_cheat_ok": true,
+        "anti_cheat_reasons": [],
+        "wr_wilson_95": [
+          0.3195,
+          0.8067
+        ],
+        "p_wr_gt_50": 0.387207
+      },
+      "validation": {
+        "n": 4,
+        "wins": 1,
+        "losses": 3,
+        "wr": 0.25,
+        "wr_ci95": [
+          0.0,
+          0.5062
+        ],
+        "pf": 0.448,
+        "expectancy_r": -0.3052,
+        "max_dd_r": -2.14,
+        "avg_win_r": 0.989,
+        "avg_loss_r": -0.737,
+        "med_win_r": 0.989,
+        "med_loss_r": -1.07,
+        "worst_r": -1.07,
+        "p95_loss_r": -1.07,
+        "trades_per_week": 1.08,
+        "longest_losing_streak": 2,
+        "anti_cheat_ok": true,
+        "anti_cheat_reasons": [],
+        "wr_wilson_95": [
+          0.0456,
+          0.6994
+        ],
+        "p_wr_gt_50": 0.9375
+      },
+      "selected": true
+    },
+    {
+      "family": "two_test_range_breakout",
+      "variant": "look36_range50_rvol15",
+      "symbol": "NQ",
+      "spec": {
+        "id": "look36_range50_rvol15",
+        "lookback_bars": 36,
+        "maximum_range_atr": 5.0,
+        "test_tolerance_atr": 0.1,
+        "minimum_relative_volume": 1.5,
+        "break_atr": 0.1
+      },
+      "source_id": "tested_level_break",
+      "development": {
+        "n": 6,
+        "wins": 2,
+        "losses": 4,
+        "wr": 0.3333,
+        "wr_ci95": [
+          0.0,
+          0.6667
+        ],
+        "pf": 0.566,
+        "expectancy_r": -0.2222,
+        "max_dd_r": -3.061,
+        "avg_win_r": 0.868,
+        "avg_loss_r": -0.767,
+        "med_win_r": 0.868,
+        "med_loss_r": -1.018,
+        "worst_r": -1.024,
+        "p95_loss_r": -1.024,
+        "trades_per_week": 0.56,
+        "longest_losing_streak": 3,
+        "anti_cheat_ok": true,
+        "anti_cheat_reasons": [],
+        "wr_wilson_95": [
+          0.0968,
+          0.7
+        ],
+        "p_wr_gt_50": 0.890625
+      },
+      "validation": {
+        "n": 2,
+        "wins": 1,
+        "losses": 1,
+        "wr": 0.5,
+        "wr_ci95": [
+          0.0,
+          1.0
+        ],
+        "pf": 0.86,
+        "expectancy_r": -0.0712,
+        "max_dd_r": -1.014,
+        "avg_win_r": 0.871,
+        "avg_loss_r": -1.014,
+        "med_win_r": 0.871,
+        "med_loss_r": -1.014,
+        "worst_r": -1.014,
+        "p95_loss_r": -1.014,
+        "trades_per_week": 1.09,
+        "longest_losing_streak": 1,
+        "anti_cheat_ok": true,
+        "anti_cheat_reasons": [],
+        "wr_wilson_95": [
+          0.0945,
+          0.9055
+        ],
+        "p_wr_gt_50": 0.75
+      },
+      "selected": false
+    },
+    {
+      "family": "two_test_range_breakout",
+      "variant": "look36_range50_rvol15",
+      "symbol": "CL",
+      "spec": {
+        "id": "look36_range50_rvol15",
+        "lookback_bars": 36,
+        "maximum_range_atr": 5.0,
+        "test_tolerance_atr": 0.1,
+        "minimum_relative_volume": 1.5,
+        "break_atr": 0.1
+      },
+      "source_id": "tested_level_break",
+      "development": {
+        "n": 6,
+        "wins": 2,
+        "losses": 4,
+        "wr": 0.3333,
+        "wr_ci95": [
+          0.0,
+          0.6667
+        ],
+        "pf": 0.881,
+        "expectancy_r": -0.0451,
+        "max_dd_r": -1.14,
+        "avg_win_r": 1.005,
+        "avg_loss_r": -0.57,
+        "med_win_r": 1.005,
+        "med_loss_r": -0.57,
+        "worst_r": -1.07,
+        "p95_loss_r": -1.07,
+        "trades_per_week": 0.63,
+        "longest_losing_streak": 3,
+        "anti_cheat_ok": true,
+        "anti_cheat_reasons": [],
+        "wr_wilson_95": [
+          0.0968,
+          0.7
+        ],
+        "p_wr_gt_50": 0.890625
+      },
+      "validation": {
+        "n": 1,
+        "wins": 0,
+        "losses": 1,
+        "wr": 0.0,
+        "wr_ci95": [
+          0.0,
+          0.0
+        ],
+        "pf": 0.0,
+        "expectancy_r": -1.07,
+        "max_dd_r": 0.0,
+        "avg_win_r": 0.0,
+        "avg_loss_r": -1.07,
+        "med_win_r": 0.0,
+        "med_loss_r": -1.07,
+        "worst_r": -1.07,
+        "p95_loss_r": -1.07,
+        "trades_per_week": 1.0,
+        "longest_losing_streak": 1,
+        "anti_cheat_ok": true,
+        "anti_cheat_reasons": [],
+        "wr_wilson_95": [
+          0.0,
+          0.7935
+        ],
+        "p_wr_gt_50": 1.0
+      },
+      "selected": false
+    },
+    {
+      "family": "nq_post_settlement_alignment",
+      "variant": "drift05_gap10",
+      "symbol": "NQ",
+      "spec": {
+        "id": "drift05_gap10",
+        "minimum_post_drift_range": 0.05,
+        "minimum_gap_range": 0.1
+      },
+      "source_id": "post_settlement_gap",
+      "development": {
+        "n": 10,
+        "wins": 6,
+        "losses": 4,
+        "wr": 0.6,
+        "wr_ci95": [
+          0.3,
+          0.9
+        ],
+        "pf": 2.883,
+        "expectancy_r": 0.3918,
+        "max_dd_r": -1.036,
+        "avg_win_r": 1.0,
+        "avg_loss_r": -0.52,
+        "med_win_r": 1.021,
+        "med_loss_r": -0.518,
+        "worst_r": -1.029,
+        "p95_loss_r": -1.028,
+        "trades_per_week": 1.09,
+        "longest_losing_streak": 2,
+        "anti_cheat_ok": true,
+        "anti_cheat_reasons": [],
+        "wr_wilson_95": [
+          0.3127,
+          0.8318
+        ],
+        "p_wr_gt_50": 0.376953
+      },
+      "validation": {
+        "n": 4,
+        "wins": 1,
+        "losses": 3,
+        "wr": 0.25,
+        "wr_ci95": [
+          0.0,
+          0.75
+        ],
+        "pf": 0.405,
+        "expectancy_r": -0.3015,
+        "max_dd_r": -1.005,
+        "avg_win_r": 0.821,
+        "avg_loss_r": -0.676,
+        "med_win_r": 0.821,
+        "med_loss_r": -1.005,
+        "worst_r": -1.014,
+        "p95_loss_r": -1.013,
+        "trades_per_week": 1.12,
+        "longest_losing_streak": 2,
+        "anti_cheat_ok": true,
+        "anti_cheat_reasons": [],
+        "wr_wilson_95": [
+          0.0456,
+          0.6994
+        ],
+        "p_wr_gt_50": 0.9375
+      },
+      "selected": false
+    },
+    {
+      "family": "nq_post_settlement_alignment",
+      "variant": "drift05_gap10",
+      "symbol": "CL",
+      "spec": {
+        "id": "drift05_gap10",
+        "minimum_post_drift_range": 0.05,
+        "minimum_gap_range": 0.1
+      },
+      "source_id": "post_settlement_gap",
+      "development": {
+        "n": 0,
+        "wins": 0,
+        "losses": 0,
+        "wr": 0.0,
+        "wr_ci95": [
+          0.0,
+          0.0
+        ],
+        "pf": 0.0,
+        "expectancy_r": 0.0,
+        "max_dd_r": 0.0,
+        "avg_win_r": 0.0,
+        "avg_loss_r": 0.0,
+        "med_win_r": 0.0,
+        "med_loss_r": 0.0,
+        "worst_r": 0.0,
+        "p95_loss_r": 0.0,
+        "trades_per_week": 0.0,
+        "longest_losing_streak": 0,
+        "anti_cheat_ok": true,
+        "anti_cheat_reasons": [],
+        "wr_wilson_95": [
+          0.0,
+          0.0
+        ],
+        "p_wr_gt_50": 1.0
+      },
+      "validation": {
+        "n": 0,
+        "wins": 0,
+        "losses": 0,
+        "wr": 0.0,
+        "wr_ci95": [
+          0.0,
+          0.0
+        ],
+        "pf": 0.0,
+        "expectancy_r": 0.0,
+        "max_dd_r": 0.0,
+        "avg_win_r": 0.0,
+        "avg_loss_r": 0.0,
+        "med_win_r": 0.0,
+        "med_loss_r": 0.0,
+        "worst_r": 0.0,
+        "p95_loss_r": 0.0,
+        "trades_per_week": 0.0,
+        "longest_losing_streak": 0,
+        "anti_cheat_ok": true,
+        "anti_cheat_reasons": [],
+        "wr_wilson_95": [
+          0.0,
+          0.0
+        ],
+        "p_wr_gt_50": 1.0
+      },
+      "selected": true
+    },
+    {
+      "family": "nq_post_settlement_alignment",
+      "variant": "drift10_gap20",
+      "symbol": "NQ",
+      "spec": {
+        "id": "drift10_gap20",
+        "minimum_post_drift_range": 0.1,
+        "minimum_gap_range": 0.2
+      },
+      "source_id": "post_settlement_gap",
+      "development": {
+        "n": 6,
+        "wins": 4,
+        "losses": 2,
+        "wr": 0.6667,
+        "wr_ci95": [
+          0.3333,
+          1.0
+        ],
+        "pf": 3.531,
+        "expectancy_r": 0.4408,
+        "max_dd_r": -1.029,
+        "avg_win_r": 0.922,
+        "avg_loss_r": -0.522,
+        "med_win_r": 0.939,
+        "med_loss_r": -0.522,
+        "worst_r": -1.029,
+        "p95_loss_r": -0.979,
+        "trades_per_week": 0.76,
+        "longest_losing_streak": 1,
+        "anti_cheat_ok": true,
+        "anti_cheat_reasons": [],
+        "wr_wilson_95": [
+          0.3,
+          0.9032
+        ],
+        "p_wr_gt_50": 0.34375
+      },
+      "validation": {
+        "n": 3,
+        "wins": 1,
+        "losses": 2,
+        "wr": 0.3333,
+        "wr_ci95": [
+          0.0,
+          1.0
+        ],
+        "pf": 0.407,
+        "expectancy_r": -0.3995,
+        "max_dd_r": -1.005,
+        "avg_win_r": 0.821,
+        "avg_loss_r": -1.01,
+        "med_win_r": 0.821,
+        "med_loss_r": -1.01,
+        "worst_r": -1.014,
+        "p95_loss_r": -1.014,
+        "trades_per_week": 1.4,
+        "longest_losing_streak": 2,
+        "anti_cheat_ok": true,
+        "anti_cheat_reasons": [],
+        "wr_wilson_95": [
+          0.0615,
+          0.7923
+        ],
+        "p_wr_gt_50": 0.875
+      },
+      "selected": true
+    },
+    {
+      "family": "nq_post_settlement_alignment",
+      "variant": "drift10_gap20",
+      "symbol": "CL",
+      "spec": {
+        "id": "drift10_gap20",
+        "minimum_post_drift_range": 0.1,
+        "minimum_gap_range": 0.2
+      },
+      "source_id": "post_settlement_gap",
+      "development": {
+        "n": 0,
+        "wins": 0,
+        "losses": 0,
+        "wr": 0.0,
+        "wr_ci95": [
+          0.0,
+          0.0
+        ],
+        "pf": 0.0,
+        "expectancy_r": 0.0,
+        "max_dd_r": 0.0,
+        "avg_win_r": 0.0,
+        "avg_loss_r": 0.0,
+        "med_win_r": 0.0,
+        "med_loss_r": 0.0,
+        "worst_r": 0.0,
+        "p95_loss_r": 0.0,
+        "trades_per_week": 0.0,
+        "longest_losing_streak": 0,
+        "anti_cheat_ok": true,
+        "anti_cheat_reasons": [],
+        "wr_wilson_95": [
+          0.0,
+          0.0
+        ],
+        "p_wr_gt_50": 1.0
+      },
+      "validation": {
+        "n": 0,
+        "wins": 0,
+        "losses": 0,
+        "wr": 0.0,
+        "wr_ci95": [
+          0.0,
+          0.0
+        ],
+        "pf": 0.0,
+        "expectancy_r": 0.0,
+        "max_dd_r": 0.0,
+        "avg_win_r": 0.0,
+        "avg_loss_r": 0.0,
+        "med_win_r": 0.0,
+        "med_loss_r": 0.0,
+        "worst_r": 0.0,
+        "p95_loss_r": 0.0,
+        "trades_per_week": 0.0,
+        "longest_losing_streak": 0,
+        "anti_cheat_ok": true,
+        "anti_cheat_reasons": [],
+        "wr_wilson_95": [
+          0.0,
+          0.0
+        ],
+        "p_wr_gt_50": 1.0
+      },
+      "selected": false
     }
   ],
   "selected_finalists": [
@@ -9424,6 +11390,335 @@
       "holdout_p_holm": 1.0
     },
     {
+      "family": "gap_reject_then_go",
+      "variant": "gap25_fill20",
+      "symbol": "NQ",
+      "spec": {
+        "id": "gap25_fill20",
+        "gap_daily_range": 0.25,
+        "minimum_fill_fraction": 0.2
+      },
+      "source_id": "gap_regime",
+      "development": {
+        "n": 1,
+        "wins": 1,
+        "losses": 0,
+        "wr": 1.0,
+        "wr_ci95": [
+          1.0,
+          1.0
+        ],
+        "pf": 999.0,
+        "expectancy_r": 1.1137,
+        "max_dd_r": 0.0,
+        "avg_win_r": 1.114,
+        "avg_loss_r": 0.0,
+        "med_win_r": 1.114,
+        "med_loss_r": 0.0,
+        "worst_r": 1.114,
+        "p95_loss_r": 0.0,
+        "trades_per_week": 1.0,
+        "longest_losing_streak": 0,
+        "anti_cheat_ok": true,
+        "anti_cheat_reasons": [],
+        "wr_wilson_95": [
+          0.2065,
+          1.0
+        ],
+        "p_wr_gt_50": 0.5
+      },
+      "validation": {
+        "n": 0,
+        "wins": 0,
+        "losses": 0,
+        "wr": 0.0,
+        "wr_ci95": [
+          0.0,
+          0.0
+        ],
+        "pf": 0.0,
+        "expectancy_r": 0.0,
+        "max_dd_r": 0.0,
+        "avg_win_r": 0.0,
+        "avg_loss_r": 0.0,
+        "med_win_r": 0.0,
+        "med_loss_r": 0.0,
+        "worst_r": 0.0,
+        "p95_loss_r": 0.0,
+        "trades_per_week": 0.0,
+        "longest_losing_streak": 0,
+        "anti_cheat_ok": true,
+        "anti_cheat_reasons": [],
+        "wr_wilson_95": [
+          0.0,
+          0.0
+        ],
+        "p_wr_gt_50": 1.0
+      },
+      "selected": true,
+      "all": {
+        "n": 2,
+        "wins": 2,
+        "losses": 0,
+        "wr": 1.0,
+        "wr_ci95": [
+          1.0,
+          1.0
+        ],
+        "pf": 999.0,
+        "expectancy_r": 1.032,
+        "max_dd_r": 0.0,
+        "avg_win_r": 1.032,
+        "avg_loss_r": 0.0,
+        "med_win_r": 1.032,
+        "med_loss_r": 0.0,
+        "worst_r": 0.95,
+        "p95_loss_r": 0.0,
+        "trades_per_week": 0.19,
+        "longest_losing_streak": 0,
+        "anti_cheat_ok": true,
+        "anti_cheat_reasons": [],
+        "wr_wilson_95": [
+          0.3424,
+          1.0
+        ],
+        "p_wr_gt_50": 0.25
+      },
+      "holdout": {
+        "n": 1,
+        "wins": 1,
+        "losses": 0,
+        "wr": 1.0,
+        "wr_ci95": [
+          1.0,
+          1.0
+        ],
+        "pf": 999.0,
+        "expectancy_r": 0.9503,
+        "max_dd_r": 0.0,
+        "avg_win_r": 0.95,
+        "avg_loss_r": 0.0,
+        "med_win_r": 0.95,
+        "med_loss_r": 0.0,
+        "worst_r": 0.95,
+        "p95_loss_r": 0.0,
+        "trades_per_week": 1.0,
+        "longest_losing_streak": 0,
+        "anti_cheat_ok": true,
+        "anti_cheat_reasons": [],
+        "wr_wilson_95": [
+          0.2065,
+          1.0
+        ],
+        "p_wr_gt_50": 0.5
+      },
+      "stability_4_blocks": [
+        {
+          "n": 1,
+          "wins": 1,
+          "losses": 0,
+          "wr": 1.0,
+          "wr_ci95": [
+            1.0,
+            1.0
+          ],
+          "pf": 999.0,
+          "expectancy_r": 1.1137,
+          "max_dd_r": 0.0,
+          "avg_win_r": 1.114,
+          "avg_loss_r": 0.0,
+          "med_win_r": 1.114,
+          "med_loss_r": 0.0,
+          "worst_r": 1.114,
+          "p95_loss_r": 0.0,
+          "trades_per_week": 1.0,
+          "longest_losing_streak": 0,
+          "anti_cheat_ok": true,
+          "anti_cheat_reasons": [],
+          "wr_wilson_95": [
+            0.2065,
+            1.0
+          ],
+          "p_wr_gt_50": 0.5
+        },
+        {
+          "n": 1,
+          "wins": 1,
+          "losses": 0,
+          "wr": 1.0,
+          "wr_ci95": [
+            1.0,
+            1.0
+          ],
+          "pf": 999.0,
+          "expectancy_r": 0.9503,
+          "max_dd_r": 0.0,
+          "avg_win_r": 0.95,
+          "avg_loss_r": 0.0,
+          "med_win_r": 0.95,
+          "med_loss_r": 0.0,
+          "worst_r": 0.95,
+          "p95_loss_r": 0.0,
+          "trades_per_week": 1.0,
+          "longest_losing_streak": 0,
+          "anti_cheat_ok": true,
+          "anti_cheat_reasons": [],
+          "wr_wilson_95": [
+            0.2065,
+            1.0
+          ],
+          "p_wr_gt_50": 0.5
+        }
+      ],
+      "passes_desired_70_gate": false,
+      "gate_failures": [
+        "all_n<40",
+        "validation_n<8",
+        "validation_edge<=0",
+        "holdout_n<10"
+      ],
+      "holdout_p_holm": 1.0
+    },
+    {
+      "family": "gap_reject_then_go",
+      "variant": "gap25_fill20",
+      "symbol": "CL",
+      "spec": {
+        "id": "gap25_fill20",
+        "gap_daily_range": 0.25,
+        "minimum_fill_fraction": 0.2
+      },
+      "source_id": "gap_regime",
+      "development": {
+        "n": 0,
+        "wins": 0,
+        "losses": 0,
+        "wr": 0.0,
+        "wr_ci95": [
+          0.0,
+          0.0
+        ],
+        "pf": 0.0,
+        "expectancy_r": 0.0,
+        "max_dd_r": 0.0,
+        "avg_win_r": 0.0,
+        "avg_loss_r": 0.0,
+        "med_win_r": 0.0,
+        "med_loss_r": 0.0,
+        "worst_r": 0.0,
+        "p95_loss_r": 0.0,
+        "trades_per_week": 0.0,
+        "longest_losing_streak": 0,
+        "anti_cheat_ok": true,
+        "anti_cheat_reasons": [],
+        "wr_wilson_95": [
+          0.0,
+          0.0
+        ],
+        "p_wr_gt_50": 1.0
+      },
+      "validation": {
+        "n": 0,
+        "wins": 0,
+        "losses": 0,
+        "wr": 0.0,
+        "wr_ci95": [
+          0.0,
+          0.0
+        ],
+        "pf": 0.0,
+        "expectancy_r": 0.0,
+        "max_dd_r": 0.0,
+        "avg_win_r": 0.0,
+        "avg_loss_r": 0.0,
+        "med_win_r": 0.0,
+        "med_loss_r": 0.0,
+        "worst_r": 0.0,
+        "p95_loss_r": 0.0,
+        "trades_per_week": 0.0,
+        "longest_losing_streak": 0,
+        "anti_cheat_ok": true,
+        "anti_cheat_reasons": [],
+        "wr_wilson_95": [
+          0.0,
+          0.0
+        ],
+        "p_wr_gt_50": 1.0
+      },
+      "selected": true,
+      "all": {
+        "n": 0,
+        "wins": 0,
+        "losses": 0,
+        "wr": 0.0,
+        "wr_ci95": [
+          0.0,
+          0.0
+        ],
+        "pf": 0.0,
+        "expectancy_r": 0.0,
+        "max_dd_r": 0.0,
+        "avg_win_r": 0.0,
+        "avg_loss_r": 0.0,
+        "med_win_r": 0.0,
+        "med_loss_r": 0.0,
+        "worst_r": 0.0,
+        "p95_loss_r": 0.0,
+        "trades_per_week": 0.0,
+        "longest_losing_streak": 0,
+        "anti_cheat_ok": true,
+        "anti_cheat_reasons": [],
+        "wr_wilson_95": [
+          0.0,
+          0.0
+        ],
+        "p_wr_gt_50": 1.0
+      },
+      "holdout": {
+        "n": 0,
+        "wins": 0,
+        "losses": 0,
+        "wr": 0.0,
+        "wr_ci95": [
+          0.0,
+          0.0
+        ],
+        "pf": 0.0,
+        "expectancy_r": 0.0,
+        "max_dd_r": 0.0,
+        "avg_win_r": 0.0,
+        "avg_loss_r": 0.0,
+        "med_win_r": 0.0,
+        "med_loss_r": 0.0,
+        "worst_r": 0.0,
+        "p95_loss_r": 0.0,
+        "trades_per_week": 0.0,
+        "longest_losing_streak": 0,
+        "anti_cheat_ok": true,
+        "anti_cheat_reasons": [],
+        "wr_wilson_95": [
+          0.0,
+          0.0
+        ],
+        "p_wr_gt_50": 1.0
+      },
+      "stability_4_blocks": [],
+      "passes_desired_70_gate": false,
+      "gate_failures": [
+        "all_n<40",
+        "all_WR<70%",
+        "all_PF<1.30",
+        "all_E<0.15R",
+        "validation_n<8",
+        "validation_edge<=0",
+        "holdout_n<10",
+        "holdout_WR<70%",
+        "holdout_PF<1.20",
+        "holdout_E<0.10R"
+      ],
+      "holdout_p_holm": 1.0
+    },
+    {
       "family": "initial_balance_failed_break",
       "variant": "pierce010_flat",
       "symbol": "NQ",
@@ -9915,6 +12210,503 @@
         "all_PF<1.30",
         "all_E<0.15R",
         "holdout_WR<70%",
+        "holdout_E<0.10R"
+      ],
+      "holdout_p_holm": 1.0
+    },
+    {
+      "family": "initial_balance_vwap_retest",
+      "variant": "ib80_rvol10_depth25",
+      "symbol": "NQ",
+      "spec": {
+        "id": "ib80_rvol10_depth25",
+        "maximum_ib_daily_range": 0.8,
+        "minimum_relative_volume": 1.0,
+        "maximum_retest_bars": 4,
+        "maximum_retest_depth_atr": 0.25
+      },
+      "source_id": "initial_balance_vwap",
+      "development": {
+        "n": 28,
+        "wins": 13,
+        "losses": 15,
+        "wr": 0.4643,
+        "wr_ci95": [
+          0.2848,
+          0.6429
+        ],
+        "pf": 1.277,
+        "expectancy_r": 0.0975,
+        "max_dd_r": -4.233,
+        "avg_win_r": 0.969,
+        "avg_loss_r": -0.658,
+        "med_win_r": 0.994,
+        "med_loss_r": -1.012,
+        "worst_r": -1.034,
+        "p95_loss_r": -1.031,
+        "trades_per_week": 2.8,
+        "longest_losing_streak": 5,
+        "anti_cheat_ok": true,
+        "anti_cheat_reasons": [],
+        "wr_wilson_95": [
+          0.2953,
+          0.6419
+        ],
+        "p_wr_gt_50": 0.714206
+      },
+      "validation": {
+        "n": 14,
+        "wins": 10,
+        "losses": 4,
+        "wr": 0.7143,
+        "wr_ci95": [
+          0.5,
+          0.9286
+        ],
+        "pf": 3.494,
+        "expectancy_r": 0.5602,
+        "max_dd_r": -1.118,
+        "avg_win_r": 1.099,
+        "avg_loss_r": -0.786,
+        "med_win_r": 1.045,
+        "med_loss_r": -1.019,
+        "worst_r": -1.086,
+        "p95_loss_r": -1.076,
+        "trades_per_week": 2.28,
+        "longest_losing_streak": 1,
+        "anti_cheat_ok": true,
+        "anti_cheat_reasons": [],
+        "wr_wilson_95": [
+          0.4535,
+          0.8828
+        ],
+        "p_wr_gt_50": 0.089783
+      },
+      "selected": true,
+      "all": {
+        "n": 57,
+        "wins": 32,
+        "losses": 25,
+        "wr": 0.5614,
+        "wr_ci95": [
+          0.4211,
+          0.7018
+        ],
+        "pf": 1.622,
+        "expectancy_r": 0.2092,
+        "max_dd_r": -4.233,
+        "avg_win_r": 0.972,
+        "avg_loss_r": -0.767,
+        "med_win_r": 1.0,
+        "med_loss_r": -1.018,
+        "worst_r": -1.086,
+        "p95_loss_r": -1.042,
+        "trades_per_week": 2.49,
+        "longest_losing_streak": 5,
+        "anti_cheat_ok": true,
+        "anti_cheat_reasons": [],
+        "wr_wilson_95": [
+          0.4328,
+          0.6823
+        ],
+        "p_wr_gt_50": 0.213521
+      },
+      "holdout": {
+        "n": 15,
+        "wins": 9,
+        "losses": 6,
+        "wr": 0.6,
+        "wr_ci95": [
+          0.3333,
+          0.8667
+        ],
+        "pf": 1.22,
+        "expectancy_r": 0.0902,
+        "max_dd_r": -2.345,
+        "avg_win_r": 0.835,
+        "avg_loss_r": -1.027,
+        "med_win_r": 0.715,
+        "med_loss_r": -1.026,
+        "worst_r": -1.043,
+        "p95_loss_r": -1.04,
+        "trades_per_week": 2.56,
+        "longest_losing_streak": 2,
+        "anti_cheat_ok": true,
+        "anti_cheat_reasons": [],
+        "wr_wilson_95": [
+          0.3575,
+          0.8018
+        ],
+        "p_wr_gt_50": 0.303619
+      },
+      "stability_4_blocks": [
+        {
+          "n": 15,
+          "wins": 9,
+          "losses": 6,
+          "wr": 0.6,
+          "wr_ci95": [
+            0.3333,
+            0.8667
+          ],
+          "pf": 1.896,
+          "expectancy_r": 0.2454,
+          "max_dd_r": -2.048,
+          "avg_win_r": 0.866,
+          "avg_loss_r": -0.685,
+          "med_win_r": 0.994,
+          "med_loss_r": -1.01,
+          "worst_r": -1.03,
+          "p95_loss_r": -1.027,
+          "trades_per_week": 2.5,
+          "longest_losing_streak": 3,
+          "anti_cheat_ok": true,
+          "anti_cheat_reasons": [],
+          "wr_wilson_95": [
+            0.3575,
+            0.8018
+          ],
+          "p_wr_gt_50": 0.303619
+        },
+        {
+          "n": 14,
+          "wins": 5,
+          "losses": 9,
+          "wr": 0.3571,
+          "wr_ci95": [
+            0.1429,
+            0.6429
+          ],
+          "pf": 1.018,
+          "expectancy_r": 0.0073,
+          "max_dd_r": -4.233,
+          "avg_win_r": 1.172,
+          "avg_loss_r": -0.639,
+          "med_win_r": 1.055,
+          "med_loss_r": -1.015,
+          "worst_r": -1.034,
+          "p95_loss_r": -1.029,
+          "trades_per_week": 3.16,
+          "longest_losing_streak": 5,
+          "anti_cheat_ok": true,
+          "anti_cheat_reasons": [],
+          "wr_wilson_95": [
+            0.1634,
+            0.6124
+          ],
+          "p_wr_gt_50": 0.910217
+        },
+        {
+          "n": 14,
+          "wins": 10,
+          "losses": 4,
+          "wr": 0.7143,
+          "wr_ci95": [
+            0.5,
+            0.9286
+          ],
+          "pf": 3.493,
+          "expectancy_r": 0.5601,
+          "max_dd_r": -1.118,
+          "avg_win_r": 1.099,
+          "avg_loss_r": -0.786,
+          "med_win_r": 1.044,
+          "med_loss_r": -1.019,
+          "worst_r": -1.086,
+          "p95_loss_r": -1.076,
+          "trades_per_week": 2.28,
+          "longest_losing_streak": 1,
+          "anti_cheat_ok": true,
+          "anti_cheat_reasons": [],
+          "wr_wilson_95": [
+            0.4535,
+            0.8828
+          ],
+          "p_wr_gt_50": 0.089783
+        },
+        {
+          "n": 14,
+          "wins": 8,
+          "losses": 6,
+          "wr": 0.5714,
+          "wr_ci95": [
+            0.2857,
+            0.7857
+          ],
+          "pf": 1.049,
+          "expectancy_r": 0.0214,
+          "max_dd_r": -2.053,
+          "avg_win_r": 0.808,
+          "avg_loss_r": -1.027,
+          "med_win_r": 0.602,
+          "med_loss_r": -1.026,
+          "worst_r": -1.043,
+          "p95_loss_r": -1.04,
+          "trades_per_week": 2.65,
+          "longest_losing_streak": 2,
+          "anti_cheat_ok": true,
+          "anti_cheat_reasons": [],
+          "wr_wilson_95": [
+            0.3259,
+            0.7862
+          ],
+          "p_wr_gt_50": 0.395264
+        }
+      ],
+      "passes_desired_70_gate": false,
+      "gate_failures": [
+        "all_WR<70%",
+        "holdout_WR<70%",
+        "holdout_E<0.10R"
+      ],
+      "holdout_p_holm": 1.0
+    },
+    {
+      "family": "initial_balance_vwap_retest",
+      "variant": "ib80_rvol10_depth25",
+      "symbol": "CL",
+      "spec": {
+        "id": "ib80_rvol10_depth25",
+        "maximum_ib_daily_range": 0.8,
+        "minimum_relative_volume": 1.0,
+        "maximum_retest_bars": 4,
+        "maximum_retest_depth_atr": 0.25
+      },
+      "source_id": "initial_balance_vwap",
+      "development": {
+        "n": 23,
+        "wins": 5,
+        "losses": 18,
+        "wr": 0.2174,
+        "wr_ci95": [
+          0.0859,
+          0.3913
+        ],
+        "pf": 0.287,
+        "expectancy_r": -0.5347,
+        "max_dd_r": -12.459,
+        "avg_win_r": 0.992,
+        "avg_loss_r": -0.959,
+        "med_win_r": 0.905,
+        "med_loss_r": -1.07,
+        "worst_r": -1.07,
+        "p95_loss_r": -1.07,
+        "trades_per_week": 2.77,
+        "longest_losing_streak": 8,
+        "anti_cheat_ok": true,
+        "anti_cheat_reasons": [],
+        "wr_wilson_95": [
+          0.0966,
+          0.419
+        ],
+        "p_wr_gt_50": 0.9987
+      },
+      "validation": {
+        "n": 17,
+        "wins": 9,
+        "losses": 8,
+        "wr": 0.5294,
+        "wr_ci95": [
+          0.2941,
+          0.7647
+        ],
+        "pf": 1.386,
+        "expectancy_r": 0.1264,
+        "max_dd_r": -2.596,
+        "avg_win_r": 0.856,
+        "avg_loss_r": -0.695,
+        "med_win_r": 0.819,
+        "med_loss_r": -1.07,
+        "worst_r": -1.07,
+        "p95_loss_r": -1.07,
+        "trades_per_week": 2.9,
+        "longest_losing_streak": 2,
+        "anti_cheat_ok": true,
+        "anti_cheat_reasons": [],
+        "wr_wilson_95": [
+          0.3096,
+          0.7384
+        ],
+        "p_wr_gt_50": 0.5
+      },
+      "selected": true,
+      "all": {
+        "n": 60,
+        "wins": 24,
+        "losses": 36,
+        "wr": 0.4,
+        "wr_ci95": [
+          0.2667,
+          0.5171
+        ],
+        "pf": 0.689,
+        "expectancy_r": -0.1636,
+        "max_dd_r": -12.61,
+        "avg_win_r": 0.904,
+        "avg_loss_r": -0.876,
+        "med_win_r": 0.834,
+        "med_loss_r": -1.07,
+        "worst_r": -1.07,
+        "p95_loss_r": -1.07,
+        "trades_per_week": 2.96,
+        "longest_losing_streak": 8,
+        "anti_cheat_ok": true,
+        "anti_cheat_reasons": [],
+        "wr_wilson_95": [
+          0.2857,
+          0.5263
+        ],
+        "p_wr_gt_50": 0.95377
+      },
+      "holdout": {
+        "n": 20,
+        "wins": 10,
+        "losses": 10,
+        "wr": 0.5,
+        "wr_ci95": [
+          0.3,
+          0.7
+        ],
+        "pf": 1.039,
+        "expectancy_r": 0.0168,
+        "max_dd_r": -2.459,
+        "avg_win_r": 0.904,
+        "avg_loss_r": -0.87,
+        "med_win_r": 0.798,
+        "med_loss_r": -1.07,
+        "worst_r": -1.07,
+        "p95_loss_r": -1.07,
+        "trades_per_week": 4.0,
+        "longest_losing_streak": 3,
+        "anti_cheat_ok": true,
+        "anti_cheat_reasons": [],
+        "wr_wilson_95": [
+          0.2993,
+          0.7007
+        ],
+        "p_wr_gt_50": 0.588099
+      },
+      "stability_4_blocks": [
+        {
+          "n": 15,
+          "wins": 4,
+          "losses": 11,
+          "wr": 0.2667,
+          "wr_ci95": [
+            0.0667,
+            0.5333
+          ],
+          "pf": 0.382,
+          "expectancy_r": -0.4026,
+          "max_dd_r": -5.581,
+          "avg_win_r": 0.933,
+          "avg_loss_r": -0.888,
+          "med_win_r": 0.876,
+          "med_loss_r": -1.07,
+          "worst_r": -1.07,
+          "p95_loss_r": -1.07,
+          "trades_per_week": 2.5,
+          "longest_losing_streak": 7,
+          "anti_cheat_ok": true,
+          "anti_cheat_reasons": [],
+          "wr_wilson_95": [
+            0.109,
+            0.5195
+          ],
+          "p_wr_gt_50": 0.982422
+        },
+        {
+          "n": 15,
+          "wins": 5,
+          "losses": 10,
+          "wr": 0.3333,
+          "wr_ci95": [
+            0.1317,
+            0.6
+          ],
+          "pf": 0.575,
+          "expectancy_r": -0.2465,
+          "max_dd_r": -6.42,
+          "avg_win_r": 1.001,
+          "avg_loss_r": -0.87,
+          "med_win_r": 0.966,
+          "med_loss_r": -1.07,
+          "worst_r": -1.07,
+          "p95_loss_r": -1.07,
+          "trades_per_week": 2.5,
+          "longest_losing_streak": 7,
+          "anti_cheat_ok": true,
+          "anti_cheat_reasons": [],
+          "wr_wilson_95": [
+            0.1518,
+            0.5829
+          ],
+          "p_wr_gt_50": 0.940765
+        },
+        {
+          "n": 15,
+          "wins": 6,
+          "losses": 9,
+          "wr": 0.4,
+          "wr_ci95": [
+            0.2,
+            0.6667
+          ],
+          "pf": 0.632,
+          "expectancy_r": -0.1869,
+          "max_dd_r": -4.502,
+          "avg_win_r": 0.804,
+          "avg_loss_r": -0.848,
+          "med_win_r": 0.821,
+          "med_loss_r": -1.07,
+          "worst_r": -1.07,
+          "p95_loss_r": -1.07,
+          "trades_per_week": 4.38,
+          "longest_losing_streak": 4,
+          "anti_cheat_ok": true,
+          "anti_cheat_reasons": [],
+          "wr_wilson_95": [
+            0.1982,
+            0.6425
+          ],
+          "p_wr_gt_50": 0.849121
+        },
+        {
+          "n": 15,
+          "wins": 9,
+          "losses": 6,
+          "wr": 0.6,
+          "wr_ci95": [
+            0.3333,
+            0.8667
+          ],
+          "pf": 1.503,
+          "expectancy_r": 0.1817,
+          "max_dd_r": -2.14,
+          "avg_win_r": 0.905,
+          "avg_loss_r": -0.903,
+          "med_win_r": 0.792,
+          "med_loss_r": -1.07,
+          "worst_r": -1.07,
+          "p95_loss_r": -1.07,
+          "trades_per_week": 3.76,
+          "longest_losing_streak": 2,
+          "anti_cheat_ok": true,
+          "anti_cheat_reasons": [],
+          "wr_wilson_95": [
+            0.3575,
+            0.8018
+          ],
+          "p_wr_gt_50": 0.303619
+        }
+      ],
+      "passes_desired_70_gate": false,
+      "gate_failures": [
+        "all_WR<70%",
+        "all_PF<1.30",
+        "all_E<0.15R",
+        "holdout_WR<70%",
+        "holdout_PF<1.20",
         "holdout_E<0.10R"
       ],
       "holdout_p_holm": 1.0
@@ -11302,6 +14094,506 @@
       "holdout_p_holm": 1.0
     },
     {
+      "family": "lunch_vwap_reclaim",
+      "variant": "stretch20_reclaim075",
+      "symbol": "NQ",
+      "spec": {
+        "id": "stretch20_reclaim075",
+        "morning_stretch_z": 2.0,
+        "reclaim_z": 0.75
+      },
+      "source_id": "vwap_reversion",
+      "development": {
+        "n": 21,
+        "wins": 6,
+        "losses": 15,
+        "wr": 0.2857,
+        "wr_ci95": [
+          0.0952,
+          0.4762
+        ],
+        "pf": 0.817,
+        "expectancy_r": -0.0692,
+        "max_dd_r": -2.72,
+        "avg_win_r": 1.078,
+        "avg_loss_r": -0.528,
+        "med_win_r": 1.029,
+        "med_loss_r": -0.564,
+        "worst_r": -1.018,
+        "p95_loss_r": -1.017,
+        "trades_per_week": 1.84,
+        "longest_losing_streak": 6,
+        "anti_cheat_ok": true,
+        "anti_cheat_reasons": [],
+        "wr_wilson_95": [
+          0.1381,
+          0.4996
+        ],
+        "p_wr_gt_50": 0.986698
+      },
+      "validation": {
+        "n": 9,
+        "wins": 6,
+        "losses": 3,
+        "wr": 0.6667,
+        "wr_ci95": [
+          0.3333,
+          1.0
+        ],
+        "pf": 3.053,
+        "expectancy_r": 0.464,
+        "max_dd_r": -1.015,
+        "avg_win_r": 1.035,
+        "avg_loss_r": -0.678,
+        "med_win_r": 1.038,
+        "med_loss_r": -1.015,
+        "worst_r": -1.015,
+        "p95_loss_r": -1.015,
+        "trades_per_week": 1.54,
+        "longest_losing_streak": 1,
+        "anti_cheat_ok": true,
+        "anti_cheat_reasons": [],
+        "wr_wilson_95": [
+          0.3542,
+          0.8794
+        ],
+        "p_wr_gt_50": 0.253906
+      },
+      "selected": true,
+      "all": {
+        "n": 41,
+        "wins": 14,
+        "losses": 27,
+        "wr": 0.3415,
+        "wr_ci95": [
+          0.1951,
+          0.4878
+        ],
+        "pf": 0.845,
+        "expectancy_r": -0.0644,
+        "max_dd_r": -5.364,
+        "avg_win_r": 1.029,
+        "avg_loss_r": -0.631,
+        "med_win_r": 1.005,
+        "med_loss_r": -1.007,
+        "worst_r": -1.023,
+        "p95_loss_r": -1.018,
+        "trades_per_week": 1.61,
+        "longest_losing_streak": 6,
+        "anti_cheat_ok": true,
+        "anti_cheat_reasons": [],
+        "wr_wilson_95": [
+          0.2156,
+          0.4945
+        ],
+        "p_wr_gt_50": 0.986233
+      },
+      "holdout": {
+        "n": 11,
+        "wins": 2,
+        "losses": 9,
+        "wr": 0.1818,
+        "wr_ci95": [
+          0.0,
+          0.4545
+        ],
+        "pf": 0.244,
+        "expectancy_r": -0.4876,
+        "max_dd_r": -5.247,
+        "avg_win_r": 0.863,
+        "avg_loss_r": -0.788,
+        "med_win_r": 0.863,
+        "med_loss_r": -1.007,
+        "worst_r": -1.023,
+        "p95_loss_r": -1.018,
+        "trades_per_week": 1.79,
+        "longest_losing_streak": 6,
+        "anti_cheat_ok": true,
+        "anti_cheat_reasons": [],
+        "wr_wilson_95": [
+          0.0514,
+          0.477
+        ],
+        "p_wr_gt_50": 0.994141
+      },
+      "stability_4_blocks": [
+        {
+          "n": 11,
+          "wins": 2,
+          "losses": 9,
+          "wr": 0.1818,
+          "wr_ci95": [
+            0.0,
+            0.4545
+          ],
+          "pf": 0.506,
+          "expectancy_r": -0.167,
+          "max_dd_r": -1.819,
+          "avg_win_r": 0.942,
+          "avg_loss_r": -0.414,
+          "med_win_r": 0.942,
+          "med_loss_r": -0.066,
+          "worst_r": -1.018,
+          "p95_loss_r": -1.015,
+          "trades_per_week": 2.41,
+          "longest_losing_streak": 5,
+          "anti_cheat_ok": true,
+          "anti_cheat_reasons": [],
+          "wr_wilson_95": [
+            0.0514,
+            0.477
+          ],
+          "p_wr_gt_50": 0.994141
+        },
+        {
+          "n": 10,
+          "wins": 4,
+          "losses": 6,
+          "wr": 0.4,
+          "wr_ci95": [
+            0.1,
+            0.7
+          ],
+          "pf": 1.092,
+          "expectancy_r": 0.0384,
+          "max_dd_r": -2.11,
+          "avg_win_r": 1.146,
+          "avg_loss_r": -0.7,
+          "med_win_r": 1.178,
+          "med_loss_r": -1.009,
+          "worst_r": -1.017,
+          "p95_loss_r": -1.016,
+          "trades_per_week": 1.63,
+          "longest_losing_streak": 2,
+          "anti_cheat_ok": true,
+          "anti_cheat_reasons": [],
+          "wr_wilson_95": [
+            0.1682,
+            0.6873
+          ],
+          "p_wr_gt_50": 0.828125
+        },
+        {
+          "n": 10,
+          "wins": 6,
+          "losses": 4,
+          "wr": 0.6,
+          "wr_ci95": [
+            0.3,
+            0.9
+          ],
+          "pf": 2.031,
+          "expectancy_r": 0.3153,
+          "max_dd_r": -1.023,
+          "avg_win_r": 1.035,
+          "avg_loss_r": -0.764,
+          "med_win_r": 1.038,
+          "med_loss_r": -1.015,
+          "worst_r": -1.023,
+          "p95_loss_r": -1.022,
+          "trades_per_week": 1.63,
+          "longest_losing_streak": 1,
+          "anti_cheat_ok": true,
+          "anti_cheat_reasons": [],
+          "wr_wilson_95": [
+            0.3127,
+            0.8318
+          ],
+          "p_wr_gt_50": 0.376953
+        },
+        {
+          "n": 10,
+          "wins": 2,
+          "losses": 8,
+          "wr": 0.2,
+          "wr_ci95": [
+            0.0,
+            0.5
+          ],
+          "pf": 0.285,
+          "expectancy_r": -0.434,
+          "max_dd_r": -5.247,
+          "avg_win_r": 0.863,
+          "avg_loss_r": -0.758,
+          "med_win_r": 0.863,
+          "med_loss_r": -1.007,
+          "worst_r": -1.01,
+          "p95_loss_r": -1.01,
+          "trades_per_week": 1.89,
+          "longest_losing_streak": 6,
+          "anti_cheat_ok": true,
+          "anti_cheat_reasons": [],
+          "wr_wilson_95": [
+            0.0567,
+            0.5098
+          ],
+          "p_wr_gt_50": 0.989258
+        }
+      ],
+      "passes_desired_70_gate": false,
+      "gate_failures": [
+        "all_WR<70%",
+        "all_PF<1.30",
+        "all_E<0.15R",
+        "holdout_WR<70%",
+        "holdout_PF<1.20",
+        "holdout_E<0.10R"
+      ],
+      "holdout_p_holm": 1.0
+    },
+    {
+      "family": "lunch_vwap_reclaim",
+      "variant": "stretch25_reclaim050",
+      "symbol": "CL",
+      "spec": {
+        "id": "stretch25_reclaim050",
+        "morning_stretch_z": 2.5,
+        "reclaim_z": 0.5
+      },
+      "source_id": "vwap_reversion",
+      "development": {
+        "n": 3,
+        "wins": 1,
+        "losses": 2,
+        "wr": 0.3333,
+        "wr_ci95": [
+          0.0,
+          1.0
+        ],
+        "pf": 0.433,
+        "expectancy_r": -0.4048,
+        "max_dd_r": -1.07,
+        "avg_win_r": 0.926,
+        "avg_loss_r": -1.07,
+        "med_win_r": 0.926,
+        "med_loss_r": -1.07,
+        "worst_r": -1.07,
+        "p95_loss_r": -1.07,
+        "trades_per_week": 0.7,
+        "longest_losing_streak": 2,
+        "anti_cheat_ok": true,
+        "anti_cheat_reasons": [],
+        "wr_wilson_95": [
+          0.0615,
+          0.7923
+        ],
+        "p_wr_gt_50": 0.875
+      },
+      "validation": {
+        "n": 2,
+        "wins": 1,
+        "losses": 1,
+        "wr": 0.5,
+        "wr_ci95": [
+          0.0,
+          1.0
+        ],
+        "pf": 0.724,
+        "expectancy_r": -0.1476,
+        "max_dd_r": 0.0,
+        "avg_win_r": 0.775,
+        "avg_loss_r": -1.07,
+        "med_win_r": 0.775,
+        "med_loss_r": -1.07,
+        "worst_r": -1.07,
+        "p95_loss_r": -1.07,
+        "trades_per_week": 3.46,
+        "longest_losing_streak": 1,
+        "anti_cheat_ok": true,
+        "anti_cheat_reasons": [],
+        "wr_wilson_95": [
+          0.0945,
+          0.9055
+        ],
+        "p_wr_gt_50": 0.75
+      },
+      "selected": true,
+      "all": {
+        "n": 6,
+        "wins": 2,
+        "losses": 4,
+        "wr": 0.3333,
+        "wr_ci95": [
+          0.0,
+          0.6708
+        ],
+        "pf": 0.397,
+        "expectancy_r": -0.4299,
+        "max_dd_r": -1.509,
+        "avg_win_r": 0.85,
+        "avg_loss_r": -1.07,
+        "med_win_r": 0.85,
+        "med_loss_r": -1.07,
+        "worst_r": -1.07,
+        "p95_loss_r": -1.07,
+        "trades_per_week": 0.45,
+        "longest_losing_streak": 2,
+        "anti_cheat_ok": true,
+        "anti_cheat_reasons": [],
+        "wr_wilson_95": [
+          0.0968,
+          0.7
+        ],
+        "p_wr_gt_50": 0.890625
+      },
+      "holdout": {
+        "n": 1,
+        "wins": 0,
+        "losses": 1,
+        "wr": 0.0,
+        "wr_ci95": [
+          0.0,
+          0.0
+        ],
+        "pf": 0.0,
+        "expectancy_r": -1.07,
+        "max_dd_r": 0.0,
+        "avg_win_r": 0.0,
+        "avg_loss_r": -1.07,
+        "med_win_r": 0.0,
+        "med_loss_r": -1.07,
+        "worst_r": -1.07,
+        "p95_loss_r": -1.07,
+        "trades_per_week": 1.0,
+        "longest_losing_streak": 1,
+        "anti_cheat_ok": true,
+        "anti_cheat_reasons": [],
+        "wr_wilson_95": [
+          0.0,
+          0.7935
+        ],
+        "p_wr_gt_50": 1.0
+      },
+      "stability_4_blocks": [
+        {
+          "n": 2,
+          "wins": 0,
+          "losses": 2,
+          "wr": 0.0,
+          "wr_ci95": [
+            0.0,
+            0.0
+          ],
+          "pf": 0.0,
+          "expectancy_r": -1.07,
+          "max_dd_r": -1.07,
+          "avg_win_r": 0.0,
+          "avg_loss_r": -1.07,
+          "med_win_r": 0.0,
+          "med_loss_r": -1.07,
+          "worst_r": -1.07,
+          "p95_loss_r": -1.07,
+          "trades_per_week": 2.01,
+          "longest_losing_streak": 2,
+          "anti_cheat_ok": true,
+          "anti_cheat_reasons": [],
+          "wr_wilson_95": [
+            0.0,
+            0.6576
+          ],
+          "p_wr_gt_50": 1.0
+        },
+        {
+          "n": 2,
+          "wins": 1,
+          "losses": 1,
+          "wr": 0.5,
+          "wr_ci95": [
+            0.0,
+            1.0
+          ],
+          "pf": 0.865,
+          "expectancy_r": -0.0721,
+          "max_dd_r": -1.07,
+          "avg_win_r": 0.926,
+          "avg_loss_r": -1.07,
+          "med_win_r": 0.926,
+          "med_loss_r": -1.07,
+          "worst_r": -1.07,
+          "p95_loss_r": -1.07,
+          "trades_per_week": 0.93,
+          "longest_losing_streak": 1,
+          "anti_cheat_ok": true,
+          "anti_cheat_reasons": [],
+          "wr_wilson_95": [
+            0.0945,
+            0.9055
+          ],
+          "p_wr_gt_50": 0.75
+        },
+        {
+          "n": 1,
+          "wins": 1,
+          "losses": 0,
+          "wr": 1.0,
+          "wr_ci95": [
+            1.0,
+            1.0
+          ],
+          "pf": 999.0,
+          "expectancy_r": 0.7749,
+          "max_dd_r": 0.0,
+          "avg_win_r": 0.775,
+          "avg_loss_r": 0.0,
+          "med_win_r": 0.775,
+          "med_loss_r": 0.0,
+          "worst_r": 0.775,
+          "p95_loss_r": 0.0,
+          "trades_per_week": 1.0,
+          "longest_losing_streak": 0,
+          "anti_cheat_ok": true,
+          "anti_cheat_reasons": [],
+          "wr_wilson_95": [
+            0.2065,
+            1.0
+          ],
+          "p_wr_gt_50": 0.5
+        },
+        {
+          "n": 1,
+          "wins": 0,
+          "losses": 1,
+          "wr": 0.0,
+          "wr_ci95": [
+            0.0,
+            0.0
+          ],
+          "pf": 0.0,
+          "expectancy_r": -1.07,
+          "max_dd_r": 0.0,
+          "avg_win_r": 0.0,
+          "avg_loss_r": -1.07,
+          "med_win_r": 0.0,
+          "med_loss_r": -1.07,
+          "worst_r": -1.07,
+          "p95_loss_r": -1.07,
+          "trades_per_week": 1.0,
+          "longest_losing_streak": 1,
+          "anti_cheat_ok": true,
+          "anti_cheat_reasons": [],
+          "wr_wilson_95": [
+            0.0,
+            0.7935
+          ],
+          "p_wr_gt_50": 1.0
+        }
+      ],
+      "passes_desired_70_gate": false,
+      "gate_failures": [
+        "all_n<40",
+        "all_WR<70%",
+        "all_PF<1.30",
+        "all_E<0.15R",
+        "validation_n<8",
+        "validation_edge<=0",
+        "holdout_n<10",
+        "holdout_WR<70%",
+        "holdout_PF<1.20",
+        "holdout_E<0.10R"
+      ],
+      "holdout_p_holm": 1.0
+    },
+    {
       "family": "nq_15m_opening_range_retest",
       "variant": "opposite_edge_stop",
       "symbol": "NQ",
@@ -11562,6 +14854,675 @@
         "require_vwap": false
       },
       "source_id": "nq_15m_orb",
+      "development": {
+        "n": 0,
+        "wins": 0,
+        "losses": 0,
+        "wr": 0.0,
+        "wr_ci95": [
+          0.0,
+          0.0
+        ],
+        "pf": 0.0,
+        "expectancy_r": 0.0,
+        "max_dd_r": 0.0,
+        "avg_win_r": 0.0,
+        "avg_loss_r": 0.0,
+        "med_win_r": 0.0,
+        "med_loss_r": 0.0,
+        "worst_r": 0.0,
+        "p95_loss_r": 0.0,
+        "trades_per_week": 0.0,
+        "longest_losing_streak": 0,
+        "anti_cheat_ok": true,
+        "anti_cheat_reasons": [],
+        "wr_wilson_95": [
+          0.0,
+          0.0
+        ],
+        "p_wr_gt_50": 1.0
+      },
+      "validation": {
+        "n": 0,
+        "wins": 0,
+        "losses": 0,
+        "wr": 0.0,
+        "wr_ci95": [
+          0.0,
+          0.0
+        ],
+        "pf": 0.0,
+        "expectancy_r": 0.0,
+        "max_dd_r": 0.0,
+        "avg_win_r": 0.0,
+        "avg_loss_r": 0.0,
+        "med_win_r": 0.0,
+        "med_loss_r": 0.0,
+        "worst_r": 0.0,
+        "p95_loss_r": 0.0,
+        "trades_per_week": 0.0,
+        "longest_losing_streak": 0,
+        "anti_cheat_ok": true,
+        "anti_cheat_reasons": [],
+        "wr_wilson_95": [
+          0.0,
+          0.0
+        ],
+        "p_wr_gt_50": 1.0
+      },
+      "selected": true,
+      "all": {
+        "n": 0,
+        "wins": 0,
+        "losses": 0,
+        "wr": 0.0,
+        "wr_ci95": [
+          0.0,
+          0.0
+        ],
+        "pf": 0.0,
+        "expectancy_r": 0.0,
+        "max_dd_r": 0.0,
+        "avg_win_r": 0.0,
+        "avg_loss_r": 0.0,
+        "med_win_r": 0.0,
+        "med_loss_r": 0.0,
+        "worst_r": 0.0,
+        "p95_loss_r": 0.0,
+        "trades_per_week": 0.0,
+        "longest_losing_streak": 0,
+        "anti_cheat_ok": true,
+        "anti_cheat_reasons": [],
+        "wr_wilson_95": [
+          0.0,
+          0.0
+        ],
+        "p_wr_gt_50": 1.0
+      },
+      "holdout": {
+        "n": 0,
+        "wins": 0,
+        "losses": 0,
+        "wr": 0.0,
+        "wr_ci95": [
+          0.0,
+          0.0
+        ],
+        "pf": 0.0,
+        "expectancy_r": 0.0,
+        "max_dd_r": 0.0,
+        "avg_win_r": 0.0,
+        "avg_loss_r": 0.0,
+        "med_win_r": 0.0,
+        "med_loss_r": 0.0,
+        "worst_r": 0.0,
+        "p95_loss_r": 0.0,
+        "trades_per_week": 0.0,
+        "longest_losing_streak": 0,
+        "anti_cheat_ok": true,
+        "anti_cheat_reasons": [],
+        "wr_wilson_95": [
+          0.0,
+          0.0
+        ],
+        "p_wr_gt_50": 1.0
+      },
+      "stability_4_blocks": [],
+      "passes_desired_70_gate": false,
+      "gate_failures": [
+        "all_n<40",
+        "all_WR<70%",
+        "all_PF<1.30",
+        "all_E<0.15R",
+        "validation_n<8",
+        "validation_edge<=0",
+        "holdout_n<10",
+        "holdout_WR<70%",
+        "holdout_PF<1.20",
+        "holdout_E<0.10R"
+      ],
+      "holdout_p_holm": 1.0
+    },
+    {
+      "family": "nq_opening_shock_reversal",
+      "variant": "shock60_confirm3",
+      "symbol": "NQ",
+      "spec": {
+        "id": "shock60_confirm3",
+        "shock_daily_range": 0.6,
+        "confirmation_bars": 3,
+        "stop_buffer_atr": 0.15
+      },
+      "source_id": "opening_shock_reversal",
+      "development": {
+        "n": 0,
+        "wins": 0,
+        "losses": 0,
+        "wr": 0.0,
+        "wr_ci95": [
+          0.0,
+          0.0
+        ],
+        "pf": 0.0,
+        "expectancy_r": 0.0,
+        "max_dd_r": 0.0,
+        "avg_win_r": 0.0,
+        "avg_loss_r": 0.0,
+        "med_win_r": 0.0,
+        "med_loss_r": 0.0,
+        "worst_r": 0.0,
+        "p95_loss_r": 0.0,
+        "trades_per_week": 0.0,
+        "longest_losing_streak": 0,
+        "anti_cheat_ok": true,
+        "anti_cheat_reasons": [],
+        "wr_wilson_95": [
+          0.0,
+          0.0
+        ],
+        "p_wr_gt_50": 1.0
+      },
+      "validation": {
+        "n": 0,
+        "wins": 0,
+        "losses": 0,
+        "wr": 0.0,
+        "wr_ci95": [
+          0.0,
+          0.0
+        ],
+        "pf": 0.0,
+        "expectancy_r": 0.0,
+        "max_dd_r": 0.0,
+        "avg_win_r": 0.0,
+        "avg_loss_r": 0.0,
+        "med_win_r": 0.0,
+        "med_loss_r": 0.0,
+        "worst_r": 0.0,
+        "p95_loss_r": 0.0,
+        "trades_per_week": 0.0,
+        "longest_losing_streak": 0,
+        "anti_cheat_ok": true,
+        "anti_cheat_reasons": [],
+        "wr_wilson_95": [
+          0.0,
+          0.0
+        ],
+        "p_wr_gt_50": 1.0
+      },
+      "selected": true,
+      "all": {
+        "n": 0,
+        "wins": 0,
+        "losses": 0,
+        "wr": 0.0,
+        "wr_ci95": [
+          0.0,
+          0.0
+        ],
+        "pf": 0.0,
+        "expectancy_r": 0.0,
+        "max_dd_r": 0.0,
+        "avg_win_r": 0.0,
+        "avg_loss_r": 0.0,
+        "med_win_r": 0.0,
+        "med_loss_r": 0.0,
+        "worst_r": 0.0,
+        "p95_loss_r": 0.0,
+        "trades_per_week": 0.0,
+        "longest_losing_streak": 0,
+        "anti_cheat_ok": true,
+        "anti_cheat_reasons": [],
+        "wr_wilson_95": [
+          0.0,
+          0.0
+        ],
+        "p_wr_gt_50": 1.0
+      },
+      "holdout": {
+        "n": 0,
+        "wins": 0,
+        "losses": 0,
+        "wr": 0.0,
+        "wr_ci95": [
+          0.0,
+          0.0
+        ],
+        "pf": 0.0,
+        "expectancy_r": 0.0,
+        "max_dd_r": 0.0,
+        "avg_win_r": 0.0,
+        "avg_loss_r": 0.0,
+        "med_win_r": 0.0,
+        "med_loss_r": 0.0,
+        "worst_r": 0.0,
+        "p95_loss_r": 0.0,
+        "trades_per_week": 0.0,
+        "longest_losing_streak": 0,
+        "anti_cheat_ok": true,
+        "anti_cheat_reasons": [],
+        "wr_wilson_95": [
+          0.0,
+          0.0
+        ],
+        "p_wr_gt_50": 1.0
+      },
+      "stability_4_blocks": [],
+      "passes_desired_70_gate": false,
+      "gate_failures": [
+        "all_n<40",
+        "all_WR<70%",
+        "all_PF<1.30",
+        "all_E<0.15R",
+        "validation_n<8",
+        "validation_edge<=0",
+        "holdout_n<10",
+        "holdout_WR<70%",
+        "holdout_PF<1.20",
+        "holdout_E<0.10R"
+      ],
+      "holdout_p_holm": 1.0
+    },
+    {
+      "family": "nq_opening_shock_reversal",
+      "variant": "shock40_confirm4",
+      "symbol": "CL",
+      "spec": {
+        "id": "shock40_confirm4",
+        "shock_daily_range": 0.4,
+        "confirmation_bars": 4,
+        "stop_buffer_atr": 0.1
+      },
+      "source_id": "opening_shock_reversal",
+      "development": {
+        "n": 0,
+        "wins": 0,
+        "losses": 0,
+        "wr": 0.0,
+        "wr_ci95": [
+          0.0,
+          0.0
+        ],
+        "pf": 0.0,
+        "expectancy_r": 0.0,
+        "max_dd_r": 0.0,
+        "avg_win_r": 0.0,
+        "avg_loss_r": 0.0,
+        "med_win_r": 0.0,
+        "med_loss_r": 0.0,
+        "worst_r": 0.0,
+        "p95_loss_r": 0.0,
+        "trades_per_week": 0.0,
+        "longest_losing_streak": 0,
+        "anti_cheat_ok": true,
+        "anti_cheat_reasons": [],
+        "wr_wilson_95": [
+          0.0,
+          0.0
+        ],
+        "p_wr_gt_50": 1.0
+      },
+      "validation": {
+        "n": 0,
+        "wins": 0,
+        "losses": 0,
+        "wr": 0.0,
+        "wr_ci95": [
+          0.0,
+          0.0
+        ],
+        "pf": 0.0,
+        "expectancy_r": 0.0,
+        "max_dd_r": 0.0,
+        "avg_win_r": 0.0,
+        "avg_loss_r": 0.0,
+        "med_win_r": 0.0,
+        "med_loss_r": 0.0,
+        "worst_r": 0.0,
+        "p95_loss_r": 0.0,
+        "trades_per_week": 0.0,
+        "longest_losing_streak": 0,
+        "anti_cheat_ok": true,
+        "anti_cheat_reasons": [],
+        "wr_wilson_95": [
+          0.0,
+          0.0
+        ],
+        "p_wr_gt_50": 1.0
+      },
+      "selected": true,
+      "all": {
+        "n": 0,
+        "wins": 0,
+        "losses": 0,
+        "wr": 0.0,
+        "wr_ci95": [
+          0.0,
+          0.0
+        ],
+        "pf": 0.0,
+        "expectancy_r": 0.0,
+        "max_dd_r": 0.0,
+        "avg_win_r": 0.0,
+        "avg_loss_r": 0.0,
+        "med_win_r": 0.0,
+        "med_loss_r": 0.0,
+        "worst_r": 0.0,
+        "p95_loss_r": 0.0,
+        "trades_per_week": 0.0,
+        "longest_losing_streak": 0,
+        "anti_cheat_ok": true,
+        "anti_cheat_reasons": [],
+        "wr_wilson_95": [
+          0.0,
+          0.0
+        ],
+        "p_wr_gt_50": 1.0
+      },
+      "holdout": {
+        "n": 0,
+        "wins": 0,
+        "losses": 0,
+        "wr": 0.0,
+        "wr_ci95": [
+          0.0,
+          0.0
+        ],
+        "pf": 0.0,
+        "expectancy_r": 0.0,
+        "max_dd_r": 0.0,
+        "avg_win_r": 0.0,
+        "avg_loss_r": 0.0,
+        "med_win_r": 0.0,
+        "med_loss_r": 0.0,
+        "worst_r": 0.0,
+        "p95_loss_r": 0.0,
+        "trades_per_week": 0.0,
+        "longest_losing_streak": 0,
+        "anti_cheat_ok": true,
+        "anti_cheat_reasons": [],
+        "wr_wilson_95": [
+          0.0,
+          0.0
+        ],
+        "p_wr_gt_50": 1.0
+      },
+      "stability_4_blocks": [],
+      "passes_desired_70_gate": false,
+      "gate_failures": [
+        "all_n<40",
+        "all_WR<70%",
+        "all_PF<1.30",
+        "all_E<0.15R",
+        "validation_n<8",
+        "validation_edge<=0",
+        "holdout_n<10",
+        "holdout_WR<70%",
+        "holdout_PF<1.20",
+        "holdout_E<0.10R"
+      ],
+      "holdout_p_holm": 1.0
+    },
+    {
+      "family": "nq_post_settlement_alignment",
+      "variant": "drift10_gap20",
+      "symbol": "NQ",
+      "spec": {
+        "id": "drift10_gap20",
+        "minimum_post_drift_range": 0.1,
+        "minimum_gap_range": 0.2
+      },
+      "source_id": "post_settlement_gap",
+      "development": {
+        "n": 6,
+        "wins": 4,
+        "losses": 2,
+        "wr": 0.6667,
+        "wr_ci95": [
+          0.3333,
+          1.0
+        ],
+        "pf": 3.531,
+        "expectancy_r": 0.4408,
+        "max_dd_r": -1.029,
+        "avg_win_r": 0.922,
+        "avg_loss_r": -0.522,
+        "med_win_r": 0.939,
+        "med_loss_r": -0.522,
+        "worst_r": -1.029,
+        "p95_loss_r": -0.979,
+        "trades_per_week": 0.76,
+        "longest_losing_streak": 1,
+        "anti_cheat_ok": true,
+        "anti_cheat_reasons": [],
+        "wr_wilson_95": [
+          0.3,
+          0.9032
+        ],
+        "p_wr_gt_50": 0.34375
+      },
+      "validation": {
+        "n": 3,
+        "wins": 1,
+        "losses": 2,
+        "wr": 0.3333,
+        "wr_ci95": [
+          0.0,
+          1.0
+        ],
+        "pf": 0.407,
+        "expectancy_r": -0.3995,
+        "max_dd_r": -1.005,
+        "avg_win_r": 0.821,
+        "avg_loss_r": -1.01,
+        "med_win_r": 0.821,
+        "med_loss_r": -1.01,
+        "worst_r": -1.014,
+        "p95_loss_r": -1.014,
+        "trades_per_week": 1.4,
+        "longest_losing_streak": 2,
+        "anti_cheat_ok": true,
+        "anti_cheat_reasons": [],
+        "wr_wilson_95": [
+          0.0615,
+          0.7923
+        ],
+        "p_wr_gt_50": 0.875
+      },
+      "selected": true,
+      "all": {
+        "n": 9,
+        "wins": 5,
+        "losses": 4,
+        "wr": 0.5556,
+        "wr_ci95": [
+          0.2222,
+          0.8889
+        ],
+        "pf": 1.472,
+        "expectancy_r": 0.1607,
+        "max_dd_r": -2.02,
+        "avg_win_r": 0.902,
+        "avg_loss_r": -0.766,
+        "med_win_r": 0.85,
+        "med_loss_r": -1.01,
+        "worst_r": -1.029,
+        "p95_loss_r": -1.027,
+        "trades_per_week": 0.74,
+        "longest_losing_streak": 2,
+        "anti_cheat_ok": true,
+        "anti_cheat_reasons": [],
+        "wr_wilson_95": [
+          0.2666,
+          0.8112
+        ],
+        "p_wr_gt_50": 0.5
+      },
+      "holdout": {
+        "n": 0,
+        "wins": 0,
+        "losses": 0,
+        "wr": 0.0,
+        "wr_ci95": [
+          0.0,
+          0.0
+        ],
+        "pf": 0.0,
+        "expectancy_r": 0.0,
+        "max_dd_r": 0.0,
+        "avg_win_r": 0.0,
+        "avg_loss_r": 0.0,
+        "med_win_r": 0.0,
+        "med_loss_r": 0.0,
+        "worst_r": 0.0,
+        "p95_loss_r": 0.0,
+        "trades_per_week": 0.0,
+        "longest_losing_streak": 0,
+        "anti_cheat_ok": true,
+        "anti_cheat_reasons": [],
+        "wr_wilson_95": [
+          0.0,
+          0.0
+        ],
+        "p_wr_gt_50": 1.0
+      },
+      "stability_4_blocks": [
+        {
+          "n": 3,
+          "wins": 2,
+          "losses": 1,
+          "wr": 0.6667,
+          "wr_ci95": [
+            0.0,
+            1.0
+          ],
+          "pf": 122.047,
+          "expectancy_r": 0.6208,
+          "max_dd_r": -0.015,
+          "avg_win_r": 0.939,
+          "avg_loss_r": -0.015,
+          "med_win_r": 0.939,
+          "med_loss_r": -0.015,
+          "worst_r": -0.015,
+          "p95_loss_r": -0.015,
+          "trades_per_week": 1.91,
+          "longest_losing_streak": 1,
+          "anti_cheat_ok": true,
+          "anti_cheat_reasons": [],
+          "wr_wilson_95": [
+            0.2077,
+            0.9385
+          ],
+          "p_wr_gt_50": 0.5
+        },
+        {
+          "n": 2,
+          "wins": 1,
+          "losses": 1,
+          "wr": 0.5,
+          "wr_ci95": [
+            0.0,
+            1.0
+          ],
+          "pf": 1.255,
+          "expectancy_r": 0.1312,
+          "max_dd_r": 0.0,
+          "avg_win_r": 1.292,
+          "avg_loss_r": -1.029,
+          "med_win_r": 1.292,
+          "med_loss_r": -1.029,
+          "worst_r": -1.029,
+          "p95_loss_r": -1.029,
+          "trades_per_week": 0.7,
+          "longest_losing_streak": 1,
+          "anti_cheat_ok": true,
+          "anti_cheat_reasons": [],
+          "wr_wilson_95": [
+            0.0945,
+            0.9055
+          ],
+          "p_wr_gt_50": 0.75
+        },
+        {
+          "n": 2,
+          "wins": 1,
+          "losses": 1,
+          "wr": 0.5,
+          "wr_ci95": [
+            0.0,
+            1.0
+          ],
+          "pf": 0.512,
+          "expectancy_r": -0.2473,
+          "max_dd_r": -1.014,
+          "avg_win_r": 0.52,
+          "avg_loss_r": -1.014,
+          "med_win_r": 0.52,
+          "med_loss_r": -1.014,
+          "worst_r": -1.014,
+          "p95_loss_r": -1.014,
+          "trades_per_week": 0.93,
+          "longest_losing_streak": 1,
+          "anti_cheat_ok": true,
+          "anti_cheat_reasons": [],
+          "wr_wilson_95": [
+            0.0945,
+            0.9055
+          ],
+          "p_wr_gt_50": 0.75
+        },
+        {
+          "n": 2,
+          "wins": 1,
+          "losses": 1,
+          "wr": 0.5,
+          "wr_ci95": [
+            0.0,
+            1.0
+          ],
+          "pf": 0.817,
+          "expectancy_r": -0.0921,
+          "max_dd_r": 0.0,
+          "avg_win_r": 0.821,
+          "avg_loss_r": -1.005,
+          "med_win_r": 0.821,
+          "med_loss_r": -1.005,
+          "worst_r": -1.005,
+          "p95_loss_r": -1.005,
+          "trades_per_week": 14.0,
+          "longest_losing_streak": 1,
+          "anti_cheat_ok": true,
+          "anti_cheat_reasons": [],
+          "wr_wilson_95": [
+            0.0945,
+            0.9055
+          ],
+          "p_wr_gt_50": 0.75
+        }
+      ],
+      "passes_desired_70_gate": false,
+      "gate_failures": [
+        "all_n<40",
+        "all_WR<70%",
+        "validation_n<8",
+        "validation_edge<=0",
+        "holdout_n<10",
+        "holdout_WR<70%",
+        "holdout_PF<1.20",
+        "holdout_E<0.10R"
+      ],
+      "holdout_p_holm": 1.0
+    },
+    {
+      "family": "nq_post_settlement_alignment",
+      "variant": "drift05_gap10",
+      "symbol": "CL",
+      "spec": {
+        "id": "drift05_gap10",
+        "minimum_post_drift_range": 0.05,
+        "minimum_gap_range": 0.1
+      },
+      "source_id": "post_settlement_gap",
       "development": {
         "n": 0,
         "wins": 0,
@@ -16340,6 +20301,515 @@
       "holdout_p_holm": 1.0
     },
     {
+      "family": "two_test_range_breakout",
+      "variant": "look24_range40_rvol12",
+      "symbol": "NQ",
+      "spec": {
+        "id": "look24_range40_rvol12",
+        "lookback_bars": 24,
+        "maximum_range_atr": 4.0,
+        "test_tolerance_atr": 0.15,
+        "minimum_relative_volume": 1.2,
+        "break_atr": 0.05
+      },
+      "source_id": "tested_level_break",
+      "development": {
+        "n": 18,
+        "wins": 6,
+        "losses": 12,
+        "wr": 0.3333,
+        "wr_ci95": [
+          0.1111,
+          0.5556
+        ],
+        "pf": 0.868,
+        "expectancy_r": -0.0532,
+        "max_dd_r": -4.087,
+        "avg_win_r": 1.046,
+        "avg_loss_r": -0.603,
+        "med_win_r": 0.966,
+        "med_loss_r": -1.012,
+        "worst_r": -1.036,
+        "p95_loss_r": -1.032,
+        "trades_per_week": 1.8,
+        "longest_losing_streak": 5,
+        "anti_cheat_ok": true,
+        "anti_cheat_reasons": [],
+        "wr_wilson_95": [
+          0.1628,
+          0.5625
+        ],
+        "p_wr_gt_50": 0.951874
+      },
+      "validation": {
+        "n": 7,
+        "wins": 4,
+        "losses": 3,
+        "wr": 0.5714,
+        "wr_ci95": [
+          0.1429,
+          0.8571
+        ],
+        "pf": 1.894,
+        "expectancy_r": 0.2654,
+        "max_dd_r": -2.075,
+        "avg_win_r": 0.984,
+        "avg_loss_r": -0.693,
+        "med_win_r": 0.915,
+        "med_loss_r": -1.02,
+        "worst_r": -1.054,
+        "p95_loss_r": -1.051,
+        "trades_per_week": 1.53,
+        "longest_losing_streak": 2,
+        "anti_cheat_ok": true,
+        "anti_cheat_reasons": [],
+        "wr_wilson_95": [
+          0.2505,
+          0.8418
+        ],
+        "p_wr_gt_50": 0.5
+      },
+      "selected": true,
+      "all": {
+        "n": 31,
+        "wins": 12,
+        "losses": 19,
+        "wr": 0.3871,
+        "wr_ci95": [
+          0.2258,
+          0.5806
+        ],
+        "pf": 1.055,
+        "expectancy_r": 0.0203,
+        "max_dd_r": -4.087,
+        "avg_win_r": 1.0,
+        "avg_loss_r": -0.599,
+        "med_win_r": 0.959,
+        "med_loss_r": -1.012,
+        "worst_r": -1.054,
+        "p95_loss_r": -1.038,
+        "trades_per_week": 1.35,
+        "longest_losing_streak": 5,
+        "anti_cheat_ok": true,
+        "anti_cheat_reasons": [],
+        "wr_wilson_95": [
+          0.2373,
+          0.5618
+        ],
+        "p_wr_gt_50": 0.925194
+      },
+      "holdout": {
+        "n": 6,
+        "wins": 2,
+        "losses": 4,
+        "wr": 0.3333,
+        "wr_ci95": [
+          0.0,
+          0.6667
+        ],
+        "pf": 0.868,
+        "expectancy_r": -0.0452,
+        "max_dd_r": -2.031,
+        "avg_win_r": 0.895,
+        "avg_loss_r": -0.515,
+        "med_win_r": 0.895,
+        "med_loss_r": -0.514,
+        "worst_r": -1.018,
+        "p95_loss_r": -1.017,
+        "trades_per_week": 1.23,
+        "longest_losing_streak": 2,
+        "anti_cheat_ok": true,
+        "anti_cheat_reasons": [],
+        "wr_wilson_95": [
+          0.0968,
+          0.7
+        ],
+        "p_wr_gt_50": 0.890625
+      },
+      "stability_4_blocks": [
+        {
+          "n": 8,
+          "wins": 2,
+          "losses": 6,
+          "wr": 0.25,
+          "wr_ci95": [
+            0.0,
+            0.625
+          ],
+          "pf": 0.354,
+          "expectancy_r": -0.4135,
+          "max_dd_r": -4.085,
+          "avg_win_r": 0.906,
+          "avg_loss_r": -0.854,
+          "med_win_r": 0.906,
+          "med_loss_r": -1.018,
+          "worst_r": -1.036,
+          "p95_loss_r": -1.034,
+          "trades_per_week": 1.55,
+          "longest_losing_streak": 5,
+          "anti_cheat_ok": true,
+          "anti_cheat_reasons": [],
+          "wr_wilson_95": [
+            0.0715,
+            0.5907
+          ],
+          "p_wr_gt_50": 0.964844
+        },
+        {
+          "n": 8,
+          "wins": 4,
+          "losses": 4,
+          "wr": 0.5,
+          "wr_ci95": [
+            0.125,
+            0.875
+          ],
+          "pf": 4.116,
+          "expectancy_r": 0.4226,
+          "max_dd_r": -1.041,
+          "avg_win_r": 1.116,
+          "avg_loss_r": -0.271,
+          "med_win_r": 0.966,
+          "med_loss_r": -0.022,
+          "worst_r": -1.024,
+          "p95_loss_r": -0.875,
+          "trades_per_week": 2.24,
+          "longest_losing_streak": 2,
+          "anti_cheat_ok": true,
+          "anti_cheat_reasons": [],
+          "wr_wilson_95": [
+            0.2152,
+            0.7848
+          ],
+          "p_wr_gt_50": 0.636719
+        },
+        {
+          "n": 8,
+          "wins": 4,
+          "losses": 4,
+          "wr": 0.5,
+          "wr_ci95": [
+            0.25,
+            0.875
+          ],
+          "pf": 1.916,
+          "expectancy_r": 0.2353,
+          "max_dd_r": -1.02,
+          "avg_win_r": 0.984,
+          "avg_loss_r": -0.514,
+          "med_win_r": 0.915,
+          "med_loss_r": -0.515,
+          "worst_r": -1.02,
+          "p95_loss_r": -1.019,
+          "trades_per_week": 1.3,
+          "longest_losing_streak": 2,
+          "anti_cheat_ok": true,
+          "anti_cheat_reasons": [],
+          "wr_wilson_95": [
+            0.2152,
+            0.7848
+          ],
+          "p_wr_gt_50": 0.636719
+        },
+        {
+          "n": 7,
+          "wins": 2,
+          "losses": 5,
+          "wr": 0.2857,
+          "wr_ci95": [
+            0.0,
+            0.575
+          ],
+          "pf": 0.574,
+          "expectancy_r": -0.1894,
+          "max_dd_r": -2.031,
+          "avg_win_r": 0.895,
+          "avg_loss_r": -0.623,
+          "med_win_r": 0.895,
+          "med_loss_r": -1.012,
+          "worst_r": -1.054,
+          "p95_loss_r": -1.047,
+          "trades_per_week": 0.92,
+          "longest_losing_streak": 2,
+          "anti_cheat_ok": true,
+          "anti_cheat_reasons": [],
+          "wr_wilson_95": [
+            0.0822,
+            0.6411
+          ],
+          "p_wr_gt_50": 0.9375
+        }
+      ],
+      "passes_desired_70_gate": false,
+      "gate_failures": [
+        "all_n<40",
+        "all_WR<70%",
+        "all_PF<1.30",
+        "all_E<0.15R",
+        "validation_n<8",
+        "holdout_n<10",
+        "holdout_WR<70%",
+        "holdout_PF<1.20",
+        "holdout_E<0.10R"
+      ],
+      "holdout_p_holm": 1.0
+    },
+    {
+      "family": "two_test_range_breakout",
+      "variant": "look24_range40_rvol12",
+      "symbol": "CL",
+      "spec": {
+        "id": "look24_range40_rvol12",
+        "lookback_bars": 24,
+        "maximum_range_atr": 4.0,
+        "test_tolerance_atr": 0.15,
+        "minimum_relative_volume": 1.2,
+        "break_atr": 0.05
+      },
+      "source_id": "tested_level_break",
+      "development": {
+        "n": 12,
+        "wins": 7,
+        "losses": 5,
+        "wr": 0.5833,
+        "wr_ci95": [
+          0.3333,
+          0.8333
+        ],
+        "pf": 1.661,
+        "expectancy_r": 0.2397,
+        "max_dd_r": -1.07,
+        "avg_win_r": 1.032,
+        "avg_loss_r": -0.87,
+        "med_win_r": 0.868,
+        "med_loss_r": -1.07,
+        "worst_r": -1.07,
+        "p95_loss_r": -1.07,
+        "trades_per_week": 1.14,
+        "longest_losing_streak": 2,
+        "anti_cheat_ok": true,
+        "anti_cheat_reasons": [],
+        "wr_wilson_95": [
+          0.3195,
+          0.8067
+        ],
+        "p_wr_gt_50": 0.387207
+      },
+      "validation": {
+        "n": 4,
+        "wins": 1,
+        "losses": 3,
+        "wr": 0.25,
+        "wr_ci95": [
+          0.0,
+          0.5062
+        ],
+        "pf": 0.448,
+        "expectancy_r": -0.3052,
+        "max_dd_r": -2.14,
+        "avg_win_r": 0.989,
+        "avg_loss_r": -0.737,
+        "med_win_r": 0.989,
+        "med_loss_r": -1.07,
+        "worst_r": -1.07,
+        "p95_loss_r": -1.07,
+        "trades_per_week": 1.08,
+        "longest_losing_streak": 2,
+        "anti_cheat_ok": true,
+        "anti_cheat_reasons": [],
+        "wr_wilson_95": [
+          0.0456,
+          0.6994
+        ],
+        "p_wr_gt_50": 0.9375
+      },
+      "selected": true,
+      "all": {
+        "n": 22,
+        "wins": 9,
+        "losses": 13,
+        "wr": 0.4091,
+        "wr_ci95": [
+          0.2273,
+          0.6364
+        ],
+        "pf": 0.84,
+        "expectancy_r": -0.0794,
+        "max_dd_r": -5.693,
+        "avg_win_r": 1.018,
+        "avg_loss_r": -0.839,
+        "med_win_r": 0.948,
+        "med_loss_r": -1.07,
+        "worst_r": -1.07,
+        "p95_loss_r": -1.07,
+        "trades_per_week": 0.93,
+        "longest_losing_streak": 5,
+        "anti_cheat_ok": true,
+        "anti_cheat_reasons": [],
+        "wr_wilson_95": [
+          0.2326,
+          0.6127
+        ],
+        "p_wr_gt_50": 0.856861
+      },
+      "holdout": {
+        "n": 6,
+        "wins": 1,
+        "losses": 5,
+        "wr": 0.1667,
+        "wr_ci95": [
+          0.0,
+          0.5
+        ],
+        "pf": 0.218,
+        "expectancy_r": -0.567,
+        "max_dd_r": -2.332,
+        "avg_win_r": 0.948,
+        "avg_loss_r": -0.87,
+        "med_win_r": 0.948,
+        "med_loss_r": -1.07,
+        "worst_r": -1.07,
+        "p95_loss_r": -1.07,
+        "trades_per_week": 1.31,
+        "longest_losing_streak": 3,
+        "anti_cheat_ok": true,
+        "anti_cheat_reasons": [],
+        "wr_wilson_95": [
+          0.0301,
+          0.5635
+        ],
+        "p_wr_gt_50": 0.984375
+      },
+      "stability_4_blocks": [
+        {
+          "n": 6,
+          "wins": 3,
+          "losses": 3,
+          "wr": 0.5,
+          "wr_ci95": [
+            0.1667,
+            0.8333
+          ],
+          "pf": 1.27,
+          "expectancy_r": 0.0994,
+          "max_dd_r": -1.07,
+          "avg_win_r": 0.935,
+          "avg_loss_r": -0.737,
+          "med_win_r": 0.797,
+          "med_loss_r": -1.07,
+          "worst_r": -1.07,
+          "p95_loss_r": -1.07,
+          "trades_per_week": 0.84,
+          "longest_losing_streak": 2,
+          "anti_cheat_ok": true,
+          "anti_cheat_reasons": [],
+          "wr_wilson_95": [
+            0.1876,
+            0.8124
+          ],
+          "p_wr_gt_50": 0.65625
+        },
+        {
+          "n": 6,
+          "wins": 4,
+          "losses": 2,
+          "wr": 0.6667,
+          "wr_ci95": [
+            0.3333,
+            1.0
+          ],
+          "pf": 2.065,
+          "expectancy_r": 0.3799,
+          "max_dd_r": -1.07,
+          "avg_win_r": 1.105,
+          "avg_loss_r": -1.07,
+          "med_win_r": 1.049,
+          "med_loss_r": -1.07,
+          "worst_r": -1.07,
+          "p95_loss_r": -1.07,
+          "trades_per_week": 2.01,
+          "longest_losing_streak": 1,
+          "anti_cheat_ok": true,
+          "anti_cheat_reasons": [],
+          "wr_wilson_95": [
+            0.3,
+            0.9032
+          ],
+          "p_wr_gt_50": 0.34375
+        },
+        {
+          "n": 5,
+          "wins": 1,
+          "losses": 4,
+          "wr": 0.2,
+          "wr_ci95": [
+            0.0,
+            0.6
+          ],
+          "pf": 0.302,
+          "expectancy_r": -0.4581,
+          "max_dd_r": -3.21,
+          "avg_win_r": 0.989,
+          "avg_loss_r": -0.82,
+          "med_win_r": 0.989,
+          "med_loss_r": -1.07,
+          "worst_r": -1.07,
+          "p95_loss_r": -1.07,
+          "trades_per_week": 1.17,
+          "longest_losing_streak": 3,
+          "anti_cheat_ok": true,
+          "anti_cheat_reasons": [],
+          "wr_wilson_95": [
+            0.0362,
+            0.6245
+          ],
+          "p_wr_gt_50": 0.96875
+        },
+        {
+          "n": 5,
+          "wins": 1,
+          "losses": 4,
+          "wr": 0.2,
+          "wr_ci95": [
+            0.0,
+            0.6
+          ],
+          "pf": 0.289,
+          "expectancy_r": -0.4664,
+          "max_dd_r": -1.262,
+          "avg_win_r": 0.948,
+          "avg_loss_r": -0.82,
+          "med_win_r": 0.948,
+          "med_loss_r": -1.07,
+          "worst_r": -1.07,
+          "p95_loss_r": -1.07,
+          "trades_per_week": 1.66,
+          "longest_losing_streak": 2,
+          "anti_cheat_ok": true,
+          "anti_cheat_reasons": [],
+          "wr_wilson_95": [
+            0.0362,
+            0.6245
+          ],
+          "p_wr_gt_50": 0.96875
+        }
+      ],
+      "passes_desired_70_gate": false,
+      "gate_failures": [
+        "all_n<40",
+        "all_WR<70%",
+        "all_PF<1.30",
+        "all_E<0.15R",
+        "validation_n<8",
+        "validation_edge<=0",
+        "holdout_n<10",
+        "holdout_WR<70%",
+        "holdout_PF<1.20",
+        "holdout_E<0.10R"
+      ],
+      "holdout_p_holm": 1.0
+    },
+    {
       "family": "value_area_80_rule_rotation",
       "variant": "two_closes_stop025",
       "symbol": "NQ",
@@ -17829,6 +22299,508 @@
       "holdout_p_holm": 1.0
     },
     {
+      "family": "volume_climax_rejection",
+      "variant": "vol20_range15_edge25",
+      "symbol": "NQ",
+      "spec": {
+        "id": "vol20_range15_edge25",
+        "volume_multiple": 2.0,
+        "range_atr": 1.5,
+        "edge_fraction": 0.25,
+        "minimum_vwap_atr": 0.5
+      },
+      "source_id": "volume_rejection",
+      "development": {
+        "n": 30,
+        "wins": 9,
+        "losses": 21,
+        "wr": 0.3,
+        "wr_ci95": [
+          0.1658,
+          0.4667
+        ],
+        "pf": 0.589,
+        "expectancy_r": -0.1938,
+        "max_dd_r": -5.794,
+        "avg_win_r": 0.924,
+        "avg_loss_r": -0.673,
+        "med_win_r": 0.979,
+        "med_loss_r": -1.008,
+        "worst_r": -1.019,
+        "p95_loss_r": -1.017,
+        "trades_per_week": 2.47,
+        "longest_losing_streak": 5,
+        "anti_cheat_ok": true,
+        "anti_cheat_reasons": [],
+        "wr_wilson_95": [
+          0.1666,
+          0.4788
+        ],
+        "p_wr_gt_50": 0.991938
+      },
+      "validation": {
+        "n": 17,
+        "wins": 11,
+        "losses": 6,
+        "wr": 0.6471,
+        "wr_ci95": [
+          0.4118,
+          0.8824
+        ],
+        "pf": 2.163,
+        "expectancy_r": 0.3451,
+        "max_dd_r": -1.013,
+        "avg_win_r": 0.992,
+        "avg_loss_r": -0.841,
+        "med_win_r": 1.001,
+        "med_loss_r": -1.007,
+        "worst_r": -1.012,
+        "p95_loss_r": -1.011,
+        "trades_per_week": 3.71,
+        "longest_losing_streak": 2,
+        "anti_cheat_ok": true,
+        "anti_cheat_reasons": [],
+        "wr_wilson_95": [
+          0.413,
+          0.8269
+        ],
+        "p_wr_gt_50": 0.166153
+      },
+      "selected": true,
+      "all": {
+        "n": 57,
+        "wins": 24,
+        "losses": 33,
+        "wr": 0.4211,
+        "wr_ci95": [
+          0.2807,
+          0.5614
+        ],
+        "pf": 0.922,
+        "expectancy_r": -0.033,
+        "max_dd_r": -5.794,
+        "avg_win_r": 0.931,
+        "avg_loss_r": -0.734,
+        "med_win_r": 0.913,
+        "med_loss_r": -1.007,
+        "worst_r": -1.019,
+        "p95_loss_r": -1.015,
+        "trades_per_week": 2.24,
+        "longest_losing_streak": 5,
+        "anti_cheat_ok": true,
+        "anti_cheat_reasons": [],
+        "wr_wilson_95": [
+          0.3019,
+          0.5502
+        ],
+        "p_wr_gt_50": 0.907575
+      },
+      "holdout": {
+        "n": 10,
+        "wins": 4,
+        "losses": 6,
+        "wr": 0.4,
+        "wr_ci95": [
+          0.1,
+          0.7
+        ],
+        "pf": 0.616,
+        "expectancy_r": -0.1937,
+        "max_dd_r": -3.331,
+        "avg_win_r": 0.777,
+        "avg_loss_r": -0.841,
+        "med_win_r": 0.854,
+        "med_loss_r": -1.007,
+        "worst_r": -1.009,
+        "p95_loss_r": -1.009,
+        "trades_per_week": 2.25,
+        "longest_losing_streak": 2,
+        "anti_cheat_ok": true,
+        "anti_cheat_reasons": [],
+        "wr_wilson_95": [
+          0.1682,
+          0.6873
+        ],
+        "p_wr_gt_50": 0.828125
+      },
+      "stability_4_blocks": [
+        {
+          "n": 15,
+          "wins": 5,
+          "losses": 10,
+          "wr": 0.3333,
+          "wr_ci95": [
+            0.1333,
+            0.6
+          ],
+          "pf": 0.587,
+          "expectancy_r": -0.1872,
+          "max_dd_r": -5.282,
+          "avg_win_r": 0.799,
+          "avg_loss_r": -0.68,
+          "med_win_r": 0.979,
+          "med_loss_r": -1.007,
+          "worst_r": -1.017,
+          "p95_loss_r": -1.013,
+          "trades_per_week": 2.77,
+          "longest_losing_streak": 5,
+          "anti_cheat_ok": true,
+          "anti_cheat_reasons": [],
+          "wr_wilson_95": [
+            0.1518,
+            0.5829
+          ],
+          "p_wr_gt_50": 0.940765
+        },
+        {
+          "n": 14,
+          "wins": 4,
+          "losses": 10,
+          "wr": 0.2857,
+          "wr_ci95": [
+            0.0714,
+            0.5
+          ],
+          "pf": 0.684,
+          "expectancy_r": -0.1426,
+          "max_dd_r": -3.9,
+          "avg_win_r": 1.081,
+          "avg_loss_r": -0.632,
+          "med_win_r": 1.097,
+          "med_loss_r": -1.01,
+          "worst_r": -1.019,
+          "p95_loss_r": -1.016,
+          "trades_per_week": 2.33,
+          "longest_losing_streak": 5,
+          "anti_cheat_ok": true,
+          "anti_cheat_reasons": [],
+          "wr_wilson_95": [
+            0.1172,
+            0.5465
+          ],
+          "p_wr_gt_50": 0.971313
+        },
+        {
+          "n": 14,
+          "wins": 8,
+          "losses": 6,
+          "wr": 0.5714,
+          "wr_ci95": [
+            0.2857,
+            0.7857
+          ],
+          "pf": 1.708,
+          "expectancy_r": 0.2553,
+          "max_dd_r": -1.013,
+          "avg_win_r": 1.078,
+          "avg_loss_r": -0.841,
+          "med_win_r": 1.049,
+          "med_loss_r": -1.007,
+          "worst_r": -1.012,
+          "p95_loss_r": -1.011,
+          "trades_per_week": 2.65,
+          "longest_losing_streak": 2,
+          "anti_cheat_ok": true,
+          "anti_cheat_reasons": [],
+          "wr_wilson_95": [
+            0.3259,
+            0.7862
+          ],
+          "p_wr_gt_50": 0.395264
+        },
+        {
+          "n": 14,
+          "wins": 7,
+          "losses": 7,
+          "wr": 0.5,
+          "wr_ci95": [
+            0.2143,
+            0.7857
+          ],
+          "pf": 0.892,
+          "expectancy_r": -0.0466,
+          "max_dd_r": -3.851,
+          "avg_win_r": 0.771,
+          "avg_loss_r": -0.865,
+          "med_win_r": 0.843,
+          "med_loss_r": -1.007,
+          "worst_r": -1.009,
+          "p95_loss_r": -1.009,
+          "trades_per_week": 1.78,
+          "longest_losing_streak": 2,
+          "anti_cheat_ok": true,
+          "anti_cheat_reasons": [],
+          "wr_wilson_95": [
+            0.268,
+            0.732
+          ],
+          "p_wr_gt_50": 0.604736
+        }
+      ],
+      "passes_desired_70_gate": false,
+      "gate_failures": [
+        "all_WR<70%",
+        "all_PF<1.30",
+        "all_E<0.15R",
+        "holdout_WR<70%",
+        "holdout_PF<1.20",
+        "holdout_E<0.10R"
+      ],
+      "holdout_p_holm": 1.0
+    },
+    {
+      "family": "volume_climax_rejection",
+      "variant": "vol20_range15_edge25",
+      "symbol": "CL",
+      "spec": {
+        "id": "vol20_range15_edge25",
+        "volume_multiple": 2.0,
+        "range_atr": 1.5,
+        "edge_fraction": 0.25,
+        "minimum_vwap_atr": 0.5
+      },
+      "source_id": "volume_rejection",
+      "development": {
+        "n": 22,
+        "wins": 12,
+        "losses": 10,
+        "wr": 0.5455,
+        "wr_ci95": [
+          0.3636,
+          0.7727
+        ],
+        "pf": 1.623,
+        "expectancy_r": 0.1896,
+        "max_dd_r": -2.726,
+        "avg_win_r": 0.906,
+        "avg_loss_r": -0.67,
+        "med_win_r": 0.843,
+        "med_loss_r": -1.07,
+        "worst_r": -1.07,
+        "p95_loss_r": -1.07,
+        "trades_per_week": 1.95,
+        "longest_losing_streak": 4,
+        "anti_cheat_ok": true,
+        "anti_cheat_reasons": [],
+        "wr_wilson_95": [
+          0.3466,
+          0.7308
+        ],
+        "p_wr_gt_50": 0.415906
+      },
+      "validation": {
+        "n": 7,
+        "wins": 3,
+        "losses": 4,
+        "wr": 0.4286,
+        "wr_ci95": [
+          0.1429,
+          0.7143
+        ],
+        "pf": 1.187,
+        "expectancy_r": 0.0797,
+        "max_dd_r": -1.132,
+        "avg_win_r": 1.179,
+        "avg_loss_r": -0.745,
+        "med_win_r": 1.23,
+        "med_loss_r": -0.843,
+        "worst_r": -1.07,
+        "p95_loss_r": -1.07,
+        "trades_per_week": 1.25,
+        "longest_losing_streak": 2,
+        "anti_cheat_ok": true,
+        "anti_cheat_reasons": [],
+        "wr_wilson_95": [
+          0.1582,
+          0.7495
+        ],
+        "p_wr_gt_50": 0.773438
+      },
+      "selected": true,
+      "all": {
+        "n": 39,
+        "wins": 17,
+        "losses": 22,
+        "wr": 0.4359,
+        "wr_ci95": [
+          0.2814,
+          0.5897
+        ],
+        "pf": 1.048,
+        "expectancy_r": 0.019,
+        "max_dd_r": -6.156,
+        "avg_win_r": 0.943,
+        "avg_loss_r": -0.695,
+        "med_win_r": 0.831,
+        "med_loss_r": -1.07,
+        "worst_r": -1.07,
+        "p95_loss_r": -1.07,
+        "trades_per_week": 1.63,
+        "longest_losing_streak": 6,
+        "anti_cheat_ok": true,
+        "anti_cheat_reasons": [],
+        "wr_wilson_95": [
+          0.293,
+          0.5902
+        ],
+        "p_wr_gt_50": 0.831608
+      },
+      "holdout": {
+        "n": 10,
+        "wins": 2,
+        "losses": 8,
+        "wr": 0.2,
+        "wr_ci95": [
+          0.0,
+          0.5
+        ],
+        "pf": 0.288,
+        "expectancy_r": -0.3988,
+        "max_dd_r": -4.795,
+        "avg_win_r": 0.808,
+        "avg_loss_r": -0.701,
+        "med_win_r": 0.808,
+        "med_loss_r": -0.927,
+        "worst_r": -1.07,
+        "p95_loss_r": -1.07,
+        "trades_per_week": 2.06,
+        "longest_losing_streak": 6,
+        "anti_cheat_ok": true,
+        "anti_cheat_reasons": [],
+        "wr_wilson_95": [
+          0.0567,
+          0.5098
+        ],
+        "p_wr_gt_50": 0.989258
+      },
+      "stability_4_blocks": [
+        {
+          "n": 10,
+          "wins": 7,
+          "losses": 3,
+          "wr": 0.7,
+          "wr_ci95": [
+            0.4,
+            1.0
+          ],
+          "pf": 1.887,
+          "expectancy_r": 0.2848,
+          "max_dd_r": -2.14,
+          "avg_win_r": 0.865,
+          "avg_loss_r": -1.07,
+          "med_win_r": 0.855,
+          "med_loss_r": -1.07,
+          "worst_r": -1.07,
+          "p95_loss_r": -1.07,
+          "trades_per_week": 1.89,
+          "longest_losing_streak": 2,
+          "anti_cheat_ok": true,
+          "anti_cheat_reasons": [],
+          "wr_wilson_95": [
+            0.3968,
+            0.8922
+          ],
+          "p_wr_gt_50": 0.171875
+        },
+        {
+          "n": 10,
+          "wins": 5,
+          "losses": 5,
+          "wr": 0.5,
+          "wr_ci95": [
+            0.2,
+            0.8
+          ],
+          "pf": 2.048,
+          "expectancy_r": 0.2463,
+          "max_dd_r": -2.28,
+          "avg_win_r": 0.963,
+          "avg_loss_r": -0.47,
+          "med_win_r": 0.831,
+          "med_loss_r": -0.07,
+          "worst_r": -1.07,
+          "p95_loss_r": -1.07,
+          "trades_per_week": 2.59,
+          "longest_losing_streak": 4,
+          "anti_cheat_ok": true,
+          "anti_cheat_reasons": [],
+          "wr_wilson_95": [
+            0.2366,
+            0.7634
+          ],
+          "p_wr_gt_50": 0.623047
+        },
+        {
+          "n": 10,
+          "wins": 4,
+          "losses": 6,
+          "wr": 0.4,
+          "wr_ci95": [
+            0.1,
+            0.7
+          ],
+          "pf": 1.055,
+          "expectancy_r": 0.0225,
+          "max_dd_r": -1.132,
+          "avg_win_r": 1.086,
+          "avg_loss_r": -0.687,
+          "med_win_r": 1.018,
+          "med_loss_r": -0.843,
+          "worst_r": -1.07,
+          "p95_loss_r": -1.07,
+          "trades_per_week": 1.11,
+          "longest_losing_streak": 2,
+          "anti_cheat_ok": true,
+          "anti_cheat_reasons": [],
+          "wr_wilson_95": [
+            0.1682,
+            0.6873
+          ],
+          "p_wr_gt_50": 0.828125
+        },
+        {
+          "n": 9,
+          "wins": 1,
+          "losses": 8,
+          "wr": 0.1111,
+          "wr_ci95": [
+            0.0,
+            0.3333
+          ],
+          "pf": 0.144,
+          "expectancy_r": -0.5328,
+          "max_dd_r": -4.42,
+          "avg_win_r": 0.809,
+          "avg_loss_r": -0.701,
+          "med_win_r": 0.809,
+          "med_loss_r": -0.927,
+          "worst_r": -1.07,
+          "p95_loss_r": -1.07,
+          "trades_per_week": 2.25,
+          "longest_losing_streak": 6,
+          "anti_cheat_ok": true,
+          "anti_cheat_reasons": [],
+          "wr_wilson_95": [
+            0.0199,
+            0.435
+          ],
+          "p_wr_gt_50": 0.998047
+        }
+      ],
+      "passes_desired_70_gate": false,
+      "gate_failures": [
+        "all_n<40",
+        "all_WR<70%",
+        "all_PF<1.30",
+        "all_E<0.15R",
+        "validation_n<8",
+        "holdout_WR<70%",
+        "holdout_PF<1.20",
+        "holdout_E<0.10R"
+      ],
+      "holdout_p_holm": 1.0
+    },
+    {
       "family": "vwap_band_reentry",
       "variant": "z2_re1_flat035",
       "symbol": "NQ",
@@ -18860,8 +23832,16 @@
           "variant": "donchian20_stop10"
         },
         {
+          "family": "gap_reject_then_go",
+          "variant": "gap25_fill20"
+        },
+        {
           "family": "initial_balance_failed_break",
           "variant": "pierce000"
+        },
+        {
+          "family": "initial_balance_vwap_retest",
+          "variant": "ib60_rvol12_depth20"
         },
         {
           "family": "intraday_capitulation_reversal",
@@ -18876,8 +23856,20 @@
           "variant": "pierce010"
         },
         {
+          "family": "lunch_vwap_reclaim",
+          "variant": "stretch25_reclaim050"
+        },
+        {
           "family": "nq_15m_opening_range_retest",
           "variant": "opposite_edge_stop"
+        },
+        {
+          "family": "nq_opening_shock_reversal",
+          "variant": "shock40_confirm4"
+        },
+        {
+          "family": "nq_post_settlement_alignment",
+          "variant": "drift05_gap10"
         },
         {
           "family": "nq_premarket_ema_engulfing",
@@ -18920,6 +23912,10 @@
           "variant": "bb20_25"
         },
         {
+          "family": "two_test_range_breakout",
+          "variant": "look24_range40_rvol12"
+        },
+        {
           "family": "value_area_80_rule_rotation",
           "variant": "two_overlaps_outside010"
         },
@@ -18932,6 +23928,10 @@
           "variant": "compress40"
         },
         {
+          "family": "volume_climax_rejection",
+          "variant": "vol20_range15_edge25"
+        },
+        {
           "family": "vwap_band_reentry",
           "variant": "z25_re125_flat025"
         },
@@ -18940,30 +23940,30 @@
           "variant": "outside00_retest10"
         }
       ],
-      "threshold": 0.6,
+      "threshold": 0.55,
       "threshold_search_validation_only": [
         {
           "threshold": 0.5,
           "validation": {
-            "n": 113,
-            "wins": 52,
-            "losses": 61,
-            "wr": 0.4602,
+            "n": 116,
+            "wins": 54,
+            "losses": 62,
+            "wr": 0.4655,
             "wr_ci95": [
-              0.3717,
-              0.5489
+              0.3793,
+              0.5606
             ],
-            "pf": 1.09,
-            "expectancy_r": 0.0344,
-            "max_dd_r": -5.59,
-            "avg_win_r": 0.901,
-            "avg_loss_r": -0.705,
-            "med_win_r": 0.915,
+            "pf": 1.188,
+            "expectancy_r": 0.0672,
+            "max_dd_r": -6.61,
+            "avg_win_r": 0.912,
+            "avg_loss_r": -0.669,
+            "med_win_r": 0.92,
             "med_loss_r": -1.006,
             "worst_r": -1.066,
             "p95_loss_r": -1.033,
-            "trades_per_week": 18.28,
-            "longest_losing_streak": 6,
+            "trades_per_week": 18.67,
+            "longest_losing_streak": 7,
             "anti_cheat_ok": true,
             "anti_cheat_reasons": []
           }
@@ -18971,25 +23971,25 @@
         {
           "threshold": 0.55,
           "validation": {
-            "n": 63,
-            "wins": 33,
-            "losses": 30,
-            "wr": 0.5238,
+            "n": 62,
+            "wins": 35,
+            "losses": 27,
+            "wr": 0.5645,
             "wr_ci95": [
-              0.3968,
-              0.6349
+              0.4512,
+              0.6774
             ],
-            "pf": 1.577,
-            "expectancy_r": 0.1642,
-            "max_dd_r": -4.334,
-            "avg_win_r": 0.857,
-            "avg_loss_r": -0.597,
-            "med_win_r": 0.887,
+            "pf": 1.809,
+            "expectancy_r": 0.2218,
+            "max_dd_r": -4.303,
+            "avg_win_r": 0.879,
+            "avg_loss_r": -0.63,
+            "med_win_r": 0.902,
             "med_loss_r": -1.005,
             "worst_r": -1.066,
-            "p95_loss_r": -1.037,
-            "trades_per_week": 10.26,
-            "longest_losing_streak": 6,
+            "p95_loss_r": -1.038,
+            "trades_per_week": 10.1,
+            "longest_losing_streak": 5,
             "anti_cheat_ok": true,
             "anti_cheat_reasons": []
           }
@@ -18997,24 +23997,24 @@
         {
           "threshold": 0.6,
           "validation": {
-            "n": 39,
-            "wins": 22,
-            "losses": 17,
-            "wr": 0.5641,
+            "n": 35,
+            "wins": 19,
+            "losses": 16,
+            "wr": 0.5429,
             "wr_ci95": [
-              0.4103,
-              0.7179
+              0.4,
+              0.7143
             ],
-            "pf": 1.835,
-            "expectancy_r": 0.2069,
-            "max_dd_r": -3.29,
-            "avg_win_r": 0.806,
-            "avg_loss_r": -0.568,
-            "med_win_r": 0.853,
-            "med_loss_r": -0.75,
-            "worst_r": -1.04,
-            "p95_loss_r": -1.032,
-            "trades_per_week": 6.5,
+            "pf": 1.62,
+            "expectancy_r": 0.17,
+            "max_dd_r": -3.287,
+            "avg_win_r": 0.819,
+            "avg_loss_r": -0.6,
+            "med_win_r": 0.857,
+            "med_loss_r": -0.877,
+            "worst_r": -1.017,
+            "p95_loss_r": -1.015,
+            "trades_per_week": 5.84,
             "longest_losing_streak": 4,
             "anti_cheat_ok": true,
             "anti_cheat_reasons": []
@@ -19023,25 +24023,25 @@
         {
           "threshold": 0.65,
           "validation": {
-            "n": 15,
-            "wins": 8,
-            "losses": 7,
-            "wr": 0.5333,
+            "n": 13,
+            "wins": 7,
+            "losses": 6,
+            "wr": 0.5385,
             "wr_ci95": [
-              0.2667,
-              0.7333
+              0.2308,
+              0.8462
             ],
-            "pf": 1.52,
-            "expectancy_r": 0.156,
-            "max_dd_r": -2.287,
-            "avg_win_r": 0.855,
-            "avg_loss_r": -0.643,
-            "med_win_r": 0.927,
-            "med_loss_r": -0.75,
+            "pf": 1.859,
+            "expectancy_r": 0.2306,
+            "max_dd_r": -1.279,
+            "avg_win_r": 0.927,
+            "avg_loss_r": -0.582,
+            "med_win_r": 0.997,
+            "med_loss_r": -0.73,
             "worst_r": -1.008,
-            "p95_loss_r": -1.008,
-            "trades_per_week": 2.5,
-            "longest_losing_streak": 3,
+            "p95_loss_r": -1.007,
+            "trades_per_week": 2.17,
+            "longest_losing_streak": 2,
             "anti_cheat_ok": true,
             "anti_cheat_reasons": []
           }
@@ -19049,24 +24049,24 @@
         {
           "threshold": 0.7,
           "validation": {
-            "n": 3,
-            "wins": 3,
+            "n": 0,
+            "wins": 0,
             "losses": 0,
-            "wr": 1.0,
+            "wr": 0.0,
             "wr_ci95": [
-              1.0,
-              1.0
+              0.0,
+              0.0
             ],
-            "pf": 999.0,
-            "expectancy_r": 0.9519,
+            "pf": 0.0,
+            "expectancy_r": 0.0,
             "max_dd_r": 0.0,
-            "avg_win_r": 0.952,
+            "avg_win_r": 0.0,
             "avg_loss_r": 0.0,
-            "med_win_r": 1.073,
+            "med_win_r": 0.0,
             "med_loss_r": 0.0,
-            "worst_r": 0.49,
+            "worst_r": 0.0,
             "p95_loss_r": 0.0,
-            "trades_per_week": 0.7,
+            "trades_per_week": 0.0,
             "longest_losing_streak": 0,
             "anti_cheat_ok": true,
             "anti_cheat_reasons": []
@@ -19126,134 +24126,135 @@
         }
       ],
       "development": {
-        "n": 49,
-        "wins": 29,
-        "losses": 20,
-        "wr": 0.5918,
+        "n": 113,
+        "wins": 63,
+        "losses": 50,
+        "wr": 0.5575,
         "wr_ci95": [
-          0.449,
-          0.7347
+          0.4688,
+          0.646
         ],
-        "pf": 1.707,
-        "expectancy_r": 0.2032,
-        "max_dd_r": -3.556,
-        "avg_win_r": 0.829,
-        "avg_loss_r": -0.705,
-        "med_win_r": 0.888,
-        "med_loss_r": -1.009,
-        "worst_r": -1.051,
-        "p95_loss_r": -1.04,
-        "trades_per_week": 3.95,
-        "longest_losing_streak": 4,
-        "anti_cheat_ok": true,
-        "anti_cheat_reasons": [],
-        "wr_wilson_95": [
-          0.4525,
-          0.7178
-        ],
-        "p_wr_gt_50": 0.126435
-      },
-      "validation": {
-        "n": 39,
-        "wins": 22,
-        "losses": 17,
-        "wr": 0.5641,
-        "wr_ci95": [
-          0.4103,
-          0.7179
-        ],
-        "pf": 1.835,
-        "expectancy_r": 0.2069,
-        "max_dd_r": -3.29,
-        "avg_win_r": 0.806,
-        "avg_loss_r": -0.568,
-        "med_win_r": 0.853,
-        "med_loss_r": -0.75,
-        "worst_r": -1.04,
-        "p95_loss_r": -1.032,
-        "trades_per_week": 6.5,
-        "longest_losing_streak": 4,
-        "anti_cheat_ok": true,
-        "anti_cheat_reasons": [],
-        "wr_wilson_95": [
-          0.4098,
-          0.707
-        ],
-        "p_wr_gt_50": 0.261199
-      },
-      "holdout": {
-        "n": 27,
-        "wins": 14,
-        "losses": 13,
-        "wr": 0.5185,
-        "wr_ci95": [
-          0.3324,
-          0.7407
-        ],
-        "pf": 1.424,
-        "expectancy_r": 0.1286,
-        "max_dd_r": -3.087,
-        "avg_win_r": 0.833,
-        "avg_loss_r": -0.63,
-        "med_win_r": 0.958,
-        "med_loss_r": -1.006,
-        "worst_r": -1.024,
-        "p95_loss_r": -1.022,
-        "trades_per_week": 4.61,
+        "pf": 1.459,
+        "expectancy_r": 0.1398,
+        "max_dd_r": -8.071,
+        "avg_win_r": 0.797,
+        "avg_loss_r": -0.689,
+        "med_win_r": 0.86,
+        "med_loss_r": -1.011,
+        "worst_r": -1.069,
+        "p95_loss_r": -1.046,
+        "trades_per_week": 9.08,
         "longest_losing_streak": 5,
         "anti_cheat_ok": true,
         "anti_cheat_reasons": [],
         "wr_wilson_95": [
-          0.3399,
-          0.6926
+          0.4656,
+          0.6457
         ],
-        "p_wr_gt_50": 0.5
+        "p_wr_gt_50": 0.129431
+      },
+      "validation": {
+        "n": 62,
+        "wins": 35,
+        "losses": 27,
+        "wr": 0.5645,
+        "wr_ci95": [
+          0.4512,
+          0.6774
+        ],
+        "pf": 1.809,
+        "expectancy_r": 0.2218,
+        "max_dd_r": -4.303,
+        "avg_win_r": 0.879,
+        "avg_loss_r": -0.63,
+        "med_win_r": 0.902,
+        "med_loss_r": -1.005,
+        "worst_r": -1.066,
+        "p95_loss_r": -1.038,
+        "trades_per_week": 10.1,
+        "longest_losing_streak": 5,
+        "anti_cheat_ok": true,
+        "anti_cheat_reasons": [],
+        "wr_wilson_95": [
+          0.4409,
+          0.6806
+        ],
+        "p_wr_gt_50": 0.187076
+      },
+      "holdout": {
+        "n": 55,
+        "wins": 25,
+        "losses": 30,
+        "wr": 0.4545,
+        "wr_ci95": [
+          0.3273,
+          0.5818
+        ],
+        "pf": 1.083,
+        "expectancy_r": 0.0285,
+        "max_dd_r": -5.388,
+        "avg_win_r": 0.814,
+        "avg_loss_r": -0.626,
+        "med_win_r": 0.93,
+        "med_loss_r": -1.003,
+        "worst_r": -1.024,
+        "p95_loss_r": -1.021,
+        "trades_per_week": 9.39,
+        "longest_losing_streak": 6,
+        "anti_cheat_ok": true,
+        "anti_cheat_reasons": [],
+        "wr_wilson_95": [
+          0.3303,
+          0.5848
+        ],
+        "p_wr_gt_50": 0.790623
       },
       "independent_yahoo": {
         "source": "Yahoo 5m, 60d; frozen Databento model and threshold; no refit",
         "status": "PASS",
-        "rows_before_filter": 658,
+        "rows_before_filter": 708,
         "stats": {
-          "n": 49,
-          "wins": 22,
-          "losses": 27,
-          "wr": 0.449,
+          "n": 88,
+          "wins": 42,
+          "losses": 46,
+          "wr": 0.4773,
           "wr_ci95": [
-            0.3056,
-            0.5918
+            0.375,
+            0.5795
           ],
-          "pf": 0.821,
-          "expectancy_r": -0.0688,
-          "max_dd_r": -4.647,
-          "avg_win_r": 0.701,
-          "avg_loss_r": -0.696,
-          "med_win_r": 0.776,
-          "med_loss_r": -1.006,
+          "pf": 1.002,
+          "expectancy_r": 0.0008,
+          "max_dd_r": -4.712,
+          "avg_win_r": 0.8,
+          "avg_loss_r": -0.729,
+          "med_win_r": 0.827,
+          "med_loss_r": -1.007,
           "worst_r": -1.072,
-          "p95_loss_r": -1.023,
-          "trades_per_week": 4.9,
+          "p95_loss_r": -1.024,
+          "trades_per_week": 8.8,
           "longest_losing_streak": 6,
           "anti_cheat_ok": true,
           "anti_cheat_reasons": [],
           "wr_wilson_95": [
-            0.3185,
-            0.5869
+            0.3761,
+            0.5804
           ],
-          "p_wr_gt_50": 0.804199
+          "p_wr_gt_50": 0.702856
         }
       },
       "gate_failures": [
         "validation_WR<70%",
         "holdout_WR<70%",
+        "holdout_PF<1.30",
         "holdout_E<0.15R",
         "independent_WR<70%",
         "independent_PF<1.30",
         "independent_E<0.15R"
       ],
       "counts_before_filter": {
-        "development": 825,
-        "validation": 445,
-        "holdout": 444
+        "development": 912,
+        "validation": 484,
+        "holdout": 474
       }
     },
     {
@@ -19283,8 +24284,16 @@
           "variant": "donchian20_stop10"
         },
         {
+          "family": "gap_reject_then_go",
+          "variant": "gap25_fill20"
+        },
+        {
           "family": "initial_balance_failed_break",
           "variant": "pierce000"
+        },
+        {
+          "family": "initial_balance_vwap_retest",
+          "variant": "ib60_rvol12_depth20"
         },
         {
           "family": "intraday_capitulation_reversal",
@@ -19299,8 +24308,20 @@
           "variant": "pierce010"
         },
         {
+          "family": "lunch_vwap_reclaim",
+          "variant": "stretch20_reclaim075"
+        },
+        {
           "family": "nq_15m_opening_range_retest",
           "variant": "opposite_edge_stop"
+        },
+        {
+          "family": "nq_opening_shock_reversal",
+          "variant": "shock40_confirm4"
+        },
+        {
+          "family": "nq_post_settlement_alignment",
+          "variant": "drift05_gap10"
         },
         {
           "family": "nq_premarket_ema_engulfing",
@@ -19343,6 +24364,10 @@
           "variant": "bb20_20"
         },
         {
+          "family": "two_test_range_breakout",
+          "variant": "look24_range40_rvol12"
+        },
+        {
           "family": "value_area_80_rule_rotation",
           "variant": "two_closes_stop025"
         },
@@ -19353,6 +24378,10 @@
         {
           "family": "volatility_compression_breakout",
           "variant": "compress40"
+        },
+        {
+          "family": "volume_climax_rejection",
+          "variant": "vol20_range15_edge25"
         },
         {
           "family": "vwap_band_reentry",
@@ -19368,25 +24397,25 @@
         {
           "threshold": 0.5,
           "validation": {
-            "n": 101,
-            "wins": 40,
-            "losses": 61,
-            "wr": 0.396,
+            "n": 96,
+            "wins": 44,
+            "losses": 52,
+            "wr": 0.4583,
             "wr_ci95": [
-              0.3069,
-              0.495
+              0.3438,
+              0.5521
             ],
-            "pf": 0.735,
-            "expectancy_r": -0.1381,
-            "max_dd_r": -14.8,
-            "avg_win_r": 0.969,
-            "avg_loss_r": -0.864,
+            "pf": 0.958,
+            "expectancy_r": -0.0191,
+            "max_dd_r": -10.431,
+            "avg_win_r": 0.96,
+            "avg_loss_r": -0.847,
             "med_win_r": 0.914,
             "med_loss_r": -1.07,
             "worst_r": -1.07,
             "p95_loss_r": -1.07,
-            "trades_per_week": 16.32,
-            "longest_losing_streak": 7,
+            "trades_per_week": 15.51,
+            "longest_losing_streak": 5,
             "anti_cheat_ok": true,
             "anti_cheat_reasons": []
           }
@@ -19394,25 +24423,25 @@
         {
           "threshold": 0.55,
           "validation": {
-            "n": 54,
+            "n": 52,
             "wins": 19,
-            "losses": 35,
-            "wr": 0.3519,
+            "losses": 33,
+            "wr": 0.3654,
             "wr_ci95": [
-              0.2222,
-              0.463
+              0.2308,
+              0.4808
             ],
-            "pf": 0.671,
-            "expectancy_r": -0.1822,
-            "max_dd_r": -11.604,
-            "avg_win_r": 1.054,
-            "avg_loss_r": -0.854,
-            "med_win_r": 1.084,
+            "pf": 0.729,
+            "expectancy_r": -0.1447,
+            "max_dd_r": -11.714,
+            "avg_win_r": 1.064,
+            "avg_loss_r": -0.84,
+            "med_win_r": 1.18,
             "med_loss_r": -1.07,
             "worst_r": -1.07,
             "p95_loss_r": -1.07,
-            "trades_per_week": 8.92,
-            "longest_losing_streak": 10,
+            "trades_per_week": 8.59,
+            "longest_losing_streak": 11,
             "anti_cheat_ok": true,
             "anti_cheat_reasons": []
           }
@@ -19420,24 +24449,24 @@
         {
           "threshold": 0.6,
           "validation": {
-            "n": 33,
-            "wins": 9,
+            "n": 34,
+            "wins": 10,
             "losses": 24,
-            "wr": 0.2727,
+            "wr": 0.2941,
             "wr_ci95": [
-              0.1212,
-              0.4242
+              0.1471,
+              0.4412
             ],
-            "pf": 0.431,
-            "expectancy_r": -0.3636,
-            "max_dd_r": -10.93,
-            "avg_win_r": 1.012,
+            "pf": 0.462,
+            "expectancy_r": -0.334,
+            "max_dd_r": -10.286,
+            "avg_win_r": 0.975,
             "avg_loss_r": -0.879,
-            "med_win_r": 1.18,
+            "med_win_r": 0.965,
             "med_loss_r": -1.07,
             "worst_r": -1.07,
             "p95_loss_r": -1.07,
-            "trades_per_week": 5.49,
+            "trades_per_week": 5.66,
             "longest_losing_streak": 12,
             "anti_cheat_ok": true,
             "anti_cheat_reasons": []
@@ -19446,25 +24475,25 @@
         {
           "threshold": 0.65,
           "validation": {
-            "n": 14,
-            "wins": 4,
-            "losses": 10,
-            "wr": 0.2857,
+            "n": 19,
+            "wins": 5,
+            "losses": 14,
+            "wr": 0.2632,
             "wr_ci95": [
-              0.0714,
-              0.5
+              0.1053,
+              0.4737
             ],
-            "pf": 0.513,
-            "expectancy_r": -0.2679,
-            "max_dd_r": -4.99,
-            "avg_win_r": 0.987,
-            "avg_loss_r": -0.77,
-            "med_win_r": 1.044,
+            "pf": 0.417,
+            "expectancy_r": -0.3499,
+            "max_dd_r": -7.455,
+            "avg_win_r": 0.951,
+            "avg_loss_r": -0.815,
+            "med_win_r": 0.909,
             "med_loss_r": -1.07,
             "worst_r": -1.07,
             "p95_loss_r": -1.07,
-            "trades_per_week": 3.07,
-            "longest_losing_streak": 6,
+            "trades_per_week": 3.8,
+            "longest_losing_streak": 7,
             "anti_cheat_ok": true,
             "anti_cheat_reasons": []
           }
@@ -19472,25 +24501,25 @@
         {
           "threshold": 0.7,
           "validation": {
-            "n": 7,
-            "wins": 2,
+            "n": 6,
+            "wins": 1,
             "losses": 5,
-            "wr": 0.2857,
+            "wr": 0.1667,
             "wr_ci95": [
               0.0,
-              0.7143
+              0.5
             ],
-            "pf": 0.4,
-            "expectancy_r": -0.2873,
-            "max_dd_r": -1.941,
-            "avg_win_r": 0.669,
-            "avg_loss_r": -0.67,
-            "med_win_r": 0.669,
+            "pf": 0.209,
+            "expectancy_r": -0.5735,
+            "max_dd_r": -2.371,
+            "avg_win_r": 0.909,
+            "avg_loss_r": -0.87,
+            "med_win_r": 0.909,
             "med_loss_r": -1.07,
             "worst_r": -1.07,
             "p95_loss_r": -1.07,
-            "trades_per_week": 1.53,
-            "longest_losing_streak": 3,
+            "trades_per_week": 1.28,
+            "longest_losing_streak": 4,
             "anti_cheat_ok": true,
             "anti_cheat_reasons": []
           }
@@ -19498,25 +24527,25 @@
         {
           "threshold": 0.75,
           "validation": {
-            "n": 1,
+            "n": 2,
             "wins": 1,
-            "losses": 0,
-            "wr": 1.0,
+            "losses": 1,
+            "wr": 0.5,
             "wr_ci95": [
-              1.0,
+              0.0,
               1.0
             ],
-            "pf": 999.0,
-            "expectancy_r": 0.9088,
+            "pf": 0.849,
+            "expectancy_r": -0.0806,
             "max_dd_r": 0.0,
             "avg_win_r": 0.909,
-            "avg_loss_r": 0.0,
+            "avg_loss_r": -1.07,
             "med_win_r": 0.909,
-            "med_loss_r": 0.0,
-            "worst_r": 0.909,
-            "p95_loss_r": 0.0,
-            "trades_per_week": 1.0,
-            "longest_losing_streak": 0,
+            "med_loss_r": -1.07,
+            "worst_r": -1.07,
+            "p95_loss_r": -1.07,
+            "trades_per_week": 0.49,
+            "longest_losing_streak": 1,
             "anti_cheat_ok": true,
             "anti_cheat_reasons": []
           }
@@ -19549,120 +24578,120 @@
         }
       ],
       "development": {
-        "n": 149,
-        "wins": 97,
-        "losses": 52,
-        "wr": 0.651,
+        "n": 161,
+        "wins": 107,
+        "losses": 54,
+        "wr": 0.6646,
         "wr_ci95": [
-          0.5705,
-          0.7248
+          0.5901,
+          0.7331
         ],
-        "pf": 2.146,
-        "expectancy_r": 0.3243,
-        "max_dd_r": -5.803,
-        "avg_win_r": 0.933,
-        "avg_loss_r": -0.811,
+        "pf": 2.277,
+        "expectancy_r": 0.3515,
+        "max_dd_r": -6.771,
+        "avg_win_r": 0.943,
+        "avg_loss_r": -0.821,
         "med_win_r": 0.911,
         "med_loss_r": -1.07,
         "worst_r": -1.07,
         "p95_loss_r": -1.07,
-        "trades_per_week": 11.84,
-        "longest_losing_streak": 5,
+        "trades_per_week": 12.8,
+        "longest_losing_streak": 6,
         "anti_cheat_ok": true,
         "anti_cheat_reasons": [],
         "wr_wilson_95": [
-          0.5715,
-          0.7229
+          0.5886,
+          0.7329
         ],
-        "p_wr_gt_50": 0.000142
+        "p_wr_gt_50": 1.8e-05
       },
       "validation": {
-        "n": 101,
-        "wins": 40,
-        "losses": 61,
-        "wr": 0.396,
+        "n": 96,
+        "wins": 44,
+        "losses": 52,
+        "wr": 0.4583,
         "wr_ci95": [
-          0.3069,
-          0.495
+          0.3438,
+          0.5521
         ],
-        "pf": 0.735,
-        "expectancy_r": -0.1381,
-        "max_dd_r": -14.8,
-        "avg_win_r": 0.969,
-        "avg_loss_r": -0.864,
+        "pf": 0.958,
+        "expectancy_r": -0.0191,
+        "max_dd_r": -10.431,
+        "avg_win_r": 0.96,
+        "avg_loss_r": -0.847,
         "med_win_r": 0.914,
         "med_loss_r": -1.07,
         "worst_r": -1.07,
         "p95_loss_r": -1.07,
-        "trades_per_week": 16.32,
-        "longest_losing_streak": 7,
-        "anti_cheat_ok": true,
-        "anti_cheat_reasons": [],
-        "wr_wilson_95": [
-          0.3062,
-          0.4935
-        ],
-        "p_wr_gt_50": 0.985955
-      },
-      "holdout": {
-        "n": 78,
-        "wins": 37,
-        "losses": 41,
-        "wr": 0.4744,
-        "wr_ci95": [
-          0.359,
-          0.6026
-        ],
-        "pf": 0.922,
-        "expectancy_r": -0.0367,
-        "max_dd_r": -11.416,
-        "avg_win_r": 0.911,
-        "avg_loss_r": -0.892,
-        "med_win_r": 0.854,
-        "med_loss_r": -1.07,
-        "worst_r": -1.07,
-        "p95_loss_r": -1.07,
-        "trades_per_week": 12.82,
+        "trades_per_week": 15.51,
         "longest_losing_streak": 5,
         "anti_cheat_ok": true,
         "anti_cheat_reasons": [],
         "wr_wilson_95": [
-          0.3674,
-          0.5838
+          0.3622,
+          0.5577
         ],
-        "p_wr_gt_50": 0.714207
+        "p_wr_gt_50": 0.820801
+      },
+      "holdout": {
+        "n": 86,
+        "wins": 38,
+        "losses": 48,
+        "wr": 0.4419,
+        "wr_ci95": [
+          0.314,
+          0.5465
+        ],
+        "pf": 0.79,
+        "expectancy_r": -0.1058,
+        "max_dd_r": -17.702,
+        "avg_win_r": 0.903,
+        "avg_loss_r": -0.904,
+        "med_win_r": 0.846,
+        "med_loss_r": -1.07,
+        "worst_r": -1.07,
+        "p95_loss_r": -1.07,
+        "trades_per_week": 14.13,
+        "longest_losing_streak": 7,
+        "anti_cheat_ok": true,
+        "anti_cheat_reasons": [],
+        "wr_wilson_95": [
+          0.3416,
+          0.5471
+        ],
+        "p_wr_gt_50": 0.88231
       },
       "independent_yahoo": {
         "source": "Yahoo 5m, 60d; frozen Databento model and threshold; no refit",
         "status": "PASS",
-        "rows_before_filter": 464,
+        "rows_before_filter": 514,
         "stats": {
-          "n": 141,
+          "n": 142,
           "wins": 62,
-          "losses": 79,
-          "wr": 0.4397,
+          "losses": 80,
+          "wr": 0.4366,
           "wr_ci95": [
-            0.3615,
-            0.5248
+            0.3519,
+            0.5211
           ],
-          "pf": 0.939,
-          "expectancy_r": -0.0291,
-          "max_dd_r": -14.962,
-          "avg_win_r": 1.021,
-          "avg_loss_r": -0.853,
+          "pf": 0.936,
+          "expectancy_r": -0.0311,
+          "max_dd_r": -18.95,
+          "avg_win_r": 1.036,
+          "avg_loss_r": -0.858,
           "med_win_r": 1.108,
           "med_loss_r": -1.07,
           "worst_r": -1.07,
           "p95_loss_r": -1.07,
-          "trades_per_week": 13.88,
-          "longest_losing_streak": 7,
+          "trades_per_week": 13.98,
+          "longest_losing_streak": 6,
           "anti_cheat_ok": true,
           "anti_cheat_reasons": [],
           "wr_wilson_95": [
-            0.3605,
-            0.5222
+            0.3578,
+            0.5188
           ],
-          "p_wr_gt_50": 0.935371
+          "p_wr_gt_50": 0.944743
         }
       },
       "gate_failures": [
@@ -19677,9 +24706,9 @@
         "independent_E<0.15R"
       ],
       "counts_before_filter": {
-        "development": 594,
-        "validation": 316,
-        "holdout": 323
+        "development": 657,
+        "validation": 347,
+        "holdout": 355
       }
     }
   ],

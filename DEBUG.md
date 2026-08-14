@@ -5,6 +5,17 @@
 
 ---
 
+## AS — More public strategy names do not create independent evidence (2026-08-14)
+
+| | |
+|--|--|
+| **Symptom** | After 25 families failed, it was tempting to keep renaming filters or trust tiny current cells. Pass 5 produced gap-reject current prints of 2/2 Databento and 1/1 Yahoo, while its larger long holdout was only 8/18; opening-shock reversal printed 1/1 holdout but had only 12 trades across the full long history. |
+| **Root cause** | Strategy-name count is not evidence count. Closely related OHLCV rules share the same market states, adaptive expansion consumes the same historical holdout, and highly selective rules can manufacture 100% from one or two outcomes. Public post-settlement, gap, opening-reversal, volume, and initial-balance discussions also do not define the bot's configured 1R scale-out/1.6R runner lifecycle. |
+| **Fix** | Freeze two variants for each materially distinct family before results, verify prefix invariance, select on chronological validation only, replay exact configured management with friction/non-overlap, and require long holdout plus corrected Databento plus independent Yahoo. The new larger holdouts failed: IB/VWAP n478 WR40.0%, volume climax n357 WR40.9%, lunch VWAP n405 WR43.5%, two-test breakout n244 WR43.9%, and post-settlement alignment n66 WR42.4%. Master evidence is now 32 families/130 paid tests, zero passing; no family was connected to paper. |
+| **Do not** | Count parameter tweaks as independent strategies; promote 2/2, 1/1, or 1/1; call a public event probability a configured trade win rate; retune these families against their opened holdouts; or relax exits/risk/quality gates merely to reach 70%. Further confirmation needs genuinely new forward observations or a pre-approved independent data modality, not more reuse of the same opened OHLCV holdout. |
+
+---
+
 ## AR — Unicode heartbeat text crashed the Windows health-check command (2026-08-14)
 
 | | |
