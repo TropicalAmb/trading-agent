@@ -558,6 +558,7 @@ def main(argv: list[str] | None = None) -> int:
                     bar = provider.get_latest_bar(sym, interval=interval, period=period)
                     prices[sym] = float(bar.close)
                     bar_paths[sym] = {
+                        "open": float(bar.open),
                         "high": float(bar.high),
                         "low": float(bar.low),
                         "close": float(bar.close),
@@ -585,6 +586,7 @@ def main(argv: list[str] | None = None) -> int:
                     logger.warning("price for manage %s failed: %s", sym, exc)
             closed = blotter.manage_open(
                 prices,
+                bar_paths=bar_paths,
                 max_hold_minutes=float(cfg.get("schedule", {}).get("max_hold_minutes") or 0)
                 or None,
                 scale_out=cfg.get("execution", {}).get("scale_out"),

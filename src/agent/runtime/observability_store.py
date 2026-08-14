@@ -32,10 +32,9 @@ class LastEvaluationStore:
 
     def update_symbol(self, symbol: str, payload: dict[str, Any]) -> None:
         row = self.get_symbol(symbol)
-        # Do not erase last useful candidates/context with empty replacements
+        # A BAR_PROCESSED payload with candidates=[] is authoritative and must
+        # clear the prior setup. NO_NEW_BAR callers do not call update_symbol.
         incoming = dict(payload)
-        if not incoming.get("candidates") and row.get("candidates"):
-            incoming.pop("candidates", None)
         if not incoming.get("regime") and row.get("regime"):
             incoming.pop("regime", None)
         if not incoming.get("market_context") and row.get("market_context"):
@@ -56,13 +55,64 @@ class LastEvaluationStore:
         self._state.setdefault("symbols", {})[symbol.upper()] = row
         self._save()
 
-    def set_last_candidates(self, cands: list[dict[str, Any]], *, market_bar: str | None) -> None:
-        if not cands:
+    def set_last_candidates(
+        self,
+        cands: list[dict[str, Any]],
+        *,
+        market_bar: str | None,
+        allow_empty: bool = False,
+    ) -> None:
+        if not cands and not allow_empty:
             return
         self._state["last_evaluated_candidates"] = list(cands)
         self._state["last_evaluated_market_bar"] = market_bar
         self._state["last_evaluated_at"] = datetime.now(timezone.utc).isoformat()
         self._save()
+
+    def ensure_scope(
+        self,
+        *,
+        config_version: str,
+        active_strategies: list[str],
+    ) -> None:
+        """Remove cached candidates/engine votes outside the active config scope."""
+        allowed = {str(x) for x in active_strategies}
+        prior_version = str(self._state.get("config_version") or "")
+        prior_active = {str(x) for x in (self._state.get("active_strategies") or [])}
+        scope_changed = prior_version != str(config_version) or prior_active != allowed
+
+        def keep(rows: list[dict[str, Any]]) -> list[dict[str, Any]]:
+            return [
+                row
+                for row in rows
+                if str(row.get("strategy") or row.get("strategy_name") or "") in allowed
+            ]
+
+        changed = scope_changed
+        global_rows = list(self._state.get("last_evaluated_candidates") or [])
+        filtered_global = [] if scope_changed else keep(global_rows)
+        if filtered_global != global_rows:
+            self._state["last_evaluated_candidates"] = filtered_global
+            changed = True
+        for symbol, raw in list((self._state.get("symbols") or {}).items()):
+            row = dict(raw or {})
+            old_candidates = list(row.get("candidates") or [])
+            new_candidates = [] if scope_changed else keep(old_candidates)
+            if new_candidates != old_candidates:
+                row["candidates"] = new_candidates
+                changed = True
+            old_engines = dict(row.get("engines") or {})
+            new_engines = {
+                name: value for name, value in old_engines.items() if name in allowed
+            }
+            if new_engines != old_engines:
+                row["engines"] = new_engines
+                changed = True
+            self._state.setdefault("symbols", {})[symbol] = row
+        self._state["config_version"] = str(config_version)
+        self._state["active_strategies"] = sorted(allowed)
+        if changed:
+            self._save()
 
     def last_candidates(self) -> list[dict[str, Any]]:
         return list(self._state.get("last_evaluated_candidates") or [])

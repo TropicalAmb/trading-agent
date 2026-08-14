@@ -208,6 +208,32 @@ def test_context_persists_across_no_new_bar(tmp_path):
     assert out["last_evaluated_candidates"]
 
 
+def test_last_evaluation_scope_clears_retired_strategy_candidates(tmp_path):
+    store = LastEvaluationStore(tmp_path / "le.json")
+    retired = {"strategy": "cl_vwap_prox_momentum", "symbol": "CL"}
+    store.update_symbol("CL", {"candidates": [retired], "engines": {"cl_vwap_prox_momentum": {}}})
+    store.set_last_candidates([retired], market_bar="2026-08-14T10:55:00")
+
+    store.ensure_scope(
+        config_version="router_v1_specialists_autonomy4",
+        active_strategies=["nq_context_entry"],
+    )
+    assert store.last_candidates() == []
+    assert store.get_symbol("CL")["candidates"] == []
+    assert store.get_symbol("CL")["engines"] == {}
+
+
+def test_processed_empty_bar_clears_previous_candidate(tmp_path):
+    store = LastEvaluationStore(tmp_path / "le.json")
+    old = {"strategy": "nq_context_entry", "symbol": "NQ"}
+    store.update_symbol("NQ", {"candidates": [old]})
+    store.set_last_candidates([old], market_bar="2026-08-14T10:00:00")
+    store.update_symbol("NQ", {"candidates": [], "market_bar": "2026-08-14T10:05:00"})
+    store.set_last_candidates([], market_bar="2026-08-14T10:05:00", allow_empty=True)
+    assert store.get_symbol("NQ")["candidates"] == []
+    assert store.last_candidates() == []
+
+
 def test_htf_aggregation_from_5m_no_lookahead():
     idx = pd.date_range("2026-08-07 09:00", periods=48, freq="5min")
     open_ = [100.0] * 48

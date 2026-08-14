@@ -173,6 +173,7 @@ class PaperBlotter:
         status: str = "OPEN",
         session: str | None = None,
         point_value: float = 5.0,
+        tp1_r_multiple: float = 1.0,
         setup_tier: str = "",
         strategy_name: str = "",
         agent_id: str = "agent_1",
@@ -192,11 +193,11 @@ class PaperBlotter:
         ]
         trade_id = f"PAPER-{len(self._state.get('trades', [])) + len(self._state.get('closed_trades', [])) + 1:05d}"
         risk_pts = abs(float(entry) - float(stop))
-        # TP1 default = 1R (same distance as stop, in profit direction)
+        tp1_mult = max(0.01, float(tp1_r_multiple))
         if side.upper() == "BUY":
-            tp1 = float(entry) + risk_pts
+            tp1 = float(entry) + risk_pts * tp1_mult
         else:
-            tp1 = float(entry) - risk_pts
+            tp1 = float(entry) - risk_pts * tp1_mult
         meta = dict(metadata or {})
         # Compact learning payload — entry-time only (no post-entry leakage)
         learn_meta = {
@@ -230,6 +231,7 @@ class PaperBlotter:
             "stop": float(stop),
             "target": float(target),
             "tp1": tp1,
+            "tp1_r_multiple": tp1_mult,
             "tp1_done": False,
             "status": "OPEN",
             "source": source,
@@ -277,6 +279,7 @@ class PaperBlotter:
                 "stop": trade["stop"],
                 "target": trade["target"],
                 "tp1": tp1,
+                "tp1_r_multiple": tp1_mult,
                 "tp1_done": False,
                 "initial_stop": float(stop),
                 "peak_favorable_pts": 0.0,
@@ -344,7 +347,9 @@ class PaperBlotter:
         trade["exit"] = float(exit_price)
         trade["exit_reason"] = exit_reason
         trade["pnl_dollars"] = total_pnl
-        trade["hold_minutes"] = _hold_minutes(trade.get("opened_at"), now)
+        trade["hold_minutes"] = _hold_minutes(
+            trade.get("received_at") or trade.get("ts") or trade.get("opened_at"), now
+        )
         trade["status"] = "CLOSED"
         trade["result"] = "WIN" if total_pnl > 0 else ("LOSS" if total_pnl < 0 else "BE")
 
@@ -455,7 +460,8 @@ class PaperBlotter:
             "pnl_dollars": partial_pnl,
             "result": "WIN" if partial_pnl > 0 else ("LOSS" if partial_pnl < 0 else "BE"),
             "hold_minutes": _hold_minutes(
-                trade.get("opened_at"), datetime.now(timezone.utc).isoformat()
+                trade.get("received_at") or trade.get("ts") or trade.get("opened_at"),
+                datetime.now(timezone.utc).isoformat(),
             ),
         }
         self._state.setdefault("closed_trades", []).insert(0, partial_row)
@@ -571,12 +577,18 @@ class PaperBlotter:
         self,
         prices: dict[str, float],
         *,
+        bar_paths: dict[str, dict[str, Any]] | None = None,
         max_hold_minutes: float | None = None,
         scale_out: dict[str, Any] | None = None,
         profit_protection: dict[str, Any] | None = None,
         time_stop_only_if_losing: bool = True,
     ) -> list[dict[str, Any]]:
-        """Hit TP1 (partial), stop, target, or time stop. Returns closed/partial events."""
+        """Manage barriers from each completed OHLC bar exactly once.
+
+        Close-only callers retain the old mark behavior. For OHLC callers, stop wins
+        same-bar ambiguity conservatively and a stop tightened from that bar's high/low
+        becomes effective on the next bar (no lookahead ordering assumption).
+        """
         closed: list[dict[str, Any]] = []
         scale = scale_out or {}
         scale_on = bool(scale.get("enabled", False))
@@ -589,42 +601,66 @@ class PaperBlotter:
             px = prices.get(sym)
             if px is None:
                 continue
+            close_px = float(px)
             side = pos["side"]
             entry = float(pos["entry"])
             target = float(pos["target"])
-            # Track MAE / MFE every mark for post-trade diagnostics
+
+            trade = next(
+                (t for t in self._state.get("trades", []) if t.get("id") == pos.get("trade_id")),
+                None,
+            )
+            path = dict((bar_paths or {}).get(sym) or {})
+            use_bar_extremes = False
+            bar_ts = str(path.get("timestamp") or "")
+            if path:
+                if bar_ts:
+                    is_new_bar = bar_ts != str(pos.get("last_managed_bar_timestamp") or "")
+                    post_entry_bar = True
+                    bar_dt = _parse_ts(bar_ts)
+                    entry_dt = _parse_ts(pos.get("market_timestamp"))
+                    if bar_dt and entry_dt and bar_dt <= entry_dt:
+                        post_entry_bar = False
+                    if is_new_bar:
+                        pos["last_managed_bar_timestamp"] = bar_ts
+                        if trade is not None:
+                            trade["last_managed_bar_timestamp"] = bar_ts
+                        dirty = True
+                        use_bar_extremes = post_entry_bar
+                else:
+                    # Tests/adapters without a timestamp may still supply one OHLC path.
+                    use_bar_extremes = True
+
+            high_px = close_px
+            low_px = close_px
+            open_px = close_px
+            if use_bar_extremes:
+                try:
+                    high_px = max(float(path.get("high", close_px)), close_px)
+                    low_px = min(float(path.get("low", close_px)), close_px)
+                    open_px = float(path.get("open", close_px))
+                except (TypeError, ValueError):
+                    high_px = low_px = open_px = close_px
+
+            # Track true completed-bar MAE/MFE rather than close-only excursion.
             if side == "BUY":
-                fav = float(px) - entry
-                adv = entry - float(px)
+                fav = high_px - entry
+                adv = entry - low_px
             else:
-                fav = entry - float(px)
-                adv = float(px) - entry
+                fav = entry - low_px
+                adv = high_px - entry
             pos["mfe_pts"] = max(float(pos.get("mfe_pts") or 0.0), max(0.0, fav))
             pos["mae_pts"] = max(float(pos.get("mae_pts") or 0.0), max(0.0, adv))
             pos["peak_favorable_pts"] = max(
                 float(pos.get("peak_favorable_pts") or 0.0), max(0.0, fav)
             )
-            trade_row = next(
-                (
-                    t
-                    for t in self._state.get("trades", [])
-                    if t.get("id") == pos.get("trade_id")
-                ),
-                None,
-            )
-            if trade_row is not None:
-                trade_row["mfe_pts"] = pos["mfe_pts"]
-                trade_row["mae_pts"] = pos["mae_pts"]
-                trade_row["peak_favorable_pts"] = pos["peak_favorable_pts"]
+            if trade is not None:
+                trade["mfe_pts"] = pos["mfe_pts"]
+                trade["mae_pts"] = pos["mae_pts"]
+                trade["peak_favorable_pts"] = pos["peak_favorable_pts"]
             target = float(pos["target"])
             qty = int(pos.get("qty", 1))
             pv = float(pos.get("point_value") or 5.0)
-            trade = next(
-                (t for t in self._state.get("trades", []) if t.get("id") == pos.get("trade_id")),
-                None,
-            )
-            if self._apply_profit_protection(pos, trade, float(px), prot):
-                dirty = True
             stop = float(pos["stop"])
 
             if pos.get("tp1") is not None:
@@ -637,17 +673,27 @@ class PaperBlotter:
                 tp1 = entry - (entry - target) * 0.5
 
             reason = None
-            # Stop / target first (full close)
+            exit_price = close_px
+            # Evaluate the stop/target that existed before this bar. If both are
+            # inside one OHLC bar, choose the stop: the sequence is unknowable.
             if side == "BUY":
-                if px <= stop:
+                stop_hit = low_px <= stop
+                target_hit = high_px >= target
+                if stop_hit:
                     reason = "stop"
-                elif px >= target:
+                    exit_price = min(stop, open_px) if use_bar_extremes else close_px
+                elif target_hit:
                     reason = "target"
+                    exit_price = target if use_bar_extremes else close_px
             else:
-                if px >= stop:
+                stop_hit = high_px >= stop
+                target_hit = low_px <= target
+                if stop_hit:
                     reason = "stop"
-                elif px <= target:
+                    exit_price = max(stop, open_px) if use_bar_extremes else close_px
+                elif target_hit:
                     reason = "target"
+                    exit_price = target if use_bar_extremes else close_px
 
             # Partial TP1: bank half, keep runner
             if (
@@ -656,18 +702,28 @@ class PaperBlotter:
                 and not pos.get("tp1_done")
                 and qty >= 2
             ):
-                hit_tp1 = (side == "BUY" and px >= tp1) or (side == "SELL" and px <= tp1)
+                hit_tp1 = (side == "BUY" and high_px >= tp1) or (
+                    side == "SELL" and low_px <= tp1
+                )
                 if hit_tp1:
                     close_qty = qty // 2
                     partial = self.take_partial(
                         pos["trade_id"],
-                        exit_price=float(px),
+                        exit_price=tp1 if use_bar_extremes else close_px,
                         close_qty=close_qty,
                         move_stop_to_be=move_be,
                     )
                     if partial:
                         closed.append(partial)
                     continue
+
+            # Tighten from the favorable extreme only after processing this bar's
+            # original barriers. The new stop is active from the next cycle/bar.
+            protection_mark = high_px if side == "BUY" else low_px
+            if reason is None and self._apply_profit_protection(
+                pos, trade, protection_mark, prot
+            ):
+                dirty = True
 
             # Time stop: only cut losers by default — winners can run to target/trail.
             # Hold clock must use wall/received time, NOT market bar `opened_at`.
@@ -680,11 +736,13 @@ class PaperBlotter:
                 if opened:
                     held = (datetime.now(timezone.utc) - opened).total_seconds() / 60.0
                     if held >= max_hold_minutes:
-                        u_pnl = _money(side, entry, float(px), qty, pv)
+                        u_pnl = _money(side, entry, close_px, qty, pv)
                         if (not time_stop_only_if_losing) or u_pnl < 0:
                             reason = "time_stop"
             if reason:
-                t = self.close_trade(pos["trade_id"], exit_price=float(px), exit_reason=reason)
+                t = self.close_trade(
+                    pos["trade_id"], exit_price=float(exit_price), exit_reason=reason
+                )
                 if t:
                     closed.append(t)
         if dirty and not closed:
@@ -1134,7 +1192,6 @@ class PaperBlotter:
                 return "<tr><td colspan='12'>No closed trades yet — open trades hit stop/target over time.</td></tr>"
             paper_specs = {
                 "nq_context_entry",
-                "cl_vwap_prox_momentum",
             }
             out = []
             for t in closed[:120]:
@@ -1184,7 +1241,6 @@ class PaperBlotter:
             prices = hb.get("prices") or {}
             paper_specs = {
                 "nq_context_entry",
-                "cl_vwap_prox_momentum",
             }
             out = []
             for p in opens:
@@ -1294,8 +1350,8 @@ class PaperBlotter:
         else:
             trade_status = "SCANNING — flat (no new paper fill this cycle)"
             trade_plain = (
-                "Only 2 specialists can paper: nq_context_entry · cl_vwap_prox_momentum. "
-                "Quiet is normal until one fires (NQ mainly 09:30–12 ET; CL when its signal prints)."
+                "Only the evidence-passing nq_context_entry specialist can paper. "
+                "Quiet is normal outside its 09:30–12:00 ET signal window."
             )
         last_fill_line = "No closed paper trades yet."
         if last_closed is not None:
@@ -1321,8 +1377,12 @@ class PaperBlotter:
             cv = str(hb.get("config_version") or "—")
             live = cv.startswith("router_v1_specialists_")
             specs = [
-                ("nq_context_entry", "NQ/MNQ PULLBACK BUY", "09:30–12:00 ET", "REVALIDATING"),
-                ("cl_vwap_prox_momentum", "CL/MCL VWAP-prox", "any session when signal", "REVALIDATING"),
+                (
+                    "nq_context_entry",
+                    "NQ/MNQ PULLBACK BUY",
+                    "09:30–12:00 ET",
+                    "PROMOTION-GATE PASS / FORWARD UNPROVEN",
+                ),
             ]
             rows = "".join(
                 f"<tr><td><b>{a}</b></td><td>{b}</td><td>{c}</td><td>{d}</td></tr>"
@@ -1380,7 +1440,6 @@ class PaperBlotter:
             }
             paper_specs = {
                 "nq_context_entry",
-                "cl_vwap_prox_momentum",
             }
             for t in trades:
                 if str(t.get("status") or "").upper() == "OPEN" or not t.get("closed_at"):

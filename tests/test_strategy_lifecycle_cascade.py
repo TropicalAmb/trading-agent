@@ -112,6 +112,46 @@ def test_cascade_layers():
     assert cas.decision in {"EXECUTE_PAPER", "SHADOW", "REJECT"}
 
 
+def test_cascade_uses_same_authoritative_context_as_entry_snapshot():
+    from types import SimpleNamespace
+
+    idx = pd.date_range("2026-08-01", periods=120, freq="5min", tz="America/New_York")
+    close = pd.Series(range(120), index=idx, dtype=float) + 70.0
+    df = pd.DataFrame(
+        {
+            "open": close - 0.1,
+            "high": close + 0.2,
+            "low": close - 0.2,
+            "close": close,
+            "volume": 1000.0,
+        },
+        index=idx,
+    )
+    setup = TradeSetup(
+        strategy_name="cl_vwap_prox_momentum",
+        symbol="CL",
+        direction="BUY",
+        setup_tier="A",
+        confidence_score=70,
+        entry=float(close.iloc[-1]),
+        stop=float(close.iloc[-1]) - 1.0,
+        target=float(close.iloc[-1]) + 2.0,
+        expected_r=2.0,
+        market_timestamp=datetime.now(timezone.utc),
+        received_timestamp=datetime.now(timezone.utc),
+        reasons=["test"],
+        session="ny_open",
+        agent_id="t",
+        quantity=1,
+        risk_dollars=100.0,
+        reward_dollars=200.0,
+    )
+    ctx = SimpleNamespace(direction_4h=-1, direction_1h=1, direction_15m=1)
+    cas = evaluate_cascade(setup, df, {"trade_cascade": {"enabled": True}}, market_context=ctx)
+    assert cas.details["thesis"]["dirs"] == {"4h": -1, "1h": 1, "15m": 1}
+    assert cas.details["thesis"]["source"] == "authoritative_market_context"
+
+
 def test_can_execute_blocks_hard_paused():
     now = datetime.now(timezone.utc)
     setup = TradeSetup(

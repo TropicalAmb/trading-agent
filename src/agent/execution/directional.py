@@ -176,9 +176,66 @@ class DirectionalExecutor:
                 stop=float(signal.stop),
                 target=float(signal.target),
             )
+            # Friction widens risk (worse entry + worse stop). Re-fit after the
+            # simulated fill so the recorded position can never exceed the hard
+            # cap merely because the pre-friction signal fit.
+            point_value = float(meta.get("point_value", 5.0))
+            post_friction_qty = fit_quantity_to_risk(
+                desired_qty=qty,
+                entry=entry,
+                stop=stop,
+                point_value=point_value,
+                hard_cap_dollars=hard_cap_from_cfg(self.cfg),
+                max_quantity=int((self.cfg.get("quantity") or {}).get("max_quantity", 25)),
+            )
+            if post_friction_qty < 1:
+                detail.update(
+                    {
+                        "fill_entry": entry,
+                        "fill_stop": stop,
+                        "fill_target": target,
+                        "post_friction_qty": 0,
+                    }
+                )
+                logger.warning(
+                    "Directional REJECT %s %s — post-friction risk exceeds hard cap",
+                    signal.side,
+                    signal.symbol,
+                )
+                return {
+                    "dry_run": True,
+                    "submitted": False,
+                    "order_id": None,
+                    "status": "REJECTED",
+                    "order_state": OrderState.REJECTED.value,
+                    "reason": "RISK_LIMIT qty=0 after paper friction",
+                    "detail": detail,
+                }
+            if post_friction_qty < qty:
+                logger.warning(
+                    "Directional RESIZE %s %s qty=%s -> %s after paper friction",
+                    signal.side,
+                    signal.symbol,
+                    qty,
+                    post_friction_qty,
+                )
+            qty = post_friction_qty
+            actual_risk_per_contract = abs(entry - stop) * point_value
+            actual_reward_per_contract = abs(target - entry) * point_value
+            detail.update(
+                {
+                    "qty": qty,
+                    "fill_entry": entry,
+                    "fill_stop": stop,
+                    "fill_target": target,
+                    "risk_dollars_per_contract": actual_risk_per_contract,
+                    "reward_dollars_per_contract": actual_reward_per_contract,
+                }
+            )
             # Order state machine: paper jumps CREATED → FILLED (deterministic)
             _ = OrderState.CREATED
             sig_meta = getattr(signal, "metadata", None) or {}
+            scale_out = (self.cfg.get("execution") or {}).get("scale_out") or {}
             paper = self.blotter.record_paper_fill(
                 symbol=signal.symbol,
                 side=signal.side,
@@ -189,11 +246,12 @@ class DirectionalExecutor:
                 source=source,
                 reason=str(getattr(signal, "reason", "") or "") + f" | {fill_note}",
                 confidence=float(getattr(signal, "confidence", 0) or 0),
-                risk_dollars=float(getattr(signal, "risk_dollars", 0) or 0),
-                reward_dollars=float(getattr(signal, "reward_dollars", 0) or 0),
+                risk_dollars=actual_risk_per_contract,
+                reward_dollars=actual_reward_per_contract,
                 status=OrderState.FILLED.value,
                 session=active_session_name(self.cfg) or "unknown",
-                point_value=float(meta.get("point_value", 5.0)),
+                point_value=point_value,
+                tp1_r_multiple=float(scale_out.get("tp1_r_multiple", 1.0)),
                 setup_tier=str(getattr(signal, "setup_tier", "") or ""),
                 strategy_name=str(getattr(signal, "strategy_name", "") or ""),
                 agent_id=str(

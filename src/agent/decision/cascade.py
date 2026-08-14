@@ -82,12 +82,20 @@ def layer1_fit(
 
 
 def layer2_thesis(row: pd.Series, side: str) -> tuple[str, dict[str, Any]]:
+    return _layer2_thesis_from_dirs(
+        {
+            "4h": int(row.get("dir_4h", 0)),
+            "1h": int(row.get("dir_1h", 0)),
+            "15m": int(row.get("dir_15m", 0)),
+        },
+        side,
+    )
+
+
+def _layer2_thesis_from_dirs(
+    dirs: dict[str, int], side: str
+) -> tuple[str, dict[str, Any]]:
     want = 1 if side.upper() in {"BUY", "LONG"} else -1
-    dirs = {
-        "4h": int(row.get("dir_4h", 0)),
-        "1h": int(row.get("dir_1h", 0)),
-        "15m": int(row.get("dir_15m", 0)),
-    }
     agree = sum(1 for v in dirs.values() if v == want)
     conflict = sum(1 for v in dirs.values() if v == -want)
     if agree >= 2 and conflict == 0:
@@ -155,6 +163,7 @@ def evaluate_cascade(
     cfg: dict[str, Any],
     *,
     lifecycle_state: str = "ACTIVE",
+    market_context: Any | None = None,
 ) -> CascadeResult:
     side = setup.direction.upper()
     strategy = setup.strategy_name
@@ -196,7 +205,19 @@ def evaluate_cascade(
             result.reject_reason = f"POOR_FIT:{fit_d.get('reason') or fit_d.get('lifecycle')}"
 
     if row is not None:
-        thesis, td = layer2_thesis(row, side)
+        if market_context is not None:
+            thesis, td = _layer2_thesis_from_dirs(
+                {
+                    "4h": int(market_context.direction_4h),
+                    "1h": int(market_context.direction_1h),
+                    "15m": int(market_context.direction_15m),
+                },
+                side,
+            )
+            td["source"] = "authoritative_market_context"
+        else:
+            thesis, td = layer2_thesis(row, side)
+            td["source"] = "cascade_feature_frame"
         loc, ld = layer3_location(row, side, strategy=strategy, cfg=cfg)
         trig, trd = layer4_trigger(row, side, strategy=strategy)
         result.thesis = thesis
@@ -253,8 +274,15 @@ def attach_cascade_to_setup(
     cfg: dict[str, Any],
     *,
     lifecycle_state: str = "ACTIVE",
+    market_context: Any | None = None,
 ) -> TradeSetup:
-    cas = evaluate_cascade(setup, bars, cfg, lifecycle_state=lifecycle_state)
+    cas = evaluate_cascade(
+        setup,
+        bars,
+        cfg,
+        lifecycle_state=lifecycle_state,
+        market_context=market_context,
+    )
     meta = dict(setup.metadata or {})
     meta["cascade"] = cas.to_dict()
     meta["cascade_log"] = list(cas.layer_log)

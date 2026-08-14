@@ -13,6 +13,7 @@ from math import sqrt
 from pathlib import Path
 from typing import Any, Iterable
 import json
+from datetime import datetime, timezone
 
 import numpy as np
 import pandas as pd
@@ -21,15 +22,15 @@ from agent.research.harness.datasets import fetch_yahoo
 from agent.research.hc_strategies import gen_vwap_rejection
 from agent.research.momentum_deep import build_feature_frame, collect_momentum_signals
 from agent.research.nq_context_entry import (
+    FRICTION_NQ,
     enrich_context_5m_bars,
     generate_candidates,
     realize_trades,
 )
+from agent.research.harness.metrics import GATES
 
 ACTIVE_SPECIALISTS = (
     "nq_context_entry",
-    "cl_vwap_prox_momentum",
-    "vwap_rejection",
 )
 
 
@@ -86,9 +87,9 @@ def chronological_summary(rows: list[dict[str, Any]]) -> dict[str, Any]:
     }
 
 
-def replay_nq(df5: pd.DataFrame) -> list[dict[str, Any]]:
+def _nq_candidates(df5: pd.DataFrame) -> list[dict[str, Any]]:
     frame = enrich_context_5m_bars(df5)
-    candidates = generate_candidates(
+    return generate_candidates(
         frame,
         trigger="PULLBACK",
         window="0930_1200",
@@ -100,6 +101,10 @@ def replay_nq(df5: pd.DataFrame) -> list[dict[str, Any]]:
         cooldown_bars=2,
         min_stop_atr=0.385,
     )
+
+
+def replay_nq(df5: pd.DataFrame) -> list[dict[str, Any]]:
+    candidates = _nq_candidates(df5)
     trades = realize_trades(candidates, df5, target_r=1.15, symbol="NQ")
     return [
         {
@@ -110,6 +115,115 @@ def replay_nq(df5: pd.DataFrame) -> list[dict[str, Any]]:
         }
         for t in trades
     ]
+
+
+def realize_nq_scaled_exit(
+    candidates: Iterable[dict[str, Any]],
+    bars: pd.DataFrame,
+    *,
+    tp1_r: float,
+    target_r: float = 1.15,
+    max_hold_bars: int = 180,
+) -> list[dict[str, Any]]:
+    """Two-lot outcome: half at TP1, runner to target/BE, stop-first OHLC ordering."""
+    idx = bars.index
+    high = bars["high"].to_numpy(dtype=float)
+    low = bars["low"].to_numpy(dtype=float)
+    close = bars["close"].to_numpy(dtype=float)
+    rows: list[dict[str, Any]] = []
+    for cand in candidates:
+        entry = float(cand["entry"])
+        stop = float(cand["stop"])
+        side = str(cand["side"])
+        risk = abs(entry - stop)
+        if risk <= 1e-12:
+            continue
+        target = entry + target_r * risk if side == "BUY" else entry - target_r * risk
+        tp1 = entry + tp1_r * risk if side == "BUY" else entry - tp1_r * risk
+        entry_ts = pd.Timestamp(cand["entry_ts"])
+        start = int(idx.searchsorted(entry_ts, side="right"))
+        end = min(len(idx), start + max_hold_bars)
+        tp1_done = False
+        raw_r: float | None = None
+        exit_ts = entry_ts
+        for j in range(start, end):
+            h, l = float(high[j]), float(low[j])
+            initial_stop_hit = (l <= stop) if side == "BUY" else (h >= stop)
+            target_hit = (h >= target) if side == "BUY" else (l <= target)
+            tp1_hit = (h >= tp1) if side == "BUY" else (l <= tp1)
+            if not tp1_done:
+                # Conservative same-bar ordering: original stop wins ambiguity.
+                if initial_stop_hit:
+                    raw_r = -1.0
+                    exit_ts = idx[j]
+                    break
+                if target_hit:
+                    raw_r = 0.5 * tp1_r + 0.5 * target_r
+                    exit_ts = idx[j]
+                    break
+                if tp1_hit:
+                    tp1_done = True
+                    continue
+            else:
+                be_hit = (l <= entry) if side == "BUY" else (h >= entry)
+                if be_hit and target_hit:
+                    raw_r = 0.5 * tp1_r
+                    exit_ts = idx[j]
+                    break
+                if be_hit:
+                    raw_r = 0.5 * tp1_r
+                    exit_ts = idx[j]
+                    break
+                if target_hit:
+                    raw_r = 0.5 * tp1_r + 0.5 * target_r
+                    exit_ts = idx[j]
+                    break
+        if raw_r is None:
+            if start >= len(idx):
+                runner_r = 0.0
+            else:
+                j = max(start, end - 1)
+                exit_ts = idx[j]
+                runner_r = (
+                    (float(close[j]) - entry) / risk
+                    if side == "BUY"
+                    else (entry - float(close[j])) / risk
+                )
+            raw_r = (
+                0.5 * tp1_r + 0.5 * runner_r if tp1_done else runner_r
+            )
+        # Same per-contract point friction assumption as the locked baseline.
+        pnl_r = float(raw_r - FRICTION_NQ / risk)
+        rows.append(
+            {
+                "strategy": "nq_context_entry",
+                "symbol": "NQ",
+                "entry_ts": str(entry_ts),
+                "exit_ts": str(exit_ts),
+                "tp1_r": float(tp1_r),
+                "target_r": float(target_r),
+                "pnl_r": pnl_r,
+            }
+        )
+    return rows
+
+
+def replay_nq_exit_sensitivity(df5: pd.DataFrame) -> dict[str, Any]:
+    candidates = _nq_candidates(df5)
+    baseline = replay_nq(df5)
+    return {
+        "method": (
+            "two contracts; half at TP1; runner stop moves to breakeven on the next bar; "
+            "same-bar stop wins; identical NQ point-friction haircut"
+        ),
+        "baseline_no_scale": chronological_summary(baseline),
+        "scale_out": {
+            f"{tp1:.2f}R": chronological_summary(
+                realize_nq_scaled_exit(candidates, df5, tp1_r=tp1)
+            )
+            for tp1 in (0.30, 0.50, 0.75, 1.00)
+        },
+    }
 
 
 def replay_cl(df5: pd.DataFrame) -> list[dict[str, Any]]:
@@ -171,6 +285,7 @@ def run_yahoo_locked_replay() -> dict[str, Any]:
     }
     return {
         "source": "Yahoo independent screening; frozen current rules; no optimization",
+        "generated_at_utc": datetime.now(timezone.utc).isoformat(),
         "windows": {
             "NQ_5m": [str(nq.index.min()), str(nq.index.max())] if len(nq) else None,
             "CL_5m": [str(cl.index.min()), str(cl.index.max())] if len(cl) else None,
@@ -180,6 +295,13 @@ def run_yahoo_locked_replay() -> dict[str, Any]:
             },
         },
         "strategies": {name: chronological_summary(part) for name, part in rows.items()},
+        "nq_exit_sensitivity": replay_nq_exit_sensitivity(nq) if len(nq) else {},
+        "paper_promotion_gate": {
+            "min_n": GATES["min_n"],
+            "min_win_rate": GATES["min_wr"],
+            "min_profit_factor": GATES["min_pf"],
+            "min_expectancy_r": GATES["min_expectancy_r"],
+        },
     }
 
 
@@ -283,7 +405,7 @@ def write_report(payload: dict[str, Any], output_dir: Path) -> None:
         "",
         "## Executive decision",
         "",
-        "The old Databento parent-symbol cache is excluded. Only `nq_context_entry` and `cl_vwap_prox_momentum` remain active for clean paper-forward measurement. `vwap_rejection` is disabled after a large negative-expectancy replay. No strategy is called forward-profitable yet.",
+        "Only strategies that pass the frozen promotion thresholds can enter paper. `nq_context_entry` is active; `cl_vwap_prox_momentum` and `vwap_rejection` are research-only. No strategy is called forward-profitable until the exact-stamp forward cohort passes its separate proof rule.",
         "",
         "## True forward paper cohort",
         "",
@@ -303,6 +425,18 @@ def write_report(payload: dict[str, Any], output_dir: Path) -> None:
     ]
     for name, result in payload["yahoo_locked_replay"]["strategies"].items():
         lines.append(f"### `{name}`")
+        lines.append("")
+    sensitivity = payload["yahoo_locked_replay"].get("nq_exit_sensitivity") or {}
+    if sensitivity:
+        lines += [
+            "## NQ two-contract exit sensitivity",
+            "",
+            sensitivity.get("method", ""),
+            "",
+            f"- No scale-out: {fmt((sensitivity.get('baseline_no_scale') or {}).get('all') or {})}",
+        ]
+        for label, cohorts in (sensitivity.get("scale_out") or {}).items():
+            lines.append(f"- TP1 `{label}`: {fmt((cohorts or {}).get('all') or {})}")
         lines.append("")
         lines.append(f"- All: {fmt(result['all'])}")
         lines.append(f"- Latest chronological 20%: {fmt(result['latest_20pct'])}")

@@ -1,62 +1,62 @@
 {
   "active_specialists": [
-    "cl_vwap_prox_momentum",
     "nq_context_entry"
   ],
   "yahoo_locked_replay": {
     "source": "Yahoo independent screening; frozen current rules; no optimization",
+    "generated_at_utc": "2026-08-14T15:45:22.992064+00:00",
     "windows": {
       "NQ_5m": [
         "2026-06-04 00:05:00-04:00",
-        "2026-08-14 09:55:00-04:00"
+        "2026-08-14 11:35:00-04:00"
       ],
       "CL_5m": [
         "2026-06-04 00:00:00-04:00",
-        "2026-08-14 09:55:00-04:00"
+        "2026-08-14 11:35:00-04:00"
       ],
       "VWAP_1h": {
         "NQ": [
           "2025-06-04 00:00:00-04:00",
-          "2026-08-14 09:00:00-04:00"
+          "2026-08-14 11:00:00-04:00"
         ],
         "ES": [
           "2025-06-04 00:00:00-04:00",
-          "2026-08-14 09:00:00-04:00"
+          "2026-08-14 11:00:00-04:00"
         ],
         "CL": [
           "2025-06-04 00:00:00-04:00",
-          "2026-08-14 09:00:00-04:00"
+          "2026-08-14 11:00:00-04:00"
         ],
         "GC": [
           "2025-06-04 00:00:00-04:00",
-          "2026-08-14 09:00:00-04:00"
+          "2026-08-14 11:00:00-04:00"
         ]
       }
     },
     "strategies": {
       "nq_context_entry": {
         "all": {
-          "n": 48,
+          "n": 49,
           "wins": 29,
-          "win_rate": 0.6041666666666666,
+          "win_rate": 0.5918367346938775,
           "win_rate_95ci": [
-            0.4631015459693511,
-            0.7297937350404942
+            0.4524706997204626,
+            0.7178496539402894
           ],
-          "profit_factor": 1.7310194550799352,
-          "expectancy_r": 0.2915242657596275,
-          "max_drawdown_r": -4.035954010398886
+          "profit_factor": 1.644188733042745,
+          "expectancy_r": 0.26494415208569244,
+          "max_drawdown_r": -5.046855314662075
         },
         "development_80pct": {
-          "n": 38,
+          "n": 39,
           "wins": 24,
-          "win_rate": 0.631578947368421,
+          "win_rate": 0.6153846153846154,
           "win_rate_95ci": [
-            0.47283672824260115,
-            0.7661598684458619
+            0.45898781310078474,
+            0.7510883745299295
           ],
-          "profit_factor": 1.9449609745381626,
-          "expectancy_r": 0.3506145066620557,
+          "profit_factor": 1.8153487614183372,
+          "expectancy_r": 0.31581243900905814,
           "max_drawdown_r": -4.033264254060008
         },
         "latest_20pct": {
@@ -67,11 +67,11 @@
             0.23658959361548731,
             0.7634104063845126
           ],
-          "profit_factor": 1.1328304501261286,
-          "expectancy_r": 0.0669813503304005,
-          "max_drawdown_r": -4.035954010398886
+          "profit_factor": 1.1318798121499607,
+          "expectancy_r": 0.06655783308456653,
+          "max_drawdown_r": -5.046855314662074
         },
-        "latest_20pct_start": "2026-08-06 10:50:00-04:00"
+        "latest_20pct_start": "2026-08-07 10:15:00-04:00"
       },
       "cl_vwap_prox_momentum": {
         "all": {
@@ -151,10 +151,216 @@
         },
         "latest_20pct_start": "2026-05-20 09:00:00-04:00"
       }
+    },
+    "nq_exit_sensitivity": {
+      "method": "two contracts; half at TP1; runner stop moves to breakeven on the next bar; same-bar stop wins; identical NQ point-friction haircut",
+      "baseline_no_scale": {
+        "all": {
+          "n": 49,
+          "wins": 29,
+          "win_rate": 0.5918367346938775,
+          "win_rate_95ci": [
+            0.4524706997204626,
+            0.7178496539402894
+          ],
+          "profit_factor": 1.644188733042745,
+          "expectancy_r": 0.26494415208569244,
+          "max_drawdown_r": -5.046855314662075
+        },
+        "development_80pct": {
+          "n": 39,
+          "wins": 24,
+          "win_rate": 0.6153846153846154,
+          "win_rate_95ci": [
+            0.45898781310078474,
+            0.7510883745299295
+          ],
+          "profit_factor": 1.8153487614183372,
+          "expectancy_r": 0.31581243900905814,
+          "max_drawdown_r": -4.033264254060008
+        },
+        "latest_20pct": {
+          "n": 10,
+          "wins": 5,
+          "win_rate": 0.5,
+          "win_rate_95ci": [
+            0.23658959361548731,
+            0.7634104063845126
+          ],
+          "profit_factor": 1.1318798121499607,
+          "expectancy_r": 0.06655783308456653,
+          "max_drawdown_r": -5.046855314662074
+        },
+        "latest_20pct_start": "2026-08-07 10:15:00-04:00"
+      },
+      "scale_out": {
+        "0.30R": {
+          "all": {
+            "n": 49,
+            "wins": 37,
+            "win_rate": 0.7551020408163265,
+            "win_rate_95ci": [
+              0.619134127396842,
+              0.8539779661052471
+            ],
+            "profit_factor": 1.0543128966324733,
+            "expectancy_r": 0.013413539840795827,
+            "max_drawdown_r": -5.046855314662075
+          },
+          "development_80pct": {
+            "n": 39,
+            "wins": 32,
+            "win_rate": 0.8205128205128205,
+            "win_rate_95ci": [
+              0.6733164837555724,
+              0.9102284818853
+            ],
+            "profit_factor": 1.4630594361948699,
+            "expectancy_r": 0.08376115695777647,
+            "max_drawdown_r": -2.1696996898255816
+          },
+          "latest_20pct": {
+            "n": 10,
+            "wins": 5,
+            "win_rate": 0.5,
+            "win_rate_95ci": [
+              0.23658959361548731,
+              0.7634104063845126
+            ],
+            "profit_factor": 0.48296087237265956,
+            "expectancy_r": -0.2609421669154286,
+            "max_drawdown_r": -5.046855314662075
+          },
+          "latest_20pct_start": "2026-08-07 10:15:00-04:00"
+        },
+        "0.50R": {
+          "all": {
+            "n": 49,
+            "wins": 34,
+            "win_rate": 0.6938775510204082,
+            "win_rate_95ci": [
+              0.5547184259930626,
+              0.8048467650685251
+            ],
+            "profit_factor": 1.1922277165330348,
+            "expectancy_r": 0.0593319071877346,
+            "max_drawdown_r": -5.046855314662074
+          },
+          "development_80pct": {
+            "n": 39,
+            "wins": 29,
+            "win_rate": 0.7435897435897436,
+            "win_rate_95ci": [
+              0.589180432321585,
+              0.854313741565478
+            ],
+            "profit_factor": 1.4978250863931468,
+            "expectancy_r": 0.1286329518295713,
+            "max_drawdown_r": -2.4887018662727547
+          },
+          "latest_20pct": {
+            "n": 10,
+            "wins": 5,
+            "win_rate": 0.5,
+            "win_rate_95ci": [
+              0.23658959361548731,
+              0.7634104063845126
+            ],
+            "profit_factor": 0.582032466231791,
+            "expectancy_r": -0.2109421669154286,
+            "max_drawdown_r": -5.046855314662075
+          },
+          "latest_20pct_start": "2026-08-07 10:15:00-04:00"
+        },
+        "0.75R": {
+          "all": {
+            "n": 49,
+            "wins": 30,
+            "win_rate": 0.6122448979591837,
+            "win_rate_95ci": [
+              0.47245746488052426,
+              0.735711856260395
+            ],
+            "profit_factor": 1.2967782927013705,
+            "expectancy_r": 0.11596456024895911,
+            "max_drawdown_r": -5.046855314662076
+          },
+          "development_80pct": {
+            "n": 39,
+            "wins": 25,
+            "win_rate": 0.6410256410256411,
+            "win_rate_95ci": [
+              0.484178631846895,
+              0.772581153035089
+            ],
+            "profit_factor": 1.4675074175436928,
+            "expectancy_r": 0.1690175672141867,
+            "max_drawdown_r": -3.092712363038226
+          },
+          "latest_20pct": {
+            "n": 10,
+            "wins": 5,
+            "win_rate": 0.5,
+            "win_rate_95ci": [
+              0.23658959361548731,
+              0.7634104063845126
+            ],
+            "profit_factor": 0.8198042914937064,
+            "expectancy_r": -0.09094216691542856,
+            "max_drawdown_r": -5.046855314662074
+          },
+          "latest_20pct_start": "2026-08-07 10:15:00-04:00"
+        },
+        "1.00R": {
+          "all": {
+            "n": 49,
+            "wins": 29,
+            "win_rate": 0.5918367346938775,
+            "win_rate_95ci": [
+              0.4524706997204626,
+              0.7178496539402894
+            ],
+            "profit_factor": 1.479199973936621,
+            "expectancy_r": 0.19708700922855088,
+            "max_drawdown_r": -5.046855314662075
+          },
+          "development_80pct": {
+            "n": 39,
+            "wins": 24,
+            "win_rate": 0.6153846153846154,
+            "win_rate_95ci": [
+              0.45898781310078474,
+              0.7510883745299295
+            ],
+            "profit_factor": 1.6200625441865528,
+            "expectancy_r": 0.24017141336803283,
+            "max_drawdown_r": -4.033264254060008
+          },
+          "latest_20pct": {
+            "n": 10,
+            "wins": 5,
+            "win_rate": 0.5,
+            "win_rate_95ci": [
+              0.23658959361548731,
+              0.7634104063845126
+            ],
+            "profit_factor": 1.057576116755622,
+            "expectancy_r": 0.029057833084571372,
+            "max_drawdown_r": -5.046855314662075
+          },
+          "latest_20pct_start": "2026-08-07 10:15:00-04:00"
+        }
+      }
+    },
+    "paper_promotion_gate": {
+      "min_n": 40,
+      "min_win_rate": 0.55,
+      "min_profit_factor": 1.3,
+      "min_expectancy_r": 0.15
     }
   },
   "true_forward": {
-    "config_version": "router_v1_specialists_autonomy3",
+    "config_version": "router_v1_specialists_autonomy4",
     "definition": "closed paper trades under this exact stamp only",
     "overall": {
       "n": 0,
@@ -166,15 +372,6 @@
       "max_drawdown_r": 0.0
     },
     "strategies": {
-      "cl_vwap_prox_momentum": {
-        "n": 0,
-        "wins": 0,
-        "win_rate": null,
-        "win_rate_95ci": null,
-        "profit_factor": null,
-        "expectancy_r": null,
-        "max_drawdown_r": 0.0
-      },
       "nq_context_entry": {
         "n": 0,
         "wins": 0,

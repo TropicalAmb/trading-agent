@@ -2,15 +2,14 @@
 
 ## Executive decision
 
-The old Databento parent-symbol cache is excluded. Only `nq_context_entry` and `cl_vwap_prox_momentum` remain active for clean paper-forward measurement. `vwap_rejection` is disabled after a large negative-expectancy replay. No strategy is called forward-profitable yet.
+Only strategies that pass the frozen promotion thresholds can enter paper. `nq_context_entry` is active; `cl_vwap_prox_momentum` and `vwap_rejection` are research-only. No strategy is called forward-profitable until the exact-stamp forward cohort passes its separate proof rule.
 
 ## True forward paper cohort
 
-Config: `router_v1_specialists_autonomy3`
-Active: `cl_vwap_prox_momentum, nq_context_entry`
+Config: `router_v1_specialists_autonomy4`
+Active: `nq_context_entry`
 
 - Overall: n=0 — no measured win rate
-- `cl_vwap_prox_momentum`: n=0 — no measured win rate
 - `nq_context_entry`: n=0 — no measured win rate
 
 ## Frozen-rule independent Yahoo replay
@@ -19,17 +18,19 @@ This is chronological historical replay, not future data. The latest 20% was not
 
 ### `nq_context_entry`
 
-- All: n=48 · WR=60.4% · PF=1.73 · E=+0.292R · maxDD=-4.04R
-- Latest chronological 20%: n=10 · WR=50.0% · PF=1.13 · E=+0.067R · maxDD=-4.04R
-- Holdout start: 2026-08-06 10:50:00-04:00
-
 ### `cl_vwap_prox_momentum`
 
-- All: n=41 · WR=41.5% · PF=1.28 · E=+0.174R · maxDD=-6.42R
-- Latest chronological 20%: n=9 · WR=44.4% · PF=1.44 · E=+0.263R · maxDD=-4.28R
-- Holdout start: 2026-07-22 14:00:00-04:00
-
 ### `vwap_rejection`
+
+## NQ two-contract exit sensitivity
+
+two contracts; half at TP1; runner stop moves to breakeven on the next bar; same-bar stop wins; identical NQ point-friction haircut
+
+- No scale-out: n=49 · WR=59.2% · PF=1.64 · E=+0.265R · maxDD=-5.05R
+- TP1 `0.30R`: n=49 · WR=75.5% · PF=1.05 · E=+0.013R · maxDD=-5.05R
+- TP1 `0.50R`: n=49 · WR=69.4% · PF=1.19 · E=+0.059R · maxDD=-5.05R
+- TP1 `0.75R`: n=49 · WR=61.2% · PF=1.30 · E=+0.116R · maxDD=-5.05R
+- TP1 `1.00R`: n=49 · WR=59.2% · PF=1.48 · E=+0.197R · maxDD=-5.05R
 
 - All: n=576 · WR=37.5% · PF=0.83 · E=-0.114R · maxDD=-73.68R
 - Latest chronological 20%: n=116 · WR=31.0% · PF=0.63 · E=-0.262R · maxDD=-31.62R

@@ -55,16 +55,25 @@ def test_config_wires_nq_context_entry_paper():
     assert "nq_context_entry" in engines
     assert "nq_context_entry" not in research
     assert "nq_context_entry" in specs
-    assert cfg.get("config_version") == "router_v1_specialists_autonomy3"
+    assert cfg.get("config_version") == "router_v1_specialists_autonomy4"
     assert "breakout_retest" in research
     assert "liquidity_sweep" in research
-    assert "cl_vwap_prox_momentum" in specs
+    assert "cl_vwap_prox_momentum" not in specs
+    assert "cl_vwap_prox_momentum" in research
+    assert (cfg.get("cl_vwap_prox_momentum") or {}).get("enabled") is False
     assert "vwap_rejection" not in specs
     assert "vwap_rejection" in research
     nq = cfg.get("nq_context_entry") or {}
     assert nq.get("window") == "0930_1200"
     assert float(nq.get("target_r_multiple")) == 1.15
     assert nq.get("sides") == ["BUY"]
+
+    from agent.decision.evidence_gate import evaluate_paper_evidence
+
+    assert evaluate_paper_evidence("nq_context_entry", cfg).eligible is True
+    cl_evidence = evaluate_paper_evidence("cl_vwap_prox_momentum", cfg)
+    assert cl_evidence.eligible is False
+    assert "win_rate" in cl_evidence.reason
 
 
 def test_specialist_exempt_from_global_min_r():

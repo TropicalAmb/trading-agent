@@ -195,6 +195,10 @@ class DecisionPipeline:
             or "data/last_evaluation.json"
         )
         self.last_eval = LastEvaluationStore(Path(obs_path))
+        self.last_eval.ensure_scope(
+            config_version=self.config_version,
+            active_strategies=self.engine_names,
+        )
 
     def _qty(self, symbol: str, strategy: str, *, tier: str | None = None) -> int:
         profile = self.cfg.get("agent_profile") or self.cfg.get("agent_id") or self.agent_id
@@ -800,6 +804,7 @@ class DecisionPipeline:
                             df_ctx,
                             self.cfg,
                             lifecycle_state=str(meta.get("lifecycle_state") or "ACTIVE"),
+                            market_context=ctx,
                         )
                         meta = dict(s.metadata or {})
                     except Exception:
@@ -985,14 +990,20 @@ class DecisionPipeline:
             if sid and sid in by_id:
                 c["router_evidence"] = (by_id[sid].metadata or {}).get("router_evidence")
                 c["global_score"] = (by_id[sid].metadata or {}).get("global_score", c.get("global_score"))
-        if all_candidates:
+        processed_bar = any(
+            str((report or {}).get("scan_state") or "") == "BAR_PROCESSED"
+            for report in symbol_reports.values()
+        )
+        if all_candidates or processed_bar:
             bar_times = [
                 c.get("market_timestamp")
                 for c in all_candidates
                 if c.get("market_timestamp")
             ]
             self.last_eval.set_last_candidates(
-                all_candidates, market_bar=bar_times[0] if bar_times else None
+                all_candidates,
+                market_bar=bar_times[0] if bar_times else None,
+                allow_empty=processed_bar,
             )
         last_candidates = all_candidates or self.last_eval.last_candidates()
         cycle_status = classify_cycle(

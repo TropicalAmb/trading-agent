@@ -5,18 +5,10 @@ quantity:
   default_quantity: 2
 confluence:
   engines:
-    - liquidity_sweep
-    - vwap_acceptance
-    - sweep_retest
-    - momentum
-    - breakout_retest
-    - opening_range
-    - vwap_orb
-    - vwap_mss
-    - cl_vwap_prox_momentum
     - nq_context_entry
-    - vwap_rejection
 research_only_engines:
+  - cl_vwap_prox_momentum
+  - vwap_rejection
   - ema_pullback
   - trend_continuation
   - trend_pullback
@@ -32,11 +24,9 @@ research_only_engines:
   - opening_range
   - vwap_orb
   - vwap_mss
-config_version: router_v1_specialists_vwaprej
+config_version: router_v1_specialists_autonomy4
 paper_specialist_engines:
-  - cl_vwap_prox_momentum
   - nq_context_entry
-  - vwap_rejection
 execution_profile: balanced
 performance_router:
   enabled: true

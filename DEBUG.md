@@ -5,6 +5,17 @@
 
 ---
 
+## AM — Failed evidence, post-friction risk, and close-only exits (2026-08-14)
+
+| | |
+|--|--|
+| **Symptom** | CL PAPER-00301 entered with 2 contracts, showed roughly +$140–$160 at its best observed mark, then closed −$540. Its frozen replay failed the promotion WR/PF bar, model telemetry was negative, stored risk understated the slipped bracket, cascade and entry directions disagreed, and the manager could miss an intrabar TP/stop because it only received the delayed bar close. |
+| **Root cause** | Specialist status bypassed an executable frozen-evidence check; advisory model evidence was never intended to be a calibrated hard gate. Quantity fit used signal prices before entry/stop slippage, while the blotter stored pre-friction dollars. `manage_open` was passed close-only prices even though live_main already had OHLC. Cascade rebuilt HTF features separately. TP1 was hard-coded to 1R instead of consuming config, displayed hold time used stale market time, and LastEvaluationStore refused to clear empty/retired candidates or scope them to a config stamp. |
+| **Fix** | Stamp `router_v1_specialists_autonomy4`. Demote/disable CL; only frozen-passing NQ remains paperable. `paper_evidence_gate` fails closed from `CURRENT_SPECIALIST_VALIDATION.json` at n≥40, WR≥55%, PF≥1.3, E≥0.15 plus non-negative/latest PF guard. Re-fit quantity after paper friction and record actual dollars. Pass OHLC paths into the blotter, process each completed post-entry bar once, stop-first on ambiguous bars, fill barriers at their modeled prices, bank configured TP1, and make tightened stops effective next bar. Cascade uses the authoritative MarketContext; hold reporting uses received time. Last-evaluation candidates/engine votes are filtered by config/active strategy and a processed empty bar clears prior candidates. NQ exit sensitivity rejected 0.30R despite 75.5% WR because PF1.05/E+0.013R/latest E−0.261R; retain validated 1R scale-out (PF1.48/E+0.197R). 218 tests pass. |
+| **Do not** | Re-add CL to paper until corrected `.v.0` plus independent replay passes the frozen gate. Do not make model telemetry a hard gate until calibrated, size only before friction, manage futures barriers from closes, replay an entry bar's pre-fill extremes, assume target-first on an ambiguous bar, recompute HTF truth twice, preserve retired candidates across config changes, or chase headline WR with an early TP that destroys expectancy. |
+
+---
+
 ## AL — Sandboxed Task Scheduler checks can falsely report tasks missing (2026-08-14)
 
 | | |

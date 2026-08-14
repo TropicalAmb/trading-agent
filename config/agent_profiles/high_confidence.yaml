@@ -6,17 +6,10 @@ quantity:
   default_quantity: 2
 confluence:
   engines:
-    - liquidity_sweep
-    - vwap_acceptance
-    - sweep_retest
-    - momentum
-    - breakout_retest
-    - opening_range
-    - vwap_orb
-    - vwap_mss
-    - cl_vwap_prox_momentum
     - nq_context_entry
 research_only_engines:
+  - cl_vwap_prox_momentum
+  - vwap_rejection
   - ema_pullback
   - trend_continuation
   - trend_pullback

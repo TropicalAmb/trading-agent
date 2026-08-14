@@ -483,6 +483,43 @@ def test_paper_mode_forces_dry_run_path():
     broker.place_bracket_order.assert_not_called()
 
 
+def test_paper_friction_refits_quantity_and_records_actual_risk():
+    """The failed CL path must not keep 2 lots after friction pushes it over $500."""
+    from agent.execution.directional import DirectionalExecutor
+    from agent.strategy.sweep_retest import SweepSignal
+
+    cfg = _cfg()
+    cfg["mode"] = "paper"
+    broker = MagicMock()
+    blotter = MagicMock()
+    blotter.record_paper_fill.return_value = {"id": "PAPER-FRICTION"}
+    ex = DirectionalExecutor(broker, cfg, blotter=blotter)
+    sig = SweepSignal(
+        symbol="CL",
+        side="BUY",
+        entry=81.76000,
+        stop=81.52143,
+        target=82.23714,
+        confidence=82,
+        reason="regression",
+        pdh=0,
+        pdl=0,
+        ts=datetime.now(timezone.utc),
+        risk_dollars=238.57,
+        reward_dollars=477.14,
+    )
+    setattr(sig, "quantity", 2)
+    setattr(sig, "setup_tier", "A")
+    result = ex.execute(sig)
+    assert result["status"] == "PAPER_FILL"
+    kwargs = blotter.record_paper_fill.call_args.kwargs
+    assert kwargs["qty"] == 1
+    assert kwargs["entry"] == pytest.approx(81.77)
+    assert kwargs["stop"] == pytest.approx(81.51143)
+    assert round(kwargs["risk_dollars"], 2) == 258.57
+    assert kwargs["risk_dollars"] * kwargs["qty"] <= 500
+
+
 def test_rejected_setup_has_reason_fields():
     s = _setup("B", 60)
     assert s.setup_tier == "B"

@@ -29,8 +29,9 @@ def test_config_demotes_negative_expectancy_vwap_rejection():
     assert "vwap_rejection" in research
     assert "vwap_rejection" not in specs
     assert "nq_context_entry" in specs
-    assert "cl_vwap_prox_momentum" in specs
-    assert cfg.get("config_version") == "router_v1_specialists_autonomy3"
+    assert "cl_vwap_prox_momentum" not in specs
+    assert "cl_vwap_prox_momentum" in research
+    assert cfg.get("config_version") == "router_v1_specialists_autonomy4"
     vr = cfg.get("vwap_rejection") or {}
     assert vr.get("enabled") is False
     assert float(vr.get("target_r_multiple")) == 1.5

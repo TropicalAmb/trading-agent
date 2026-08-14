@@ -1,8 +1,9 @@
 mode: paper  # paper | live — live also requires ALLOW_LIVE_TRADING=true in .env
 
 # Version stamp for BEFORE vs AFTER optimization comparison (do not erase old journals)
-config_version: router_v1_specialists_autonomy3
-# Clean forward-validation stamp: NQ context + CL VWAP-prox only.
+config_version: router_v1_specialists_autonomy4
+# Clean forward-validation stamp: NQ context only. CL failed the frozen
+# promotion gate and is demoted to research until a replacement passes it.
 # Legacy parent-symbol Databento files are rejected because they mixed contracts.
 # Yahoo is the exact-symbol fallback until volume-continuous `.v.0` caches are rebuilt.
 strategy_version: performance_router_v1
@@ -137,14 +138,13 @@ portfolio:
   allow_opposite_same_symbol: false
   allow_duplicate_same_trade: false
 
-# Runtime engines: the two positive-expectancy frozen specialists under forward validation.
+# Runtime engine: only the frozen specialist that passes the promotion gates.
 # Other modules remain research-only and are not evaluated in the live loop.
 confluence:
   min_engines_agree: 1
   must_include_one_of: []
   engines:
-    - cl_vwap_prox_momentum  # PAPER: frozen CL specialist; clean revalidation in progress
-    - nq_context_entry       # PAPER: frozen PULLBACK BUY; clean revalidation in progress
+    - nq_context_entry       # PAPER: n=49 WR=59.2% PF=1.64 E=+0.265R
   max_risk_dollars: 180
   min_reward_dollars: 150
   min_rr: 1.6
@@ -153,6 +153,7 @@ confluence:
 # under shadow.evaluate_research_engines_live=false, and NOT paper-executable.
 # Failed/experimental engines remain offline research-only.
 research_only_engines:
+  - cl_vwap_prox_momentum # n=41 WR=41.5% PF=1.28: failed frozen promotion gate
   - vwap_rejection       # clean Yahoo replay n=576 PF=0.83 E=-0.114R; not paperable
   - ema_pullback         # was 39/64 lifetime fills; spray engine → shadow until proven with partners
   - trend_continuation   # thin single-engine scrapes
@@ -172,8 +173,20 @@ research_only_engines:
 
 # Paper-executable frozen specialists (tier floor A when cascade OK; still hard-risk gated)
 paper_specialist_engines:
-  - cl_vwap_prox_momentum
   - nq_context_entry
+
+# Fail closed: a paper specialist must still pass the frozen evidence artifact.
+# This prevents a config-list edit or advisory model from re-promoting a failed system.
+paper_evidence_gate:
+  enabled: true
+  registry_path: data/current_specialist_validation/CURRENT_SPECIALIST_VALIDATION.json
+  cohort: all
+  min_n: 40
+  min_win_rate: 0.55
+  min_profit_factor: 1.30
+  min_expectancy_r: 0.15
+  latest_min_profit_factor: 1.0
+  latest_min_expectancy_r: 0.0
 
 # Five-layer cascade (additive context; hard risk unchanged)
 trade_cascade:
@@ -204,7 +217,7 @@ strategy_lifecycle:
 
 # CL specialist — frozen definition (do not tweak during forward sample)
 cl_vwap_prox_momentum:
-  enabled: true
+  enabled: false  # research-only after failing n/WR/PF frozen promotion evidence
   symbols: [CL, MCL]
   max_abs_vwap_atr: 0.25
   stop_atr_mult: 1.0
