@@ -32,7 +32,7 @@ ROOT = Path(__file__).resolve().parents[1]
 def test_thresholds_unlocked_not_changed():
     cfg = load_settings(ROOT / "config" / "settings.yaml")
     assert cfg["tiering"]["minimum_trade_tier"] == "A"
-    assert cfg["tiering"]["tier_thresholds"]["A"] == 72
+    assert cfg["tiering"]["tier_thresholds"]["A"] == 75
     assert cfg["tiering"]["tier_thresholds"]["A_PLUS"] == 85
     assert cfg["quantity"]["default_quantity"] == 2
     assert float(cfg["risk"]["max_risk_dollars_per_trade"]) == 500
@@ -78,6 +78,40 @@ def test_provider_bar_interval_metadata():
     meta = p.provider_meta()
     assert meta["bar_interval"] == "5m"
     assert meta["bar_interval_seconds"] == 300
+
+
+def test_yahoo_provider_reuses_in_cycle_snapshot_and_passes_real_timeout(monkeypatch):
+    import yfinance as yf
+
+    calls = []
+    idx = pd.date_range("2026-08-13 10:00", periods=3, freq="5min")
+    frame = pd.DataFrame(
+        {
+            "Open": [100.0, 101.0, 102.0],
+            "High": [101.0, 102.0, 103.0],
+            "Low": [99.0, 100.0, 101.0],
+            "Close": [100.5, 101.5, 102.5],
+            "Volume": [10.0, 11.0, 12.0],
+        },
+        index=idx,
+    )
+
+    def fake_download(*args, **kwargs):
+        calls.append(kwargs)
+        return frame.copy()
+
+    monkeypatch.setattr(yf, "download", fake_download)
+    provider = YahooDelayedFuturesProvider(
+        request_timeout_sec=7,
+        max_retries=1,
+        cache_ttl_seconds=30,
+    )
+    first = provider.get_bars("MES")
+    second = provider.get_bars("MES")
+    assert len(first) == len(second) == 3
+    assert len(calls) == 1
+    assert calls[0]["timeout"] == 7
+    assert calls[0]["threads"] is False
 
 
 def test_context_persists_across_no_new_bar(tmp_path):

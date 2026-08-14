@@ -26,7 +26,15 @@ def fetch_yahoo(symbol: str, interval: str, period: str) -> pd.DataFrame:
     from zoneinfo import ZoneInfo
 
     ET = ZoneInfo("America/New_York")
-    df = yf.download(symbol, interval=interval, period=period, auto_adjust=True, progress=False)
+    df = yf.download(
+        symbol,
+        interval=interval,
+        period=period,
+        auto_adjust=True,
+        progress=False,
+        threads=False,
+        timeout=20,
+    )
     if df is None or df.empty:
         return pd.DataFrame()
     if isinstance(df.columns, pd.MultiIndex):

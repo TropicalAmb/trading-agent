@@ -1,0 +1,189 @@
+{
+  "active_specialists": [
+    "cl_vwap_prox_momentum",
+    "nq_context_entry"
+  ],
+  "yahoo_locked_replay": {
+    "source": "Yahoo independent screening; frozen current rules; no optimization",
+    "windows": {
+      "NQ_5m": [
+        "2026-06-04 00:05:00-04:00",
+        "2026-08-14 09:55:00-04:00"
+      ],
+      "CL_5m": [
+        "2026-06-04 00:00:00-04:00",
+        "2026-08-14 09:55:00-04:00"
+      ],
+      "VWAP_1h": {
+        "NQ": [
+          "2025-06-04 00:00:00-04:00",
+          "2026-08-14 09:00:00-04:00"
+        ],
+        "ES": [
+          "2025-06-04 00:00:00-04:00",
+          "2026-08-14 09:00:00-04:00"
+        ],
+        "CL": [
+          "2025-06-04 00:00:00-04:00",
+          "2026-08-14 09:00:00-04:00"
+        ],
+        "GC": [
+          "2025-06-04 00:00:00-04:00",
+          "2026-08-14 09:00:00-04:00"
+        ]
+      }
+    },
+    "strategies": {
+      "nq_context_entry": {
+        "all": {
+          "n": 48,
+          "wins": 29,
+          "win_rate": 0.6041666666666666,
+          "win_rate_95ci": [
+            0.4631015459693511,
+            0.7297937350404942
+          ],
+          "profit_factor": 1.7310194550799352,
+          "expectancy_r": 0.2915242657596275,
+          "max_drawdown_r": -4.035954010398886
+        },
+        "development_80pct": {
+          "n": 38,
+          "wins": 24,
+          "win_rate": 0.631578947368421,
+          "win_rate_95ci": [
+            0.47283672824260115,
+            0.7661598684458619
+          ],
+          "profit_factor": 1.9449609745381626,
+          "expectancy_r": 0.3506145066620557,
+          "max_drawdown_r": -4.033264254060008
+        },
+        "latest_20pct": {
+          "n": 10,
+          "wins": 5,
+          "win_rate": 0.5,
+          "win_rate_95ci": [
+            0.23658959361548731,
+            0.7634104063845126
+          ],
+          "profit_factor": 1.1328304501261286,
+          "expectancy_r": 0.0669813503304005,
+          "max_drawdown_r": -4.035954010398886
+        },
+        "latest_20pct_start": "2026-08-06 10:50:00-04:00"
+      },
+      "cl_vwap_prox_momentum": {
+        "all": {
+          "n": 41,
+          "wins": 17,
+          "win_rate": 0.4146341463414634,
+          "win_rate_95ci": [
+            0.2775633082533015,
+            0.5663316464316339
+          ],
+          "profit_factor": 1.2776479750778817,
+          "expectancy_r": 0.17390243902439015,
+          "max_drawdown_r": -6.420000000000002
+        },
+        "development_80pct": {
+          "n": 32,
+          "wins": 13,
+          "win_rate": 0.40625,
+          "win_rate_95ci": [
+            0.255194024803138,
+            0.5774027342701177
+          ],
+          "profit_factor": 1.23413674372848,
+          "expectancy_r": 0.14874999999999994,
+          "max_drawdown_r": -4.700000000000001
+        },
+        "latest_20pct": {
+          "n": 9,
+          "wins": 4,
+          "win_rate": 0.4444444444444444,
+          "win_rate_95ci": [
+            0.188775429471914,
+            0.7333526542559703
+          ],
+          "profit_factor": 1.4429906542056072,
+          "expectancy_r": 0.26333333333333325,
+          "max_drawdown_r": -4.28
+        },
+        "latest_20pct_start": "2026-07-22 14:00:00-04:00"
+      },
+      "vwap_rejection": {
+        "all": {
+          "n": 576,
+          "wins": 216,
+          "win_rate": 0.375,
+          "win_rate_95ci": [
+            0.3364139388636984,
+            0.4152423755504451
+          ],
+          "profit_factor": 0.8259825778769293,
+          "expectancy_r": -0.11350062393055665,
+          "max_drawdown_r": -73.67793983651357
+        },
+        "development_80pct": {
+          "n": 460,
+          "wins": 180,
+          "win_rate": 0.391304347826087,
+          "win_rate_95ci": [
+            0.34778056079342085,
+            0.43662859957511874
+          ],
+          "profit_factor": 0.8805273939913737,
+          "expectancy_r": -0.07599878336277263,
+          "max_drawdown_r": -47.56442910135704
+        },
+        "latest_20pct": {
+          "n": 116,
+          "wins": 36,
+          "win_rate": 0.3103448275862069,
+          "win_rate_95ci": [
+            0.2333709905497525,
+            0.39947770305914454
+          ],
+          "profit_factor": 0.6338570524230215,
+          "expectancy_r": -0.26221481928556223,
+          "max_drawdown_r": -31.62278855933848
+        },
+        "latest_20pct_start": "2026-05-20 09:00:00-04:00"
+      }
+    }
+  },
+  "true_forward": {
+    "config_version": "router_v1_specialists_autonomy3",
+    "definition": "closed paper trades under this exact stamp only",
+    "overall": {
+      "n": 0,
+      "wins": 0,
+      "win_rate": null,
+      "win_rate_95ci": null,
+      "profit_factor": null,
+      "expectancy_r": null,
+      "max_drawdown_r": 0.0
+    },
+    "strategies": {
+      "cl_vwap_prox_momentum": {
+        "n": 0,
+        "wins": 0,
+        "win_rate": null,
+        "win_rate_95ci": null,
+        "profit_factor": null,
+        "expectancy_r": null,
+        "max_drawdown_r": 0.0
+      },
+      "nq_context_entry": {
+        "n": 0,
+        "wins": 0,
+        "win_rate": null,
+        "win_rate_95ci": null,
+        "profit_factor": null,
+        "expectancy_r": null,
+        "max_drawdown_r": 0.0
+      }
+    }
+  }
+}

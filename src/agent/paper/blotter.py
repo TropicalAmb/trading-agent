@@ -700,6 +700,44 @@ class PaperBlotter:
     def realized_pnl(self) -> float:
         return float(self._state.get("realized_pnl", 0.0) or 0.0)
 
+    def realized_pnl_today(
+        self,
+        *,
+        now: datetime | None = None,
+        timezone_name: str = "America/New_York",
+    ) -> float:
+        """Actual realized cash events for the current ET day.
+
+        TP1 rows are separate realized events, while the final trade row stores
+        total trade P&L including prior partials. Subtracting the stored partial
+        amount from the final row prevents scale-outs from being counted twice.
+        """
+        from zoneinfo import ZoneInfo
+
+        tz = ZoneInfo(timezone_name)
+        current = now or datetime.now(timezone.utc)
+        if current.tzinfo is None:
+            current = current.replace(tzinfo=tz)
+        today = current.astimezone(tz).date()
+        total = 0.0
+        for trade in self._state.get("closed_trades", []):
+            raw_ts = trade.get("closed_at") or trade.get("ts")
+            if not raw_ts:
+                continue
+            try:
+                closed = datetime.fromisoformat(str(raw_ts).replace("Z", "+00:00"))
+            except ValueError:
+                continue
+            if closed.tzinfo is None:
+                closed = closed.replace(tzinfo=tz)
+            if closed.astimezone(tz).date() != today:
+                continue
+            pnl = float(trade.get("pnl_dollars") or 0.0)
+            if str(trade.get("exit_reason") or "") != "tp1":
+                pnl -= float(trade.get("partial_pnl_dollars") or 0.0)
+            total += pnl
+        return round(total, 2)
+
     def session_pnl(self) -> dict[str, dict[str, float | int]]:
         """Realized P&L and trade counts by session bucket (asia/london/ny/other)."""
         buckets = ("asia", "london", "ny", "other")
@@ -707,6 +745,11 @@ class PaperBlotter:
             k: {"pnl": 0.0, "trades": 0, "wins": 0, "losses": 0} for k in buckets
         }
         for t in self._state.get("closed_trades", []):
+            # The final trade row already includes all TP1 partial P&L. Count
+            # one completed trade, not the partial bookkeeping event as another
+            # win and another copy of its dollars.
+            if str(t.get("exit_reason", "")) == "tp1":
+                continue
             # Skip bookkeeping flat closes that aren't real strategy outcomes
             if str(t.get("exit_reason", "")) in {
                 "universe_prune",
@@ -749,6 +792,8 @@ class PaperBlotter:
             return {"pnl": 0.0, "trades": 0, "wins": 0, "losses": 0}
 
         for t in self._state.get("closed_trades", []):
+            if str(t.get("exit_reason", "")) == "tp1":
+                continue
             if str(t.get("exit_reason", "")) in {
                 "universe_prune",
                 "corr_conflict_prune",
@@ -758,12 +803,19 @@ class PaperBlotter:
                 continue
             # Prefer market/opened time for strategy analysis on delayed feeds
             raw_ts = t.get("market_timestamp") or t.get("opened_at") or t.get("closed_at")
-            dt = _parse_ts(str(raw_ts) if raw_ts else None)
+            try:
+                # Preserve naive-ness here: Yahoo market timestamps are naive
+                # ET, while opened_at/closed_at lifecycle timestamps are aware.
+                dt = datetime.fromisoformat(str(raw_ts).replace("Z", "+00:00")) if raw_ts else None
+            except ValueError:
+                dt = None
             if dt is None:
                 day = "unknown"
             else:
                 if dt.tzinfo is None:
-                    dt = dt.replace(tzinfo=timezone.utc)
+                    # Provider market timestamps are deliberately stored as
+                    # naive New York time, not UTC.
+                    dt = dt.replace(tzinfo=et)
                 day = dt.astimezone(et).date().isoformat()
             raw = str(t.get("session") or "other").lower()
             if raw.startswith("asia"):
@@ -1083,7 +1135,6 @@ class PaperBlotter:
             paper_specs = {
                 "nq_context_entry",
                 "cl_vwap_prox_momentum",
-                "vwap_rejection",
             }
             out = []
             for t in closed[:120]:
@@ -1134,7 +1185,6 @@ class PaperBlotter:
             paper_specs = {
                 "nq_context_entry",
                 "cl_vwap_prox_momentum",
-                "vwap_rejection",
             }
             out = []
             for p in opens:
@@ -1244,8 +1294,8 @@ class PaperBlotter:
         else:
             trade_status = "SCANNING — flat (no new paper fill this cycle)"
             trade_plain = (
-                "Only 3 specialists can paper: nq_context_entry · cl_vwap_prox_momentum · vwap_rejection. "
-                "Quiet is normal until one fires (NQ mainly 09:30–12 ET; CL/VWAP-rej when signals print)."
+                "Only 2 specialists can paper: nq_context_entry · cl_vwap_prox_momentum. "
+                "Quiet is normal until one fires (NQ mainly 09:30–12 ET; CL when its signal prints)."
             )
         last_fill_line = "No closed paper trades yet."
         if last_closed is not None:
@@ -1269,11 +1319,10 @@ class PaperBlotter:
 
         def papering_now_html() -> str:
             cv = str(hb.get("config_version") or "—")
-            live = "specialists_vwaprej" in cv or "specialists_only" in cv
+            live = cv.startswith("router_v1_specialists_")
             specs = [
-                ("nq_context_entry", "NQ/MNQ PULLBACK BUY", "09:30–12:00 ET", "~74% Databento"),
-                ("cl_vwap_prox_momentum", "CL/MCL VWAP-prox", "any session when signal", "~69% research"),
-                ("vwap_rejection", "VWAP wick-reject 1h", "09:00–16:00 ET", "~77% Databento"),
+                ("nq_context_entry", "NQ/MNQ PULLBACK BUY", "09:30–12:00 ET", "REVALIDATING"),
+                ("cl_vwap_prox_momentum", "CL/MCL VWAP-prox", "any session when signal", "REVALIDATING"),
             ]
             rows = "".join(
                 f"<tr><td><b>{a}</b></td><td>{b}</td><td>{c}</td><td>{d}</td></tr>"
@@ -1285,12 +1334,12 @@ class PaperBlotter:
             for t in trades:
                 eng = str(t.get("strategy_name") or "")
                 cvt = str(t.get("config_version") or (t.get("metadata") or {}).get("config_version") or "")
-                if eng not in {s[0] for s in specs}:
+                if eng not in {s[0] for s in specs} or cvt != cv:
                     continue
-                if "specialists" not in cvt and live:
-                    # still count if strategy is specialist even on mixed stamps
-                    pass
                 if not t.get("closed_at"):
+                    continue
+                exit_reason = str(t.get("exit_reason") or "").lower()
+                if exit_reason in {"tp1", "universe_prune", "correlation_prune", "demo"}:
                     continue
                 try:
                     pnl = float(t.get("pnl_dollars") or 0)
@@ -1308,14 +1357,14 @@ class PaperBlotter:
             )
             return (
                 f"<div class='meta' style='margin-bottom:10px'>{status}</div>"
-                "<p class='plain' style='margin:0 0 10px 0'>Ignore <b>LEGACY SPRAY</b> rows "
-                "(breakout_retest / old paperfix2) when judging today’s specialists. "
-                "Judge only rows tagged <b>SPECIALIST</b>.</p>"
-                "<table><thead><tr><th>Strategy</th><th>What</th><th>When</th><th>Research WR</th></tr></thead>"
+                "<p class='plain' style='margin:0 0 10px 0'>Performance is measured only from "
+                "completed trades under this exact config stamp. Historical estimates from the "
+                "rejected cache are not displayed.</p>"
+                "<table><thead><tr><th>Strategy</th><th>What</th><th>When</th><th>Evidence</th></tr></thead>"
                 f"<tbody>{rows}</tbody></table>"
-                f"<div class='meta' style='margin-top:10px'>Specialist closed sample (all history with those names): "
+                f"<div class='meta' style='margin-top:10px'>CURRENT-STAMP FORWARD ONLY: "
                 f"n={n} · WR={wr} · PnL={_fmt_money(pnl_sum)}. "
-                f"If n is tiny, forward sample has not started — do not compare to today’s spray losses.</div>"
+                f"If n is tiny, there is not yet enough evidence to claim profitability.</div>"
             )
 
         def wr_cohort_dashboard_html() -> str:
@@ -1332,7 +1381,6 @@ class PaperBlotter:
             paper_specs = {
                 "nq_context_entry",
                 "cl_vwap_prox_momentum",
-                "vwap_rejection",
             }
             for t in trades:
                 if str(t.get("status") or "").upper() == "OPEN" or not t.get("closed_at"):
@@ -1398,14 +1446,21 @@ class PaperBlotter:
                 f"<div class='glance-grid'>{cells}</div>"
             )
 
+        feed_source = str(hb.get("feed_source") or "unknown")
+        if hb.get("is_realtime"):
+            feed_mode = "REALTIME"
+        elif "databento_cache" in feed_source:
+            feed_mode = "PAID DATABENTO CACHE + DELAYED YAHOO TAIL"
+        else:
+            feed_mode = "DELAYED YAHOO"
         tech_status_html = f"""
       <div class="eq">AGENT: {agent_health}</div>
       <div class="meta">{alive}</div>
-      <div class="meta"><b>Config:</b> {hb.get('config_version') or '—'} · <b>Mode:</b> paper / Yahoo delayed</div>
+      <div class="meta"><b>Config:</b> {hb.get('config_version') or '—'} · <b>Mode:</b> paper / {feed_source}</div>
       <div class="meta"><b>Primary:</b> {decision}</div>
       <div class="meta"><b>Detail:</b> {hb.get('status_detail') or '—'}</div>
       <div class="meta"><b>Scheduler:</b> interval={hb.get('scheduler_interval_minutes') or 1}m · last tick {hb_age if hb_age is not None else '—'}s ago · scan_state={hb.get('scan_state') or '—'}</div>
-      <div class="meta"><b>Provider:</b> {hb.get('feed_source', 'yahoo_delayed')} · {'REALTIME' if hb.get('is_realtime') else 'DELAYED Yahoo'} · expected_delay≈{hb.get('expected_delay_seconds') or hb.get('estimated_delay_seconds') or 'n/a'}s · observed_delay≈{hb.get('estimated_delay_seconds') or 'n/a'}s · stale_threshold≈{hb.get('stale_threshold_seconds') or 'n/a'}s</div>
+      <div class="meta"><b>Provider:</b> {feed_source} · {feed_mode} · expected_delay≈{hb.get('expected_delay_seconds') or hb.get('estimated_delay_seconds') or 'n/a'}s · observed_delay≈{hb.get('estimated_delay_seconds') or 'n/a'}s · stale_threshold≈{hb.get('stale_threshold_seconds') or 'n/a'}s</div>
       <div class="meta">Last fetch attempt: {hb.get('last_fetch_attempt') or '—'} · Last successful fetch: {hb.get('last_successful_fetch') or '—'}</div>
       <div class="meta"><b>Bar interval (strategy):</b> {hb.get('bar_interval') or '5m'} ({hb.get('bar_interval_seconds') or 300}s) — NOT the same as scheduler 1m ticks</div>
       <div class="meta">Latest completed market bar: {hb.get('last_market_bar') or '—'} · Last evaluated bar: {hb.get('last_evaluated_market_bar') or hb.get('last_market_bar') or '—'}</div>

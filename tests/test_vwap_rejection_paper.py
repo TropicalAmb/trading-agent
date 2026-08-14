@@ -1,4 +1,4 @@
-"""Paper wiring tests for vwap_rejection specialist."""
+"""VWAP-rejection evaluator tests plus its clean-validation demotion."""
 
 from __future__ import annotations
 
@@ -11,7 +11,7 @@ import yaml
 
 from agent.decision.setup import TradeSetup
 from agent.decision.tiering import execution_reject_reason
-from agent.strategy.vwap_rejection import evaluate_vwap_rejection
+from agent.strategy.vwap_rejection import _to_1h, evaluate_vwap_rejection
 
 ROOT = Path(__file__).resolve().parents[1]
 
@@ -20,18 +20,19 @@ def _cfg() -> dict:
     return yaml.safe_load((ROOT / "config" / "settings.yaml").read_text(encoding="utf-8"))
 
 
-def test_config_wires_vwap_rejection_paper():
+def test_config_demotes_negative_expectancy_vwap_rejection():
     cfg = _cfg()
     engines = cfg.get("confluence", {}).get("engines") or []
     research = set(cfg.get("research_only_engines") or [])
     specs = set(cfg.get("paper_specialist_engines") or [])
-    assert "vwap_rejection" in engines
-    assert "vwap_rejection" not in research
-    assert "vwap_rejection" in specs
+    assert "vwap_rejection" not in engines
+    assert "vwap_rejection" in research
+    assert "vwap_rejection" not in specs
     assert "nq_context_entry" in specs
     assert "cl_vwap_prox_momentum" in specs
-    assert cfg.get("config_version") == "router_v1_specialists_vwaprej"
+    assert cfg.get("config_version") == "router_v1_specialists_autonomy3"
     vr = cfg.get("vwap_rejection") or {}
+    assert vr.get("enabled") is False
     assert float(vr.get("target_r_multiple")) == 1.5
 
 
@@ -66,7 +67,25 @@ def test_evaluator_fires_wick_reject_on_1h():
         assert sig.target != sig.entry
 
 
-def test_specialist_exempt_from_min_r():
+def test_resample_drops_still_forming_hour():
+    complete = pd.date_range("2026-03-10 09:00", periods=24, freq="5min")
+    partial = pd.date_range("2026-03-10 11:00", periods=2, freq="5min")
+    idx = complete.append(partial)
+    df = pd.DataFrame(
+        {
+            "open": np.full(len(idx), 100.0),
+            "high": np.full(len(idx), 101.0),
+            "low": np.full(len(idx), 99.0),
+            "close": np.full(len(idx), 100.0),
+            "volume": np.full(len(idx), 10.0),
+        },
+        index=idx,
+    )
+    hourly = _to_1h(df)
+    assert list(hourly.index) == [pd.Timestamp("2026-03-10 09:00"), pd.Timestamp("2026-03-10 10:00")]
+
+
+def test_demoted_vwap_rejection_is_not_specialist_exempt_from_min_r():
     cfg = _cfg()
     now = datetime.now(timezone.utc)
     setup = TradeSetup(
@@ -86,6 +105,6 @@ def test_specialist_exempt_from_min_r():
         reward_dollars=150.0,
         quantity=2,
     )
-    # Should not reject solely for R<1.6 when specialist
+    # It is stopped before any execution-quality exemption can make it paperable.
     reason = execution_reject_reason(setup, cfg)
-    assert reason is None or "R<" not in str(reason)
+    assert reason == "RESEARCH_ONLY:vwap_rejection"

@@ -27,11 +27,11 @@ def session_vwap(df: pd.DataFrame) -> pd.Series:
 
 
 def swing_high_low(df: pd.DataFrame, left: int = 3, right: int = 3) -> tuple[pd.Series, pd.Series]:
-    """Swing high/low: bar extreme exceeds `left`/`right` neighbors."""
+    """Confirmed swing high/low, timestamped when the right bars are known."""
     h, l = df["high"], df["low"]
-    sh = h[(h == h.rolling(left + right + 1, center=True).max())]
-    sl = l[(l == l.rolling(left + right + 1, center=True).min())]
-    return sh.reindex(df.index), sl.reindex(df.index)
+    sh = h.where(h == h.rolling(left + right + 1, center=True).max())
+    sl = l.where(l == l.rolling(left + right + 1, center=True).min())
+    return sh.shift(right), sl.shift(right)
 
 
 def bullish_fvg_mask(df: pd.DataFrame) -> pd.Series:

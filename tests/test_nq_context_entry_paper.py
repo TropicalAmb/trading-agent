@@ -55,11 +55,12 @@ def test_config_wires_nq_context_entry_paper():
     assert "nq_context_entry" in engines
     assert "nq_context_entry" not in research
     assert "nq_context_entry" in specs
-    assert cfg.get("config_version") == "router_v1_specialists_vwaprej"
+    assert cfg.get("config_version") == "router_v1_specialists_autonomy3"
     assert "breakout_retest" in research
     assert "liquidity_sweep" in research
     assert "cl_vwap_prox_momentum" in specs
-    assert "vwap_rejection" in specs
+    assert "vwap_rejection" not in specs
+    assert "vwap_rejection" in research
     nq = cfg.get("nq_context_entry") or {}
     assert nq.get("window") == "0930_1200"
     assert float(nq.get("target_r_multiple")) == 1.15
@@ -112,8 +113,11 @@ def test_pipeline_registers_nq_context_entry():
     cfg = _cfg()
     pipe = DecisionPipeline.__new__(DecisionPipeline)
     pipe.cfg = cfg
-    pipe.engine_names = list(cfg["confluence"]["engines"]) + list(cfg.get("research_only_engines") or [])
+    pipe.engine_names = list(cfg["confluence"]["engines"])
     pipe.research_only_engines = set(cfg.get("research_only_engines") or [])
+    assert (cfg.get("shadow") or {}).get("evaluate_research_engines_live") is False
+    assert set(pipe.engine_names) == set(cfg.get("paper_specialist_engines") or [])
+    assert not (set(pipe.engine_names) & pipe.research_only_engines)
     # Call private map indirectly via _eval_engines empty frame path
     from agent.strategy.nq_context_entry import evaluate_nq_context_entry as fn
 

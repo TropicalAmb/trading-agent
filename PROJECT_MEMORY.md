@@ -1,9 +1,9 @@
 # PROJECT MEMORY — Trading Agent (binding)
 
-**Last updated:** 2026-08-13  
-**Paper stamps:** `config_version: router_v1_specialists_vwaprej`. Paper Yahoo delayed for live scans. **Paper specialists:** `nq_context_entry`, `cl_vwap_prox_momentum`, **`vwap_rejection`** (1h wick-reject R1.5, Databento-locked). Breakout/location spray stays `research_only`.  
+**Last updated:** 2026-08-14
+**Paper stamp:** `config_version: router_v1_specialists_autonomy3`. Paper feed remains **zero-new-spend `databento_cache_yahoo`**, but every legacy `*.FUT` parent-symbol cache is rejected because it interleaved multiple outright contracts by timestamp. Yahoo supplies exact-symbol delayed bars until corrected volume-continuous `.v.0` caches are explicitly approved and rebuilt. **Only live-loop / paper specialists:** `nq_context_entry`, `cl_vwap_prox_momentum`. `vwap_rejection` failed the clean replay and is `research_only`; all other research modules remain offline (`shadow.evaluate_research_engines_live: false`).
 
-**Research data (binding):** Prefer **Databento + Yahoo dual**. Local caches `data/databento/{NQ,ES,CL,GC}_1m_cache.parquet` (~180d, ~$25.59). **No further Databento downloads without user OK.** When Yahoo and Databento disagree on CME futures research, **Databento is truth** (Yahoo continuous is screening only).  
+**Research data (binding):** Prefer **Databento volume-continuous + Yahoo dual**. The existing paid files `data/databento/{NQ,ES,CL,GC}_1m_cache.parquet` (~180d, ~$25.59) are preserved but quarantined: they were built from parent symbology and are not valid single-series evidence. New single-series pulls must use `[ROOT].v.0`, `stype_in=continuous`, format `databento_continuous_v1`, and pass the minute-jump audit. **No Databento download without user OK.** The corrected 180d CL quote was ~$0.6384; quote-only does not spend credits. Yahoo is independent screening/current paper fallback, not a substitute for the corrected paid validation.
 
 **Promotion gates (practical):** WR≥55%, n≥40, PF≥1.3, E≥0.15 (`GATES` in harness metrics). Old 65%/n100 kept as `ASPIRATIONAL_GATES` only. Soft paper floor WR≥50% n≥30.  
 
@@ -41,6 +41,8 @@ Leaving either file stale after a fix is a process failure (it already caused ho
 11. **Babysit-free ops** — `trade_silence_watch` must stay enabled; prolonged silence should self-diagnose. Auto-restart only for hung process / transient patterns — **never** thrash-restart known code bugs (`CODE_BUG_RESTART_WILL_NOT_FIX`). Restart ≠ patch.
 12. **≤90m open-session paper drought** — if market/session is open and no paper fill for ≥90 minutes without stop/maintenance reason, treat as **pipeline/ops fault** (probe + ALERT), **except** when `trade_drought_policy.specialists_only_selective_quiet` is on and only paper specialists can fill — then no-setup silence is `HEALTHY_SELECTIVE_QUIET` (still ALERT on code/stale/supersede). Do **not** auto-ease `execution_quality` or re-enable EMA/location spray.
 13. **Paper path hard to break** — DirectionalRiskEngine instance is `risk_engine`; start must pass `scripts/preflight_paper_path.py`.
+14. **Intentional global gates are not health** — an open-market drought caused by `skip_friday_entries`, NY-open delay, or a global session window must be `CONFIG_ENTRY_GATE` ALERT, never `HEALTHY_SELECTIVE_QUIET`. The current book-wide Friday filter is off; the real CME Friday close remains enforced.
+15. **Use paid Databento correctly** — keep the `databento_cache_yahoo` adapter, but accept only audited `.v.0` continuous caches; reject legacy parent-symbol files rather than mixing contracts. Do not substitute full-size prices for micro contracts. `databento_allow_api_refresh: false`; every new download/spend requires explicit user approval.
 
 ---
 
@@ -118,6 +120,7 @@ If you believe a risk value should change: **REPORT IT** — do not silently edi
 
 - Trade **Asia, London, New York** / Globex whenever exchange is open.
 - Session is metadata/analytics + optional strategy context — **not** a global trade kill-switch.
+- Do not restore a book-wide Friday entry skip from a result that belongs to one ORB variant. Friday remains tradable until the configured CME weekend close.
 - Respect CME maintenance (~17:00–18:00 ET) and weekend close.
 - Do **not** impose one strategy’s NY opening window on all engines.
 - **`nq_context_entry` only** is gated to 09:30–12:00 ET BUY pullbacks — that is not a book-wide NY filter.
@@ -140,15 +143,14 @@ If you believe a risk value should change: **REPORT IT** — do not silently edi
 Engines (independent; propose only — do not place orders):
 
 **Paper-executable engines (specialists):**
-1. `cl_vwap_prox_momentum` (CL specialist — Yahoo validation WR~69%)
-2. `nq_context_entry` (NQ PULLBACK BUY — Databento holdout WR~74%)
-3. `vwap_rejection` (1h VWAP wick-reject R1.5 — Databento final WR~77% E~+0.84R; Yahoo 1h fails → DB truth)
+1. `cl_vwap_prox_momentum` (clean frozen Yahoo screen n=41, WR 41.5%, PF 1.28, E +0.174R; latest 20% n=9, PF 1.44; forward proof pending)
+2. `nq_context_entry` (clean frozen Yahoo screen n=48, WR 60.4%, PF 1.73, E +0.292R; latest 20% n=10, WR 50%; forward proof pending)
 
 **Research/shadow only:**  
-`ema_pullback`, `trend_continuation`, `trend_pullback`, `liquidity_reversal`, `vwap_reclaim`, `indicator_parity`, `nq_ny_open_momentum`,  
+`vwap_rejection`, `ema_pullback`, `trend_continuation`, `trend_pullback`, `liquidity_reversal`, `vwap_reclaim`, `indicator_parity`, `nq_ny_open_momentum`,
 `liquidity_sweep`, `vwap_acceptance`, `sweep_retest`, `momentum`, `breakout_retest`, `opening_range`, `vwap_orb`, `vwap_mss`
 
-**Paper specialists** (`paper_specialist_engines`): the three above — tier floor A when cascade OK; exempt from global `execution_quality.min_expected_r` (NQ **1.15R**, VWAP rej **1.5R**, CL **2.0R**). Still hard risk / lifecycle / SHADOW gated.
+**Paper specialists** (`paper_specialist_engines`): the two above — tier floor A when cascade OK; exempt from global `execution_quality.min_expected_r` (NQ **1.15R**, CL **2.0R**). Still hard risk / lifecycle / SHADOW gated. Current-stamp forward n=0, so no profitability claim and no risk increase.
 
 Flow: engines → `TradeSetup` → **global** A+/A/B/C tiering (metadata/gates) → **StrategyPerformanceRouter** empirical rank among executables → portfolio/risk → paper/live execution adapter.
 
@@ -234,6 +236,7 @@ Supported via `agent_id`, `config/agent_profiles/`, Docker Compose profiles.
 Silent helpers: `scripts/_win_silent.py`.  
 Single-instance supervisor: Windows named mutex `Global\\TradingAgentSupervisorMutex`.  
 Overnight on this laptop: stay-awake + no sleep while running (prefer AC power). Long-term always-on → VPS (`DEPLOY_VPS.md`).
+The hybrid paper feed makes **no Databento API calls**. It first requires continuous-cache metadata (`[ROOT].v.0`, `stype_in=continuous`, `databento_continuous_v1`) plus a continuity audit, then timestamp overlap and ≤2% median basis gap before splicing. All current legacy parent caches fail before use, so Yahoo supplies exact-symbol bars. Yahoo fetches use a real 20-second HTTP timeout, two attempts, `threads=False`, and a 30-second shared in-cycle cache. Do not restore a `with ThreadPoolExecutor(...): future.result(timeout=...)` wrapper or a duplicate startup download.
 
 ---
 
@@ -258,6 +261,9 @@ Overnight on this laptop: stay-awake + no sleep while running (prefer AC power).
 
 ## Change log
 
+- 2026-08-14: **`router_v1_specialists_autonomy3` source/anti-leakage reset** — discovered the paid cache query used `stype_in=parent` (`*.FUT`), returning all outright/spread instruments, then discarded symbols and kept one arbitrary row per minute. Quarantined all four legacy caches; corrected download/quote code to volume-continuous `.v.0`; added metadata + >1% minute-jump guards. Fixed look-ahead leakage in 15m/1h/4h features and centered swings with prefix-invariance tests. Clean frozen Yahoo replay: NQ n48 WR60.4% PF1.73 E+0.292R; CL-only n41 WR41.5% PF1.28 E+0.174R; VWAP rejection n576 PF0.83 E−0.114R → demoted. Current-stamp forward n=0. Corrected CL cache quote-only ~$0.6384; no spend/download. Risk/quantity/universe/max positions/1m/paper mode unchanged.
+- 2026-08-14: **`router_v1_specialists_autonomy2` paid-data runtime** — user explicitly required using the Databento data already purchased. Paper provider is now `databento_cache_yahoo`: NQ/ES/GC local 1m caches feed exact full-size history, Databento overrides only verified Yahoo overlap, and Yahoo supplies the current tail. CL's cache showed an unstable ~5.05% continuous-contract gap (500-bar ratio relative MAD ~5.09%) and is correctly Yahoo-only until the cache construction is repaired/rebuilt with explicit approval. Unsafe/no-overlap splices fall back to Yahoo; micros/MYM/M2K are never proxied from full-size caches. Heartbeat/Paper View reports the hybrid provider globally and retains each symbol's exact source. `databento_allow_api_refresh: false` means zero new spend/API calls. Risk/quantity/universe/1m/paper mode unchanged.
+- 2026-08-14: **`router_v1_specialists_autonomy1` reliability + truth pass** — live loop evaluates only the 3 paper specialists; research modules remain offline. Removed duplicate startup/management/pipeline Yahoo downloads with real HTTP timeout + 30s snapshot cache; UTF-8 runtime logging prevents Windows cp1252 tracebacks. Removed book-wide Friday skip and made global config droughts ALERT instead of false healthy quiet. Daily kill now uses current ET-day realized cash events, not lifetime P&L; TP1 and day/session reports no longer double-count partials or shift naive ET market timestamps. `vwap_rejection` uses only completed 1h buckets. Risk/quantity/universe/1m/paper mode unchanged.
 - 2026-08-13: **Paper View readability** — “Papering NOW” card lists the 3 live specialists; closed/open tables show Strategy + SPECIALIST vs LEGACY SPRAY badges; cohorts split specialists vs spray; sections grouped Status / Trading / Optional. Fold state key `paper_view_folds_v4`.
 - 2026-08-13: **`router_v1_specialists_vwaprej`** — user: run what works; soften impossible 65%/n100. Practical `GATES` → WR≥55% n≥40 PF≥1.3 E≥0.15; aspirational 65/100 retained separately. Wired live `vwap_rejection` (1h resample) as paper specialist alongside NQ+CL. Databento R1.5 final n=86 WR~77% E~+0.84R clears practical gates; Yahoo 1h same rule **fails** — promote on Databento truth. Breakout spray still research_only.
 - 2026-08-13: **Databento book cache + dual hardening** — user OK ~$26 credit pull: NQ/ES/CL/GC 180d cached (est. **$25.59**). Spend lock. Dual pass report under `data/dual_source_hardening/`.

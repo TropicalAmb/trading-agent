@@ -1,7 +1,62 @@
 # DEBUG.md — Trading Agent (known bugs, traps, fixes)
 
-**Last updated:** 2026-08-13  
+**Last updated:** 2026-08-14
 **Purpose:** Prevent Cursor from reintroducing bugs we already fixed. Read with `PROJECT_MEMORY.md`.
+
+---
+
+## AK — Clean replay failure must demote, not be tuned around (2026-08-14)
+
+| | |
+|--|--|
+| **Symptom** | A 1h VWAP-rejection engine was papered from a high legacy Databento estimate even though an independent source disagreed; the UI continued displaying the invalid win rate. |
+| **Root cause** | Selection trusted contaminated parent-cache evidence and did not isolate an exact-stamp forward cohort. |
+| **Fix** | Stamp `router_v1_specialists_autonomy3`; clean frozen Yahoo replay produced n=576, WR 37.5%, PF 0.83, E −0.114R (latest 20% PF 0.63), so `vwap_rejection` is disabled and `research_only`. Paper View counts only completed trades under the exact current stamp and hides invalid historical WR labels. Active forward book is NQ context + CL VWAP-prox; current-stamp n=0 means not proven and risk stays unchanged. |
+| **Do not** | Retune on this failed sample, put `vwap_rejection` back in `confluence.engines`/`paper_specialist_engines`, mix old stamps into forward WR, or increase risk before adequate positive forward evidence. |
+
+---
+
+## AJ — Parent Databento rows and higher-timeframe look-ahead inflated research (2026-08-14)
+
+| | |
+|--|--|
+| **Symptom** | Paid CL could jump among roughly $64/$68/$73/$83/$98/$113 in adjacent minutes; legacy win rates collapsed on an independent clean replay. |
+| **Root cause** | `*.FUT`, `stype_in=parent` returns all outright contracts and spreads. The loader removed the symbol column and kept an arbitrary duplicate timestamp, manufacturing a non-tradable series. Research also resampled full future 15m/1h/4h closes into earlier 5m rows, and centered swings appeared before right-side confirmation. |
+| **Fix** | Single-series Databento must use `[ROOT].v.0`, `stype_in=continuous`; cache metadata version `databento_continuous_v1` and ≤0.2% of minute returns above 1% are mandatory. Legacy caches are rejected before paper use. HTF features now use point-in-time partial buckets and swings shift onto their confirmation bar; prefix-invariance tests enforce no future-row influence. Corrected 180d CL quote-only was ~$0.6384; no data was downloaded. |
+| **Do not** | Flatten parent results, accept a cache because its median basis happens to be close, strip instrument identity before selecting a contract, use completed future bucket values, or cite any old parent-cache win rate as valid. New spend still requires user approval. |
+
+---
+
+## AI — Paid Databento cache was outside the paper path (2026-08-14)
+
+| | |
+|--|--|
+| **Symptom** | Roughly $25.59 of current NQ/ES/CL/GC Databento history was used for research selection but the autonomous paper provider still read Yahoo alone—even for a strategy whose Yahoo and Databento results disagree. |
+| **Fact** | Local exact-root caches have ~175k 1m bars each from 2026-02-15 through 2026-08-13. They are historical, not a current live subscription; new API refreshes can spend more money. |
+| **Fix** | Stamp `router_v1_specialists_autonomy2`; `DatabentoCacheYahooProvider` uses paid exact-root cache bars on timestamp-verified, ≤2% basis overlap and Yahoo only for the current tail. No-overlap/basis-fail → cached Yahoo fallback. Production proof accepted NQ/ES/GC (1,904 paid 5m bars each); CL correctly fell back because its 5.049% gap is unstable (500-bar ratio relative MAD 5.09%). Micros/MYM/M2K use their exact Yahoo contracts. Runtime metadata proves paid-bar count, cache endpoint, basis gap, and `databento_api_called: false`; heartbeat/Paper View must keep the global hybrid source instead of being overwritten by the last Yahoo-only symbol. |
+| **Do not** | Leave the paid cache disconnected, silently call the Databento API, proxy full-size prices into micro trades, or splice feeds without overlap/basis checks. Current config keeps `databento_allow_api_refresh: false`; new spend still needs user approval. |
+
+---
+
+## AH — Daily-loss and bar/report truth defects (2026-08-14)
+
+| | |
+|--|--|
+| **Symptom** | A historical cumulative loss could permanently trip the “daily” kill; TP1 rows inflated win/P&L summaries; Asia trades could land on the prior ET date; 1h VWAP rejection could evaluate the still-forming hour. |
+| **Root cause** | `live_main` compared lifetime `realized_pnl()` to daily limits. Final scale-out rows already contain partial P&L but reports also counted TP1 rows. Shared timestamp parsing assigned UTC to naive Yahoo ET stamps. Pandas resampling returned the incomplete last 1h bucket. |
+| **Fix** | `realized_pnl_today()` sums current ET-day cash events without double-counting partials; live kill uses it while logging lifetime P&L separately. Session reports count only completed trade rows and preserve naive market timestamps as ET. `vwap_rejection` requires a completed 1h bucket and passes its source timestamp to the setup. |
+| **Do not** | Use lifetime realized P&L for a daily kill. Add TP1 and final-row P&L together. Treat naive provider timestamps as UTC. Fire an hourly close-rejection from a partial hour. |
+
+---
+
+## AG — Yahoo freeze, duplicate scans, and false healthy drought (2026-08-14)
+
+| | |
+|--|--|
+| **Symptom** | Historical supervisor logs show stuck-heartbeat restarts; a nominal 40s Yahoo timeout could hang; live startup/cycles multiplied Yahoo traffic; every Friday the whole book was flat while silence health called it normal. Windows logs contained hundreds of cp1252 encoding tracebacks. |
+| **Root cause** | `with ThreadPoolExecutor(): future.result(timeout=...)` waits for the worker during context exit, defeating the timeout. Startup probed all symbols, management fetched them again, then pipeline fetched them again. `skip_friday_entries: true` was a global research gate, and specialist quiet logic masked it. Pythonw inherited a legacy Windows code page. |
+| **Fix** | Stamp `router_v1_specialists_autonomy1`: yfinance real 20s HTTP timeout, `threads=False`, two attempts, 30s shared snapshot cache; pipeline first cycle replaces duplicate startup probe. Runtime evaluates only NQ/CL/VWAP-rejection specialists; research engines stay offline. Friday global skip off; silence monitor emits `CONFIG_ENTRY_GATE` for global entry gates. Force UTF-8 in supervisor/runtime. |
+| **Do not** | Restore the ThreadPool timeout wrapper, duplicate all-symbol probes, book-wide Friday skip, live evaluation of every research module, or classify an intentional global block as healthy selective quiet. Do not change risk/qty/universe/1m to compensate for data stalls. |
 
 ---
 
@@ -366,7 +421,7 @@ Windows/venv often shows a small parent pythonw + larger child with the same com
 
 | Cause | Mitigation |
 |-------|------------|
-| Yahoo hang | Timeouts, retries, per-symbol isolation |
+| Yahoo hang | Real yfinance HTTP timeout (`threads=False`), bounded retries, per-symbol isolation, shared in-cycle cache; never the ThreadPool context-manager pseudo-timeout |
 | Stale heartbeat | Supervisor kills hung agent; watchdog every 5 min |
 | PC sleep | Stay-awake requests; ultimately **VPS** (`DEPLOY_VPS.md`) |
 | Duplicate supervisors | Mutex + IgnoreNew + no task RestartOnFailure |
@@ -391,7 +446,7 @@ cd C:\Users\patri\trading-agent
 
 Expect tests green (`pytest tests/ -q`).  
 Live once-scan should show DELAYED feed, per-symbol engine reasons; EMA research_only → shadow/PASS not paper EXECUTED.  
-Stamp check: `config_version` should be `router_v1_specialists_vwaprej` (NQ + CL + vwap_rejection paper; location spray research_only).
+Stamp check: `config_version` should be `router_v1_specialists_autonomy3` (NQ context + CL VWAP-prox only; legacy parent caches rejected, Yahoo fallback until corrected `.v.0` caches are approved; all other engines offline-only).
 
 When diagnosing **zero paper trades**: check (1) heartbeat/`NO_NEW_BAR`, (2) shadow open count, (3) `AGREEMENT_SUPERSEDED_BY_*` in `execution_decisions.jsonl` (only paperable-loser→research is a steal), (4) `execution_quality` / MIXED / POOR_LOCATION rejects, (5) instant `time_stop` on new fills → bug Z wall-clock hold, (6) not just “markets quiet.”
 
@@ -428,3 +483,5 @@ When diagnosing **zero paper trades**: check (1) heartbeat/`NO_NEW_BAR`, (2) sha
 12. Hard-code `quantity == 1` in logic (config owns qty; scale-out only if qty≥2)
 13. Let research_only / SHADOW engines win `boost_for_agreement` over paperable setups
 14. Ship code/config changes without updating **both** `DEBUG.md` and `PROJECT_MEMORY.md`
+15. Call a book-wide schedule block `HEALTHY_SELECTIVE_QUIET`, or use lifetime P&L as the daily kill input
+16. Pay for Databento history, then leave it disconnected from paper—or trigger new paid API refreshes without explicit approval

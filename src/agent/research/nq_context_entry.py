@@ -18,6 +18,7 @@ import numpy as np
 import pandas as pd
 
 from agent.research.features_ict import atr, session_vwap, swing_high_low
+from agent.research.time_alignment import partial_bar_direction
 from agent.research.harness.metrics import trade_stats
 
 FAMILY = "NQ_CONTEXT_ENTRY"
@@ -86,13 +87,10 @@ def enrich_context_5m_bars(df5: pd.DataFrame, *, use_4h: bool = False) -> pd.Dat
     else:
         out.index = out.index.tz_convert("America/New_York")
 
-    c15 = resample_ohlcv(out, "15min")
-    c1h = resample_ohlcv(out, "1h")
-    out["dir_15m"] = np.sign(c15["close"] - c15["open"]).reindex(out.index, method="ffill").fillna(0)
-    out["dir_1h"] = np.sign(c1h["close"] - c1h["open"]).reindex(out.index, method="ffill").fillna(0)
+    out["dir_15m"] = partial_bar_direction(out, "15min")
+    out["dir_1h"] = partial_bar_direction(out, "1h")
     if use_4h:
-        c4h = resample_ohlcv(out, "4h")
-        out["dir_4h"] = np.sign(c4h["close"] - c4h["open"]).reindex(out.index, method="ffill").fillna(0)
+        out["dir_4h"] = partial_bar_direction(out, "4h")
     else:
         out["dir_4h"] = 0.0
 
@@ -139,22 +137,9 @@ def build_context_5m(df_1m: pd.DataFrame, *, use_4h: bool = False) -> pd.DataFra
     from agent.data.kaggle_nq import resample_ohlcv
 
     df5 = resample_ohlcv(df_1m, "5min")
-    c15 = resample_ohlcv(df_1m, "15min")
-    c1h = resample_ohlcv(df_1m, "1h")
-    df5["dir_15m"] = np.sign(c15["close"] - c15["open"]).reindex(df5.index, method="ffill").fillna(0)
-    df5["dir_1h"] = np.sign(c1h["close"] - c1h["open"]).reindex(df5.index, method="ffill").fillna(0)
-    if use_4h:
-        c4h = resample_ohlcv(df_1m, "4h")
-        df5["dir_4h"] = np.sign(c4h["close"] - c4h["open"]).reindex(df5.index, method="ffill").fillna(0)
-    else:
-        df5["dir_4h"] = 0.0
-
-    # Reuse enricher for VWAP/EMA/ATR/PDH/session/swings; keep 1m-derived dirs above.
-    enriched = enrich_context_5m_bars(df5, use_4h=False)
-    enriched["dir_15m"] = df5["dir_15m"]
-    enriched["dir_1h"] = df5["dir_1h"]
-    enriched["dir_4h"] = df5["dir_4h"]
-    return enriched
+    # Use the same point-in-time feature path as live/paper.  Computing a
+    # finished 1h close for every earlier 5m row is look-ahead leakage.
+    return enrich_context_5m_bars(df5, use_4h=use_4h)
 
 
 def _rejection_long(o, h, l, c) -> bool:

@@ -361,6 +361,7 @@ def launch_agent() -> tuple[subprocess.Popen, object]:
 
     env = os.environ.copy()
     env["USE_MOCK_BROKER"] = "true"
+    env["PYTHONIOENCODING"] = "utf-8"
     env.pop("TERM", None)
 
     proc = subprocess.Popen(

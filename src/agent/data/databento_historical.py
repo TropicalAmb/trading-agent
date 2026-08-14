@@ -3,10 +3,13 @@
 Requires DATABENTO_API_KEY in the environment (.env).
 New Databento accounts typically receive ~$125 free historical credits.
 
-Dataset: GLBX.MDP3 (CME Globex). Prefer continuous/parent symbology for research:
-  stype_in=parent, symbols like NQ.FUT / ES.FUT / CL.FUT
+Dataset: GLBX.MDP3 (CME Globex). Use volume-ranked continuous symbology for
+single-series research: stype_in=continuous, symbols like NQ.v.0 / CL.v.0.
+Parent symbols such as CL.FUT return every outright and spread and must never be
+flattened by timestamp into a continuous price series.
 
-Yahoo remains the paper delayed feed. Databento is for accurate multi-month history.
+The paper path uses already-purchased local Databento caches plus a current Yahoo
+tail. This API-backed provider remains for explicit offline research/downloads.
 """
 
 from __future__ import annotations
@@ -36,6 +39,10 @@ DATABENTO_PARENT = {
     "MYM": "MYM.FUT",
     "RTY": "RTY.FUT",
     "M2K": "M2K.FUT",
+}
+
+DATABENTO_CONTINUOUS = {
+    symbol: f"{symbol}.v.0" for symbol in DATABENTO_PARENT
 }
 
 
@@ -76,9 +83,18 @@ class DatabentoHistoricalProvider(MarketDataProvider):
         self._client = db.Historical(self.api_key)
         return self._client
 
-    def _resolve_symbol(self, symbol: str) -> str:
-        s = str(symbol).upper().replace("=F", "")
-        return DATABENTO_PARENT.get(s, f"{s}.FUT")
+    def _resolve_symbol(self, symbol: str, stype_in: str = "continuous") -> str:
+        raw = str(symbol).upper().replace("=F", "")
+        if str(stype_in).lower() == "continuous":
+            if ".V." in raw or ".N." in raw or ".C." in raw:
+                root, rule, rank = raw.split(".", 2)
+                return f"{root}.{rule.lower()}.{rank}"
+            root = raw.replace(".FUT", "")
+            return DATABENTO_CONTINUOUS.get(root, f"{root}.v.0")
+        if str(stype_in).lower() == "parent":
+            root = raw.replace(".FUT", "")
+            return DATABENTO_PARENT.get(root, f"{root}.FUT")
+        return raw
 
     def _schema_for_interval(self, interval: str) -> str:
         iv = str(interval).lower().strip()
@@ -100,7 +116,7 @@ class DatabentoHistoricalProvider(MarketDataProvider):
         start: datetime | str,
         end: datetime | str,
         schema: str = "ohlcv-1m",
-        stype_in: str = "parent",
+        stype_in: str = "continuous",
     ) -> pd.DataFrame:
         """Historical OHLCV (or raw schema) DataFrame for research / finalist validation.
 
@@ -109,11 +125,11 @@ class DatabentoHistoricalProvider(MarketDataProvider):
         if schema not in self.SUPPORTED_SCHEMAS and not str(schema).startswith("ohlcv"):
             raise ValueError(f"Unsupported Databento schema: {schema}")
         client = self._ensure_client()
-        parent = self._resolve_symbol(symbol)
+        requested_symbol = self._resolve_symbol(symbol, stype_in)
         try:
             store = client.timeseries.get_range(
                 dataset=self.dataset,
-                symbols=parent,
+                symbols=requested_symbol,
                 schema=schema,
                 stype_in=stype_in,
                 start=start if isinstance(start, str) else start.isoformat(),
@@ -123,12 +139,12 @@ class DatabentoHistoricalProvider(MarketDataProvider):
         except Exception as exc:
             self._failures += 1
             self._last_error = str(exc)
-            logger.exception("Databento fetch failed for %s", parent)
-            raise RuntimeError(f"DATA_ERROR: Databento {parent}: {exc}") from exc
+            logger.exception("Databento fetch failed for %s", requested_symbol)
+            raise RuntimeError(f"DATA_ERROR: Databento {requested_symbol}: {exc}") from exc
         if df is None or df.empty:
             self._failures += 1
-            self._last_error = f"empty response for {parent}"
-            raise RuntimeError(f"DATA_ERROR: No Databento bars for {parent}")
+            self._last_error = f"empty response for {requested_symbol}"
+            raise RuntimeError(f"DATA_ERROR: No Databento bars for {requested_symbol}")
         work = df.copy()
         work.columns = [str(c).lower() for c in work.columns]
         if schema.startswith("ohlcv"):
@@ -173,7 +189,8 @@ class DatabentoHistoricalProvider(MarketDataProvider):
             work = work.loc[px >= close_floor]
         work.attrs["source"] = "databento"
         work.attrs["dataset"] = self.dataset
-        work.attrs["parent"] = parent
+        work.attrs["requested_symbol"] = requested_symbol
+        work.attrs["stype_in"] = stype_in
         work.attrs["schema"] = schema
         self._last_success = datetime.now(timezone.utc)
         self._failures = 0
@@ -210,7 +227,7 @@ class DatabentoHistoricalProvider(MarketDataProvider):
             )
 
         now = datetime.now(timezone.utc)
-        parent = self._resolve_symbol(symbol)
+        requested_symbol = self._resolve_symbol(symbol, "continuous")
         bars: list[Bar] = []
         for ts, row in work.iterrows():
             t = ts.to_pydatetime() if hasattr(ts, "to_pydatetime") else ts
@@ -230,7 +247,12 @@ class DatabentoHistoricalProvider(MarketDataProvider):
                     estimated_delay_seconds=0.0,
                     is_stale=False,
                     received_time=now,
-                    metadata={"dataset": self.dataset, "parent": parent, "schema": schema},
+                    metadata={
+                        "dataset": self.dataset,
+                        "requested_symbol": requested_symbol,
+                        "stype_in": "continuous",
+                        "schema": schema,
+                    },
                 )
             )
         return bars

@@ -11,7 +11,6 @@ logger = logging.getLogger(__name__)
 def fetch_bars_yfinance(symbol: str, interval: str = "5m", period: str = "10d") -> pd.DataFrame:
     """Free intraday bars for sweep logic. Futures: use MES=F, MNQ=F, ES=F, etc."""
     import time
-    from concurrent.futures import ThreadPoolExecutor, TimeoutError as FuturesTimeout
 
     import yfinance as yf
 
@@ -39,6 +38,8 @@ def fetch_bars_yfinance(symbol: str, interval: str = "5m", period: str = "10d") 
             period=per,
             auto_adjust=True,
             progress=False,
+            threads=False,
+            timeout=20,
         )
         if df is None or df.empty:
             raise RuntimeError(f"No bars for {ticker}")
@@ -54,12 +55,7 @@ def fetch_bars_yfinance(symbol: str, interval: str = "5m", period: str = "10d") 
     last_err: Exception | None = None
     for attempt, per in enumerate((period, "5d", "10d")):
         try:
-            with ThreadPoolExecutor(max_workers=1) as pool:
-                fut = pool.submit(_download, per)
-                return fut.result(timeout=40)
-        except FuturesTimeout as exc:
-            last_err = RuntimeError(f"Yahoo timeout for {ticker}")
-            logger.warning("Yahoo fetch %s attempt %s timed out", ticker, attempt + 1)
+            return _download(per)
         except Exception as exc:
             last_err = exc
             logger.warning("Yahoo fetch %s attempt %s failed: %s", ticker, attempt + 1, exc)

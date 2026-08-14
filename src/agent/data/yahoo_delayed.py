@@ -4,7 +4,6 @@ from __future__ import annotations
 
 import logging
 import time
-from concurrent.futures import ThreadPoolExecutor, TimeoutError as FuturesTimeout
 from datetime import datetime, timezone
 from typing import Any, Optional
 from zoneinfo import ZoneInfo
@@ -52,6 +51,7 @@ class YahooDelayedFuturesProvider(MarketDataProvider):
         request_timeout_sec: float = 40.0,
         max_retries: int = 3,
         default_bar_interval: str = "5m",
+        cache_ttl_seconds: float = 30.0,
     ):
         self.estimated_delay_seconds = float(estimated_delay_seconds)
         self.expected_delay_seconds = float(expected_delay_seconds)
@@ -62,10 +62,15 @@ class YahooDelayedFuturesProvider(MarketDataProvider):
         self.request_timeout_sec = float(request_timeout_sec)
         self.max_retries = int(max_retries)
         self.default_bar_interval = str(default_bar_interval)
+        self.cache_ttl_seconds = max(0.0, float(cache_ttl_seconds))
         self._last_success: Optional[datetime] = None
         self._last_fetch_attempt: Optional[datetime] = None
         self._last_error: Optional[str] = None
         self._failures = 0
+        # live_main asks once to manage positions, then DecisionPipeline asks for
+        # the same bars seconds later. Reuse that in-cycle snapshot instead of
+        # doubling Yahoo traffic and rate-limit exposure.
+        self._bars_cache: dict[tuple[str, str, str], tuple[float, list[Bar]]] = {}
 
     def health(self) -> ProviderHealth:
         return ProviderHealth(
@@ -105,6 +110,11 @@ class YahooDelayedFuturesProvider(MarketDataProvider):
         )
 
     def get_bars(self, symbol: str, *, interval: str = "5m", period: str = "10d") -> list[Bar]:
+        key = (symbol.upper(), str(interval), str(period))
+        cached = self._bars_cache.get(key)
+        if cached and (time.monotonic() - cached[0]) <= self.cache_ttl_seconds:
+            return list(cached[1])
+
         self._last_fetch_attempt = datetime.now(timezone.utc)
         df = self._download_df(symbol, interval=interval, period=period)
         received = datetime.now(timezone.utc)
@@ -156,6 +166,7 @@ class YahooDelayedFuturesProvider(MarketDataProvider):
             bars[-1].estimated_delay_seconds if bars else -1,
             thr,
         )
+        self._bars_cache[key] = (time.monotonic(), list(bars))
         return bars
 
     def get_latest_bar(self, symbol: str, *, interval: str = "5m", period: str = "10d") -> Bar:
@@ -173,43 +184,39 @@ class YahooDelayedFuturesProvider(MarketDataProvider):
         for attempt in range(self.max_retries):
             per = periods[min(attempt, len(periods) - 1)]
             try:
-
-                def _dl() -> pd.DataFrame:
-                    df = yf.download(
-                        ticker,
-                        interval=interval,
-                        period=per,
-                        auto_adjust=True,
-                        progress=False,
-                    )
-                    if df is None or df.empty:
-                        raise RuntimeError(f"No bars for {ticker}")
-                    if isinstance(df.columns, pd.MultiIndex):
-                        df.columns = [c[0] for c in df.columns]
-                    df = df.rename(columns=str.lower)
-                    df = df.dropna(subset=["open", "high", "low", "close"]).copy()
-                    df.index = pd.to_datetime(df.index)
-                    if df.index.tz is not None:
-                        df.index = df.index.tz_convert("America/New_York").tz_localize(None)
-                    return df[["open", "high", "low", "close", "volume"]]
-
-                with ThreadPoolExecutor(max_workers=1) as pool:
-                    fut = pool.submit(_dl)
-                    df = fut.result(timeout=self.request_timeout_sec)
+                # Do not wrap this in ``with ThreadPoolExecutor``. On timeout,
+                # that context manager waits for the stuck worker during exit,
+                # making the advertised timeout ineffective and freezing the
+                # scheduler heartbeat. yfinance 1.5+ exposes a real HTTP timeout.
+                df = yf.download(
+                    ticker,
+                    interval=interval,
+                    period=per,
+                    auto_adjust=True,
+                    progress=False,
+                    threads=False,
+                    timeout=self.request_timeout_sec,
+                )
+                if df is None or df.empty:
+                    raise RuntimeError(f"No bars for {ticker}")
+                if isinstance(df.columns, pd.MultiIndex):
+                    df.columns = [c[0] for c in df.columns]
+                df = df.rename(columns=str.lower)
+                df = df.dropna(subset=["open", "high", "low", "close"]).copy()
+                df.index = pd.to_datetime(df.index)
+                if df.index.tz is not None:
+                    df.index = df.index.tz_convert("America/New_York").tz_localize(None)
+                df = df[["open", "high", "low", "close", "volume"]]
                 self._last_success = datetime.now(timezone.utc)
                 self._last_error = None
                 self._failures = 0
                 return df
-            except FuturesTimeout:
-                last_err = TimeoutError(f"Yahoo timeout for {ticker}")
-                self._failures += 1
-                self._last_error = str(last_err)
-                logger.warning("Yahoo %s timeout attempt %s", ticker, attempt + 1)
             except Exception as exc:
                 last_err = exc
                 self._failures += 1
                 self._last_error = str(exc)
-                logger.warning("Yahoo %s fail attempt %s: %s", ticker, attempt + 1, exc)
+                kind = "timeout" if "timeout" in str(exc).lower() else "fail"
+                logger.warning("Yahoo %s %s attempt %s: %s", ticker, kind, attempt + 1, exc)
                 time.sleep(min(8.0, 1.2 * (2**attempt)))
         if isinstance(last_err, TimeoutError) or (
             last_err is not None and "timeout" in str(last_err).lower()
@@ -221,6 +228,42 @@ class YahooDelayedFuturesProvider(MarketDataProvider):
 def make_provider(cfg: dict[str, Any]) -> MarketDataProvider:
     md = cfg.get("market_data", {})
     name = str(md.get("provider", "yahoo_delayed")).lower()
+    if name in {"databento_cache_yahoo", "databento_yahoo_hybrid", "hybrid"}:
+        from agent.data.databento_cache_yahoo import DatabentoCacheYahooProvider
+
+        stale_override = md.get("stale_after_seconds")
+        yahoo = YahooDelayedFuturesProvider(
+            estimated_delay_seconds=float(
+                md.get("estimated_delay_seconds", DEFAULT_ESTIMATED_DELAY_SEC)
+            ),
+            expected_delay_seconds=float(
+                md.get(
+                    "expected_delay_seconds",
+                    md.get("estimated_delay_seconds", DEFAULT_EXPECTED_DELAY_SEC),
+                )
+            ),
+            stale_extra_tolerance_seconds=float(
+                md.get("stale_extra_tolerance_seconds", DEFAULT_STALE_TOLERANCE_SEC)
+            ),
+            stale_after_seconds=(
+                float(stale_override) if stale_override is not None else None
+            ),
+            request_timeout_sec=float(md.get("request_timeout_sec", 40)),
+            max_retries=int(md.get("max_retries", 3)),
+            default_bar_interval=str(md.get("bar_interval", "5m")),
+            cache_ttl_seconds=float(md.get("in_cycle_cache_seconds", 30)),
+        )
+        return DatabentoCacheYahooProvider(
+            yahoo,
+            cache_dir=str(md.get("databento_cache_dir", "data/databento")),
+            cache_roots=list(
+                md.get("databento_cache_roots") or ["NQ", "ES", "CL", "GC"]
+            ),
+            cache_ttl_seconds=float(md.get("in_cycle_cache_seconds", 30)),
+            max_relative_basis_gap=float(
+                md.get("hybrid_max_relative_basis_gap", 0.02)
+            ),
+        )
     if name in {"yahoo", "yahoo_delayed", "yfinance"}:
         stale_override = md.get("stale_after_seconds")
         return YahooDelayedFuturesProvider(
@@ -237,6 +280,7 @@ def make_provider(cfg: dict[str, Any]) -> MarketDataProvider:
             request_timeout_sec=float(md.get("request_timeout_sec", 40)),
             max_retries=int(md.get("max_retries", 3)),
             default_bar_interval=str(md.get("bar_interval", "5m")),
+            cache_ttl_seconds=float(md.get("in_cycle_cache_seconds", 30)),
         )
     if name in {"historical", "history", "replay"}:
         from agent.data.historical import HistoricalProvider

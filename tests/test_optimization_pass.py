@@ -35,6 +35,15 @@ def _cfg():
     return load_settings(ROOT / "config" / "settings.yaml")
 
 
+def _execution_logic_cfg(*engine_names: str):
+    """Opt named legacy engines into isolated logic tests, never live config."""
+    cfg = _cfg()
+    cfg["research_only_engines"] = [
+        name for name in (cfg.get("research_only_engines") or []) if name not in engine_names
+    ]
+    return cfg
+
+
 def _bars(n=80, trend=1.0, start=100.0, compression=False):
     idx = pd.date_range("2026-08-01", periods=n, freq="5min")
     close = start + np.cumsum(np.ones(n) * 0.05 * trend)
@@ -84,7 +93,9 @@ def test_locked_config_unchanged():
     assert cfg["risk"]["daily_loss_kill_dollars"] == 4000
     assert cfg["tiering"]["minimum_trade_tier"] == "A"
     assert cfg["mode"] == "paper"
-    assert "momentum" in cfg["confluence"]["engines"]
+    assert set(cfg["confluence"]["engines"]) == set(cfg["paper_specialist_engines"])
+    assert "momentum" in cfg["research_only_engines"]
+    assert "momentum" not in cfg["confluence"]["engines"]
 
 
 def test_regime_trend_up_down_range_compression_unknown():
@@ -239,7 +250,7 @@ def test_ema_is_research_only_not_executable():
 
 
 def test_location_engine_with_thesis_can_execute():
-    cfg = _cfg()
+    cfg = _execution_logic_cfg("liquidity_sweep")
     s = _setup(
         strategy_name="liquidity_sweep",
         metadata={
@@ -284,7 +295,7 @@ def test_research_only_cannot_steal_paper_slot():
     """Shadow EMA/trend must not supersede an executable location engine."""
     from agent.decision.ranker import boost_for_agreement
 
-    cfg = _cfg()
+    cfg = _execution_logic_cfg("liquidity_sweep")
     paper = _setup(
         strategy_name="liquidity_sweep",
         symbol="MGC",
@@ -327,7 +338,7 @@ def test_research_only_cannot_steal_paper_slot():
 
 def test_mixed_thesis_allows_location_engine():
     """Location A may paper when MTF is imperfect — factors won't always agree."""
-    cfg = _cfg()
+    cfg = _execution_logic_cfg("liquidity_sweep")
     eq = dict(cfg.get("execution_quality") or {})
     eq["location_may_trade_mixed_thesis"] = True
     cfg["execution_quality"] = eq
@@ -352,7 +363,7 @@ def test_mixed_thesis_allows_location_engine():
 
 
 def test_mixed_thesis_still_blocks_thin_engine():
-    cfg = _cfg()
+    cfg = _execution_logic_cfg("momentum", "breakout_retest")
     eq = dict(cfg.get("execution_quality") or {})
     eq["location_may_trade_mixed_thesis"] = True
     eq["require_non_mixed_thesis"] = True
@@ -378,7 +389,7 @@ def test_mixed_thesis_still_blocks_thin_engine():
 
 def test_unknown_cascade_thesis_does_not_block():
     """Missing cascade features must not default-block as MIXED."""
-    cfg = _cfg()
+    cfg = _execution_logic_cfg("liquidity_sweep")
     s = _setup(
         strategy_name="liquidity_sweep",
         metadata={
@@ -401,7 +412,7 @@ def test_unknown_cascade_thesis_does_not_block():
 
 def test_poor_vwap_distance_allows_location_engine():
     """Breakout/OR often fire >1.5 ATR from VWAP — do not POOR-kill location engines."""
-    cfg = _cfg()
+    cfg = _execution_logic_cfg("breakout_retest")
     eq = dict(cfg.get("execution_quality") or {})
     eq["reject_poor_cascade_location"] = True
     eq["location_may_trade_away_from_vwap"] = True
@@ -427,7 +438,7 @@ def test_poor_vwap_distance_allows_location_engine():
 
 
 def test_poor_vwap_distance_still_blocks_thin_engine():
-    cfg = _cfg()
+    cfg = _execution_logic_cfg("momentum", "breakout_retest")
     eq = dict(cfg.get("execution_quality") or {})
     eq["reject_poor_cascade_location"] = True
     eq["location_may_trade_away_from_vwap"] = True
@@ -453,7 +464,7 @@ def test_poor_vwap_distance_still_blocks_thin_engine():
 
 def test_agreement_keeps_paperable_before_quality_filter():
     """Location A with MIXED thesis stays in agreement pool for ledgered reject."""
-    cfg = _cfg()
+    cfg = _execution_logic_cfg("liquidity_sweep")
     paper = _setup(
         strategy_name="liquidity_sweep",
         metadata={

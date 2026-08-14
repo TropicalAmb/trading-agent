@@ -78,6 +78,9 @@ def _from_engine_signal(
     risk_d = abs(entry - stop) * point_value * qty
     reward_d = abs(target - entry) * point_value * qty
     level = getattr(sig, "level", None) or getattr(sig, "pdh", None) or getattr(sig, "pdl", None)
+    # Most engines act on the latest provider bar. Resampled specialists can
+    # explicitly identify the completed source bar that produced their signal.
+    signal_bar_ts = getattr(sig, "market_bar_timestamp", None)
     return TradeSetup(
         strategy_name=strategy_name,
         symbol=str(sig.symbol).upper(),
@@ -88,7 +91,7 @@ def _from_engine_signal(
         stop=stop,
         target=target,
         expected_r=er,
-        market_timestamp=latest.timestamp,
+        market_timestamp=signal_bar_ts or latest.timestamp,
         received_timestamp=latest.received_time,
         reasons=reasons,
         session=session,
@@ -156,10 +159,16 @@ class DecisionPipeline:
             "momentum",
         ]
         research_only = list(cfg.get("research_only_engines") or [])
-        # Additive: evaluate research specialists but never execute them
+        runtime_research = bool(
+            (cfg.get("shadow") or {}).get("evaluate_research_engines_live", True)
+        )
+        # Offline research modules remain available even when live shadow
+        # evaluation is disabled. This keeps the paper runtime focused on the
+        # validated book without deleting experiments or their evidence.
+        runtime_names = list(engines) + (research_only if runtime_research else [])
         seen = set()
         names: list[str] = []
-        for n in list(engines) + research_only:
+        for n in runtime_names:
             if n not in seen:
                 seen.add(n)
                 names.append(n)
