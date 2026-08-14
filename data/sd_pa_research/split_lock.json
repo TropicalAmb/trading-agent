@@ -1,0 +1,52 @@
+{
+  "frozen_at_rule": "60/20/20 chronological by trading day",
+  "splits_5m": {
+    "NQ": {
+      "train_end": "2026-07-16 00:00:00-04:00",
+      "val_end": "2026-07-30 00:00:00-04:00",
+      "final_start": "2026-07-31 00:00:00-04:00",
+      "n_days_train": 36,
+      "n_days_val": 12,
+      "n_days_final": 12
+    },
+    "ES": {
+      "train_end": "2026-07-16 00:00:00-04:00",
+      "val_end": "2026-07-30 00:00:00-04:00",
+      "final_start": "2026-07-31 00:00:00-04:00",
+      "n_days_train": 36,
+      "n_days_val": 12,
+      "n_days_final": 12
+    },
+    "GC": {
+      "train_end": "2026-07-16 00:00:00-04:00",
+      "val_end": "2026-07-30 00:00:00-04:00",
+      "final_start": "2026-07-31 00:00:00-04:00",
+      "n_days_train": 36,
+      "n_days_val": 12,
+      "n_days_final": 12
+    },
+    "CL": {
+      "train_end": "2026-07-16 00:00:00-04:00",
+      "val_end": "2026-07-30 00:00:00-04:00",
+      "final_start": "2026-07-31 00:00:00-04:00",
+      "n_days_train": 36,
+      "n_days_val": 12,
+      "n_days_final": 12
+    }
+  },
+  "friction": "Friction: 2 ticks slip + 1 tick buffer per side; fixed-R targets; no lookahead on entry bar; 60/20/20 chronological freeze before selection.",
+  "gates": {
+    "min_wr": 0.65,
+    "min_pf": 1.5,
+    "min_expectancy_r": 0.25,
+    "min_n": 100,
+    "max_worst_loss_r": -5.0,
+    "min_med_win_over_med_loss": 0.35
+  },
+  "symbols": {
+    "NQ": "NQ=F",
+    "ES": "ES=F",
+    "GC": "GC=F",
+    "CL": "CL=F"
+  }
+}

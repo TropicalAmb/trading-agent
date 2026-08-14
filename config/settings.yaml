@@ -1,8 +1,9 @@
 mode: paper  # paper | live — live also requires ALLOW_LIVE_TRADING=true in .env
 
 # Version stamp for BEFORE vs AFTER optimization comparison (do not erase old journals)
-config_version: router_v1_paperfix2
-# Paper stamp: prefer full-size (ES/NQ) over micro twin in family; location R>=1.6; NQ specialist; EMA research_only
+config_version: router_v1_specialists_vwaprej
+# Paper stamp: NQ context + CL VWAP-prox + VWAP rejection (Databento-locked 1h).
+# Breakout/location spray stays research_only. Practical gates WR>=55% n>=40 (not 65/100).
 strategy_version: performance_router_v1
 execution_profile: balanced  # balanced | high_confidence
 
@@ -62,11 +63,14 @@ trade_silence_watch:
   restart_cooldown_minutes: 60
 
 # Open-session paper drought = fault (NOT gate easing / NOT EMA spray)
+# specialists_only_selective_quiet: when only paper specialists can fill, no-setup
+# silence is intentional (not PIPELINE_DROUGHT). Bugs/stale/supersede still ALERT.
 trade_drought_policy:
   enabled: true
   max_quiet_minutes: 90
   sessions: [london, ny, asia]
   on_drought: diagnose_and_escalate
+  specialists_only_selective_quiet: true
 
 # Contract sizing — multi-lot after strategy tighten; always fit under risk hard cap
 quantity:
@@ -135,11 +139,13 @@ confluence:
     - vwap_mss          # VWAP + MSS + MTF3 (paper vwap_mss_v1)
     - cl_vwap_prox_momentum  # PAPER: validated CL specialist v1 (exact research definition)
     - nq_context_entry       # PAPER: Databento WR>=65% PULLBACK BUY champion
+    - vwap_rejection         # PAPER: Databento 1h wick-reject (R1.5); Yahoo disagrees — DB is truth
   max_risk_dollars: 180
   min_reward_dollars: 150
   min_rr: 1.6
 
 # Shadow/research only — still evaluated & journaled, NOT paper-executable
+# Spray demoted after Aug13 bleed; only specialists (+ vwap_rejection) paper
 research_only_engines:
   - ema_pullback         # was 39/64 lifetime fills; spray engine → shadow until proven with partners
   - trend_continuation   # thin single-engine scrapes
@@ -148,11 +154,20 @@ research_only_engines:
   - vwap_reclaim
   - indicator_parity  # TV MTF Sweep Retest 1:1 — research/shadow until OOS proves paper worth
   - nq_ny_open_momentum    # NQ NY-open — SHADOW ONLY (not promoted)
+  - liquidity_sweep
+  - vwap_acceptance
+  - sweep_retest
+  - momentum
+  - breakout_retest      # paper n=38 WR~34% −$1807; Aug13 −$2775 — not paper until re-proven
+  - opening_range
+  - vwap_orb
+  - vwap_mss
 
 # Paper-executable validated specialists (tier floor A when cascade OK; still hard-risk gated)
 paper_specialist_engines:
   - cl_vwap_prox_momentum
   - nq_context_entry
+  - vwap_rejection
 
 # Five-layer cascade (additive context; hard risk unchanged)
 trade_cascade:
@@ -175,6 +190,11 @@ strategy_lifecycle:
     shadow_dd_r: -7.5
     hard_kill_r: -9.0
     equity_book_key: NQ_BOOK   # aggregate NQ+MNQ R equity
+  vwap_rejection:
+    watch_dd_r: -5.0
+    shadow_dd_r: -7.5
+    hard_kill_r: -9.0
+    equity_book_key: VWAP_REJ_BOOK
 
 # CL specialist — EXACT validated definition (do not tweak during forward sample)
 cl_vwap_prox_momentum:
@@ -202,6 +222,17 @@ nq_context_entry:
   min_stop_atr: 0.385
   strategy_version: nq_context_entry_pullback_v1
   prefer_micro_when_risk_exceeded: true  # remap NQ→MNQ; never widen stop
+
+# VWAP rejection — Databento 1h wick-reject champion (R1.5). Yahoo 1h fails — DB is truth.
+vwap_rejection:
+  enabled: true
+  symbols: [NQ, ES, CL, GC, MNQ, MES, MCL, MGC]
+  target_r_multiple: 1.5
+  stop_atr_mult: 0.2
+  session_start_hour: 9
+  session_end_hour: 16
+  strategy_version: vwap_rejection_v1
+  bar_timeframe: 1h   # research TF; evaluator resamples 5m→1h
 
 # NQ NY-open specialist — promising / not confirmed
 nq_ny_open_momentum:

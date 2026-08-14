@@ -1,7 +1,13 @@
 # PROJECT MEMORY — Trading Agent (binding)
 
-**Last updated:** 2026-08-12  
-**Paper stamps:** `config_version: router_v1_paperfix2`. Paper still Yahoo delayed. Multi-engine book stays paperable whenever CME is open (Asia/London/NY). **Prefer full-size within product family** (`prefer_full_size_in_family`) — ES/NQ/GC/CL before MES/MNQ/MGC/MCL when both compete same side; family max still 1 (not double the same bet). NQ specialist quiet outside 09:30–12:00 ET is expected; other location engines must still fill. **`nq_context_entry` PAPER-WIRED** (Databento WR≥65% PULLBACK BUY champion; may remap NQ→MNQ only when $500 risk binds). Learning / HC shadow parallel; `live_pilot.yaml` NOT activated. Do **not** promote CL `liquidity_reversal` from one paper trade.  
+**Last updated:** 2026-08-13  
+**Paper stamps:** `config_version: router_v1_specialists_vwaprej`. Paper Yahoo delayed for live scans. **Paper specialists:** `nq_context_entry`, `cl_vwap_prox_momentum`, **`vwap_rejection`** (1h wick-reject R1.5, Databento-locked). Breakout/location spray stays `research_only`.  
+
+**Research data (binding):** Prefer **Databento + Yahoo dual**. Local caches `data/databento/{NQ,ES,CL,GC}_1m_cache.parquet` (~180d, ~$25.59). **No further Databento downloads without user OK.** When Yahoo and Databento disagree on CME futures research, **Databento is truth** (Yahoo continuous is screening only).  
+
+**Promotion gates (practical):** WR≥55%, n≥40, PF≥1.3, E≥0.15 (`GATES` in harness metrics). Old 65%/n100 kept as `ASPIRATIONAL_GATES` only. Soft paper floor WR≥50% n≥30.  
+
+Learning / HC shadow parallel; `live_pilot.yaml` NOT activated. Do **not** re-enable breakout/EMA spray without user ask.  
 
 **Rule:** Assistants must follow this file. Do not “optimize away” user preferences.  
 **Also read:** [DEBUG.md](./DEBUG.md) for bugs already fixed and traps to avoid reintroducing.
@@ -33,7 +39,7 @@ Leaving either file stale after a fix is a process failure (it already caused ho
 9. **Selectivity over spray** — prefer fewer, worth-it paper trades (IRL style); do not “fix” quiet tape by re-enabling EMA spray.
 10. **Keep memory current** — always update `PROJECT_MEMORY.md` + `DEBUG.md` with the change.
 11. **Babysit-free ops** — `trade_silence_watch` must stay enabled; prolonged silence should self-diagnose. Auto-restart only for hung process / transient patterns — **never** thrash-restart known code bugs (`CODE_BUG_RESTART_WILL_NOT_FIX`). Restart ≠ patch.
-12. **≤90m open-session paper drought** — if market/session is open and no paper fill for ≥90 minutes without stop/maintenance reason, treat as **pipeline/ops fault** (probe + ALERT). Do **not** auto-ease `execution_quality` or re-enable EMA paper.
+12. **≤90m open-session paper drought** — if market/session is open and no paper fill for ≥90 minutes without stop/maintenance reason, treat as **pipeline/ops fault** (probe + ALERT), **except** when `trade_drought_policy.specialists_only_selective_quiet` is on and only paper specialists can fill — then no-setup silence is `HEALTHY_SELECTIVE_QUIET` (still ALERT on code/stale/supersede). Do **not** auto-ease `execution_quality` or re-enable EMA/location spray.
 13. **Paper path hard to break** — DirectionalRiskEngine instance is `risk_engine`; start must pass `scripts/preflight_paper_path.py`.
 
 ---
@@ -133,22 +139,16 @@ If you believe a risk value should change: **REPORT IT** — do not silently edi
 
 Engines (independent; propose only — do not place orders):
 
-**Paper-executable engines:**
-1. `liquidity_sweep`
-2. `vwap_acceptance` (kept; location/acceptance VWAP)
-3. `sweep_retest`
-4. `momentum`
-5. `breakout_retest`
-6. `opening_range` (London/NY; NY 5m first_break + VWAP align; London retest)
-7. `vwap_orb`
-8. `vwap_mss` (VWAP + MSS close-through + MTF3)
-9. `cl_vwap_prox_momentum` (validated CL specialist)
-10. `nq_context_entry` (validated NQ PULLBACK BUY champion — Databento strict WR≥65%)
+**Paper-executable engines (specialists):**
+1. `cl_vwap_prox_momentum` (CL specialist — Yahoo validation WR~69%)
+2. `nq_context_entry` (NQ PULLBACK BUY — Databento holdout WR~74%)
+3. `vwap_rejection` (1h VWAP wick-reject R1.5 — Databento final WR~77% E~+0.84R; Yahoo 1h fails → DB truth)
 
-**Research/shadow only (still evaluated, not paper-executed):**  
-`ema_pullback`, `trend_continuation`, `trend_pullback`, `liquidity_reversal`, `vwap_reclaim`, `indicator_parity`, `nq_ny_open_momentum`
+**Research/shadow only:**  
+`ema_pullback`, `trend_continuation`, `trend_pullback`, `liquidity_reversal`, `vwap_reclaim`, `indicator_parity`, `nq_ny_open_momentum`,  
+`liquidity_sweep`, `vwap_acceptance`, `sweep_retest`, `momentum`, `breakout_retest`, `opening_range`, `vwap_orb`, `vwap_mss`
 
-**Paper specialists** (`paper_specialist_engines`): `cl_vwap_prox_momentum`, `nq_context_entry` — tier floor A when cascade OK; exempt from global `execution_quality.min_expected_r` (use validated target R; NQ champion = **1.15R**). Still gated by min reward $, hard risk, lifecycle, SHADOW mode.
+**Paper specialists** (`paper_specialist_engines`): the three above — tier floor A when cascade OK; exempt from global `execution_quality.min_expected_r` (NQ **1.15R**, VWAP rej **1.5R**, CL **2.0R**). Still hard risk / lifecycle / SHADOW gated.
 
 Flow: engines → `TradeSetup` → **global** A+/A/B/C tiering (metadata/gates) → **StrategyPerformanceRouter** empirical rank among executables → portfolio/risk → paper/live execution adapter.
 
@@ -258,6 +258,10 @@ Overnight on this laptop: stay-awake + no sleep while running (prefer AC power).
 
 ## Change log
 
+- 2026-08-13: **Paper View readability** — “Papering NOW” card lists the 3 live specialists; closed/open tables show Strategy + SPECIALIST vs LEGACY SPRAY badges; cohorts split specialists vs spray; sections grouped Status / Trading / Optional. Fold state key `paper_view_folds_v4`.
+- 2026-08-13: **`router_v1_specialists_vwaprej`** — user: run what works; soften impossible 65%/n100. Practical `GATES` → WR≥55% n≥40 PF≥1.3 E≥0.15; aspirational 65/100 retained separately. Wired live `vwap_rejection` (1h resample) as paper specialist alongside NQ+CL. Databento R1.5 final n=86 WR~77% E~+0.84R clears practical gates; Yahoo 1h same rule **fails** — promote on Databento truth. Breakout spray still research_only.
+- 2026-08-13: **Databento book cache + dual hardening** — user OK ~$26 credit pull: NQ/ES/CL/GC 180d cached (est. **$25.59**). Spend lock. Dual pass report under `data/dual_source_hardening/`.
+- 2026-08-13: **`router_v1_specialists_only`** — stop Aug13 location bleed: paper only `nq_context_entry` + `cl_vwap_prox_momentum`; demote breakout/sweep/VWAP/OR/MSS/momentum to research_only. Drought `specialists_only_selective_quiet`. Prior Yahoo-only S&D/PA FAIL kept as historical; dual-source pass is the hardening authority.
 - 2026-08-12: **Breakout_retest forward research pass (observation only)** — locked `router_v1_paperfix2` overnight (no strategy/risk/qty/engine/router changes). Added `scripts/run_breakout_retest_forward_report.py` + `src/agent/research/breakout_retest_forward.py` for winner/loser datasets, PRE vs POST-fix2 cohorts, shrunk cells, forensics. Paper View adds display-only clean WR cohorts. Agent kept running; do not auto-tune from overnight tiny samples.
 - 2026-08-12: **`router_v1_paperfix2`** — prefer full-size over micro within product family (ES/NQ before MES/MNQ same side) so family max=1 does not silently micros-only the book. Still one opportunity per family; risk remap NQ→MNQ only when hard $ risk binds.
 - 2026-08-12: **Time-stop clock fix** — hold duration uses wall `received_at`/`ts`, not delayed market-bar `opened_at` (was instantly scratching new multi-lot breakouts). Still multi-engine paper book; NQ specialist is one engine only. EMA stays research_only (spray was not successful).

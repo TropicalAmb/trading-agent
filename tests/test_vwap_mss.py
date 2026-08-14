@@ -47,5 +47,5 @@ def test_paper_gates_soft():
         "worst_r": -1.1,
     }
     assert meets_paper_gates(st)
-    assert not meets_gates(st)  # fails hard ≥65% / n≥100
+    assert not meets_gates(st)  # fails practical E>=0.15 (st E=0.12)
     assert PAPER_GATES["min_n"] == 30

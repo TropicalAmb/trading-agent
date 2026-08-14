@@ -1079,15 +1079,40 @@ class PaperBlotter:
 
         def rows_closed() -> str:
             if not closed:
-                return "<tr><td colspan='10'>No closed trades yet — open trades hit stop/target over time.</td></tr>"
+                return "<tr><td colspan='12'>No closed trades yet — open trades hit stop/target over time.</td></tr>"
+            paper_specs = {
+                "nq_context_entry",
+                "cl_vwap_prox_momentum",
+                "vwap_rejection",
+            }
             out = []
-            for t in closed[:100]:
+            for t in closed[:120]:
                 pnl = t.get("pnl_dollars")
                 pnl_s = f"${pnl:.2f}" if isinstance(pnl, (int, float)) else ""
+                eng = str(t.get("strategy_name") or (t.get("metadata") or {}).get("strategy_name") or "—")
+                cv = str(
+                    t.get("config_version")
+                    or (t.get("metadata") or {}).get("config_version")
+                    or "—"
+                )
+                if eng in paper_specs or "specialists" in cv:
+                    book = '<span class="badge ok">SPECIALIST</span>'
+                elif "paperfix" in cv or eng in {
+                    "breakout_retest",
+                    "liquidity_sweep",
+                    "vwap_acceptance",
+                    "opening_range",
+                    "sweep_retest",
+                }:
+                    book = '<span class="badge bad">LEGACY SPRAY</span>'
+                else:
+                    book = '<span class="badge muted">OTHER</span>'
                 out.append(
                     "<tr>"
                     f"<td>{t.get('opened_at','')}</td>"
                     f"<td>{t.get('closed_at','')}</td>"
+                    f"<td><b>{eng}</b></td>"
+                    f"<td>{book}</td>"
                     f"<td>{t.get('hold_minutes','')}</td>"
                     f"<td>{t.get('session','')}</td>"
                     f"<td><b>{t.get('side','')}</b> {t.get('symbol','')}</td>"
@@ -1095,7 +1120,7 @@ class PaperBlotter:
                     f"<td>{t.get('exit','')}</td>"
                     f"<td>{pnl_s}</td>"
                     f"<td>{t.get('result','')} / {t.get('exit_reason','')}</td>"
-                    f"<td>{t.get('id','')}</td>"
+                    f"<td style='font-size:0.75rem'>{cv}</td>"
                     "</tr>"
                 )
             return "\n".join(out)
@@ -1103,9 +1128,14 @@ class PaperBlotter:
         def rows_open() -> str:
             if not opens:
                 return (
-                    "<tr><td colspan='13'>Flat — no open paper positions.</td></tr>"
+                    "<tr><td colspan='14'>Flat — no open paper positions.</td></tr>"
                 )
             prices = hb.get("prices") or {}
+            paper_specs = {
+                "nq_context_entry",
+                "cl_vwap_prox_momentum",
+                "vwap_rejection",
+            }
             out = []
             for p in opens:
                 side = str(p.get("side", "BUY"))
@@ -1128,9 +1158,17 @@ class PaperBlotter:
                 if p.get("tp1_done"):
                     tp1_s = f"{tp1_s} done"
                 runner = f"{qty}/{p.get('qty_original', qty)}"
+                eng = str(p.get("strategy_name") or p.get("strategy") or "—")
+                book = (
+                    '<span class="badge ok">SPECIALIST</span>'
+                    if eng in paper_specs
+                    else '<span class="badge muted">OTHER</span>'
+                )
                 out.append(
                     "<tr>"
                     f"<td>{p.get('opened_at')}</td>"
+                    f"<td><b>{eng}</b></td>"
+                    f"<td>{book}</td>"
                     f"<td>{p.get('session')}</td>"
                     f"<td>{p.get('symbol')}</td>"
                     f"<td><b>{side}</b></td>"
@@ -1141,7 +1179,6 @@ class PaperBlotter:
                     f"<td>{tp1_s}</td>"
                     f"<td>{target}</td>"
                     f"<td>${float(risk_d):,.2f}</td>"
-                    f"<td>${float(reward_d):,.2f}</td>"
                     f"<td class='{u_cls}'>{_fmt_money(u_pnl)}</td>"
                     "</tr>"
                 )
@@ -1203,19 +1240,13 @@ class PaperBlotter:
             trade_plain = "Managing open paper risk live (stops/targets)."
         elif n_exec > 0:
             trade_status = f"PAPER ENTRY SIGNAL — {n_exec} executable this scan"
-            trade_plain = "A+/A setup(s) present this cycle; check Open positions."
+            trade_plain = "A+/A specialist setup(s) present this cycle; check Open positions."
         else:
             trade_status = "SCANNING — flat (no new paper fill this cycle)"
-            if not nq_window_open:
-                trade_plain = (
-                    "Flat is normal outside NQ champion window (09:30–12:00 ET BUY-only). "
-                    f"Clock now ~{et_now.strftime('%H:%M')} ET."
-                )
-            else:
-                trade_plain = (
-                    "Inside NQ window, but no A+/A paper setup cleared gates this tick "
-                    "(selectivity — not the same as dead)."
-                )
+            trade_plain = (
+                "Only 3 specialists can paper: nq_context_entry · cl_vwap_prox_momentum · vwap_rejection. "
+                "Quiet is normal until one fires (NQ mainly 09:30–12 ET; CL/VWAP-rej when signals print)."
+            )
         last_fill_line = "No closed paper trades yet."
         if last_closed is not None:
             pnl_s = _fmt_money(float(last_fill_pnl or 0))
@@ -1228,8 +1259,64 @@ class PaperBlotter:
                     else last_fill_ts[:19]
                 )
             )
-            last_fill_line = f"Last fill: {last_fill_sym} {pnl_s} · {age_s}"
+            last_eng = str(
+                (last_closed or {}).get("strategy_name")
+                or ((last_closed or {}).get("metadata") or {}).get("strategy_name")
+                or "—"
+            )
+            last_fill_line = f"Last fill: {last_fill_sym} [{last_eng}] {pnl_s} · {age_s}"
         glance_equity = equity + realized + unrealized_total
+
+        def papering_now_html() -> str:
+            cv = str(hb.get("config_version") or "—")
+            live = "specialists_vwaprej" in cv or "specialists_only" in cv
+            specs = [
+                ("nq_context_entry", "NQ/MNQ PULLBACK BUY", "09:30–12:00 ET", "~74% Databento"),
+                ("cl_vwap_prox_momentum", "CL/MCL VWAP-prox", "any session when signal", "~69% research"),
+                ("vwap_rejection", "VWAP wick-reject 1h", "09:00–16:00 ET", "~77% Databento"),
+            ]
+            rows = "".join(
+                f"<tr><td><b>{a}</b></td><td>{b}</td><td>{c}</td><td>{d}</td></tr>"
+                for a, b, c, d in specs
+            )
+            # Forward specialist closes on this stamp
+            n = w = 0
+            pnl_sum = 0.0
+            for t in trades:
+                eng = str(t.get("strategy_name") or "")
+                cvt = str(t.get("config_version") or (t.get("metadata") or {}).get("config_version") or "")
+                if eng not in {s[0] for s in specs}:
+                    continue
+                if "specialists" not in cvt and live:
+                    # still count if strategy is specialist even on mixed stamps
+                    pass
+                if not t.get("closed_at"):
+                    continue
+                try:
+                    pnl = float(t.get("pnl_dollars") or 0)
+                except Exception:
+                    continue
+                n += 1
+                pnl_sum += pnl
+                if pnl > 0:
+                    w += 1
+            wr = f"{100.0 * w / n:.0f}%" if n else "—"
+            status = (
+                f"<span class='badge ok'>LIVE</span> stamp <b>{cv}</b>"
+                if live
+                else f"<span class='badge bad'>UNEXPECTED STAMP</span> {cv}"
+            )
+            return (
+                f"<div class='meta' style='margin-bottom:10px'>{status}</div>"
+                "<p class='plain' style='margin:0 0 10px 0'>Ignore <b>LEGACY SPRAY</b> rows "
+                "(breakout_retest / old paperfix2) when judging today’s specialists. "
+                "Judge only rows tagged <b>SPECIALIST</b>.</p>"
+                "<table><thead><tr><th>Strategy</th><th>What</th><th>When</th><th>Research WR</th></tr></thead>"
+                f"<tbody>{rows}</tbody></table>"
+                f"<div class='meta' style='margin-top:10px'>Specialist closed sample (all history with those names): "
+                f"n={n} · WR={wr} · PnL={_fmt_money(pnl_sum)}. "
+                f"If n is tiny, forward sample has not started — do not compare to today’s spray losses.</div>"
+            )
 
         def wr_cohort_dashboard_html() -> str:
             """Display-only WR panels — does not change strategy/config."""
@@ -1238,9 +1325,14 @@ class PaperBlotter:
             today = _date.today().isoformat()
             cohorts = {
                 "TODAY ALL": [],
+                "SPECIALISTS ONLY": [],
+                "LEGACY SPRAY": [],
                 "POST-PAPERFIX2": [],
-                "BREAKOUT POST-FIX2": [],
-                "OVERNIGHT SESSIONS": [],
+            }
+            paper_specs = {
+                "nq_context_entry",
+                "cl_vwap_prox_momentum",
+                "vwap_rejection",
             }
             for t in trades:
                 if str(t.get("status") or "").upper() == "OPEN" or not t.get("closed_at"):
@@ -1260,18 +1352,23 @@ class PaperBlotter:
                     or ""
                 )
                 opened = str(t.get("opened_at") or t.get("ts") or "")
-                sess = str(t.get("session") or "").lower()
+                eng = str(t.get("strategy_name") or "")
                 row = {"pnl": pnl_f, "win": pnl_f > 0}
                 if today in opened or today in str(t.get("closed_at") or ""):
                     cohorts["TODAY ALL"].append(row)
+                if eng in paper_specs:
+                    cohorts["SPECIALISTS ONLY"].append(row)
+                if eng in {
+                    "breakout_retest",
+                    "liquidity_sweep",
+                    "vwap_acceptance",
+                    "opening_range",
+                    "sweep_retest",
+                    "momentum",
+                }:
+                    cohorts["LEGACY SPRAY"].append(row)
                 if cv.endswith("paperfix2") or cv == "router_v1_paperfix2":
                     cohorts["POST-PAPERFIX2"].append(row)
-                    if str(t.get("strategy_name") or "") == "breakout_retest":
-                        cohorts["BREAKOUT POST-FIX2"].append(row)
-                if sess in {"asia", "london"} and (
-                    cv.endswith("paperfix2") or today in opened
-                ):
-                    cohorts["OVERNIGHT SESSIONS"].append(row)
 
             def _fmt(name: str, rows: list) -> str:
                 if not rows:
@@ -2079,15 +2176,28 @@ class PaperBlotter:
     }}
     .glance-cell .lbl {{ color: var(--muted); font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.04em; }}
     .glance-cell .val {{ font-size: 1.05rem; font-weight: 700; margin-top: 4px; }}
+    .badge {{
+      display: inline-block; padding: 2px 8px; border-radius: 4px;
+      font-size: 0.72rem; font-weight: 700; letter-spacing: 0.03em;
+    }}
+    .badge.ok {{ background: #1f3d2a; color: #7dcea0; }}
+    .badge.bad {{ background: #3d1f1f; color: #f5a6a6; }}
+    .badge.muted {{ background: #2a2a2a; color: #aaa; }}
+    .section-label {{
+      grid-column: 1 / -1; margin: 8px 0 0; padding: 6px 0;
+      color: var(--muted); font-size: 0.8rem; text-transform: uppercase;
+      letter-spacing: 0.08em; border-bottom: 1px solid #333;
+    }}
   </style>
 </head>
 <body>
   <header>
     <h1>Agent Paper Trading View</h1>
     <p>Local paper blotter (not TradingView.com). Reloads every 15s.
-    Read the top two cards first — everything else is optional detail (collapsed by default).</p>
+    Top = what is live now. Closed trades show <b>SPECIALIST</b> vs <b>LEGACY SPRAY</b> — ignore spray when judging the new book.</p>
   </header>
   <div class="grid">
+    <div class="section-label">1 · Status</div>
     <div class="card">
       <h2>At a glance</h2>
       <div class="run-banner {run_banner_class}">
@@ -2108,7 +2218,11 @@ class PaperBlotter:
       </div>
     </div>
     <div class="card">
-      <h2>Win-rate dashboard (clean cohorts)</h2>
+      <h2>Papering NOW (how to read the book)</h2>
+      {papering_now_html()}
+    </div>
+    <div class="card">
+      <h2>Win-rate cohorts (do not mix)</h2>
       {wr_cohort_dashboard_html()}
     </div>
     <div class="card">
@@ -2125,20 +2239,45 @@ class PaperBlotter:
         </tr></tbody>
       </table>
     </div>
+    <div class="section-label">2 · Trading</div>
     <div class="card">
       <details class="fold" data-fold="open_positions" open>
-        <summary>Open positions<span class="hint">click to expand/collapse</span></summary>
+        <summary>Open positions<span class="hint">live risk · Strategy + Book</span></summary>
         <div class="fold-body">
           <table>
-            <thead><tr><th>Opened</th><th>Session</th><th>Sym</th><th>Side</th><th>Qty</th><th>Entry</th><th>Mark</th><th>Stop</th><th>TP1</th><th>Target</th><th>Risk $</th><th>Reward $</th><th>uPnL</th></tr></thead>
+            <thead><tr><th>Opened</th><th>Strategy</th><th>Book</th><th>Session</th><th>Sym</th><th>Side</th><th>Qty</th><th>Entry</th><th>Mark</th><th>Stop</th><th>TP1</th><th>Target</th><th>Risk $</th><th>uPnL</th></tr></thead>
             <tbody>{rows_open()}</tbody>
           </table>
         </div>
       </details>
     </div>
     <div class="card">
+      <details class="fold" data-fold="closed_trades" open>
+        <summary>Closed trades<span class="hint">SPECIALIST vs LEGACY SPRAY</span></summary>
+        <div class="fold-body">
+          <table>
+            <thead><tr><th>Opened</th><th>Closed</th><th>Strategy</th><th>Book</th><th>Hold</th><th>Session</th><th>Trade</th><th>Entry</th><th>Exit</th><th>P&amp;L</th><th>Result</th><th>Config</th></tr></thead>
+            <tbody>{rows_closed()}</tbody>
+          </table>
+          <div class="meta">CSV: {self.csv_path.as_posix()} · JSON: {self.json_path.as_posix()}</div>
+        </div>
+      </details>
+    </div>
+    <div class="card">
+      <details class="fold" data-fold="daily_pnl" open>
+        <summary>P&amp;L by day × session<span class="hint">scoreboard</span></summary>
+        <div class="fold-body">
+          <table>
+            <thead><tr><th>Day</th><th>Total</th><th>Asia</th><th>London</th><th>NY</th><th>Trades</th><th>W/L</th></tr></thead>
+            <tbody>{rows_daily_pnl()}</tbody>
+          </table>
+        </div>
+      </details>
+    </div>
+    <div class="section-label">3 · Optional detail</div>
+    <div class="card">
       <details class="fold" data-fold="tech_status">
-        <summary>Technical status (feed / scheduler / supervisor)<span class="hint">optional detail</span></summary>
+        <summary>Technical status (feed / scheduler / supervisor)<span class="hint">ops</span></summary>
         <div class="fold-body">
           {tech_status_html}
         </div>
@@ -2189,18 +2328,6 @@ class PaperBlotter:
             <tbody>{rows_session_pnl()}</tbody>
           </table>
           <div class="meta">Excludes demo fills and prune/bookkeeping closes. Session = when the trade opened.</div>
-        </div>
-      </details>
-    </div>
-    <div class="card">
-      <details class="fold" data-fold="daily_pnl">
-        <summary>P&amp;L by day × session<span class="hint">click to expand/collapse</span></summary>
-        <div class="fold-body">
-          <table>
-            <thead><tr><th>Day (ET)</th><th>Day total</th><th>Asia</th><th>London</th><th>NY</th><th>Trades</th><th>W/L</th></tr></thead>
-            <tbody>{rows_daily_pnl()}</tbody>
-          </table>
-          <div class="meta">Day keyed off market/open timestamp (honest for delayed feed). Cumulative session table above still available.</div>
         </div>
       </details>
     </div>
@@ -2302,7 +2429,7 @@ class PaperBlotter:
           {strategy_lifecycle_table_html()}
           <div class="meta">States: ACTIVE → WATCH (DD or 2 weekly drift) → SHADOW_ONLY (DD≤−7.5R) → HARD_PAUSED (DD≤−9R). No auto-reactivation from HARD_PAUSED. Single losses do not kill.</div>
           <div class="meta">Exit-model research: data/exit_model_research.jsonl (shadow only — never modifies actual paper). Champion/challenger: config strategy_versions (no auto-promotion).</div>
-          <div class="meta">Config version stamp on new records: router_v1_clpaper1. Adaptive promotion requires manual approval.</div>
+          <div class="meta">Config version stamp on new records: {hb.get('config_version') or '—'}. Paper = specialists only under this stamp.</div>
         </div>
       </details>
     </div>
@@ -2321,7 +2448,7 @@ class PaperBlotter:
   </div>
   <script>
   (function () {{
-    var KEY = "paper_view_folds_v3";
+    var KEY = "paper_view_folds_v4";
     function load() {{
       try {{ return JSON.parse(localStorage.getItem(KEY) || "{{}}"); }}
       catch (e) {{ return {{}}; }}

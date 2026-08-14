@@ -144,18 +144,33 @@ class DatabentoHistoricalProvider(MarketDataProvider):
             work.index = work.index.tz_convert("UTC")
         work.index = work.index.tz_convert("America/New_York")
         # Parent symbology can emit overlapping contract/spread rows → duplicate timestamps
+        root = str(symbol).upper().replace("=F", "").replace(".FUT", "")
         if "symbol" in work.columns:
-            # Prefer outright NQ equity-index futures (exclude calendar spreads / odd prints)
+            # Prefer outright month codes for the requested root (exclude calendar spreads)
             sym = work["symbol"].astype(str)
-            outright = sym.str.match(r"^NQ[HJKMNQUZ][0-9]$", case=False)
+            outright = sym.str.match(rf"^{root}[HJKMNQUZ][0-9]$", case=False)
             if outright.any():
                 work = work.loc[outright]
         if work.index.duplicated().any():
             work = work[~work.index.duplicated(keep="last")]
-        # Hard price sanity for NQ full-size (rejects spread prints ~200s)
-        if {"open", "high", "low", "close"}.issubset(work.columns):
+        # Hard price sanity by product (rejects junk / spread prints)
+        close_floor = {
+            "NQ": 5000.0,
+            "MNQ": 5000.0,
+            "ES": 1000.0,
+            "MES": 1000.0,
+            "GC": 500.0,
+            "MGC": 500.0,
+            "CL": 10.0,
+            "MCL": 10.0,
+            "YM": 10000.0,
+            "MYM": 10000.0,
+            "RTY": 500.0,
+            "M2K": 500.0,
+        }.get(root, 0.0)
+        if close_floor > 0 and {"open", "high", "low", "close"}.issubset(work.columns):
             px = work["close"].astype(float)
-            work = work.loc[px >= 5000]
+            work = work.loc[px >= close_floor]
         work.attrs["source"] = "databento"
         work.attrs["dataset"] = self.dataset
         work.attrs["parent"] = parent

@@ -187,6 +187,20 @@ def _classify_reject(reason: str, *, strategy: str = "", cfg: dict[str, Any] | N
     return BLOCKER_UNKNOWN
 
 
+def _specialists_only_paper_mode(cfg: dict[str, Any]) -> bool:
+    """True when drought policy opts in and only paper_specialist_engines can fill."""
+    dcfg = cfg.get("trade_drought_policy") or {}
+    if not bool(dcfg.get("specialists_only_selective_quiet", False)):
+        return False
+    specs = {str(x) for x in (cfg.get("paper_specialist_engines") or [])}
+    if not specs:
+        return False
+    research = {str(x) for x in (cfg.get("research_only_engines") or [])}
+    engines = {str(x) for x in ((cfg.get("confluence") or {}).get("engines") or [])}
+    paperable = {e for e in engines if e not in research}
+    return bool(paperable) and paperable.issubset(specs)
+
+
 def diagnose_trade_silence(
     *,
     root: Path,
@@ -385,12 +399,21 @@ def diagnose_trade_silence(
             blockers.append(BLOCKER_DATA_STALE_STUCK)
         if not blockers:
             # Path may be OK but still no paper — still a fault after 90m (user lock)
-            if drought_enabled:
+            # Exception: specialists-only paper — no-setup silence is intentional.
+            if drought_enabled and not _specialists_only_paper_mode(cfg):
                 blockers.append(BLOCKER_PIPELINE_DROUGHT)
             else:
                 blockers.append(BLOCKER_HEALTHY_SELECTIVE_QUIET)
 
-        if BLOCKER_CODE_BUG in blockers or BLOCKER_PREFLIGHT_FAIL in blockers:
+        if BLOCKER_HEALTHY_SELECTIVE_QUIET in blockers and len(blockers) == 1:
+            severity = SEVERITY_OK
+            summary = (
+                f"No paper fill for {silent_m:.0f}m — specialists-only selective quiet "
+                f"(nq_context_entry / cl_vwap_prox_momentum). Not a drought fault."
+            )
+            action = "none"
+            auto_restart = False
+        elif BLOCKER_CODE_BUG in blockers or BLOCKER_PREFLIGHT_FAIL in blockers:
             code_samples = [
                 str(r.get("reason") or "")
                 for r in bug_rejected
@@ -477,6 +500,7 @@ def diagnose_trade_silence(
             "alert_after_minutes": alert_m,
             "max_quiet_minutes": drought_m,
             "drought_enabled": drought_enabled,
+            "specialists_only_selective_quiet": _specialists_only_paper_mode(cfg),
             "bug_window_minutes": bug_window_m,
             "bug_reject_count": len(bug_rejected),
             "class_counts": dict(class_counts),

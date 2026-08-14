@@ -330,6 +330,7 @@ class DecisionPipeline:
         from agent.strategy.vwap_mss import evaluate_vwap_mss
         from agent.strategy.vwap_orb import evaluate_vwap_orb
         from agent.strategy.vwap_reclaim import evaluate_vwap_reclaim
+        from agent.strategy.vwap_rejection import evaluate_vwap_rejection
         from agent.strategy.indicator_parity import evaluate_indicator_parity
         from agent.strategy.specialist_momentum import (
             evaluate_cl_vwap_prox_momentum,
@@ -352,6 +353,7 @@ class DecisionPipeline:
             "trend_pullback": evaluate_trend_pullback,
             "liquidity_reversal": evaluate_liquidity_reversal,
             "vwap_reclaim": evaluate_vwap_reclaim,
+            "vwap_rejection": evaluate_vwap_rejection,
             "indicator_parity": evaluate_indicator_parity,
             "cl_vwap_prox_momentum": evaluate_cl_vwap_prox_momentum,
             "nq_ny_open_momentum": evaluate_nq_ny_open_momentum,

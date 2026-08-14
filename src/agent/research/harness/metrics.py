@@ -7,19 +7,30 @@ from typing import Any, Sequence
 import numpy as np
 import pandas as pd
 
-# Research aspirational accuracy target (track WR; do not block paper on this alone)
+# Practical promotion bar (2026-08-13): still high-WR focused, but not impossible.
+# User: hard 65%/n100 cleared nothing useful while Databento showed real edges.
 GATES = {
-    "min_wr": 0.65,
-    "min_pf": 1.50,
-    "min_expectancy_r": 0.25,
-    "min_n": 100,
+    "min_wr": 0.55,
+    "min_pf": 1.30,
+    "min_expectancy_r": 0.15,
+    "min_n": 40,
     "max_worst_loss_r": -5.0,  # reject catastrophic single-trade tails
     "min_med_win_over_med_loss": 0.35,  # reject tiny-target / huge-stop games
 }
 
-# Soft paper-promotion bar (edge-first). WR is a metric, not a hard blocker.
+# Aspirational bar (track only; do not require for paper wiring)
+ASPIRATIONAL_GATES = {
+    "min_wr": 0.65,
+    "min_pf": 1.50,
+    "min_expectancy_r": 0.25,
+    "min_n": 100,
+    "max_worst_loss_r": -5.0,
+    "min_med_win_over_med_loss": 0.35,
+}
+
+# Soft paper-promotion bar (edge-first). WR tracked; prefer GATES for specialists.
 PAPER_GATES = {
-    "min_wr": 0.0,  # tracked only
+    "min_wr": 0.50,
     "min_pf": 1.20,
     "min_expectancy_r": 0.0,  # must be > 0 via meets_paper_gates
     "min_n": 30,
@@ -103,7 +114,7 @@ def trade_stats(pnl_r: Sequence[float], entry_ts: Sequence[str] | None = None) -
 
 
 def meets_gates(st: dict[str, Any]) -> bool:
-    """Hard research accuracy gates (≥65% WR aspirational)."""
+    """Practical research promotion gates (WR≥55%, n≥40). See ASPIRATIONAL_GATES for 65/100."""
     return (
         st.get("n", 0) >= GATES["min_n"]
         and st.get("wr", 0) >= GATES["min_wr"]
@@ -115,11 +126,23 @@ def meets_gates(st: dict[str, Any]) -> bool:
 
 
 def meets_paper_gates(st: dict[str, Any]) -> bool:
-    """Soft paper-promotion: positive expectancy + PF + sample. WR not required."""
+    """Soft paper-promotion: positive expectancy + PF + sample + WR floor."""
     return (
         st.get("n", 0) >= PAPER_GATES["min_n"]
+        and st.get("wr", 0) >= PAPER_GATES["min_wr"]
         and st.get("pf", 0) >= PAPER_GATES["min_pf"]
         and st.get("expectancy_r", 0) > PAPER_GATES["min_expectancy_r"]
         and st.get("anti_cheat_ok", False)
         and st.get("worst_r", 0) > PAPER_GATES["max_worst_loss_r"]
+    )
+
+
+def meets_aspirational_gates(st: dict[str, Any]) -> bool:
+    return (
+        st.get("n", 0) >= ASPIRATIONAL_GATES["min_n"]
+        and st.get("wr", 0) >= ASPIRATIONAL_GATES["min_wr"]
+        and st.get("pf", 0) >= ASPIRATIONAL_GATES["min_pf"]
+        and st.get("expectancy_r", 0) >= ASPIRATIONAL_GATES["min_expectancy_r"]
+        and st.get("anti_cheat_ok", False)
+        and st.get("worst_r", 0) > ASPIRATIONAL_GATES["max_worst_loss_r"]
     )

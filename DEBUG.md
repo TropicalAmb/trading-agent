@@ -1,7 +1,50 @@
 # DEBUG.md — Trading Agent (known bugs, traps, fixes)
 
-**Last updated:** 2026-08-12  
+**Last updated:** 2026-08-13  
 **Purpose:** Prevent Cursor from reintroducing bugs we already fixed. Read with `PROJECT_MEMORY.md`.
+
+---
+
+## AF — Paper View SPECIALIST vs LEGACY badges (2026-08-13)
+
+| | |
+|--|--|
+| **Symptom** | User cannot tell if new specialists are live; blotter still looks like spray day. |
+| **Fix** | Paper View: Papering NOW card; Strategy + SPECIALIST/LEGACY SPRAY badges; cohorts split; Status/Trading/Optional groups; folds v4. |
+| **Do not** | Judge specialist performance from LEGACY SPRAY rows. |
+
+---
+
+## AE — Practical gates + vwap_rejection paper (2026-08-13)
+
+| | |
+|--|--|
+| **Symptom** | Aspirational WR≥65% + n≥100 cleared zero families; user rejects babysitting losses and wants proven specialists live. |
+| **Fact** | Databento 1h `vwap_rejection` R1.5: final n=86 WR~77% E~+0.84R. Yahoo 1h same definition loses. NQ/CL specialists already paper. |
+| **Fix** | Stamp `router_v1_specialists_vwaprej`: paper `vwap_rejection` + NQ + CL. `GATES` practical (55%/40/1.3/0.15); `ASPIRATIONAL_GATES` 65/100 track-only. Evaluator resamples 5m→1h. |
+| **Do not** | Re-enable breakout spray. Do not ignore Databento/Yahoo disagreement — prefer Databento for CME research. Do not raise target R to 1.6 for specialists. |
+
+---
+
+## AD — Research must dual Databento+Yahoo; spend lock (2026-08-13)
+
+| | |
+|--|--|
+| **Symptom** | S&D/PA screened on Yahoo only while user pays Databento credits; unclear whether FAIL is real. |
+| **Fact** | Paper scans stay Yahoo delayed. Research truth is Databento GLBX when cached. Book caches NQ/ES/CL/GC 1m ~180d on disk (~$25.59 est.). `fetch_ohlcv_df` previously forced `close>=5000` for all symbols (would empty CL). |
+| **Fix** | Symbol-specific close floors; `scripts/cache_databento_book.py` + `run_dual_source_hardening.py`. Prefer dual reports before promote. |
+| **Do not** | Re-download Databento without user OK. Do not promote from Yahoo-only. Do not call Databento API inside hardening once caches exist. Do not paper S&D from Databento WATCH (~51% WR) or `vwap_rejection` until n/WR gates clear on dual sources. |
+
+---
+
+## AC — Location spray beat specialists; S&D/PA failed gates (2026-08-13)
+
+| | |
+|--|--|
+| **Symptom** | Aug12 breakout winners (+~$1k engine day) then Aug13 wipe (breakout ~−$2.8k); blotter ~−$1.75k; user demands researched edge / S&D-PA bare bones. |
+| **Fact** | Researched paper specialists barely filled; `breakout_retest` dominated paper at WR~34%. New Yahoo S&D/PA screen (`data/sd_pa_research/SD_PA_RESEARCH_REPORT.md`) verdict **FAIL** — no config met WR≥65/n≥100/E gates (best family finals ~31–41% WR, negative E). |
+| **Fix** | Stamp `router_v1_specialists_only`: only `nq_context_entry` + `cl_vwap_prox_momentum` paperable; location engines → `research_only`. `trade_drought_policy.specialists_only_selective_quiet: true` → no-setup silence is HEALTHY_SELECTIVE_QUIET (bugs/stale/supersede still ALERT). |
+| **Do not** | Re-enable `breakout_retest`/location paper from one green afternoon. Do not promote S&D/PA from tiny cells (e.g. CL NY_MID BUY n=17). Do not ease quality gates or EMA spray to “look busy.” |
 
 ---
 
@@ -348,7 +391,7 @@ cd C:\Users\patri\trading-agent
 
 Expect tests green (`pytest tests/ -q`).  
 Live once-scan should show DELAYED feed, per-symbol engine reasons; EMA research_only → shadow/PASS not paper EXECUTED.  
-Stamp check: `config_version` should be `router_v1_paperfix2` (prefer full-size in family + multi-engine + NQ specialist + time-stop wall clock).
+Stamp check: `config_version` should be `router_v1_specialists_vwaprej` (NQ + CL + vwap_rejection paper; location spray research_only).
 
 When diagnosing **zero paper trades**: check (1) heartbeat/`NO_NEW_BAR`, (2) shadow open count, (3) `AGREEMENT_SUPERSEDED_BY_*` in `execution_decisions.jsonl` (only paperable-loser→research is a steal), (4) `execution_quality` / MIXED / POOR_LOCATION rejects, (5) instant `time_stop` on new fills → bug Z wall-clock hold, (6) not just “markets quiet.”
 

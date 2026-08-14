@@ -1,0 +1,6426 @@
+{
+  "generated_utc": "2026-08-13T19:54:37.523069+00:00",
+  "databento_est_spend_usd": 25.5875,
+  "spend_lock": true,
+  "sd_pa": {
+    "yahoo_5m_60d": {
+      "verdict": "FAIL",
+      "family_best": {},
+      "n_configs": 12
+    },
+    "databento_5m_180d": {
+      "verdict": "WATCH",
+      "family_best": {},
+      "n_configs": 12
+    },
+    "databento_5m_yahoo_overlap": {
+      "verdict": "WATCH",
+      "family_best": {},
+      "n_configs": 12
+    }
+  },
+  "registry": {
+    "yahoo": {
+      "source": "yahoo",
+      "n_configs": 93,
+      "n_selected": 17,
+      "n_gate_pass_final": 0,
+      "family_best": {
+        "liquidity_sweep_reclaim": {
+          "config": "liq_sweep_PDHPDL_R2.0",
+          "family": "liquidity_sweep_reclaim",
+          "params": {
+            "target_r": 2.0,
+            "reason": "bounded R grid 1.0/1.5/2.0"
+          },
+          "train": {
+            "n": 206,
+            "wins": 72,
+            "losses": 134,
+            "wr": 0.3495,
+            "wr_ci95": [
+              0.2816,
+              0.4127
+            ],
+            "pf": 0.872,
+            "expectancy_r": -0.0851,
+            "max_dd_r": -28.166,
+            "avg_win_r": 1.659,
+            "avg_loss_r": -1.022,
+            "med_win_r": 1.964,
+            "med_loss_r": -1.025,
+            "worst_r": -1.197,
+            "p95_loss_r": -1.1,
+            "trades_per_week": 5.54,
+            "longest_losing_streak": 8,
+            "anti_cheat_ok": true,
+            "anti_cheat_reasons": []
+          },
+          "val": {
+            "n": 64,
+            "wins": 25,
+            "losses": 39,
+            "wr": 0.3906,
+            "wr_ci95": [
+              0.2809,
+              0.5
+            ],
+            "pf": 1.248,
+            "expectancy_r": 0.1507,
+            "max_dd_r": -7.068,
+            "avg_win_r": 1.944,
+            "avg_loss_r": -0.999,
+            "med_win_r": 1.984,
+            "med_loss_r": -1.016,
+            "worst_r": -1.159,
+            "p95_loss_r": -1.05,
+            "trades_per_week": 5.6,
+            "longest_losing_streak": 5,
+            "anti_cheat_ok": true,
+            "anti_cheat_reasons": []
+          },
+          "final": {
+            "n": 71,
+            "wins": 22,
+            "losses": 49,
+            "wr": 0.3099,
+            "wr_ci95": [
+              0.2113,
+              0.4225
+            ],
+            "pf": 0.771,
+            "expectancy_r": -0.1592,
+            "max_dd_r": -20.059,
+            "avg_win_r": 1.731,
+            "avg_loss_r": -1.008,
+            "med_win_r": 1.962,
+            "med_loss_r": -1.014,
+            "worst_r": -1.115,
+            "p95_loss_r": -1.062,
+            "trades_per_week": 5.84,
+            "longest_losing_streak": 8,
+            "anti_cheat_ok": true,
+            "anti_cheat_reasons": []
+          },
+          "selected_for_final": false,
+          "gates_final": false
+        },
+        "liquidity_sweep_mss": {
+          "config": "liq_sweep_MSS_R2.0",
+          "family": "liquidity_sweep_mss",
+          "params": {
+            "target_r": 2.0,
+            "reason": "bounded R grid 1.0/1.5/2.0"
+          },
+          "train": {
+            "n": 90,
+            "wins": 38,
+            "losses": 52,
+            "wr": 0.4222,
+            "wr_ci95": [
+              0.3219,
+              0.5225
+            ],
+            "pf": 0.895,
+            "expectancy_r": -0.0565,
+            "max_dd_r": -13.302,
+            "avg_win_r": 1.138,
+            "avg_loss_r": -0.929,
+            "med_win_r": 1.135,
+            "med_loss_r": -1.01,
+            "worst_r": -1.068,
+            "p95_loss_r": -1.038,
+            "trades_per_week": 2.51,
+            "longest_losing_streak": 6,
+            "anti_cheat_ok": true,
+            "anti_cheat_reasons": []
+          },
+          "val": {
+            "n": 31,
+            "wins": 16,
+            "losses": 15,
+            "wr": 0.5161,
+            "wr_ci95": [
+              0.354,
+              0.6774
+            ],
+            "pf": 1.29,
+            "expectancy_r": 0.1214,
+            "max_dd_r": -5.026,
+            "avg_win_r": 1.046,
+            "avg_loss_r": -0.865,
+            "med_win_r": 1.082,
+            "med_loss_r": -1.006,
+            "worst_r": -1.021,
+            "p95_loss_r": -1.02,
+            "trades_per_week": 2.59,
+            "longest_losing_streak": 5,
+            "anti_cheat_ok": true,
+            "anti_cheat_reasons": []
+          },
+          "final": {
+            "n": 24,
+            "wins": 14,
+            "losses": 10,
+            "wr": 0.5833,
+            "wr_ci95": [
+              0.4156,
+              0.75
+            ],
+            "pf": 1.199,
+            "expectancy_r": 0.0783,
+            "max_dd_r": -3.689,
+            "avg_win_r": 0.808,
+            "avg_loss_r": -0.943,
+            "med_win_r": 0.593,
+            "med_loss_r": -1.005,
+            "worst_r": -1.027,
+            "p95_loss_r": -1.023,
+            "trades_per_week": 2.34,
+            "longest_losing_streak": 2,
+            "anti_cheat_ok": true,
+            "anti_cheat_reasons": []
+          },
+          "selected_for_final": true,
+          "gates_final": false
+        },
+        "sweep_mss_fvg": {
+          "config": "sweep_MSS_disp_R1.0",
+          "family": "sweep_mss_fvg",
+          "params": {
+            "target_r": 1.0,
+            "reason": "bounded R grid 1.0/1.5/2.0"
+          },
+          "train": {
+            "n": 88,
+            "wins": 39,
+            "losses": 49,
+            "wr": 0.4432,
+            "wr_ci95": [
+              0.3523,
+              0.5455
+            ],
+            "pf": 0.785,
+            "expectancy_r": -0.1012,
+            "max_dd_r": -13.444,
+            "avg_win_r": 0.833,
+            "avg_loss_r": -0.845,
+            "med_win_r": 0.982,
+            "med_loss_r": -1.005,
+            "worst_r": -1.04,
+            "p95_loss_r": -1.027,
+            "trades_per_week": 2.4,
+            "longest_losing_streak": 5,
+            "anti_cheat_ok": true,
+            "anti_cheat_reasons": []
+          },
+          "val": {
+            "n": 24,
+            "wins": 12,
+            "losses": 12,
+            "wr": 0.5,
+            "wr_ci95": [
+              0.2917,
+              0.7083
+            ],
+            "pf": 0.909,
+            "expectancy_r": -0.0383,
+            "max_dd_r": -4.402,
+            "avg_win_r": 0.761,
+            "avg_loss_r": -0.838,
+            "med_win_r": 0.988,
+            "med_loss_r": -1.002,
+            "worst_r": -1.012,
+            "p95_loss_r": -1.011,
+            "trades_per_week": 2.05,
+            "longest_losing_streak": 4,
+            "anti_cheat_ok": true,
+            "anti_cheat_reasons": []
+          },
+          "final": {
+            "n": 31,
+            "wins": 18,
+            "losses": 13,
+            "wr": 0.5806,
+            "wr_ci95": [
+              0.4194,
+              0.7419
+            ],
+            "pf": 1.201,
+            "expectancy_r": 0.074,
+            "max_dd_r": -6.369,
+            "avg_win_r": 0.76,
+            "avg_loss_r": -0.876,
+            "med_win_r": 0.993,
+            "med_loss_r": -1.012,
+            "worst_r": -1.022,
+            "p95_loss_r": -1.02,
+            "trades_per_week": 2.82,
+            "longest_losing_streak": 3,
+            "anti_cheat_ok": true,
+            "anti_cheat_reasons": []
+          },
+          "selected_for_final": false,
+          "gates_final": false
+        },
+        "vwap_reclaim": {
+          "config": "vwap_reclaim_R2.0",
+          "family": "vwap_reclaim",
+          "params": {
+            "target_r": 2.0,
+            "reason": "bounded R grid 1.0/1.5/2.0"
+          },
+          "train": {
+            "n": 576,
+            "wins": 200,
+            "losses": 376,
+            "wr": 0.3472,
+            "wr_ci95": [
+              0.3107,
+              0.3889
+            ],
+            "pf": 0.978,
+            "expectancy_r": -0.015,
+            "max_dd_r": -42.553,
+            "avg_win_r": 1.932,
+            "avg_loss_r": -1.051,
+            "med_win_r": 1.966,
+            "med_loss_r": -1.039,
+            "worst_r": -1.18,
+            "p95_loss_r": -1.122,
+            "trades_per_week": 15.56,
+            "longest_losing_streak": 14,
+            "anti_cheat_ok": true,
+            "anti_cheat_reasons": []
+          },
+          "val": {
+            "n": 203,
+            "wins": 74,
+            "losses": 129,
+            "wr": 0.3645,
+            "wr_ci95": [
+              0.3005,
+              0.4286
+            ],
+            "pf": 1.104,
+            "expectancy_r": 0.0666,
+            "max_dd_r": -12.703,
+            "avg_win_r": 1.948,
+            "avg_loss_r": -1.013,
+            "med_win_r": 1.983,
+            "med_loss_r": -1.017,
+            "worst_r": -1.089,
+            "p95_loss_r": -1.075,
+            "trades_per_week": 16.92,
+            "longest_losing_streak": 12,
+            "anti_cheat_ok": true,
+            "anti_cheat_reasons": []
+          },
+          "final": {
+            "n": 201,
+            "wins": 71,
+            "losses": 130,
+            "wr": 0.3532,
+            "wr_ci95": [
+              0.2886,
+              0.4279
+            ],
+            "pf": 1.023,
+            "expectancy_r": 0.0154,
+            "max_dd_r": -15.59,
+            "avg_win_r": 1.926,
+            "avg_loss_r": -1.028,
+            "med_win_r": 1.977,
+            "med_loss_r": -1.027,
+            "worst_r": -1.082,
+            "p95_loss_r": -1.071,
+            "trades_per_week": 16.34,
+            "longest_losing_streak": 14,
+            "anti_cheat_ok": true,
+            "anti_cheat_reasons": []
+          },
+          "selected_for_final": false,
+          "gates_final": false
+        },
+        "vwap_rejection": {
+          "config": "vwap_reject_R2.0",
+          "family": "vwap_rejection",
+          "params": {
+            "target_r": 2.0,
+            "reason": "bounded R grid 1.0/1.5/2.0"
+          },
+          "train": {
+            "n": 350,
+            "wins": 120,
+            "losses": 230,
+            "wr": 0.3429,
+            "wr_ci95": [
+              0.3,
+              0.3914
+            ],
+            "pf": 0.947,
+            "expectancy_r": -0.0367,
+            "max_dd_r": -30.919,
+            "avg_win_r": 1.902,
+            "avg_loss_r": -1.048,
+            "med_win_r": 1.95,
+            "med_loss_r": -1.038,
+            "worst_r": -1.218,
+            "p95_loss_r": -1.153,
+            "trades_per_week": 9.46,
+            "longest_losing_streak": 11,
+            "anti_cheat_ok": true,
+            "anti_cheat_reasons": []
+          },
+          "val": {
+            "n": 106,
+            "wins": 31,
+            "losses": 75,
+            "wr": 0.2925,
+            "wr_ci95": [
+              0.2075,
+              0.3776
+            ],
+            "pf": 0.781,
+            "expectancy_r": -0.1596,
+            "max_dd_r": -20.88,
+            "avg_win_r": 1.945,
+            "avg_loss_r": -1.03,
+            "med_win_r": 1.976,
+            "med_loss_r": -1.024,
+            "worst_r": -1.144,
+            "p95_loss_r": -1.077,
+            "trades_per_week": 8.82,
+            "longest_losing_streak": 10,
+            "anti_cheat_ok": true,
+            "anti_cheat_reasons": []
+          },
+          "final": {
+            "n": 122,
+            "wins": 31,
+            "losses": 91,
+            "wr": 0.2541,
+            "wr_ci95": [
+              0.1801,
+              0.3279
+            ],
+            "pf": 0.627,
+            "expectancy_r": -0.2888,
+            "max_dd_r": -41.852,
+            "avg_win_r": 1.912,
+            "avg_loss_r": -1.039,
+            "med_win_r": 1.968,
+            "med_loss_r": -1.029,
+            "worst_r": -1.246,
+            "p95_loss_r": -1.105,
+            "trades_per_week": 9.91,
+            "longest_losing_streak": 22,
+            "anti_cheat_ok": true,
+            "anti_cheat_reasons": []
+          },
+          "selected_for_final": false,
+          "gates_final": false
+        },
+        "vwap_mss": {
+          "config": "vwap_mss_R2.0",
+          "family": "vwap_mss",
+          "params": {
+            "target_r": 2.0,
+            "reason": "bounded R grid 1.0/1.5/2.0"
+          },
+          "train": {
+            "n": 226,
+            "wins": 108,
+            "losses": 118,
+            "wr": 0.4779,
+            "wr_ci95": [
+              0.4115,
+              0.5399
+            ],
+            "pf": 1.682,
+            "expectancy_r": 0.3755,
+            "max_dd_r": -6.137,
+            "avg_win_r": 1.938,
+            "avg_loss_r": -1.054,
+            "med_win_r": 1.962,
+            "med_loss_r": -1.044,
+            "worst_r": -1.143,
+            "p95_loss_r": -1.126,
+            "trades_per_week": 6.25,
+            "longest_losing_streak": 6,
+            "anti_cheat_ok": true,
+            "anti_cheat_reasons": []
+          },
+          "val": {
+            "n": 70,
+            "wins": 38,
+            "losses": 32,
+            "wr": 0.5429,
+            "wr_ci95": [
+              0.4143,
+              0.6571
+            ],
+            "pf": 2.286,
+            "expectancy_r": 0.6022,
+            "max_dd_r": -6.071,
+            "avg_win_r": 1.972,
+            "avg_loss_r": -1.024,
+            "med_win_r": 1.98,
+            "med_loss_r": -1.016,
+            "worst_r": -1.08,
+            "p95_loss_r": -1.068,
+            "trades_per_week": 5.9,
+            "longest_losing_streak": 6,
+            "anti_cheat_ok": true,
+            "anti_cheat_reasons": []
+          },
+          "final": {
+            "n": 66,
+            "wins": 38,
+            "losses": 28,
+            "wr": 0.5758,
+            "wr_ci95": [
+              0.4545,
+              0.697
+            ],
+            "pf": 2.539,
+            "expectancy_r": 0.6731,
+            "max_dd_r": -5.165,
+            "avg_win_r": 1.929,
+            "avg_loss_r": -1.031,
+            "med_win_r": 1.983,
+            "med_loss_r": -1.03,
+            "worst_r": -1.079,
+            "p95_loss_r": -1.072,
+            "trades_per_week": 5.44,
+            "longest_losing_streak": 5,
+            "anti_cheat_ok": true,
+            "anti_cheat_reasons": []
+          },
+          "selected_for_final": true,
+          "gates_final": false
+        },
+        "ema_pullback": {
+          "config": "ema_pb_engulf_R2.0",
+          "family": "ema_pullback",
+          "params": {
+            "target_r": 2.0,
+            "reason": "bounded R grid 1.0/1.5/2.0"
+          },
+          "train": {
+            "n": 69,
+            "wins": 26,
+            "losses": 43,
+            "wr": 0.3768,
+            "wr_ci95": [
+              0.2754,
+              0.4783
+            ],
+            "pf": 1.053,
+            "expectancy_r": 0.033,
+            "max_dd_r": -11.818,
+            "avg_win_r": 1.731,
+            "avg_loss_r": -0.994,
+            "med_win_r": 1.974,
+            "med_loss_r": -1.019,
+            "worst_r": -1.101,
+            "p95_loss_r": -1.075,
+            "trades_per_week": 1.91,
+            "longest_losing_streak": 7,
+            "anti_cheat_ok": true,
+            "anti_cheat_reasons": []
+          },
+          "val": {
+            "n": 27,
+            "wins": 13,
+            "losses": 14,
+            "wr": 0.4815,
+            "wr_ci95": [
+              0.2963,
+              0.6667
+            ],
+            "pf": 1.82,
+            "expectancy_r": 0.4305,
+            "max_dd_r": -3.013,
+            "avg_win_r": 1.985,
+            "avg_loss_r": -1.013,
+            "med_win_r": 1.988,
+            "med_loss_r": -1.008,
+            "worst_r": -1.04,
+            "p95_loss_r": -1.033,
+            "trades_per_week": 2.46,
+            "longest_losing_streak": 3,
+            "anti_cheat_ok": true,
+            "anti_cheat_reasons": []
+          },
+          "final": {
+            "n": 28,
+            "wins": 11,
+            "losses": 17,
+            "wr": 0.3929,
+            "wr_ci95": [
+              0.2143,
+              0.5714
+            ],
+            "pf": 1.084,
+            "expectancy_r": 0.0521,
+            "max_dd_r": -5.767,
+            "avg_win_r": 1.704,
+            "avg_loss_r": -1.017,
+            "med_win_r": 1.973,
+            "med_loss_r": -1.01,
+            "worst_r": -1.045,
+            "p95_loss_r": -1.043,
+            "trades_per_week": 2.27,
+            "longest_losing_streak": 4,
+            "anti_cheat_ok": true,
+            "anti_cheat_reasons": []
+          },
+          "selected_for_final": false,
+          "gates_final": false
+        },
+        "trend_continuation": {
+          "config": "trend_cont_R1.0",
+          "family": "trend_continuation",
+          "params": {
+            "target_r": 1.0,
+            "reason": "bounded R grid 1.0/1.5/2.0"
+          },
+          "train": {
+            "n": 173,
+            "wins": 84,
+            "losses": 89,
+            "wr": 0.4855,
+            "wr_ci95": [
+              0.416,
+              0.5607
+            ],
+            "pf": 0.857,
+            "expectancy_r": -0.0773,
+            "max_dd_r": -25.234,
+            "avg_win_r": 0.954,
+            "avg_loss_r": -1.05,
+            "med_win_r": 0.962,
+            "med_loss_r": -1.044,
+            "worst_r": -1.149,
+            "p95_loss_r": -1.11,
+            "trades_per_week": 4.68,
+            "longest_losing_streak": 7,
+            "anti_cheat_ok": true,
+            "anti_cheat_reasons": []
+          },
+          "val": {
+            "n": 61,
+            "wins": 33,
+            "losses": 28,
+            "wr": 0.541,
+            "wr_ci95": [
+              0.4094,
+              0.6725
+            ],
+            "pf": 1.128,
+            "expectancy_r": 0.0599,
+            "max_dd_r": -5.172,
+            "avg_win_r": 0.979,
+            "avg_loss_r": -1.023,
+            "med_win_r": 0.984,
+            "med_loss_r": -1.016,
+            "worst_r": -1.079,
+            "p95_loss_r": -1.068,
+            "trades_per_week": 5.08,
+            "longest_losing_streak": 4,
+            "anti_cheat_ok": true,
+            "anti_cheat_reasons": []
+          },
+          "final": {
+            "n": 58,
+            "wins": 36,
+            "losses": 22,
+            "wr": 0.6207,
+            "wr_ci95": [
+              0.4823,
+              0.7414
+            ],
+            "pf": 1.547,
+            "expectancy_r": 0.2129,
+            "max_dd_r": -4.114,
+            "avg_win_r": 0.97,
+            "avg_loss_r": -1.027,
+            "med_win_r": 0.975,
+            "med_loss_r": -1.021,
+            "worst_r": -1.074,
+            "p95_loss_r": -1.054,
+            "trades_per_week": 4.72,
+            "longest_losing_streak": 4,
+            "anti_cheat_ok": true,
+            "anti_cheat_reasons": []
+          },
+          "selected_for_final": true,
+          "gates_final": false
+        },
+        "breakout_retest": {
+          "config": "breakout_retest_R1.5",
+          "family": "breakout_retest",
+          "params": {
+            "target_r": 1.5,
+            "reason": "bounded R grid 1.0/1.5/2.0"
+          },
+          "train": {
+            "n": 286,
+            "wins": 126,
+            "losses": 160,
+            "wr": 0.4406,
+            "wr_ci95": [
+              0.3776,
+              0.5
+            ],
+            "pf": 1.098,
+            "expectancy_r": 0.0556,
+            "max_dd_r": -16.043,
+            "avg_win_r": 1.419,
+            "avg_loss_r": -1.018,
+            "med_win_r": 1.477,
+            "med_loss_r": -1.022,
+            "worst_r": -1.116,
+            "p95_loss_r": -1.092,
+            "trades_per_week": 7.73,
+            "longest_losing_streak": 10,
+            "anti_cheat_ok": true,
+            "anti_cheat_reasons": []
+          },
+          "val": {
+            "n": 101,
+            "wins": 46,
+            "losses": 55,
+            "wr": 0.4554,
+            "wr_ci95": [
+              0.3564,
+              0.5545
+            ],
+            "pf": 1.199,
+            "expectancy_r": 0.1095,
+            "max_dd_r": -10.152,
+            "avg_win_r": 1.447,
+            "avg_loss_r": -1.009,
+            "med_win_r": 1.489,
+            "med_loss_r": -1.012,
+            "worst_r": -1.066,
+            "p95_loss_r": -1.045,
+            "trades_per_week": 8.49,
+            "longest_losing_streak": 9,
+            "anti_cheat_ok": true,
+            "anti_cheat_reasons": []
+          },
+          "final": {
+            "n": 85,
+            "wins": 32,
+            "losses": 53,
+            "wr": 0.3765,
+            "wr_ci95": [
+              0.2703,
+              0.4824
+            ],
+            "pf": 0.884,
+            "expectancy_r": -0.0709,
+            "max_dd_r": -14.394,
+            "avg_win_r": 1.43,
+            "avg_loss_r": -0.977,
+            "med_win_r": 1.478,
+            "med_loss_r": -1.012,
+            "worst_r": -1.048,
+            "p95_loss_r": -1.04,
+            "trades_per_week": 7.16,
+            "longest_losing_streak": 11,
+            "anti_cheat_ok": true,
+            "anti_cheat_reasons": []
+          },
+          "selected_for_final": false,
+          "gates_final": false
+        },
+        "failed_breakout": {
+          "config": "failed_break_R1.0",
+          "family": "failed_breakout",
+          "params": {
+            "target_r": 1.0,
+            "reason": "bounded R grid 1.0/1.5/2.0"
+          },
+          "train": {
+            "n": 0,
+            "wins": 0,
+            "losses": 0,
+            "wr": 0.0,
+            "wr_ci95": [
+              0.0,
+              0.0
+            ],
+            "pf": 0.0,
+            "expectancy_r": 0.0,
+            "max_dd_r": 0.0,
+            "avg_win_r": 0.0,
+            "avg_loss_r": 0.0,
+            "med_win_r": 0.0,
+            "med_loss_r": 0.0,
+            "worst_r": 0.0,
+            "p95_loss_r": 0.0,
+            "trades_per_week": 0.0,
+            "longest_losing_streak": 0,
+            "anti_cheat_ok": true,
+            "anti_cheat_reasons": []
+          },
+          "val": {
+            "n": 0,
+            "wins": 0,
+            "losses": 0,
+            "wr": 0.0,
+            "wr_ci95": [
+              0.0,
+              0.0
+            ],
+            "pf": 0.0,
+            "expectancy_r": 0.0,
+            "max_dd_r": 0.0,
+            "avg_win_r": 0.0,
+            "avg_loss_r": 0.0,
+            "med_win_r": 0.0,
+            "med_loss_r": 0.0,
+            "worst_r": 0.0,
+            "p95_loss_r": 0.0,
+            "trades_per_week": 0.0,
+            "longest_losing_streak": 0,
+            "anti_cheat_ok": true,
+            "anti_cheat_reasons": []
+          },
+          "final": {
+            "n": 0,
+            "wins": 0,
+            "losses": 0,
+            "wr": 0.0,
+            "wr_ci95": [
+              0.0,
+              0.0
+            ],
+            "pf": 0.0,
+            "expectancy_r": 0.0,
+            "max_dd_r": 0.0,
+            "avg_win_r": 0.0,
+            "avg_loss_r": 0.0,
+            "med_win_r": 0.0,
+            "med_loss_r": 0.0,
+            "worst_r": 0.0,
+            "p95_loss_r": 0.0,
+            "trades_per_week": 0.0,
+            "longest_losing_streak": 0,
+            "anti_cheat_ok": true,
+            "anti_cheat_reasons": []
+          },
+          "selected_for_final": false,
+          "gates_final": false
+        },
+        "momentum": {
+          "config": "momentum_R2.0",
+          "family": "momentum",
+          "params": {
+            "target_r": 2.0,
+            "reason": "bounded R grid 1.0/1.5/2.0"
+          },
+          "train": {
+            "n": 348,
+            "wins": 111,
+            "losses": 237,
+            "wr": 0.319,
+            "wr_ci95": [
+              0.273,
+              0.3649
+            ],
+            "pf": 0.859,
+            "expectancy_r": -0.0997,
+            "max_dd_r": -46.356,
+            "avg_win_r": 1.907,
+            "avg_loss_r": -1.04,
+            "med_win_r": 1.959,
+            "med_loss_r": -1.029,
+            "worst_r": -1.143,
+            "p95_loss_r": -1.108,
+            "trades_per_week": 9.41,
+            "longest_losing_streak": 11,
+            "anti_cheat_ok": true,
+            "anti_cheat_reasons": []
+          },
+          "val": {
+            "n": 109,
+            "wins": 45,
+            "losses": 64,
+            "wr": 0.4128,
+            "wr_ci95": [
+              0.33,
+              0.4954
+            ],
+            "pf": 1.339,
+            "expectancy_r": 0.1998,
+            "max_dd_r": -9.322,
+            "avg_win_r": 1.912,
+            "avg_loss_r": -1.004,
+            "med_win_r": 1.984,
+            "med_loss_r": -1.017,
+            "worst_r": -1.081,
+            "p95_loss_r": -1.063,
+            "trades_per_week": 9.08,
+            "longest_losing_streak": 10,
+            "anti_cheat_ok": true,
+            "anti_cheat_reasons": []
+          },
+          "final": {
+            "n": 134,
+            "wins": 38,
+            "losses": 96,
+            "wr": 0.2836,
+            "wr_ci95": [
+              0.216,
+              0.3657
+            ],
+            "pf": 0.76,
+            "expectancy_r": -0.1757,
+            "max_dd_r": -25.543,
+            "avg_win_r": 1.964,
+            "avg_loss_r": -1.023,
+            "med_win_r": 1.967,
+            "med_loss_r": -1.019,
+            "worst_r": -1.07,
+            "p95_loss_r": -1.053,
+            "trades_per_week": 10.88,
+            "longest_losing_streak": 11,
+            "anti_cheat_ok": true,
+            "anti_cheat_reasons": []
+          },
+          "selected_for_final": false,
+          "gates_final": false
+        },
+        "fvg_retest": {
+          "config": "fvg_R1.0",
+          "family": "fvg_retest",
+          "params": {
+            "target_r": 1.0,
+            "reason": "bounded R grid 1.0/1.5/2.0"
+          },
+          "train": {
+            "n": 0,
+            "wins": 0,
+            "losses": 0,
+            "wr": 0.0,
+            "wr_ci95": [
+              0.0,
+              0.0
+            ],
+            "pf": 0.0,
+            "expectancy_r": 0.0,
+            "max_dd_r": 0.0,
+            "avg_win_r": 0.0,
+            "avg_loss_r": 0.0,
+            "med_win_r": 0.0,
+            "med_loss_r": 0.0,
+            "worst_r": 0.0,
+            "p95_loss_r": 0.0,
+            "trades_per_week": 0.0,
+            "longest_losing_streak": 0,
+            "anti_cheat_ok": true,
+            "anti_cheat_reasons": []
+          },
+          "val": {
+            "n": 0,
+            "wins": 0,
+            "losses": 0,
+            "wr": 0.0,
+            "wr_ci95": [
+              0.0,
+              0.0
+            ],
+            "pf": 0.0,
+            "expectancy_r": 0.0,
+            "max_dd_r": 0.0,
+            "avg_win_r": 0.0,
+            "avg_loss_r": 0.0,
+            "med_win_r": 0.0,
+            "med_loss_r": 0.0,
+            "worst_r": 0.0,
+            "p95_loss_r": 0.0,
+            "trades_per_week": 0.0,
+            "longest_losing_streak": 0,
+            "anti_cheat_ok": true,
+            "anti_cheat_reasons": []
+          },
+          "final": {
+            "n": 138,
+            "wins": 68,
+            "losses": 70,
+            "wr": 0.4928,
+            "wr_ci95": [
+              0.4058,
+              0.5725
+            ],
+            "pf": 0.897,
+            "expectancy_r": -0.0541,
+            "max_dd_r": -20.638,
+            "avg_win_r": 0.957,
+            "avg_loss_r": -1.036,
+            "med_win_r": 0.973,
+            "med_loss_r": -1.022,
+            "worst_r": -1.219,
+            "p95_loss_r": -1.121,
+            "trades_per_week": 27.6,
+            "longest_losing_streak": 7,
+            "anti_cheat_ok": true,
+            "anti_cheat_reasons": []
+          },
+          "selected_for_final": false,
+          "gates_final": false
+        },
+        "fvg_mtf": {
+          "config": "fvg_mtf2_R1.0",
+          "family": "fvg_mtf",
+          "params": {
+            "target_r": 1.0,
+            "reason": "bounded R grid 1.0/1.5/2.0"
+          },
+          "train": {
+            "n": 0,
+            "wins": 0,
+            "losses": 0,
+            "wr": 0.0,
+            "wr_ci95": [
+              0.0,
+              0.0
+            ],
+            "pf": 0.0,
+            "expectancy_r": 0.0,
+            "max_dd_r": 0.0,
+            "avg_win_r": 0.0,
+            "avg_loss_r": 0.0,
+            "med_win_r": 0.0,
+            "med_loss_r": 0.0,
+            "worst_r": 0.0,
+            "p95_loss_r": 0.0,
+            "trades_per_week": 0.0,
+            "longest_losing_streak": 0,
+            "anti_cheat_ok": true,
+            "anti_cheat_reasons": []
+          },
+          "val": {
+            "n": 0,
+            "wins": 0,
+            "losses": 0,
+            "wr": 0.0,
+            "wr_ci95": [
+              0.0,
+              0.0
+            ],
+            "pf": 0.0,
+            "expectancy_r": 0.0,
+            "max_dd_r": 0.0,
+            "avg_win_r": 0.0,
+            "avg_loss_r": 0.0,
+            "med_win_r": 0.0,
+            "med_loss_r": 0.0,
+            "worst_r": 0.0,
+            "p95_loss_r": 0.0,
+            "trades_per_week": 0.0,
+            "longest_losing_streak": 0,
+            "anti_cheat_ok": true,
+            "anti_cheat_reasons": []
+          },
+          "final": {
+            "n": 39,
+            "wins": 21,
+            "losses": 18,
+            "wr": 0.5385,
+            "wr_ci95": [
+              0.3846,
+              0.6929
+            ],
+            "pf": 1.072,
+            "expectancy_r": 0.0349,
+            "max_dd_r": -9.581,
+            "avg_win_r": 0.964,
+            "avg_loss_r": -1.049,
+            "med_win_r": 0.969,
+            "med_loss_r": -1.028,
+            "worst_r": -1.219,
+            "p95_loss_r": -1.121,
+            "trades_per_week": 8.0,
+            "longest_losing_streak": 5,
+            "anti_cheat_ok": true,
+            "anti_cheat_reasons": []
+          },
+          "selected_for_final": false,
+          "gates_final": false
+        },
+        "mss_retest": {
+          "config": "mss_retest_R2.0",
+          "family": "mss_retest",
+          "params": {
+            "target_r": 2.0,
+            "reason": "bounded R grid 1.0/1.5/2.0"
+          },
+          "train": {
+            "n": 135,
+            "wins": 71,
+            "losses": 64,
+            "wr": 0.5259,
+            "wr_ci95": [
+              0.4517,
+              0.6002
+            ],
+            "pf": 1.069,
+            "expectancy_r": 0.0276,
+            "max_dd_r": -9.456,
+            "avg_win_r": 0.811,
+            "avg_loss_r": -0.841,
+            "med_win_r": 0.626,
+            "med_loss_r": -1.004,
+            "worst_r": -1.05,
+            "p95_loss_r": -1.024,
+            "trades_per_week": 3.68,
+            "longest_losing_streak": 6,
+            "anti_cheat_ok": true,
+            "anti_cheat_reasons": []
+          },
+          "val": {
+            "n": 34,
+            "wins": 16,
+            "losses": 18,
+            "wr": 0.4706,
+            "wr_ci95": [
+              0.2941,
+              0.6471
+            ],
+            "pf": 0.708,
+            "expectancy_r": -0.1282,
+            "max_dd_r": -5.712,
+            "avg_win_r": 0.659,
+            "avg_loss_r": -0.828,
+            "med_win_r": 0.343,
+            "med_loss_r": -1.002,
+            "worst_r": -1.024,
+            "p95_loss_r": -1.012,
+            "trades_per_week": 2.75,
+            "longest_losing_streak": 4,
+            "anti_cheat_ok": false,
+            "anti_cheat_reasons": [
+              "tiny_target_or_huge_stop"
+            ]
+          },
+          "final": {
+            "n": 50,
+            "wins": 29,
+            "losses": 21,
+            "wr": 0.58,
+            "wr_ci95": [
+              0.42,
+              0.7005
+            ],
+            "pf": 1.555,
+            "expectancy_r": 0.2163,
+            "max_dd_r": -7.108,
+            "avg_win_r": 1.045,
+            "avg_loss_r": -0.928,
+            "med_win_r": 0.958,
+            "med_loss_r": -1.003,
+            "worst_r": -1.018,
+            "p95_loss_r": -1.015,
+            "trades_per_week": 4.37,
+            "longest_losing_streak": 6,
+            "anti_cheat_ok": true,
+            "anti_cheat_reasons": []
+          },
+          "selected_for_final": false,
+          "gates_final": false
+        },
+        "supply_demand": {
+          "config": "supply_demand_R1.0",
+          "family": "supply_demand",
+          "params": {
+            "target_r": 1.0,
+            "reason": "bounded R grid 1.0/1.5/2.0"
+          },
+          "train": {
+            "n": 419,
+            "wins": 199,
+            "losses": 220,
+            "wr": 0.4749,
+            "wr_ci95": [
+              0.4318,
+              0.5251
+            ],
+            "pf": 0.871,
+            "expectancy_r": -0.0637,
+            "max_dd_r": -28.361,
+            "avg_win_r": 0.903,
+            "avg_loss_r": -0.938,
+            "med_win_r": 0.978,
+            "med_loss_r": -1.012,
+            "worst_r": -1.34,
+            "p95_loss_r": -1.081,
+            "trades_per_week": 11.32,
+            "longest_losing_streak": 6,
+            "anti_cheat_ok": true,
+            "anti_cheat_reasons": []
+          },
+          "val": {
+            "n": 152,
+            "wins": 74,
+            "losses": 78,
+            "wr": 0.4868,
+            "wr_ci95": [
+              0.4145,
+              0.5724
+            ],
+            "pf": 0.869,
+            "expectancy_r": -0.0629,
+            "max_dd_r": -15.343,
+            "avg_win_r": 0.858,
+            "avg_loss_r": -0.937,
+            "med_win_r": 0.989,
+            "med_loss_r": -1.007,
+            "worst_r": -1.113,
+            "p95_loss_r": -1.037,
+            "trades_per_week": 12.34,
+            "longest_losing_streak": 5,
+            "anti_cheat_ok": true,
+            "anti_cheat_reasons": []
+          },
+          "final": {
+            "n": 144,
+            "wins": 70,
+            "losses": 74,
+            "wr": 0.4861,
+            "wr_ci95": [
+              0.4028,
+              0.5625
+            ],
+            "pf": 0.955,
+            "expectancy_r": -0.0218,
+            "max_dd_r": -13.618,
+            "avg_win_r": 0.945,
+            "avg_loss_r": -0.937,
+            "med_win_r": 0.985,
+            "med_loss_r": -1.009,
+            "worst_r": -1.076,
+            "p95_loss_r": -1.038,
+            "trades_per_week": 11.72,
+            "longest_losing_streak": 7,
+            "anti_cheat_ok": true,
+            "anti_cheat_reasons": []
+          },
+          "selected_for_final": false,
+          "gates_final": false
+        },
+        "mtf_ema": {
+          "config": "mtf3_ema_R1.5",
+          "family": "mtf_ema",
+          "params": {
+            "target_r": 1.5,
+            "reason": "bounded R grid 1.0/1.5/2.0"
+          },
+          "train": {
+            "n": 130,
+            "wins": 61,
+            "losses": 69,
+            "wr": 0.4692,
+            "wr_ci95": [
+              0.3844,
+              0.554
+            ],
+            "pf": 1.232,
+            "expectancy_r": 0.1247,
+            "max_dd_r": -8.291,
+            "avg_win_r": 1.412,
+            "avg_loss_r": -1.013,
+            "med_win_r": 1.471,
+            "med_loss_r": -1.023,
+            "worst_r": -1.109,
+            "p95_loss_r": -1.084,
+            "trades_per_week": 3.58,
+            "longest_losing_streak": 7,
+            "anti_cheat_ok": true,
+            "anti_cheat_reasons": []
+          },
+          "val": {
+            "n": 45,
+            "wins": 20,
+            "losses": 25,
+            "wr": 0.4444,
+            "wr_ci95": [
+              0.3111,
+              0.5778
+            ],
+            "pf": 1.167,
+            "expectancy_r": 0.0941,
+            "max_dd_r": -5.573,
+            "avg_win_r": 1.481,
+            "avg_loss_r": -1.015,
+            "med_win_r": 1.486,
+            "med_loss_r": -1.011,
+            "worst_r": -1.064,
+            "p95_loss_r": -1.045,
+            "trades_per_week": 3.75,
+            "longest_losing_streak": 4,
+            "anti_cheat_ok": true,
+            "anti_cheat_reasons": []
+          },
+          "final": {
+            "n": 45,
+            "wins": 22,
+            "losses": 23,
+            "wr": 0.4889,
+            "wr_ci95": [
+              0.3333,
+              0.645
+            ],
+            "pf": 1.349,
+            "expectancy_r": 0.182,
+            "max_dd_r": -6.094,
+            "avg_win_r": 1.44,
+            "avg_loss_r": -1.021,
+            "med_win_r": 1.474,
+            "med_loss_r": -1.018,
+            "worst_r": -1.066,
+            "p95_loss_r": -1.044,
+            "trades_per_week": 3.66,
+            "longest_losing_streak": 6,
+            "anti_cheat_ok": true,
+            "anti_cheat_reasons": []
+          },
+          "selected_for_final": false,
+          "gates_final": false
+        },
+        "opening_range": {
+          "config": "orb5_first_break_vwap1_R1.5",
+          "family": "opening_range",
+          "params": {
+            "target_r": 1.5,
+            "reason": "bounded R grid 1.0/1.5/2.0",
+            "orb_m": 5,
+            "mode": "first_break",
+            "vwap_align": true
+          },
+          "train": {
+            "n": 38,
+            "wins": 20,
+            "losses": 18,
+            "wr": 0.5263,
+            "wr_ci95": [
+              0.3684,
+              0.6842
+            ],
+            "pf": 1.591,
+            "expectancy_r": 0.2576,
+            "max_dd_r": -3.131,
+            "avg_win_r": 1.318,
+            "avg_loss_r": -0.92,
+            "med_win_r": 1.453,
+            "med_loss_r": -1.016,
+            "worst_r": -1.079,
+            "p95_loss_r": -1.066,
+            "trades_per_week": 6.3,
+            "longest_losing_streak": 3,
+            "anti_cheat_ok": true,
+            "anti_cheat_reasons": []
+          },
+          "val": {
+            "n": 16,
+            "wins": 10,
+            "losses": 6,
+            "wr": 0.625,
+            "wr_ci95": [
+              0.4359,
+              0.875
+            ],
+            "pf": 1.727,
+            "expectancy_r": 0.282,
+            "max_dd_r": -2.091,
+            "avg_win_r": 1.072,
+            "avg_loss_r": -1.034,
+            "med_win_r": 1.456,
+            "med_loss_r": -1.035,
+            "worst_r": -1.058,
+            "p95_loss_r": -1.054,
+            "trades_per_week": 10.7,
+            "longest_losing_streak": 2,
+            "anti_cheat_ok": true,
+            "anti_cheat_reasons": []
+          },
+          "final": {
+            "n": 6,
+            "wins": 2,
+            "losses": 4,
+            "wr": 0.3333,
+            "wr_ci95": [
+              0.0,
+              0.6708
+            ],
+            "pf": 0.851,
+            "expectancy_r": -0.0828,
+            "max_dd_r": -1.068,
+            "avg_win_r": 1.421,
+            "avg_loss_r": -0.835,
+            "med_win_r": 1.421,
+            "med_loss_r": -1.012,
+            "worst_r": -1.068,
+            "p95_loss_r": -1.061,
+            "trades_per_week": 6.02,
+            "longest_losing_streak": 2,
+            "anti_cheat_ok": true,
+            "anti_cheat_reasons": []
+          },
+          "selected_for_final": true,
+          "gates_final": false
+        },
+        "orb_failed": {
+          "config": "orb5_failed_R2.0",
+          "family": "orb_failed",
+          "params": {
+            "target_r": 2.0,
+            "reason": "bounded R grid 1.0/1.5/2.0",
+            "orb_m": 5
+          },
+          "train": {
+            "n": 95,
+            "wins": 37,
+            "losses": 58,
+            "wr": 0.3895,
+            "wr_ci95": [
+              0.2842,
+              0.4842
+            ],
+            "pf": 1.182,
+            "expectancy_r": 0.1136,
+            "max_dd_r": -14.137,
+            "avg_win_r": 1.898,
+            "avg_loss_r": -1.025,
+            "med_win_r": 1.948,
+            "med_loss_r": -1.042,
+            "worst_r": -1.429,
+            "p95_loss_r": -1.182,
+            "trades_per_week": 15.46,
+            "longest_losing_streak": 8,
+            "anti_cheat_ok": true,
+            "anti_cheat_reasons": []
+          },
+          "val": {
+            "n": 29,
+            "wins": 14,
+            "losses": 15,
+            "wr": 0.4828,
+            "wr_ci95": [
+              0.3095,
+              0.6552
+            ],
+            "pf": 1.618,
+            "expectancy_r": 0.3348,
+            "max_dd_r": -7.417,
+            "avg_win_r": 1.816,
+            "avg_loss_r": -1.048,
+            "med_win_r": 1.933,
+            "med_loss_r": -1.042,
+            "worst_r": -1.2,
+            "p95_loss_r": -1.106,
+            "trades_per_week": 20.29,
+            "longest_losing_streak": 7,
+            "anti_cheat_ok": true,
+            "anti_cheat_reasons": []
+          },
+          "final": {
+            "n": 26,
+            "wins": 10,
+            "losses": 16,
+            "wr": 0.3846,
+            "wr_ci95": [
+              0.1923,
+              0.5385
+            ],
+            "pf": 1.03,
+            "expectancy_r": 0.0202,
+            "max_dd_r": -8.085,
+            "avg_win_r": 1.794,
+            "avg_loss_r": -1.088,
+            "med_win_r": 1.947,
+            "med_loss_r": -1.071,
+            "worst_r": -1.25,
+            "p95_loss_r": -1.203,
+            "trades_per_week": 18.03,
+            "longest_losing_streak": 5,
+            "anti_cheat_ok": true,
+            "anti_cheat_reasons": []
+          },
+          "selected_for_final": false,
+          "gates_final": false
+        }
+      },
+      "selected": [
+        {
+          "config": "vwap_mss_R2.0",
+          "family": "vwap_mss",
+          "params": {
+            "target_r": 2.0,
+            "reason": "bounded R grid 1.0/1.5/2.0"
+          },
+          "train": {
+            "n": 226,
+            "wins": 108,
+            "losses": 118,
+            "wr": 0.4779,
+            "wr_ci95": [
+              0.4115,
+              0.5399
+            ],
+            "pf": 1.682,
+            "expectancy_r": 0.3755,
+            "max_dd_r": -6.137,
+            "avg_win_r": 1.938,
+            "avg_loss_r": -1.054,
+            "med_win_r": 1.962,
+            "med_loss_r": -1.044,
+            "worst_r": -1.143,
+            "p95_loss_r": -1.126,
+            "trades_per_week": 6.25,
+            "longest_losing_streak": 6,
+            "anti_cheat_ok": true,
+            "anti_cheat_reasons": []
+          },
+          "val": {
+            "n": 70,
+            "wins": 38,
+            "losses": 32,
+            "wr": 0.5429,
+            "wr_ci95": [
+              0.4143,
+              0.6571
+            ],
+            "pf": 2.286,
+            "expectancy_r": 0.6022,
+            "max_dd_r": -6.071,
+            "avg_win_r": 1.972,
+            "avg_loss_r": -1.024,
+            "med_win_r": 1.98,
+            "med_loss_r": -1.016,
+            "worst_r": -1.08,
+            "p95_loss_r": -1.068,
+            "trades_per_week": 5.9,
+            "longest_losing_streak": 6,
+            "anti_cheat_ok": true,
+            "anti_cheat_reasons": []
+          },
+          "final": {
+            "n": 66,
+            "wins": 38,
+            "losses": 28,
+            "wr": 0.5758,
+            "wr_ci95": [
+              0.4545,
+              0.697
+            ],
+            "pf": 2.539,
+            "expectancy_r": 0.6731,
+            "max_dd_r": -5.165,
+            "avg_win_r": 1.929,
+            "avg_loss_r": -1.031,
+            "med_win_r": 1.983,
+            "med_loss_r": -1.03,
+            "worst_r": -1.079,
+            "p95_loss_r": -1.072,
+            "trades_per_week": 5.44,
+            "longest_losing_streak": 5,
+            "anti_cheat_ok": true,
+            "anti_cheat_reasons": []
+          },
+          "selected_for_final": true,
+          "gates_final": false
+        },
+        {
+          "config": "vwap_mss_R1.5",
+          "family": "vwap_mss",
+          "params": {
+            "target_r": 1.5,
+            "reason": "bounded R grid 1.0/1.5/2.0"
+          },
+          "train": {
+            "n": 226,
+            "wins": 123,
+            "losses": 103,
+            "wr": 0.5442,
+            "wr_ci95": [
+              0.4735,
+              0.615
+            ],
+            "pf": 1.642,
+            "expectancy_r": 0.3076,
+            "max_dd_r": -6.137,
+            "avg_win_r": 1.446,
+            "avg_loss_r": -1.052,
+            "med_win_r": 1.451,
+            "med_loss_r": -1.036,
+            "worst_r": -1.143,
+            "p95_loss_r": -1.125,
+            "trades_per_week": 6.25,
+            "longest_losing_streak": 6,
+            "anti_cheat_ok": true,
+            "anti_cheat_reasons": []
+          },
+          "val": {
+            "n": 70,
+            "wins": 41,
+            "losses": 29,
+            "wr": 0.5857,
+            "wr_ci95": [
+              0.4571,
+              0.6861
+            ],
+            "pf": 2.03,
+            "expectancy_r": 0.4379,
+            "max_dd_r": -4.494,
+            "avg_win_r": 1.473,
+            "avg_loss_r": -1.026,
+            "med_win_r": 1.482,
+            "med_loss_r": -1.017,
+            "worst_r": -1.08,
+            "p95_loss_r": -1.068,
+            "trades_per_week": 5.9,
+            "longest_losing_streak": 4,
+            "anti_cheat_ok": true,
+            "anti_cheat_reasons": []
+          },
+          "final": {
+            "n": 66,
+            "wins": 38,
+            "losses": 28,
+            "wr": 0.5758,
+            "wr_ci95": [
+              0.4545,
+              0.697
+            ],
+            "pf": 1.938,
+            "expectancy_r": 0.4105,
+            "max_dd_r": -5.165,
+            "avg_win_r": 1.473,
+            "avg_loss_r": -1.031,
+            "med_win_r": 1.483,
+            "med_loss_r": -1.03,
+            "worst_r": -1.079,
+            "p95_loss_r": -1.072,
+            "trades_per_week": 5.44,
+            "longest_losing_streak": 5,
+            "anti_cheat_ok": true,
+            "anti_cheat_reasons": []
+          },
+          "selected_for_final": true,
+          "gates_final": false
+        },
+        {
+          "config": "vwap_mss_R1.0",
+          "family": "vwap_mss",
+          "params": {
+            "target_r": 1.0,
+            "reason": "bounded R grid 1.0/1.5/2.0"
+          },
+          "train": {
+            "n": 226,
+            "wins": 135,
+            "losses": 91,
+            "wr": 0.5973,
+            "wr_ci95": [
+              0.5265,
+              0.6593
+            ],
+            "pf": 1.334,
+            "expectancy_r": 0.1417,
+            "max_dd_r": -5.569,
+            "avg_win_r": 0.948,
+            "avg_loss_r": -1.054,
+            "med_win_r": 0.957,
+            "med_loss_r": -1.044,
+            "worst_r": -1.143,
+            "p95_loss_r": -1.126,
+            "trades_per_week": 6.25,
+            "longest_losing_streak": 5,
+            "anti_cheat_ok": true,
+            "anti_cheat_reasons": []
+          },
+          "val": {
+            "n": 70,
+            "wins": 47,
+            "losses": 23,
+            "wr": 0.6714,
+            "wr_ci95": [
+              0.5429,
+              0.7714
+            ],
+            "pf": 1.937,
+            "expectancy_r": 0.3165,
+            "max_dd_r": -5.558,
+            "avg_win_r": 0.974,
+            "avg_loss_r": -1.028,
+            "med_win_r": 0.982,
+            "med_loss_r": -1.017,
+            "worst_r": -1.08,
+            "p95_loss_r": -1.068,
+            "trades_per_week": 5.9,
+            "longest_losing_streak": 4,
+            "anti_cheat_ok": true,
+            "anti_cheat_reasons": []
+          },
+          "final": {
+            "n": 66,
+            "wins": 42,
+            "losses": 24,
+            "wr": 0.6364,
+            "wr_ci95": [
+              0.5152,
+              0.7576
+            ],
+            "pf": 1.65,
+            "expectancy_r": 0.2438,
+            "max_dd_r": -5.165,
+            "avg_win_r": 0.973,
+            "avg_loss_r": -1.032,
+            "med_win_r": 0.984,
+            "med_loss_r": -1.031,
+            "worst_r": -1.079,
+            "p95_loss_r": -1.072,
+            "trades_per_week": 5.44,
+            "longest_losing_streak": 5,
+            "anti_cheat_ok": true,
+            "anti_cheat_reasons": []
+          },
+          "selected_for_final": true,
+          "gates_final": false
+        },
+        {
+          "config": "trend_cont_R1.0",
+          "family": "trend_continuation",
+          "params": {
+            "target_r": 1.0,
+            "reason": "bounded R grid 1.0/1.5/2.0"
+          },
+          "train": {
+            "n": 173,
+            "wins": 84,
+            "losses": 89,
+            "wr": 0.4855,
+            "wr_ci95": [
+              0.416,
+              0.5607
+            ],
+            "pf": 0.857,
+            "expectancy_r": -0.0773,
+            "max_dd_r": -25.234,
+            "avg_win_r": 0.954,
+            "avg_loss_r": -1.05,
+            "med_win_r": 0.962,
+            "med_loss_r": -1.044,
+            "worst_r": -1.149,
+            "p95_loss_r": -1.11,
+            "trades_per_week": 4.68,
+            "longest_losing_streak": 7,
+            "anti_cheat_ok": true,
+            "anti_cheat_reasons": []
+          },
+          "val": {
+            "n": 61,
+            "wins": 33,
+            "losses": 28,
+            "wr": 0.541,
+            "wr_ci95": [
+              0.4094,
+              0.6725
+            ],
+            "pf": 1.128,
+            "expectancy_r": 0.0599,
+            "max_dd_r": -5.172,
+            "avg_win_r": 0.979,
+            "avg_loss_r": -1.023,
+            "med_win_r": 0.984,
+            "med_loss_r": -1.016,
+            "worst_r": -1.079,
+            "p95_loss_r": -1.068,
+            "trades_per_week": 5.08,
+            "longest_losing_streak": 4,
+            "anti_cheat_ok": true,
+            "anti_cheat_reasons": []
+          },
+          "final": {
+            "n": 58,
+            "wins": 36,
+            "losses": 22,
+            "wr": 0.6207,
+            "wr_ci95": [
+              0.4823,
+              0.7414
+            ],
+            "pf": 1.547,
+            "expectancy_r": 0.2129,
+            "max_dd_r": -4.114,
+            "avg_win_r": 0.97,
+            "avg_loss_r": -1.027,
+            "med_win_r": 0.975,
+            "med_loss_r": -1.021,
+            "worst_r": -1.074,
+            "p95_loss_r": -1.054,
+            "trades_per_week": 4.72,
+            "longest_losing_streak": 4,
+            "anti_cheat_ok": true,
+            "anti_cheat_reasons": []
+          },
+          "selected_for_final": true,
+          "gates_final": false
+        },
+        {
+          "config": "orb5_first_break_vwap1_R1.0",
+          "family": "opening_range",
+          "params": {
+            "target_r": 1.0,
+            "reason": "bounded R grid 1.0/1.5/2.0",
+            "orb_m": 5,
+            "mode": "first_break",
+            "vwap_align": true
+          },
+          "train": {
+            "n": 38,
+            "wins": 21,
+            "losses": 17,
+            "wr": 0.5526,
+            "wr_ci95": [
+              0.3947,
+              0.7105
+            ],
+            "pf": 1.223,
+            "expectancy_r": 0.0913,
+            "max_dd_r": -3.131,
+            "avg_win_r": 0.905,
+            "avg_loss_r": -0.914,
+            "med_win_r": 0.96,
+            "med_loss_r": -1.013,
+            "worst_r": -1.079,
+            "p95_loss_r": -1.067,
+            "trades_per_week": 6.3,
+            "longest_losing_streak": 3,
+            "anti_cheat_ok": true,
+            "anti_cheat_reasons": []
+          },
+          "val": {
+            "n": 16,
+            "wins": 11,
+            "losses": 5,
+            "wr": 0.6875,
+            "wr_ci95": [
+              0.4375,
+              0.9375
+            ],
+            "pf": 1.582,
+            "expectancy_r": 0.1882,
+            "max_dd_r": -2.091,
+            "avg_win_r": 0.744,
+            "avg_loss_r": -1.034,
+            "med_win_r": 0.957,
+            "med_loss_r": -1.034,
+            "worst_r": -1.058,
+            "p95_loss_r": -1.055,
+            "trades_per_week": 10.7,
+            "longest_losing_streak": 2,
+            "anti_cheat_ok": true,
+            "anti_cheat_reasons": []
+          },
+          "final": {
+            "n": 6,
+            "wins": 3,
+            "losses": 3,
+            "wr": 0.5,
+            "wr_ci95": [
+              0.1667,
+              0.8333
+            ],
+            "pf": 1.222,
+            "expectancy_r": 0.0839,
+            "max_dd_r": -1.019,
+            "avg_win_r": 0.925,
+            "avg_loss_r": -0.757,
+            "med_win_r": 0.932,
+            "med_loss_r": -1.005,
+            "worst_r": -1.019,
+            "p95_loss_r": -1.018,
+            "trades_per_week": 6.02,
+            "longest_losing_streak": 2,
+            "anti_cheat_ok": true,
+            "anti_cheat_reasons": []
+          },
+          "selected_for_final": true,
+          "gates_final": false
+        },
+        {
+          "config": "liq_sweep_MSS_R1.5",
+          "family": "liquidity_sweep_mss",
+          "params": {
+            "target_r": 1.5,
+            "reason": "bounded R grid 1.0/1.5/2.0"
+          },
+          "train": {
+            "n": 90,
+            "wins": 39,
+            "losses": 51,
+            "wr": 0.4333,
+            "wr_ci95": [
+              0.3331,
+              0.5336
+            ],
+            "pf": 0.917,
+            "expectancy_r": -0.0436,
+            "max_dd_r": -12.445,
+            "avg_win_r": 1.113,
+            "avg_loss_r": -0.928,
+            "med_win_r": 1.467,
+            "med_loss_r": -1.011,
+            "worst_r": -1.068,
+            "p95_loss_r": -1.038,
+            "trades_per_week": 2.51,
+            "longest_losing_streak": 6,
+            "anti_cheat_ok": true,
+            "anti_cheat_reasons": []
+          },
+          "val": {
+            "n": 31,
+            "wins": 16,
+            "losses": 15,
+            "wr": 0.5161,
+            "wr_ci95": [
+              0.354,
+              0.6774
+            ],
+            "pf": 1.264,
+            "expectancy_r": 0.1107,
+            "max_dd_r": -5.026,
+            "avg_win_r": 1.025,
+            "avg_loss_r": -0.865,
+            "med_win_r": 1.482,
+            "med_loss_r": -1.006,
+            "worst_r": -1.021,
+            "p95_loss_r": -1.02,
+            "trades_per_week": 2.59,
+            "longest_losing_streak": 5,
+            "anti_cheat_ok": true,
+            "anti_cheat_reasons": []
+          },
+          "final": {
+            "n": 24,
+            "wins": 14,
+            "losses": 10,
+            "wr": 0.5833,
+            "wr_ci95": [
+              0.4156,
+              0.75
+            ],
+            "pf": 1.209,
+            "expectancy_r": 0.0821,
+            "max_dd_r": -3.642,
+            "avg_win_r": 0.815,
+            "avg_loss_r": -0.943,
+            "med_win_r": 0.682,
+            "med_loss_r": -1.005,
+            "worst_r": -1.027,
+            "p95_loss_r": -1.023,
+            "trades_per_week": 2.34,
+            "longest_losing_streak": 2,
+            "anti_cheat_ok": true,
+            "anti_cheat_reasons": []
+          },
+          "selected_for_final": true,
+          "gates_final": false
+        },
+        {
+          "config": "liq_sweep_MSS_R2.0",
+          "family": "liquidity_sweep_mss",
+          "params": {
+            "target_r": 2.0,
+            "reason": "bounded R grid 1.0/1.5/2.0"
+          },
+          "train": {
+            "n": 90,
+            "wins": 38,
+            "losses": 52,
+            "wr": 0.4222,
+            "wr_ci95": [
+              0.3219,
+              0.5225
+            ],
+            "pf": 0.895,
+            "expectancy_r": -0.0565,
+            "max_dd_r": -13.302,
+            "avg_win_r": 1.138,
+            "avg_loss_r": -0.929,
+            "med_win_r": 1.135,
+            "med_loss_r": -1.01,
+            "worst_r": -1.068,
+            "p95_loss_r": -1.038,
+            "trades_per_week": 2.51,
+            "longest_losing_streak": 6,
+            "anti_cheat_ok": true,
+            "anti_cheat_reasons": []
+          },
+          "val": {
+            "n": 31,
+            "wins": 16,
+            "losses": 15,
+            "wr": 0.5161,
+            "wr_ci95": [
+              0.354,
+              0.6774
+            ],
+            "pf": 1.29,
+            "expectancy_r": 0.1214,
+            "max_dd_r": -5.026,
+            "avg_win_r": 1.046,
+            "avg_loss_r": -0.865,
+            "med_win_r": 1.082,
+            "med_loss_r": -1.006,
+            "worst_r": -1.021,
+            "p95_loss_r": -1.02,
+            "trades_per_week": 2.59,
+            "longest_losing_streak": 5,
+            "anti_cheat_ok": true,
+            "anti_cheat_reasons": []
+          },
+          "final": {
+            "n": 24,
+            "wins": 14,
+            "losses": 10,
+            "wr": 0.5833,
+            "wr_ci95": [
+              0.4156,
+              0.75
+            ],
+            "pf": 1.199,
+            "expectancy_r": 0.0783,
+            "max_dd_r": -3.689,
+            "avg_win_r": 0.808,
+            "avg_loss_r": -0.943,
+            "med_win_r": 0.593,
+            "med_loss_r": -1.005,
+            "worst_r": -1.027,
+            "p95_loss_r": -1.023,
+            "trades_per_week": 2.34,
+            "longest_losing_streak": 2,
+            "anti_cheat_ok": true,
+            "anti_cheat_reasons": []
+          },
+          "selected_for_final": true,
+          "gates_final": false
+        },
+        {
+          "config": "orb15_first_break_vwap1_R1.5",
+          "family": "opening_range",
+          "params": {
+            "target_r": 1.5,
+            "reason": "bounded R grid 1.0/1.5/2.0",
+            "orb_m": 15,
+            "mode": "first_break",
+            "vwap_align": true
+          },
+          "train": {
+            "n": 50,
+            "wins": 22,
+            "losses": 28,
+            "wr": 0.44,
+            "wr_ci95": [
+              0.3,
+              0.58
+            ],
+            "pf": 1.177,
+            "expectancy_r": 0.0846,
+            "max_dd_r": -5.214,
+            "avg_win_r": 1.279,
+            "avg_loss_r": -0.854,
+            "med_win_r": 1.449,
+            "med_loss_r": -1.01,
+            "worst_r": -1.068,
+            "p95_loss_r": -1.063,
+            "trades_per_week": 8.14,
+            "longest_losing_streak": 4,
+            "anti_cheat_ok": true,
+            "anti_cheat_reasons": []
+          },
+          "val": {
+            "n": 15,
+            "wins": 9,
+            "losses": 6,
+            "wr": 0.6,
+            "wr_ci95": [
+              0.3333,
+              0.8667
+            ],
+            "pf": 1.212,
+            "expectancy_r": 0.0866,
+            "max_dd_r": -2.038,
+            "avg_win_r": 0.825,
+            "avg_loss_r": -1.021,
+            "med_win_r": 0.609,
+            "med_loss_r": -1.019,
+            "worst_r": -1.051,
+            "p95_loss_r": -1.045,
+            "trades_per_week": 10.03,
+            "longest_losing_streak": 2,
+            "anti_cheat_ok": true,
+            "anti_cheat_reasons": []
+          },
+          "final": {
+            "n": 8,
+            "wins": 3,
+            "losses": 5,
+            "wr": 0.375,
+            "wr_ci95": [
+              0.125,
+              0.75
+            ],
+            "pf": 1.087,
+            "expectancy_r": 0.0354,
+            "max_dd_r": -2.114,
+            "avg_win_r": 1.173,
+            "avg_loss_r": -0.647,
+            "med_win_r": 1.417,
+            "med_loss_r": -0.479,
+            "worst_r": -1.067,
+            "p95_loss_r": -1.063,
+            "trades_per_week": 5.6,
+            "longest_losing_streak": 2,
+            "anti_cheat_ok": true,
+            "anti_cheat_reasons": []
+          },
+          "selected_for_final": true,
+          "gates_final": false
+        },
+        {
+          "config": "orb5_failed_R1.5",
+          "family": "orb_failed",
+          "params": {
+            "target_r": 1.5,
+            "reason": "bounded R grid 1.0/1.5/2.0",
+            "orb_m": 5
+          },
+          "train": {
+            "n": 95,
+            "wins": 38,
+            "losses": 57,
+            "wr": 0.4,
+            "wr_ci95": [
+              0.305,
+              0.495
+            ],
+            "pf": 0.916,
+            "expectancy_r": -0.0521,
+            "max_dd_r": -17.424,
+            "avg_win_r": 1.418,
+            "avg_loss_r": -1.032,
+            "med_win_r": 1.454,
+            "med_loss_r": -1.043,
+            "worst_r": -1.429,
+            "p95_loss_r": -1.184,
+            "trades_per_week": 15.46,
+            "longest_losing_streak": 8,
+            "anti_cheat_ok": true,
+            "anti_cheat_reasons": []
+          },
+          "val": {
+            "n": 29,
+            "wins": 15,
+            "losses": 14,
+            "wr": 0.5172,
+            "wr_ci95": [
+              0.3448,
+              0.6897
+            ],
+            "pf": 1.389,
+            "expectancy_r": 0.1968,
+            "max_dd_r": -5.264,
+            "avg_win_r": 1.359,
+            "avg_loss_r": -1.048,
+            "med_win_r": 1.433,
+            "med_loss_r": -1.038,
+            "worst_r": -1.2,
+            "p95_loss_r": -1.112,
+            "trades_per_week": 20.29,
+            "longest_losing_streak": 5,
+            "anti_cheat_ok": true,
+            "anti_cheat_reasons": []
+          },
+          "final": {
+            "n": 26,
+            "wins": 11,
+            "losses": 15,
+            "wr": 0.4231,
+            "wr_ci95": [
+              0.2308,
+              0.5769
+            ],
+            "pf": 0.91,
+            "expectancy_r": -0.0567,
+            "max_dd_r": -8.751,
+            "avg_win_r": 1.355,
+            "avg_loss_r": -1.092,
+            "med_win_r": 1.448,
+            "med_loss_r": -1.073,
+            "worst_r": -1.25,
+            "p95_loss_r": -1.206,
+            "trades_per_week": 18.03,
+            "longest_losing_streak": 5,
+            "anti_cheat_ok": true,
+            "anti_cheat_reasons": []
+          },
+          "selected_for_final": true,
+          "gates_final": false
+        },
+        {
+          "config": "orb5_first_break_vwap1_R1.5",
+          "family": "opening_range",
+          "params": {
+            "target_r": 1.5,
+            "reason": "bounded R grid 1.0/1.5/2.0",
+            "orb_m": 5,
+            "mode": "first_break",
+            "vwap_align": true
+          },
+          "train": {
+            "n": 38,
+            "wins": 20,
+            "losses": 18,
+            "wr": 0.5263,
+            "wr_ci95": [
+              0.3684,
+              0.6842
+            ],
+            "pf": 1.591,
+            "expectancy_r": 0.2576,
+            "max_dd_r": -3.131,
+            "avg_win_r": 1.318,
+            "avg_loss_r": -0.92,
+            "med_win_r": 1.453,
+            "med_loss_r": -1.016,
+            "worst_r": -1.079,
+            "p95_loss_r": -1.066,
+            "trades_per_week": 6.3,
+            "longest_losing_streak": 3,
+            "anti_cheat_ok": true,
+            "anti_cheat_reasons": []
+          },
+          "val": {
+            "n": 16,
+            "wins": 10,
+            "losses": 6,
+            "wr": 0.625,
+            "wr_ci95": [
+              0.4359,
+              0.875
+            ],
+            "pf": 1.727,
+            "expectancy_r": 0.282,
+            "max_dd_r": -2.091,
+            "avg_win_r": 1.072,
+            "avg_loss_r": -1.034,
+            "med_win_r": 1.456,
+            "med_loss_r": -1.035,
+            "worst_r": -1.058,
+            "p95_loss_r": -1.054,
+            "trades_per_week": 10.7,
+            "longest_losing_streak": 2,
+            "anti_cheat_ok": true,
+            "anti_cheat_reasons": []
+          },
+          "final": {
+            "n": 6,
+            "wins": 2,
+            "losses": 4,
+            "wr": 0.3333,
+            "wr_ci95": [
+              0.0,
+              0.6708
+            ],
+            "pf": 0.851,
+            "expectancy_r": -0.0828,
+            "max_dd_r": -1.068,
+            "avg_win_r": 1.421,
+            "avg_loss_r": -0.835,
+            "med_win_r": 1.421,
+            "med_loss_r": -1.012,
+            "worst_r": -1.068,
+            "p95_loss_r": -1.061,
+            "trades_per_week": 6.02,
+            "longest_losing_streak": 2,
+            "anti_cheat_ok": true,
+            "anti_cheat_reasons": []
+          },
+          "selected_for_final": true,
+          "gates_final": false
+        },
+        {
+          "config": "momentum_R1.0",
+          "family": "momentum",
+          "params": {
+            "target_r": 1.0,
+            "reason": "bounded R grid 1.0/1.5/2.0"
+          },
+          "train": {
+            "n": 348,
+            "wins": 161,
+            "losses": 187,
+            "wr": 0.4626,
+            "wr_ci95": [
+              0.408,
+              0.5144
+            ],
+            "pf": 0.79,
+            "expectancy_r": -0.1168,
+            "max_dd_r": -45.251,
+            "avg_win_r": 0.952,
+            "avg_loss_r": -1.037,
+            "med_win_r": 0.962,
+            "med_loss_r": -1.028,
+            "worst_r": -1.137,
+            "p95_loss_r": -1.106,
+            "trades_per_week": 9.41,
+            "longest_losing_streak": 7,
+            "anti_cheat_ok": true,
+            "anti_cheat_reasons": []
+          },
+          "val": {
+            "n": 109,
+            "wins": 61,
+            "losses": 48,
+            "wr": 0.5596,
+            "wr_ci95": [
+              0.4679,
+              0.633
+            ],
+            "pf": 1.215,
+            "expectancy_r": 0.097,
+            "max_dd_r": -6.781,
+            "avg_win_r": 0.979,
+            "avg_loss_r": -1.024,
+            "med_win_r": 0.985,
+            "med_loss_r": -1.022,
+            "worst_r": -1.079,
+            "p95_loss_r": -1.056,
+            "trades_per_week": 9.08,
+            "longest_losing_streak": 4,
+            "anti_cheat_ok": true,
+            "anti_cheat_reasons": []
+          },
+          "final": {
+            "n": 134,
+            "wins": 61,
+            "losses": 73,
+            "wr": 0.4552,
+            "wr_ci95": [
+              0.3729,
+              0.5375
+            ],
+            "pf": 0.792,
+            "expectancy_r": -0.116,
+            "max_dd_r": -20.331,
+            "avg_win_r": 0.969,
+            "avg_loss_r": -1.023,
+            "med_win_r": 0.979,
+            "med_loss_r": -1.02,
+            "worst_r": -1.068,
+            "p95_loss_r": -1.053,
+            "trades_per_week": 10.88,
+            "longest_losing_streak": 5,
+            "anti_cheat_ok": true,
+            "anti_cheat_reasons": []
+          },
+          "selected_for_final": true,
+          "gates_final": false
+        },
+        {
+          "config": "breakout_retest_R1.0",
+          "family": "breakout_retest",
+          "params": {
+            "target_r": 1.0,
+            "reason": "bounded R grid 1.0/1.5/2.0"
+          },
+          "train": {
+            "n": 286,
+            "wins": 147,
+            "losses": 139,
+            "wr": 0.514,
+            "wr_ci95": [
+              0.458,
+              0.5699
+            ],
+            "pf": 0.996,
+            "expectancy_r": -0.0022,
+            "max_dd_r": -26.085,
+            "avg_win_r": 0.962,
+            "avg_loss_r": -1.022,
+            "med_win_r": 0.98,
+            "med_loss_r": -1.023,
+            "worst_r": -1.116,
+            "p95_loss_r": -1.09,
+            "trades_per_week": 7.73,
+            "longest_losing_streak": 7,
+            "anti_cheat_ok": true,
+            "anti_cheat_reasons": []
+          },
+          "val": {
+            "n": 101,
+            "wins": 56,
+            "losses": 45,
+            "wr": 0.5545,
+            "wr_ci95": [
+              0.4554,
+              0.6438
+            ],
+            "pf": 1.206,
+            "expectancy_r": 0.093,
+            "max_dd_r": -9.152,
+            "avg_win_r": 0.984,
+            "avg_loss_r": -1.016,
+            "med_win_r": 0.989,
+            "med_loss_r": -1.011,
+            "worst_r": -1.051,
+            "p95_loss_r": -1.041,
+            "trades_per_week": 8.49,
+            "longest_losing_streak": 7,
+            "anti_cheat_ok": true,
+            "anti_cheat_reasons": []
+          },
+          "final": {
+            "n": 85,
+            "wins": 36,
+            "losses": 49,
+            "wr": 0.4235,
+            "wr_ci95": [
+              0.3176,
+              0.5294
+            ],
+            "pf": 0.724,
+            "expectancy_r": -0.1576,
+            "max_dd_r": -17.827,
+            "avg_win_r": 0.976,
+            "avg_loss_r": -0.99,
+            "med_win_r": 0.979,
+            "med_loss_r": -1.012,
+            "worst_r": -1.045,
+            "p95_loss_r": -1.038,
+            "trades_per_week": 7.16,
+            "longest_losing_streak": 10,
+            "anti_cheat_ok": true,
+            "anti_cheat_reasons": []
+          },
+          "selected_for_final": true,
+          "gates_final": false
+        },
+        {
+          "config": "orb5_failed_R1.0",
+          "family": "orb_failed",
+          "params": {
+            "target_r": 1.0,
+            "reason": "bounded R grid 1.0/1.5/2.0",
+            "orb_m": 5
+          },
+          "train": {
+            "n": 95,
+            "wins": 44,
+            "losses": 51,
+            "wr": 0.4632,
+            "wr_ci95": [
+              0.3576,
+              0.5684
+            ],
+            "pf": 0.767,
+            "expectancy_r": -0.1304,
+            "max_dd_r": -17.415,
+            "avg_win_r": 0.928,
+            "avg_loss_r": -1.044,
+            "med_win_r": 0.951,
+            "med_loss_r": -1.043,
+            "worst_r": -1.429,
+            "p95_loss_r": -1.167,
+            "trades_per_week": 15.46,
+            "longest_losing_streak": 5,
+            "anti_cheat_ok": true,
+            "anti_cheat_reasons": []
+          },
+          "val": {
+            "n": 29,
+            "wins": 16,
+            "losses": 13,
+            "wr": 0.5517,
+            "wr_ci95": [
+              0.3448,
+              0.7241
+            ],
+            "pf": 1.117,
+            "expectancy_r": 0.0547,
+            "max_dd_r": -5.417,
+            "avg_win_r": 0.949,
+            "avg_loss_r": -1.046,
+            "med_win_r": 0.941,
+            "med_loss_r": -1.034,
+            "worst_r": -1.2,
+            "p95_loss_r": -1.118,
+            "trades_per_week": 20.29,
+            "longest_losing_streak": 5,
+            "anti_cheat_ok": true,
+            "anti_cheat_reasons": []
+          },
+          "final": {
+            "n": 26,
+            "wins": 12,
+            "losses": 14,
+            "wr": 0.4615,
+            "wr_ci95": [
+              0.2692,
+              0.6154
+            ],
+            "pf": 0.708,
+            "expectancy_r": -0.1721,
+            "max_dd_r": -9.085,
+            "avg_win_r": 0.905,
+            "avg_loss_r": -1.095,
+            "med_win_r": 0.952,
+            "med_loss_r": -1.075,
+            "worst_r": -1.25,
+            "p95_loss_r": -1.209,
+            "trades_per_week": 18.03,
+            "longest_losing_streak": 5,
+            "anti_cheat_ok": true,
+            "anti_cheat_reasons": []
+          },
+          "selected_for_final": true,
+          "gates_final": false
+        },
+        {
+          "config": "orb5_first_break_vwap0_R1.0",
+          "family": "opening_range",
+          "params": {
+            "target_r": 1.0,
+            "reason": "bounded R grid 1.0/1.5/2.0",
+            "orb_m": 5,
+            "mode": "first_break",
+            "vwap_align": false
+          },
+          "train": {
+            "n": 43,
+            "wins": 23,
+            "losses": 20,
+            "wr": 0.5349,
+            "wr_ci95": [
+              0.3721,
+              0.6977
+            ],
+            "pf": 1.116,
+            "expectancy_r": 0.0507,
+            "max_dd_r": -3.183,
+            "avg_win_r": 0.911,
+            "avg_loss_r": -0.938,
+            "med_win_r": 0.965,
+            "med_loss_r": -1.023,
+            "worst_r": -1.115,
+            "p95_loss_r": -1.087,
+            "trades_per_week": 7.13,
+            "longest_losing_streak": 3,
+            "anti_cheat_ok": true,
+            "anti_cheat_reasons": []
+          },
+          "val": {
+            "n": 17,
+            "wins": 11,
+            "losses": 6,
+            "wr": 0.6471,
+            "wr_ci95": [
+              0.4118,
+              0.8824
+            ],
+            "pf": 1.422,
+            "expectancy_r": 0.1544,
+            "max_dd_r": -2.186,
+            "avg_win_r": 0.804,
+            "avg_loss_r": -1.036,
+            "med_win_r": 0.957,
+            "med_loss_r": -1.038,
+            "worst_r": -1.058,
+            "p95_loss_r": -1.055,
+            "trades_per_week": 11.9,
+            "longest_losing_streak": 2,
+            "anti_cheat_ok": true,
+            "anti_cheat_reasons": []
+          },
+          "final": {
+            "n": 7,
+            "wins": 2,
+            "losses": 5,
+            "wr": 0.2857,
+            "wr_ci95": [
+              0.0,
+              0.5714
+            ],
+            "pf": 0.428,
+            "expectancy_r": -0.3616,
+            "max_dd_r": -2.401,
+            "avg_win_r": 0.947,
+            "avg_loss_r": -0.885,
+            "med_win_r": 0.947,
+            "med_loss_r": -1.019,
+            "worst_r": -1.103,
+            "p95_loss_r": -1.093,
+            "trades_per_week": 5.46,
+            "longest_losing_streak": 4,
+            "anti_cheat_ok": true,
+            "anti_cheat_reasons": []
+          },
+          "selected_for_final": true,
+          "gates_final": false
+        },
+        {
+          "config": "orb5_first_break_vwap1_R2.0",
+          "family": "opening_range",
+          "params": {
+            "target_r": 2.0,
+            "reason": "bounded R grid 1.0/1.5/2.0",
+            "orb_m": 5,
+            "mode": "first_break",
+            "vwap_align": true
+          },
+          "train": {
+            "n": 38,
+            "wins": 18,
+            "losses": 20,
+            "wr": 0.4737,
+            "wr_ci95": [
+              0.3158,
+              0.6316
+            ],
+            "pf": 1.55,
+            "expectancy_r": 0.2694,
+            "max_dd_r": -3.137,
+            "avg_win_r": 1.603,
+            "avg_loss_r": -0.931,
+            "med_win_r": 1.926,
+            "med_loss_r": -1.016,
+            "worst_r": -1.079,
+            "p95_loss_r": -1.065,
+            "trades_per_week": 6.3,
+            "longest_losing_streak": 3,
+            "anti_cheat_ok": true,
+            "anti_cheat_reasons": []
+          },
+          "val": {
+            "n": 16,
+            "wins": 9,
+            "losses": 7,
+            "wr": 0.5625,
+            "wr_ci95": [
+              0.3125,
+              0.8125
+            ],
+            "pf": 1.539,
+            "expectancy_r": 0.2441,
+            "max_dd_r": -2.091,
+            "avg_win_r": 1.239,
+            "avg_loss_r": -1.035,
+            "med_win_r": 1.945,
+            "med_loss_r": -1.036,
+            "worst_r": -1.058,
+            "p95_loss_r": -1.053,
+            "trades_per_week": 10.7,
+            "longest_losing_streak": 2,
+            "anti_cheat_ok": true,
+            "anti_cheat_reasons": []
+          },
+          "final": {
+            "n": 6,
+            "wins": 1,
+            "losses": 5,
+            "wr": 0.1667,
+            "wr_ci95": [
+              0.0,
+              0.5
+            ],
+            "pf": 0.43,
+            "expectancy_r": -0.4161,
+            "max_dd_r": -3.125,
+            "avg_win_r": 1.88,
+            "avg_loss_r": -0.875,
+            "med_win_r": 1.88,
+            "med_loss_r": -1.019,
+            "worst_r": -1.068,
+            "p95_loss_r": -1.062,
+            "trades_per_week": 6.02,
+            "longest_losing_streak": 3,
+            "anti_cheat_ok": true,
+            "anti_cheat_reasons": []
+          },
+          "selected_for_final": true,
+          "gates_final": false
+        },
+        {
+          "config": "orb5_first_break_vwap0_R1.5",
+          "family": "opening_range",
+          "params": {
+            "target_r": 1.5,
+            "reason": "bounded R grid 1.0/1.5/2.0",
+            "orb_m": 5,
+            "mode": "first_break",
+            "vwap_align": false
+          },
+          "train": {
+            "n": 43,
+            "wins": 22,
+            "losses": 21,
+            "wr": 0.5116,
+            "wr_ci95": [
+              0.3715,
+              0.6517
+            ],
+            "pf": 1.48,
+            "expectancy_r": 0.2209,
+            "max_dd_r": -3.598,
+            "avg_win_r": 1.332,
+            "avg_loss_r": -0.943,
+            "med_win_r": 1.46,
+            "med_loss_r": -1.027,
+            "worst_r": -1.115,
+            "p95_loss_r": -1.086,
+            "trades_per_week": 7.13,
+            "longest_losing_streak": 3,
+            "anti_cheat_ok": true,
+            "anti_cheat_reasons": []
+          },
+          "val": {
+            "n": 17,
+            "wins": 10,
+            "losses": 7,
+            "wr": 0.5882,
+            "wr_ci95": [
+              0.3529,
+              0.8235
+            ],
+            "pf": 1.638,
+            "expectancy_r": 0.2721,
+            "max_dd_r": -2.091,
+            "avg_win_r": 1.188,
+            "avg_loss_r": -1.036,
+            "med_win_r": 1.456,
+            "med_loss_r": -1.037,
+            "worst_r": -1.058,
+            "p95_loss_r": -1.054,
+            "trades_per_week": 11.9,
+            "longest_losing_streak": 2,
+            "anti_cheat_ok": true,
+            "anti_cheat_reasons": []
+          },
+          "final": {
+            "n": 7,
+            "wins": 1,
+            "losses": 6,
+            "wr": 0.1429,
+            "wr_ci95": [
+              0.0,
+              0.4286
+            ],
+            "pf": 0.266,
+            "expectancy_r": -0.5758,
+            "max_dd_r": -3.469,
+            "avg_win_r": 1.462,
+            "avg_loss_r": -0.916,
+            "med_win_r": 1.462,
+            "med_loss_r": -1.035,
+            "worst_r": -1.103,
+            "p95_loss_r": -1.095,
+            "trades_per_week": 5.46,
+            "longest_losing_streak": 5,
+            "anti_cheat_ok": true,
+            "anti_cheat_reasons": []
+          },
+          "selected_for_final": true,
+          "gates_final": false
+        },
+        {
+          "config": "orb5_first_break_vwap0_R2.0",
+          "family": "opening_range",
+          "params": {
+            "target_r": 2.0,
+            "reason": "bounded R grid 1.0/1.5/2.0",
+            "orb_m": 5,
+            "mode": "first_break",
+            "vwap_align": false
+          },
+          "train": {
+            "n": 43,
+            "wins": 20,
+            "losses": 23,
+            "wr": 0.4651,
+            "wr_ci95": [
+              0.3023,
+              0.6279
+            ],
+            "pf": 1.458,
+            "expectancy_r": 0.2329,
+            "max_dd_r": -4.223,
+            "avg_win_r": 1.593,
+            "avg_loss_r": -0.95,
+            "med_win_r": 1.926,
+            "med_loss_r": -1.027,
+            "worst_r": -1.115,
+            "p95_loss_r": -1.085,
+            "trades_per_week": 7.13,
+            "longest_losing_streak": 4,
+            "anti_cheat_ok": true,
+            "anti_cheat_reasons": []
+          },
+          "val": {
+            "n": 17,
+            "wins": 9,
+            "losses": 8,
+            "wr": 0.5294,
+            "wr_ci95": [
+              0.2941,
+              0.7647
+            ],
+            "pf": 1.545,
+            "expectancy_r": 0.2658,
+            "max_dd_r": -2.091,
+            "avg_win_r": 1.423,
+            "avg_loss_r": -1.036,
+            "med_win_r": 1.945,
+            "med_loss_r": -1.036,
+            "worst_r": -1.058,
+            "p95_loss_r": -1.054,
+            "trades_per_week": 11.9,
+            "longest_losing_streak": 2,
+            "anti_cheat_ok": true,
+            "anti_cheat_reasons": []
+          },
+          "final": {
+            "n": 7,
+            "wins": 0,
+            "losses": 7,
+            "wr": 0.0,
+            "wr_ci95": [
+              0.0,
+              0.0
+            ],
+            "pf": 0.0,
+            "expectancy_r": -0.933,
+            "max_dd_r": -5.525,
+            "avg_win_r": 0.0,
+            "avg_loss_r": -0.933,
+            "med_win_r": 0.0,
+            "med_loss_r": -1.038,
+            "worst_r": -1.103,
+            "p95_loss_r": -1.093,
+            "trades_per_week": 5.46,
+            "longest_losing_streak": 7,
+            "anti_cheat_ok": true,
+            "anti_cheat_reasons": []
+          },
+          "selected_for_final": true,
+          "gates_final": false
+        }
+      ],
+      "gate_pass": []
+    },
+    "databento_180d": {
+      "source": "databento_180d",
+      "n_configs": 93,
+      "n_selected": 6,
+      "n_gate_pass_final": 0,
+      "family_best": {
+        "liquidity_sweep_reclaim": {
+          "config": "liq_sweep_PDHPDL_R1.0",
+          "family": "liquidity_sweep_reclaim",
+          "params": {
+            "target_r": 1.0,
+            "reason": "bounded R grid 1.0/1.5/2.0"
+          },
+          "train": {
+            "n": 116,
+            "wins": 43,
+            "losses": 73,
+            "wr": 0.3707,
+            "wr_ci95": [
+              0.2929,
+              0.4569
+            ],
+            "pf": 0.564,
+            "expectancy_r": -0.2394,
+            "max_dd_r": -29.874,
+            "avg_win_r": 0.835,
+            "avg_loss_r": -0.872,
+            "med_win_r": 0.991,
+            "med_loss_r": -1.002,
+            "worst_r": -1.036,
+            "p95_loss_r": -1.011,
+            "trades_per_week": 7.73,
+            "longest_losing_streak": 13,
+            "anti_cheat_ok": true,
+            "anti_cheat_reasons": []
+          },
+          "val": {
+            "n": 39,
+            "wins": 12,
+            "losses": 27,
+            "wr": 0.3077,
+            "wr_ci95": [
+              0.1538,
+              0.4615
+            ],
+            "pf": 0.482,
+            "expectancy_r": -0.3017,
+            "max_dd_r": -12.759,
+            "avg_win_r": 0.914,
+            "avg_loss_r": -0.842,
+            "med_win_r": 0.995,
+            "med_loss_r": -1.002,
+            "worst_r": -1.01,
+            "p95_loss_r": -1.008,
+            "trades_per_week": 7.78,
+            "longest_losing_streak": 6,
+            "anti_cheat_ok": true,
+            "anti_cheat_reasons": []
+          },
+          "final": {
+            "n": 38,
+            "wins": 12,
+            "losses": 26,
+            "wr": 0.3158,
+            "wr_ci95": [
+              0.1579,
+              0.4737
+            ],
+            "pf": 0.462,
+            "expectancy_r": -0.3217,
+            "max_dd_r": -12.212,
+            "avg_win_r": 0.875,
+            "avg_loss_r": -0.874,
+            "med_win_r": 0.996,
+            "med_loss_r": -1.002,
+            "worst_r": -1.009,
+            "p95_loss_r": -1.009,
+            "trades_per_week": 7.82,
+            "longest_losing_streak": 7,
+            "anti_cheat_ok": true,
+            "anti_cheat_reasons": []
+          },
+          "selected_for_final": false,
+          "gates_final": false
+        },
+        "liquidity_sweep_mss": {
+          "config": "liq_sweep_MSS_R1.0",
+          "family": "liquidity_sweep_mss",
+          "params": {
+            "target_r": 1.0,
+            "reason": "bounded R grid 1.0/1.5/2.0"
+          },
+          "train": {
+            "n": 32,
+            "wins": 13,
+            "losses": 19,
+            "wr": 0.4062,
+            "wr_ci95": [
+              0.25,
+              0.5625
+            ],
+            "pf": 0.87,
+            "expectancy_r": -0.0356,
+            "max_dd_r": -3.005,
+            "avg_win_r": 0.588,
+            "avg_loss_r": -0.462,
+            "med_win_r": 0.459,
+            "med_loss_r": -0.336,
+            "worst_r": -1.005,
+            "p95_loss_r": -1.002,
+            "trades_per_week": 2.29,
+            "longest_losing_streak": 6,
+            "anti_cheat_ok": true,
+            "anti_cheat_reasons": []
+          },
+          "val": {
+            "n": 6,
+            "wins": 3,
+            "losses": 3,
+            "wr": 0.5,
+            "wr_ci95": [
+              0.1667,
+              0.8333
+            ],
+            "pf": 1.475,
+            "expectancy_r": 0.1284,
+            "max_dd_r": -1.623,
+            "avg_win_r": 0.798,
+            "avg_loss_r": -0.541,
+            "med_win_r": 0.999,
+            "med_loss_r": -0.368,
+            "worst_r": -1.005,
+            "p95_loss_r": -0.941,
+            "trades_per_week": 1.21,
+            "longest_losing_streak": 3,
+            "anti_cheat_ok": true,
+            "anti_cheat_reasons": []
+          },
+          "final": {
+            "n": 7,
+            "wins": 4,
+            "losses": 3,
+            "wr": 0.5714,
+            "wr_ci95": [
+              0.1429,
+              0.8571
+            ],
+            "pf": 0.425,
+            "expectancy_r": -0.2142,
+            "max_dd_r": -1.605,
+            "avg_win_r": 0.277,
+            "avg_loss_r": -0.869,
+            "med_win_r": 0.207,
+            "med_loss_r": -1.001,
+            "worst_r": -1.005,
+            "p95_loss_r": -1.005,
+            "trades_per_week": 1.72,
+            "longest_losing_streak": 2,
+            "anti_cheat_ok": false,
+            "anti_cheat_reasons": [
+              "tiny_target_or_huge_stop"
+            ]
+          },
+          "selected_for_final": false,
+          "gates_final": false
+        },
+        "sweep_mss_fvg": {
+          "config": "sweep_MSS_disp_R1.0",
+          "family": "sweep_mss_fvg",
+          "params": {
+            "target_r": 1.0,
+            "reason": "bounded R grid 1.0/1.5/2.0"
+          },
+          "train": {
+            "n": 7,
+            "wins": 1,
+            "losses": 6,
+            "wr": 0.1429,
+            "wr_ci95": [
+              0.0,
+              0.4286
+            ],
+            "pf": 0.181,
+            "expectancy_r": -0.6464,
+            "max_dd_r": -4.523,
+            "avg_win_r": 0.999,
+            "avg_loss_r": -0.921,
+            "med_win_r": 0.999,
+            "med_loss_r": -1.005,
+            "worst_r": -1.006,
+            "p95_loss_r": -1.006,
+            "trades_per_week": 0.54,
+            "longest_losing_streak": 5,
+            "anti_cheat_ok": true,
+            "anti_cheat_reasons": []
+          },
+          "val": {
+            "n": 4,
+            "wins": 1,
+            "losses": 3,
+            "wr": 0.25,
+            "wr_ci95": [
+              0.0,
+              0.75
+            ],
+            "pf": 0.453,
+            "expectancy_r": -0.3017,
+            "max_dd_r": -2.206,
+            "avg_win_r": 0.999,
+            "avg_loss_r": -0.735,
+            "med_win_r": 0.999,
+            "med_loss_r": -1.001,
+            "worst_r": -1.006,
+            "p95_loss_r": -1.005,
+            "trades_per_week": 1.87,
+            "longest_losing_streak": 3,
+            "anti_cheat_ok": true,
+            "anti_cheat_reasons": []
+          },
+          "final": {
+            "n": 4,
+            "wins": 1,
+            "losses": 3,
+            "wr": 0.25,
+            "wr_ci95": [
+              0.0,
+              0.5062
+            ],
+            "pf": 0.313,
+            "expectancy_r": -0.3654,
+            "max_dd_r": -1.128,
+            "avg_win_r": 0.667,
+            "avg_loss_r": -0.71,
+            "med_win_r": 0.667,
+            "med_loss_r": -1.001,
+            "worst_r": -1.006,
+            "p95_loss_r": -1.005,
+            "trades_per_week": 1.45,
+            "longest_losing_streak": 2,
+            "anti_cheat_ok": true,
+            "anti_cheat_reasons": []
+          },
+          "selected_for_final": false,
+          "gates_final": false
+        },
+        "vwap_reclaim": {
+          "config": "vwap_reclaim_hold_R1.0",
+          "family": "vwap_reclaim",
+          "params": {
+            "target_r": 1.0,
+            "reason": "bounded R grid 1.0/1.5/2.0"
+          },
+          "train": {
+            "n": 216,
+            "wins": 69,
+            "losses": 147,
+            "wr": 0.3194,
+            "wr_ci95": [
+              0.2593,
+              0.3843
+            ],
+            "pf": 0.476,
+            "expectancy_r": -0.3141,
+            "max_dd_r": -72.771,
+            "avg_win_r": 0.894,
+            "avg_loss_r": -0.881,
+            "med_win_r": 0.996,
+            "med_loss_r": -1.002,
+            "worst_r": -1.068,
+            "p95_loss_r": -1.015,
+            "trades_per_week": 14.41,
+            "longest_losing_streak": 32,
+            "anti_cheat_ok": true,
+            "anti_cheat_reasons": []
+          },
+          "val": {
+            "n": 80,
+            "wins": 29,
+            "losses": 51,
+            "wr": 0.3625,
+            "wr_ci95": [
+              0.275,
+              0.4625
+            ],
+            "pf": 0.55,
+            "expectancy_r": -0.2585,
+            "max_dd_r": -27.714,
+            "avg_win_r": 0.871,
+            "avg_loss_r": -0.901,
+            "med_win_r": 0.996,
+            "med_loss_r": -1.003,
+            "worst_r": -1.016,
+            "p95_loss_r": -1.011,
+            "trades_per_week": 15.94,
+            "longest_losing_streak": 13,
+            "anti_cheat_ok": true,
+            "anti_cheat_reasons": []
+          },
+          "final": {
+            "n": 76,
+            "wins": 20,
+            "losses": 56,
+            "wr": 0.2632,
+            "wr_ci95": [
+              0.1711,
+              0.3553
+            ],
+            "pf": 0.349,
+            "expectancy_r": -0.4471,
+            "max_dd_r": -34.562,
+            "avg_win_r": 0.909,
+            "avg_loss_r": -0.931,
+            "med_win_r": 0.995,
+            "med_loss_r": -1.003,
+            "worst_r": -1.011,
+            "p95_loss_r": -1.01,
+            "trades_per_week": 15.59,
+            "longest_losing_streak": 18,
+            "anti_cheat_ok": true,
+            "anti_cheat_reasons": []
+          },
+          "selected_for_final": false,
+          "gates_final": false
+        },
+        "vwap_rejection": {
+          "config": "vwap_reject_R2.0",
+          "family": "vwap_rejection",
+          "params": {
+            "target_r": 2.0,
+            "reason": "bounded R grid 1.0/1.5/2.0"
+          },
+          "train": {
+            "n": 271,
+            "wins": 174,
+            "losses": 97,
+            "wr": 0.6421,
+            "wr_ci95": [
+              0.5904,
+              0.6975
+            ],
+            "pf": 3.472,
+            "expectancy_r": 0.8295,
+            "max_dd_r": -9.153,
+            "avg_win_r": 1.815,
+            "avg_loss_r": -0.938,
+            "med_win_r": 1.994,
+            "med_loss_r": -1.004,
+            "worst_r": -1.046,
+            "p95_loss_r": -1.021,
+            "trades_per_week": 18.07,
+            "longest_losing_streak": 9,
+            "anti_cheat_ok": true,
+            "anti_cheat_reasons": []
+          },
+          "val": {
+            "n": 93,
+            "wins": 54,
+            "losses": 39,
+            "wr": 0.5806,
+            "wr_ci95": [
+              0.4944,
+              0.6667
+            ],
+            "pf": 2.792,
+            "expectancy_r": 0.6895,
+            "max_dd_r": -3.013,
+            "avg_win_r": 1.85,
+            "avg_loss_r": -0.917,
+            "med_win_r": 1.989,
+            "med_loss_r": -1.003,
+            "worst_r": -1.014,
+            "p95_loss_r": -1.009,
+            "trades_per_week": 18.51,
+            "longest_losing_streak": 4,
+            "anti_cheat_ok": true,
+            "anti_cheat_reasons": []
+          },
+          "final": {
+            "n": 86,
+            "wins": 56,
+            "losses": 30,
+            "wr": 0.6512,
+            "wr_ci95": [
+              0.5349,
+              0.7442
+            ],
+            "pf": 3.49,
+            "expectancy_r": 0.8103,
+            "max_dd_r": -4.033,
+            "avg_win_r": 1.744,
+            "avg_loss_r": -0.933,
+            "med_win_r": 1.988,
+            "med_loss_r": -1.006,
+            "worst_r": -1.024,
+            "p95_loss_r": -1.021,
+            "trades_per_week": 17.66,
+            "longest_losing_streak": 4,
+            "anti_cheat_ok": true,
+            "anti_cheat_reasons": []
+          },
+          "selected_for_final": true,
+          "gates_final": false
+        },
+        "vwap_mss": {
+          "config": "vwap_mss_R1.0",
+          "family": "vwap_mss",
+          "params": {
+            "target_r": 1.0,
+            "reason": "bounded R grid 1.0/1.5/2.0"
+          },
+          "train": {
+            "n": 37,
+            "wins": 13,
+            "losses": 24,
+            "wr": 0.3514,
+            "wr_ci95": [
+              0.2162,
+              0.5135
+            ],
+            "pf": 0.522,
+            "expectancy_r": -0.2798,
+            "max_dd_r": -11.345,
+            "avg_win_r": 0.869,
+            "avg_loss_r": -0.902,
+            "med_win_r": 0.992,
+            "med_loss_r": -1.003,
+            "worst_r": -1.012,
+            "p95_loss_r": -1.01,
+            "trades_per_week": 2.54,
+            "longest_losing_streak": 6,
+            "anti_cheat_ok": true,
+            "anti_cheat_reasons": []
+          },
+          "val": {
+            "n": 21,
+            "wins": 6,
+            "losses": 15,
+            "wr": 0.2857,
+            "wr_ci95": [
+              0.0952,
+              0.4762
+            ],
+            "pf": 0.416,
+            "expectancy_r": -0.3985,
+            "max_dd_r": -8.365,
+            "avg_win_r": 0.995,
+            "avg_loss_r": -0.956,
+            "med_win_r": 0.998,
+            "med_loss_r": -1.003,
+            "worst_r": -1.012,
+            "p95_loss_r": -1.011,
+            "trades_per_week": 4.91,
+            "longest_losing_streak": 8,
+            "anti_cheat_ok": true,
+            "anti_cheat_reasons": []
+          },
+          "final": {
+            "n": 18,
+            "wins": 8,
+            "losses": 10,
+            "wr": 0.4444,
+            "wr_ci95": [
+              0.2222,
+              0.6125
+            ],
+            "pf": 0.814,
+            "expectancy_r": -0.0966,
+            "max_dd_r": -5.362,
+            "avg_win_r": 0.95,
+            "avg_loss_r": -0.934,
+            "med_win_r": 0.996,
+            "med_loss_r": -1.005,
+            "worst_r": -1.012,
+            "p95_loss_r": -1.012,
+            "trades_per_week": 4.52,
+            "longest_losing_streak": 5,
+            "anti_cheat_ok": true,
+            "anti_cheat_reasons": []
+          },
+          "selected_for_final": false,
+          "gates_final": false
+        },
+        "ema_pullback": {
+          "config": "ema_pb_R1.0",
+          "family": "ema_pullback",
+          "params": {
+            "target_r": 1.0,
+            "reason": "bounded R grid 1.0/1.5/2.0"
+          },
+          "train": {
+            "n": 261,
+            "wins": 117,
+            "losses": 144,
+            "wr": 0.4483,
+            "wr_ci95": [
+              0.3869,
+              0.5134
+            ],
+            "pf": 0.937,
+            "expectancy_r": -0.0264,
+            "max_dd_r": -37.871,
+            "avg_win_r": 0.881,
+            "avg_loss_r": -0.763,
+            "med_win_r": 0.997,
+            "med_loss_r": -1.001,
+            "worst_r": -1.012,
+            "p95_loss_r": -1.009,
+            "trades_per_week": 17.54,
+            "longest_losing_streak": 19,
+            "anti_cheat_ok": true,
+            "anti_cheat_reasons": []
+          },
+          "val": {
+            "n": 88,
+            "wins": 26,
+            "losses": 62,
+            "wr": 0.2955,
+            "wr_ci95": [
+              0.2159,
+              0.3864
+            ],
+            "pf": 0.417,
+            "expectancy_r": -0.3213,
+            "max_dd_r": -27.269,
+            "avg_win_r": 0.776,
+            "avg_loss_r": -0.781,
+            "med_win_r": 0.995,
+            "med_loss_r": -1.002,
+            "worst_r": -1.012,
+            "p95_loss_r": -1.008,
+            "trades_per_week": 17.58,
+            "longest_losing_streak": 10,
+            "anti_cheat_ok": true,
+            "anti_cheat_reasons": []
+          },
+          "final": {
+            "n": 84,
+            "wins": 40,
+            "losses": 44,
+            "wr": 0.4762,
+            "wr_ci95": [
+              0.381,
+              0.5952
+            ],
+            "pf": 0.806,
+            "expectancy_r": -0.0823,
+            "max_dd_r": -15.74,
+            "avg_win_r": 0.719,
+            "avg_loss_r": -0.811,
+            "med_win_r": 0.992,
+            "med_loss_r": -1.002,
+            "worst_r": -1.01,
+            "p95_loss_r": -1.009,
+            "trades_per_week": 17.23,
+            "longest_losing_streak": 7,
+            "anti_cheat_ok": true,
+            "anti_cheat_reasons": []
+          },
+          "selected_for_final": false,
+          "gates_final": false
+        },
+        "trend_continuation": {
+          "config": "trend_cont_R1.0",
+          "family": "trend_continuation",
+          "params": {
+            "target_r": 1.0,
+            "reason": "bounded R grid 1.0/1.5/2.0"
+          },
+          "train": {
+            "n": 61,
+            "wins": 35,
+            "losses": 26,
+            "wr": 0.5738,
+            "wr_ci95": [
+              0.4426,
+              0.7049
+            ],
+            "pf": 1.378,
+            "expectancy_r": 0.1566,
+            "max_dd_r": -7.162,
+            "avg_win_r": 0.994,
+            "avg_loss_r": -0.971,
+            "med_win_r": 0.997,
+            "med_loss_r": -1.003,
+            "worst_r": -1.011,
+            "p95_loss_r": -1.01,
+            "trades_per_week": 4.32,
+            "longest_losing_streak": 8,
+            "anti_cheat_ok": true,
+            "anti_cheat_reasons": []
+          },
+          "val": {
+            "n": 18,
+            "wins": 7,
+            "losses": 11,
+            "wr": 0.3889,
+            "wr_ci95": [
+              0.1667,
+              0.6111
+            ],
+            "pf": 0.547,
+            "expectancy_r": -0.2782,
+            "max_dd_r": -6.098,
+            "avg_win_r": 0.865,
+            "avg_loss_r": -1.006,
+            "med_win_r": 0.992,
+            "med_loss_r": -1.005,
+            "worst_r": -1.012,
+            "p95_loss_r": -1.011,
+            "trades_per_week": 3.95,
+            "longest_losing_streak": 5,
+            "anti_cheat_ok": true,
+            "anti_cheat_reasons": []
+          },
+          "final": {
+            "n": 17,
+            "wins": 10,
+            "losses": 7,
+            "wr": 0.5882,
+            "wr_ci95": [
+              0.3529,
+              0.8235
+            ],
+            "pf": 1.41,
+            "expectancy_r": 0.1698,
+            "max_dd_r": -2.008,
+            "avg_win_r": 0.992,
+            "avg_loss_r": -1.005,
+            "med_win_r": 0.99,
+            "med_loss_r": -1.003,
+            "worst_r": -1.011,
+            "p95_loss_r": -1.011,
+            "trades_per_week": 4.07,
+            "longest_losing_streak": 2,
+            "anti_cheat_ok": true,
+            "anti_cheat_reasons": []
+          },
+          "selected_for_final": false,
+          "gates_final": false
+        },
+        "breakout_retest": {
+          "config": "breakout_retest_R2.0",
+          "family": "breakout_retest",
+          "params": {
+            "target_r": 2.0,
+            "reason": "bounded R grid 1.0/1.5/2.0"
+          },
+          "train": {
+            "n": 41,
+            "wins": 5,
+            "losses": 36,
+            "wr": 0.122,
+            "wr_ci95": [
+              0.0488,
+              0.2195
+            ],
+            "pf": 0.216,
+            "expectancy_r": -0.6918,
+            "max_dd_r": -27.361,
+            "avg_win_r": 1.564,
+            "avg_loss_r": -1.005,
+            "med_win_r": 1.997,
+            "med_loss_r": -1.003,
+            "worst_r": -1.015,
+            "p95_loss_r": -1.012,
+            "trades_per_week": 2.79,
+            "longest_losing_streak": 25,
+            "anti_cheat_ok": true,
+            "anti_cheat_reasons": []
+          },
+          "val": {
+            "n": 22,
+            "wins": 1,
+            "losses": 21,
+            "wr": 0.0455,
+            "wr_ci95": [
+              0.0,
+              0.1364
+            ],
+            "pf": 0.103,
+            "expectancy_r": -0.7922,
+            "max_dd_r": -19.426,
+            "avg_win_r": 1.998,
+            "avg_loss_r": -0.925,
+            "med_win_r": 1.998,
+            "med_loss_r": -1.002,
+            "worst_r": -1.012,
+            "p95_loss_r": -1.011,
+            "trades_per_week": 4.78,
+            "longest_losing_streak": 21,
+            "anti_cheat_ok": true,
+            "anti_cheat_reasons": []
+          },
+          "final": {
+            "n": 19,
+            "wins": 4,
+            "losses": 15,
+            "wr": 0.2105,
+            "wr_ci95": [
+              0.0526,
+              0.4211
+            ],
+            "pf": 0.329,
+            "expectancy_r": -0.5321,
+            "max_dd_r": -11.484,
+            "avg_win_r": 1.241,
+            "avg_loss_r": -1.005,
+            "med_win_r": 1.188,
+            "med_loss_r": -1.002,
+            "worst_r": -1.014,
+            "p95_loss_r": -1.012,
+            "trades_per_week": 4.02,
+            "longest_losing_streak": 8,
+            "anti_cheat_ok": true,
+            "anti_cheat_reasons": []
+          },
+          "selected_for_final": false,
+          "gates_final": false
+        },
+        "failed_breakout": {
+          "config": "failed_break_R1.0",
+          "family": "failed_breakout",
+          "params": {
+            "target_r": 1.0,
+            "reason": "bounded R grid 1.0/1.5/2.0"
+          },
+          "train": {
+            "n": 0,
+            "wins": 0,
+            "losses": 0,
+            "wr": 0.0,
+            "wr_ci95": [
+              0.0,
+              0.0
+            ],
+            "pf": 0.0,
+            "expectancy_r": 0.0,
+            "max_dd_r": 0.0,
+            "avg_win_r": 0.0,
+            "avg_loss_r": 0.0,
+            "med_win_r": 0.0,
+            "med_loss_r": 0.0,
+            "worst_r": 0.0,
+            "p95_loss_r": 0.0,
+            "trades_per_week": 0.0,
+            "longest_losing_streak": 0,
+            "anti_cheat_ok": true,
+            "anti_cheat_reasons": []
+          },
+          "val": {
+            "n": 0,
+            "wins": 0,
+            "losses": 0,
+            "wr": 0.0,
+            "wr_ci95": [
+              0.0,
+              0.0
+            ],
+            "pf": 0.0,
+            "expectancy_r": 0.0,
+            "max_dd_r": 0.0,
+            "avg_win_r": 0.0,
+            "avg_loss_r": 0.0,
+            "med_win_r": 0.0,
+            "med_loss_r": 0.0,
+            "worst_r": 0.0,
+            "p95_loss_r": 0.0,
+            "trades_per_week": 0.0,
+            "longest_losing_streak": 0,
+            "anti_cheat_ok": true,
+            "anti_cheat_reasons": []
+          },
+          "final": {
+            "n": 0,
+            "wins": 0,
+            "losses": 0,
+            "wr": 0.0,
+            "wr_ci95": [
+              0.0,
+              0.0
+            ],
+            "pf": 0.0,
+            "expectancy_r": 0.0,
+            "max_dd_r": 0.0,
+            "avg_win_r": 0.0,
+            "avg_loss_r": 0.0,
+            "med_win_r": 0.0,
+            "med_loss_r": 0.0,
+            "worst_r": 0.0,
+            "p95_loss_r": 0.0,
+            "trades_per_week": 0.0,
+            "longest_losing_streak": 0,
+            "anti_cheat_ok": true,
+            "anti_cheat_reasons": []
+          },
+          "selected_for_final": false,
+          "gates_final": false
+        },
+        "momentum": {
+          "config": "momentum_R1.0",
+          "family": "momentum",
+          "params": {
+            "target_r": 1.0,
+            "reason": "bounded R grid 1.0/1.5/2.0"
+          },
+          "train": {
+            "n": 241,
+            "wins": 52,
+            "losses": 189,
+            "wr": 0.2158,
+            "wr_ci95": [
+              0.1618,
+              0.2657
+            ],
+            "pf": 0.253,
+            "expectancy_r": -0.5319,
+            "max_dd_r": -129.173,
+            "avg_win_r": 0.834,
+            "avg_loss_r": -0.908,
+            "med_win_r": 0.996,
+            "med_loss_r": -1.002,
+            "worst_r": -1.015,
+            "p95_loss_r": -1.012,
+            "trades_per_week": 16.1,
+            "longest_losing_streak": 24,
+            "anti_cheat_ok": true,
+            "anti_cheat_reasons": []
+          },
+          "val": {
+            "n": 90,
+            "wins": 19,
+            "losses": 71,
+            "wr": 0.2111,
+            "wr_ci95": [
+              0.1333,
+              0.3
+            ],
+            "pf": 0.235,
+            "expectancy_r": -0.5606,
+            "max_dd_r": -49.456,
+            "avg_win_r": 0.816,
+            "avg_loss_r": -0.929,
+            "med_win_r": 0.997,
+            "med_loss_r": -1.003,
+            "worst_r": -1.013,
+            "p95_loss_r": -1.012,
+            "trades_per_week": 17.87,
+            "longest_losing_streak": 10,
+            "anti_cheat_ok": true,
+            "anti_cheat_reasons": []
+          },
+          "final": {
+            "n": 86,
+            "wins": 20,
+            "losses": 66,
+            "wr": 0.2326,
+            "wr_ci95": [
+              0.1628,
+              0.3026
+            ],
+            "pf": 0.263,
+            "expectancy_r": -0.5271,
+            "max_dd_r": -49.605,
+            "avg_win_r": 0.809,
+            "avg_loss_r": -0.932,
+            "med_win_r": 0.996,
+            "med_loss_r": -1.002,
+            "worst_r": -1.012,
+            "p95_loss_r": -1.01,
+            "trades_per_week": 17.6,
+            "longest_losing_streak": 18,
+            "anti_cheat_ok": true,
+            "anti_cheat_reasons": []
+          },
+          "selected_for_final": false,
+          "gates_final": false
+        },
+        "fvg_retest": {
+          "config": "fvg_R1.5",
+          "family": "fvg_retest",
+          "params": {
+            "target_r": 1.5,
+            "reason": "bounded R grid 1.0/1.5/2.0"
+          },
+          "train": {
+            "n": 32,
+            "wins": 9,
+            "losses": 23,
+            "wr": 0.2812,
+            "wr_ci95": [
+              0.125,
+              0.4383
+            ],
+            "pf": 0.619,
+            "expectancy_r": -0.2572,
+            "max_dd_r": -12.596,
+            "avg_win_r": 1.486,
+            "avg_loss_r": -0.939,
+            "med_win_r": 1.492,
+            "med_loss_r": -1.005,
+            "worst_r": -1.037,
+            "p95_loss_r": -1.014,
+            "trades_per_week": 2.6,
+            "longest_losing_streak": 11,
+            "anti_cheat_ok": true,
+            "anti_cheat_reasons": []
+          },
+          "val": {
+            "n": 4,
+            "wins": 0,
+            "losses": 4,
+            "wr": 0.0,
+            "wr_ci95": [
+              0.0,
+              0.0
+            ],
+            "pf": 0.0,
+            "expectancy_r": -1.0086,
+            "max_dd_r": -3.033,
+            "avg_win_r": 0.0,
+            "avg_loss_r": -1.009,
+            "med_win_r": 0.0,
+            "med_loss_r": -1.01,
+            "worst_r": -1.012,
+            "p95_loss_r": -1.012,
+            "trades_per_week": 1.77,
+            "longest_losing_streak": 4,
+            "anti_cheat_ok": true,
+            "anti_cheat_reasons": []
+          },
+          "final": {
+            "n": 7,
+            "wins": 1,
+            "losses": 6,
+            "wr": 0.1429,
+            "wr_ci95": [
+              0.0,
+              0.4286
+            ],
+            "pf": 0.245,
+            "expectancy_r": -0.6536,
+            "max_dd_r": -3.565,
+            "avg_win_r": 1.484,
+            "avg_loss_r": -1.01,
+            "med_win_r": 1.484,
+            "med_loss_r": -1.01,
+            "worst_r": -1.014,
+            "p95_loss_r": -1.013,
+            "trades_per_week": 2.69,
+            "longest_losing_streak": 3,
+            "anti_cheat_ok": true,
+            "anti_cheat_reasons": []
+          },
+          "selected_for_final": false,
+          "gates_final": false
+        },
+        "fvg_mtf": {
+          "config": "fvg_mtf3_R2.0",
+          "family": "fvg_mtf",
+          "params": {
+            "target_r": 2.0,
+            "reason": "bounded R grid 1.0/1.5/2.0"
+          },
+          "train": {
+            "n": 2,
+            "wins": 1,
+            "losses": 1,
+            "wr": 0.5,
+            "wr_ci95": [
+              0.0,
+              1.0
+            ],
+            "pf": 1.971,
+            "expectancy_r": 0.4874,
+            "max_dd_r": 0.0,
+            "avg_win_r": 1.979,
+            "avg_loss_r": -1.004,
+            "med_win_r": 1.979,
+            "med_loss_r": -1.004,
+            "worst_r": -1.004,
+            "p95_loss_r": -1.004,
+            "trades_per_week": 0.21,
+            "longest_losing_streak": 1,
+            "anti_cheat_ok": true,
+            "anti_cheat_reasons": []
+          },
+          "val": {
+            "n": 0,
+            "wins": 0,
+            "losses": 0,
+            "wr": 0.0,
+            "wr_ci95": [
+              0.0,
+              0.0
+            ],
+            "pf": 0.0,
+            "expectancy_r": 0.0,
+            "max_dd_r": 0.0,
+            "avg_win_r": 0.0,
+            "avg_loss_r": 0.0,
+            "med_win_r": 0.0,
+            "med_loss_r": 0.0,
+            "worst_r": 0.0,
+            "p95_loss_r": 0.0,
+            "trades_per_week": 0.0,
+            "longest_losing_streak": 0,
+            "anti_cheat_ok": true,
+            "anti_cheat_reasons": []
+          },
+          "final": {
+            "n": 0,
+            "wins": 0,
+            "losses": 0,
+            "wr": 0.0,
+            "wr_ci95": [
+              0.0,
+              0.0
+            ],
+            "pf": 0.0,
+            "expectancy_r": 0.0,
+            "max_dd_r": 0.0,
+            "avg_win_r": 0.0,
+            "avg_loss_r": 0.0,
+            "med_win_r": 0.0,
+            "med_loss_r": 0.0,
+            "worst_r": 0.0,
+            "p95_loss_r": 0.0,
+            "trades_per_week": 0.0,
+            "longest_losing_streak": 0,
+            "anti_cheat_ok": true,
+            "anti_cheat_reasons": []
+          },
+          "selected_for_final": false,
+          "gates_final": false
+        },
+        "mss_retest": {
+          "config": "mss_retest_R1.0",
+          "family": "mss_retest",
+          "params": {
+            "target_r": 1.0,
+            "reason": "bounded R grid 1.0/1.5/2.0"
+          },
+          "train": {
+            "n": 32,
+            "wins": 7,
+            "losses": 25,
+            "wr": 0.2188,
+            "wr_ci95": [
+              0.0938,
+              0.375
+            ],
+            "pf": 0.164,
+            "expectancy_r": -0.4329,
+            "max_dd_r": -13.51,
+            "avg_win_r": 0.387,
+            "avg_loss_r": -0.663,
+            "med_win_r": 0.216,
+            "med_loss_r": -0.723,
+            "worst_r": -1.005,
+            "p95_loss_r": -1.004,
+            "trades_per_week": 2.23,
+            "longest_losing_streak": 10,
+            "anti_cheat_ok": false,
+            "anti_cheat_reasons": [
+              "tiny_target_or_huge_stop"
+            ]
+          },
+          "val": {
+            "n": 20,
+            "wins": 7,
+            "losses": 13,
+            "wr": 0.35,
+            "wr_ci95": [
+              0.2,
+              0.55
+            ],
+            "pf": 0.46,
+            "expectancy_r": -0.1819,
+            "max_dd_r": -4.756,
+            "avg_win_r": 0.443,
+            "avg_loss_r": -0.518,
+            "med_win_r": 0.395,
+            "med_loss_r": -0.367,
+            "worst_r": -1.003,
+            "p95_loss_r": -1.002,
+            "trades_per_week": 4.03,
+            "longest_losing_streak": 6,
+            "anti_cheat_ok": true,
+            "anti_cheat_reasons": []
+          },
+          "final": {
+            "n": 14,
+            "wins": 2,
+            "losses": 12,
+            "wr": 0.1429,
+            "wr_ci95": [
+              0.0,
+              0.3571
+            ],
+            "pf": 0.143,
+            "expectancy_r": -0.487,
+            "max_dd_r": -6.628,
+            "avg_win_r": 0.567,
+            "avg_loss_r": -0.663,
+            "med_win_r": 0.567,
+            "med_loss_r": -0.584,
+            "worst_r": -1.006,
+            "p95_loss_r": -1.005,
+            "trades_per_week": 3.49,
+            "longest_losing_streak": 8,
+            "anti_cheat_ok": true,
+            "anti_cheat_reasons": []
+          },
+          "selected_for_final": false,
+          "gates_final": false
+        },
+        "supply_demand": {
+          "config": "supply_demand_R1.0",
+          "family": "supply_demand",
+          "params": {
+            "target_r": 1.0,
+            "reason": "bounded R grid 1.0/1.5/2.0"
+          },
+          "train": {
+            "n": 44,
+            "wins": 28,
+            "losses": 16,
+            "wr": 0.6364,
+            "wr_ci95": [
+              0.5,
+              0.7727
+            ],
+            "pf": 1.627,
+            "expectancy_r": 0.1905,
+            "max_dd_r": -3.349,
+            "avg_win_r": 0.777,
+            "avg_loss_r": -0.835,
+            "med_win_r": 0.994,
+            "med_loss_r": -1.001,
+            "worst_r": -1.008,
+            "p95_loss_r": -1.007,
+            "trades_per_week": 3.09,
+            "longest_losing_streak": 4,
+            "anti_cheat_ok": true,
+            "anti_cheat_reasons": []
+          },
+          "val": {
+            "n": 12,
+            "wins": 5,
+            "losses": 7,
+            "wr": 0.4167,
+            "wr_ci95": [
+              0.1646,
+              0.6667
+            ],
+            "pf": 1.052,
+            "expectancy_r": 0.0136,
+            "max_dd_r": -1.024,
+            "avg_win_r": 0.66,
+            "avg_loss_r": -0.448,
+            "med_win_r": 0.976,
+            "med_loss_r": -0.343,
+            "worst_r": -1.009,
+            "p95_loss_r": -1.008,
+            "trades_per_week": 2.61,
+            "longest_losing_streak": 4,
+            "anti_cheat_ok": true,
+            "anti_cheat_reasons": []
+          },
+          "final": {
+            "n": 15,
+            "wins": 9,
+            "losses": 6,
+            "wr": 0.6,
+            "wr_ci95": [
+              0.4,
+              0.8
+            ],
+            "pf": 1.983,
+            "expectancy_r": 0.2938,
+            "max_dd_r": -1.009,
+            "avg_win_r": 0.988,
+            "avg_loss_r": -0.747,
+            "med_win_r": 0.988,
+            "med_loss_r": -1.001,
+            "worst_r": -1.009,
+            "p95_loss_r": -1.008,
+            "trades_per_week": 3.17,
+            "longest_losing_streak": 2,
+            "anti_cheat_ok": true,
+            "anti_cheat_reasons": []
+          },
+          "selected_for_final": true,
+          "gates_final": false
+        },
+        "mtf_ema": {
+          "config": "mtf3_ema_R1.5",
+          "family": "mtf_ema",
+          "params": {
+            "target_r": 1.5,
+            "reason": "bounded R grid 1.0/1.5/2.0"
+          },
+          "train": {
+            "n": 110,
+            "wins": 41,
+            "losses": 69,
+            "wr": 0.3727,
+            "wr_ci95": [
+              0.2818,
+              0.4636
+            ],
+            "pf": 0.877,
+            "expectancy_r": -0.0579,
+            "max_dd_r": -25.441,
+            "avg_win_r": 1.11,
+            "avg_loss_r": -0.752,
+            "med_win_r": 1.491,
+            "med_loss_r": -1.001,
+            "worst_r": -1.01,
+            "p95_loss_r": -1.007,
+            "trades_per_week": 7.4,
+            "longest_losing_streak": 18,
+            "anti_cheat_ok": true,
+            "anti_cheat_reasons": []
+          },
+          "val": {
+            "n": 39,
+            "wins": 10,
+            "losses": 29,
+            "wr": 0.2564,
+            "wr_ci95": [
+              0.1538,
+              0.4103
+            ],
+            "pf": 0.38,
+            "expectancy_r": -0.3655,
+            "max_dd_r": -13.252,
+            "avg_win_r": 0.873,
+            "avg_loss_r": -0.793,
+            "med_win_r": 1.051,
+            "med_loss_r": -1.002,
+            "worst_r": -1.007,
+            "p95_loss_r": -1.006,
+            "trades_per_week": 7.79,
+            "longest_losing_streak": 8,
+            "anti_cheat_ok": true,
+            "anti_cheat_reasons": []
+          },
+          "final": {
+            "n": 36,
+            "wins": 17,
+            "losses": 19,
+            "wr": 0.4722,
+            "wr_ci95": [
+              0.3333,
+              0.6389
+            ],
+            "pf": 0.855,
+            "expectancy_r": -0.0651,
+            "max_dd_r": -7.713,
+            "avg_win_r": 0.811,
+            "avg_loss_r": -0.849,
+            "med_win_r": 0.575,
+            "med_loss_r": -1.002,
+            "worst_r": -1.01,
+            "p95_loss_r": -1.01,
+            "trades_per_week": 7.4,
+            "longest_losing_streak": 4,
+            "anti_cheat_ok": true,
+            "anti_cheat_reasons": []
+          },
+          "selected_for_final": false,
+          "gates_final": false
+        },
+        "opening_range": {
+          "config": "orb15_first_break_vwap1_R1.0",
+          "family": "opening_range",
+          "params": {
+            "target_r": 1.0,
+            "reason": "bounded R grid 1.0/1.5/2.0",
+            "orb_m": 15,
+            "mode": "first_break",
+            "vwap_align": true
+          },
+          "train": {
+            "n": 81,
+            "wins": 13,
+            "losses": 68,
+            "wr": 0.1605,
+            "wr_ci95": [
+              0.0741,
+              0.2349
+            ],
+            "pf": 0.128,
+            "expectancy_r": -0.6211,
+            "max_dd_r": -49.303,
+            "avg_win_r": 0.566,
+            "avg_loss_r": -0.848,
+            "med_win_r": 0.409,
+            "med_loss_r": -1.002,
+            "worst_r": -1.013,
+            "p95_loss_r": -1.01,
+            "trades_per_week": 5.4,
+            "longest_losing_streak": 26,
+            "anti_cheat_ok": true,
+            "anti_cheat_reasons": []
+          },
+          "val": {
+            "n": 29,
+            "wins": 5,
+            "losses": 24,
+            "wr": 0.1724,
+            "wr_ci95": [
+              0.0681,
+              0.3103
+            ],
+            "pf": 0.179,
+            "expectancy_r": -0.5131,
+            "max_dd_r": -13.878,
+            "avg_win_r": 0.649,
+            "avg_loss_r": -0.755,
+            "med_win_r": 0.868,
+            "med_loss_r": -1.001,
+            "worst_r": -1.012,
+            "p95_loss_r": -1.008,
+            "trades_per_week": 5.8,
+            "longest_losing_streak": 10,
+            "anti_cheat_ok": true,
+            "anti_cheat_reasons": []
+          },
+          "final": {
+            "n": 25,
+            "wins": 4,
+            "losses": 21,
+            "wr": 0.16,
+            "wr_ci95": [
+              0.04,
+              0.32
+            ],
+            "pf": 0.134,
+            "expectancy_r": -0.618,
+            "max_dd_r": -14.472,
+            "avg_win_r": 0.6,
+            "avg_loss_r": -0.85,
+            "med_win_r": 0.69,
+            "med_loss_r": -1.002,
+            "worst_r": -1.01,
+            "p95_loss_r": -1.009,
+            "trades_per_week": 5.74,
+            "longest_losing_streak": 9,
+            "anti_cheat_ok": true,
+            "anti_cheat_reasons": []
+          },
+          "selected_for_final": false,
+          "gates_final": false
+        },
+        "orb_failed": {
+          "config": "orb15_failed_R1.0",
+          "family": "orb_failed",
+          "params": {
+            "target_r": 1.0,
+            "reason": "bounded R grid 1.0/1.5/2.0",
+            "orb_m": 15
+          },
+          "train": {
+            "n": 247,
+            "wins": 52,
+            "losses": 195,
+            "wr": 0.2105,
+            "wr_ci95": [
+              0.1579,
+              0.2632
+            ],
+            "pf": 0.251,
+            "expectancy_r": -0.5573,
+            "max_dd_r": -136.65,
+            "avg_win_r": 0.887,
+            "avg_loss_r": -0.942,
+            "med_win_r": 0.989,
+            "med_loss_r": -1.003,
+            "worst_r": -1.2,
+            "p95_loss_r": -1.015,
+            "trades_per_week": 16.3,
+            "longest_losing_streak": 21,
+            "anti_cheat_ok": true,
+            "anti_cheat_reasons": []
+          },
+          "val": {
+            "n": 84,
+            "wins": 27,
+            "losses": 57,
+            "wr": 0.3214,
+            "wr_ci95": [
+              0.2143,
+              0.4167
+            ],
+            "pf": 0.376,
+            "expectancy_r": -0.4165,
+            "max_dd_r": -35.483,
+            "avg_win_r": 0.78,
+            "avg_loss_r": -0.983,
+            "med_win_r": 0.989,
+            "med_loss_r": -1.004,
+            "worst_r": -1.037,
+            "p95_loss_r": -1.013,
+            "trades_per_week": 16.77,
+            "longest_losing_streak": 9,
+            "anti_cheat_ok": true,
+            "anti_cheat_reasons": []
+          },
+          "final": {
+            "n": 80,
+            "wins": 29,
+            "losses": 51,
+            "wr": 0.3625,
+            "wr_ci95": [
+              0.25,
+              0.475
+            ],
+            "pf": 0.503,
+            "expectancy_r": -0.3025,
+            "max_dd_r": -29.259,
+            "avg_win_r": 0.844,
+            "avg_loss_r": -0.954,
+            "med_win_r": 0.982,
+            "med_loss_r": -1.003,
+            "worst_r": -1.013,
+            "p95_loss_r": -1.012,
+            "trades_per_week": 16.46,
+            "longest_losing_streak": 7,
+            "anti_cheat_ok": true,
+            "anti_cheat_reasons": []
+          },
+          "selected_for_final": false,
+          "gates_final": false
+        }
+      },
+      "selected": [
+        {
+          "config": "vwap_reject_R1.5",
+          "family": "vwap_rejection",
+          "params": {
+            "target_r": 1.5,
+            "reason": "bounded R grid 1.0/1.5/2.0"
+          },
+          "train": {
+            "n": 271,
+            "wins": 191,
+            "losses": 80,
+            "wr": 0.7048,
+            "wr_ci95": [
+              0.6494,
+              0.7565
+            ],
+            "pf": 3.573,
+            "expectancy_r": 0.7209,
+            "max_dd_r": -5.599,
+            "avg_win_r": 1.42,
+            "avg_loss_r": -0.949,
+            "med_win_r": 1.494,
+            "med_loss_r": -1.004,
+            "worst_r": -1.046,
+            "p95_loss_r": -1.021,
+            "trades_per_week": 18.07,
+            "longest_losing_streak": 5,
+            "anti_cheat_ok": true,
+            "anti_cheat_reasons": []
+          },
+          "val": {
+            "n": 93,
+            "wins": 60,
+            "losses": 33,
+            "wr": 0.6452,
+            "wr_ci95": [
+              0.5484,
+              0.7312
+            ],
+            "pf": 2.728,
+            "expectancy_r": 0.5781,
+            "max_dd_r": -3.013,
+            "avg_win_r": 1.415,
+            "avg_loss_r": -0.943,
+            "med_win_r": 1.49,
+            "med_loss_r": -1.003,
+            "worst_r": -1.013,
+            "p95_loss_r": -1.009,
+            "trades_per_week": 18.51,
+            "longest_losing_streak": 4,
+            "anti_cheat_ok": true,
+            "anti_cheat_reasons": []
+          },
+          "final": {
+            "n": 86,
+            "wins": 66,
+            "losses": 20,
+            "wr": 0.7674,
+            "wr_ci95": [
+              0.6744,
+              0.8491
+            ],
+            "pf": 4.677,
+            "expectancy_r": 0.8385,
+            "max_dd_r": -3.525,
+            "avg_win_r": 1.39,
+            "avg_loss_r": -0.981,
+            "med_win_r": 1.491,
+            "med_loss_r": -1.005,
+            "worst_r": -1.024,
+            "p95_loss_r": -1.021,
+            "trades_per_week": 17.66,
+            "longest_losing_streak": 3,
+            "anti_cheat_ok": true,
+            "anti_cheat_reasons": []
+          },
+          "selected_for_final": true,
+          "gates_final": false
+        },
+        {
+          "config": "vwap_reject_R2.0",
+          "family": "vwap_rejection",
+          "params": {
+            "target_r": 2.0,
+            "reason": "bounded R grid 1.0/1.5/2.0"
+          },
+          "train": {
+            "n": 271,
+            "wins": 174,
+            "losses": 97,
+            "wr": 0.6421,
+            "wr_ci95": [
+              0.5904,
+              0.6975
+            ],
+            "pf": 3.472,
+            "expectancy_r": 0.8295,
+            "max_dd_r": -9.153,
+            "avg_win_r": 1.815,
+            "avg_loss_r": -0.938,
+            "med_win_r": 1.994,
+            "med_loss_r": -1.004,
+            "worst_r": -1.046,
+            "p95_loss_r": -1.021,
+            "trades_per_week": 18.07,
+            "longest_losing_streak": 9,
+            "anti_cheat_ok": true,
+            "anti_cheat_reasons": []
+          },
+          "val": {
+            "n": 93,
+            "wins": 54,
+            "losses": 39,
+            "wr": 0.5806,
+            "wr_ci95": [
+              0.4944,
+              0.6667
+            ],
+            "pf": 2.792,
+            "expectancy_r": 0.6895,
+            "max_dd_r": -3.013,
+            "avg_win_r": 1.85,
+            "avg_loss_r": -0.917,
+            "med_win_r": 1.989,
+            "med_loss_r": -1.003,
+            "worst_r": -1.014,
+            "p95_loss_r": -1.009,
+            "trades_per_week": 18.51,
+            "longest_losing_streak": 4,
+            "anti_cheat_ok": true,
+            "anti_cheat_reasons": []
+          },
+          "final": {
+            "n": 86,
+            "wins": 56,
+            "losses": 30,
+            "wr": 0.6512,
+            "wr_ci95": [
+              0.5349,
+              0.7442
+            ],
+            "pf": 3.49,
+            "expectancy_r": 0.8103,
+            "max_dd_r": -4.033,
+            "avg_win_r": 1.744,
+            "avg_loss_r": -0.933,
+            "med_win_r": 1.988,
+            "med_loss_r": -1.006,
+            "worst_r": -1.024,
+            "p95_loss_r": -1.021,
+            "trades_per_week": 17.66,
+            "longest_losing_streak": 4,
+            "anti_cheat_ok": true,
+            "anti_cheat_reasons": []
+          },
+          "selected_for_final": true,
+          "gates_final": false
+        },
+        {
+          "config": "vwap_reject_R1.0",
+          "family": "vwap_rejection",
+          "params": {
+            "target_r": 1.0,
+            "reason": "bounded R grid 1.0/1.5/2.0"
+          },
+          "train": {
+            "n": 271,
+            "wins": 210,
+            "losses": 61,
+            "wr": 0.7749,
+            "wr_ci95": [
+              0.7269,
+              0.8266
+            ],
+            "pf": 3.517,
+            "expectancy_r": 0.542,
+            "max_dd_r": -5.016,
+            "avg_win_r": 0.977,
+            "avg_loss_r": -0.957,
+            "med_win_r": 0.995,
+            "med_loss_r": -1.003,
+            "worst_r": -1.046,
+            "p95_loss_r": -1.03,
+            "trades_per_week": 18.07,
+            "longest_losing_streak": 5,
+            "anti_cheat_ok": true,
+            "anti_cheat_reasons": []
+          },
+          "val": {
+            "n": 93,
+            "wins": 68,
+            "losses": 25,
+            "wr": 0.7312,
+            "wr_ci95": [
+              0.6452,
+              0.8172
+            ],
+            "pf": 2.798,
+            "expectancy_r": 0.4636,
+            "max_dd_r": -3.03,
+            "avg_win_r": 0.987,
+            "avg_loss_r": -0.959,
+            "med_win_r": 0.992,
+            "med_loss_r": -1.002,
+            "worst_r": -1.013,
+            "p95_loss_r": -1.009,
+            "trades_per_week": 18.51,
+            "longest_losing_streak": 4,
+            "anti_cheat_ok": true,
+            "anti_cheat_reasons": []
+          },
+          "final": {
+            "n": 86,
+            "wins": 70,
+            "losses": 16,
+            "wr": 0.814,
+            "wr_ci95": [
+              0.7209,
+              0.8953
+            ],
+            "pf": 4.226,
+            "expectancy_r": 0.605,
+            "max_dd_r": -3.011,
+            "avg_win_r": 0.974,
+            "avg_loss_r": -1.008,
+            "med_win_r": 0.993,
+            "med_loss_r": -1.006,
+            "worst_r": -1.024,
+            "p95_loss_r": -1.022,
+            "trades_per_week": 17.66,
+            "longest_losing_streak": 3,
+            "anti_cheat_ok": true,
+            "anti_cheat_reasons": []
+          },
+          "selected_for_final": true,
+          "gates_final": false
+        },
+        {
+          "config": "supply_demand_R2.0",
+          "family": "supply_demand",
+          "params": {
+            "target_r": 2.0,
+            "reason": "bounded R grid 1.0/1.5/2.0"
+          },
+          "train": {
+            "n": 44,
+            "wins": 22,
+            "losses": 22,
+            "wr": 0.5,
+            "wr_ci95": [
+              0.3409,
+              0.6591
+            ],
+            "pf": 1.276,
+            "expectancy_r": 0.1015,
+            "max_dd_r": -6.279,
+            "avg_win_r": 0.939,
+            "avg_loss_r": -0.736,
+            "med_win_r": 0.615,
+            "med_loss_r": -1.001,
+            "worst_r": -1.008,
+            "p95_loss_r": -1.007,
+            "trades_per_week": 3.09,
+            "longest_losing_streak": 4,
+            "anti_cheat_ok": true,
+            "anti_cheat_reasons": []
+          },
+          "val": {
+            "n": 12,
+            "wins": 5,
+            "losses": 7,
+            "wr": 0.4167,
+            "wr_ci95": [
+              0.1646,
+              0.6667
+            ],
+            "pf": 1.159,
+            "expectancy_r": 0.0416,
+            "max_dd_r": -1.271,
+            "avg_win_r": 0.727,
+            "avg_loss_r": -0.448,
+            "med_win_r": 0.58,
+            "med_loss_r": -0.343,
+            "worst_r": -1.009,
+            "p95_loss_r": -1.008,
+            "trades_per_week": 2.61,
+            "longest_losing_streak": 4,
+            "anti_cheat_ok": true,
+            "anti_cheat_reasons": []
+          },
+          "final": {
+            "n": 15,
+            "wins": 7,
+            "losses": 8,
+            "wr": 0.4667,
+            "wr_ci95": [
+              0.2,
+              0.7333
+            ],
+            "pf": 1.814,
+            "expectancy_r": 0.3526,
+            "max_dd_r": -2.02,
+            "avg_win_r": 1.684,
+            "avg_loss_r": -0.812,
+            "med_win_r": 1.975,
+            "med_loss_r": -1.002,
+            "worst_r": -1.012,
+            "p95_loss_r": -1.011,
+            "trades_per_week": 3.17,
+            "longest_losing_streak": 3,
+            "anti_cheat_ok": true,
+            "anti_cheat_reasons": []
+          },
+          "selected_for_final": true,
+          "gates_final": false
+        },
+        {
+          "config": "supply_demand_R1.0",
+          "family": "supply_demand",
+          "params": {
+            "target_r": 1.0,
+            "reason": "bounded R grid 1.0/1.5/2.0"
+          },
+          "train": {
+            "n": 44,
+            "wins": 28,
+            "losses": 16,
+            "wr": 0.6364,
+            "wr_ci95": [
+              0.5,
+              0.7727
+            ],
+            "pf": 1.627,
+            "expectancy_r": 0.1905,
+            "max_dd_r": -3.349,
+            "avg_win_r": 0.777,
+            "avg_loss_r": -0.835,
+            "med_win_r": 0.994,
+            "med_loss_r": -1.001,
+            "worst_r": -1.008,
+            "p95_loss_r": -1.007,
+            "trades_per_week": 3.09,
+            "longest_losing_streak": 4,
+            "anti_cheat_ok": true,
+            "anti_cheat_reasons": []
+          },
+          "val": {
+            "n": 12,
+            "wins": 5,
+            "losses": 7,
+            "wr": 0.4167,
+            "wr_ci95": [
+              0.1646,
+              0.6667
+            ],
+            "pf": 1.052,
+            "expectancy_r": 0.0136,
+            "max_dd_r": -1.024,
+            "avg_win_r": 0.66,
+            "avg_loss_r": -0.448,
+            "med_win_r": 0.976,
+            "med_loss_r": -0.343,
+            "worst_r": -1.009,
+            "p95_loss_r": -1.008,
+            "trades_per_week": 2.61,
+            "longest_losing_streak": 4,
+            "anti_cheat_ok": true,
+            "anti_cheat_reasons": []
+          },
+          "final": {
+            "n": 15,
+            "wins": 9,
+            "losses": 6,
+            "wr": 0.6,
+            "wr_ci95": [
+              0.4,
+              0.8
+            ],
+            "pf": 1.983,
+            "expectancy_r": 0.2938,
+            "max_dd_r": -1.009,
+            "avg_win_r": 0.988,
+            "avg_loss_r": -0.747,
+            "med_win_r": 0.988,
+            "med_loss_r": -1.001,
+            "worst_r": -1.009,
+            "p95_loss_r": -1.008,
+            "trades_per_week": 3.17,
+            "longest_losing_streak": 2,
+            "anti_cheat_ok": true,
+            "anti_cheat_reasons": []
+          },
+          "selected_for_final": true,
+          "gates_final": false
+        },
+        {
+          "config": "supply_demand_R1.5",
+          "family": "supply_demand",
+          "params": {
+            "target_r": 1.5,
+            "reason": "bounded R grid 1.0/1.5/2.0"
+          },
+          "train": {
+            "n": 44,
+            "wins": 23,
+            "losses": 21,
+            "wr": 0.5227,
+            "wr_ci95": [
+              0.3636,
+              0.6818
+            ],
+            "pf": 1.386,
+            "expectancy_r": 0.1332,
+            "max_dd_r": -6.279,
+            "avg_win_r": 0.915,
+            "avg_loss_r": -0.723,
+            "med_win_r": 1.475,
+            "med_loss_r": -1.001,
+            "worst_r": -1.008,
+            "p95_loss_r": -1.007,
+            "trades_per_week": 3.09,
+            "longest_losing_streak": 4,
+            "anti_cheat_ok": true,
+            "anti_cheat_reasons": []
+          },
+          "val": {
+            "n": 12,
+            "wins": 5,
+            "losses": 7,
+            "wr": 0.4167,
+            "wr_ci95": [
+              0.1646,
+              0.6667
+            ],
+            "pf": 1.238,
+            "expectancy_r": 0.0622,
+            "max_dd_r": -1.009,
+            "avg_win_r": 0.777,
+            "avg_loss_r": -0.448,
+            "med_win_r": 0.58,
+            "med_loss_r": -0.343,
+            "worst_r": -1.009,
+            "p95_loss_r": -1.008,
+            "trades_per_week": 2.61,
+            "longest_losing_streak": 4,
+            "anti_cheat_ok": true,
+            "anti_cheat_reasons": []
+          },
+          "final": {
+            "n": 15,
+            "wins": 7,
+            "losses": 8,
+            "wr": 0.4667,
+            "wr_ci95": [
+              0.2,
+              0.7333
+            ],
+            "pf": 1.429,
+            "expectancy_r": 0.1859,
+            "max_dd_r": -2.02,
+            "avg_win_r": 1.326,
+            "avg_loss_r": -0.812,
+            "med_win_r": 1.475,
+            "med_loss_r": -1.002,
+            "worst_r": -1.012,
+            "p95_loss_r": -1.011,
+            "trades_per_week": 3.17,
+            "longest_losing_streak": 3,
+            "anti_cheat_ok": true,
+            "anti_cheat_reasons": []
+          },
+          "selected_for_final": true,
+          "gates_final": false
+        }
+      ],
+      "gate_pass": []
+    },
+    "databento_yahoo_overlap": {
+      "source": "databento_yahoo_overlap",
+      "n_configs": 93,
+      "n_selected": 3,
+      "n_gate_pass_final": 0,
+      "family_best": {
+        "liquidity_sweep_reclaim": {
+          "config": "liq_sweep_PDHPDL_R1.5",
+          "family": "liquidity_sweep_reclaim",
+          "params": {
+            "target_r": 1.5,
+            "reason": "bounded R grid 1.0/1.5/2.0"
+          },
+          "train": {
+            "n": 41,
+            "wins": 11,
+            "losses": 30,
+            "wr": 0.2683,
+            "wr_ci95": [
+              0.1463,
+              0.4146
+            ],
+            "pf": 0.508,
+            "expectancy_r": -0.2944,
+            "max_dd_r": -15.064,
+            "avg_win_r": 1.131,
+            "avg_loss_r": -0.817,
+            "med_win_r": 1.478,
+            "med_loss_r": -1.002,
+            "worst_r": -1.01,
+            "p95_loss_r": -1.008,
+            "trades_per_week": 6.99,
+            "longest_losing_streak": 9,
+            "anti_cheat_ok": true,
+            "anti_cheat_reasons": []
+          },
+          "val": {
+            "n": 20,
+            "wins": 5,
+            "losses": 15,
+            "wr": 0.25,
+            "wr_ci95": [
+              0.0988,
+              0.45
+            ],
+            "pf": 0.368,
+            "expectancy_r": -0.4331,
+            "max_dd_r": -10.653,
+            "avg_win_r": 1.01,
+            "avg_loss_r": -0.914,
+            "med_win_r": 1.496,
+            "med_loss_r": -1.002,
+            "worst_r": -1.009,
+            "p95_loss_r": -1.008,
+            "trades_per_week": 10.6,
+            "longest_losing_streak": 12,
+            "anti_cheat_ok": true,
+            "anti_cheat_reasons": []
+          },
+          "final": {
+            "n": 13,
+            "wins": 4,
+            "losses": 9,
+            "wr": 0.3077,
+            "wr_ci95": [
+              0.0769,
+              0.5385
+            ],
+            "pf": 0.857,
+            "expectancy_r": -0.0764,
+            "max_dd_r": -4.475,
+            "avg_win_r": 1.49,
+            "avg_loss_r": -0.773,
+            "med_win_r": 1.494,
+            "med_loss_r": -1.002,
+            "worst_r": -1.009,
+            "p95_loss_r": -1.008,
+            "trades_per_week": 7.0,
+            "longest_losing_streak": 4,
+            "anti_cheat_ok": true,
+            "anti_cheat_reasons": []
+          },
+          "selected_for_final": false,
+          "gates_final": false
+        },
+        "liquidity_sweep_mss": {
+          "config": "liq_sweep_MSS_R1.0",
+          "family": "liquidity_sweep_mss",
+          "params": {
+            "target_r": 1.0,
+            "reason": "bounded R grid 1.0/1.5/2.0"
+          },
+          "train": {
+            "n": 6,
+            "wins": 3,
+            "losses": 3,
+            "wr": 0.5,
+            "wr_ci95": [
+              0.1667,
+              0.8333
+            ],
+            "pf": 1.631,
+            "expectancy_r": 0.1708,
+            "max_dd_r": -1.373,
+            "avg_win_r": 0.883,
+            "avg_loss_r": -0.541,
+            "med_win_r": 0.999,
+            "med_loss_r": -0.368,
+            "worst_r": -1.005,
+            "p95_loss_r": -0.941,
+            "trades_per_week": 1.16,
+            "longest_losing_streak": 2,
+            "anti_cheat_ok": true,
+            "anti_cheat_reasons": []
+          },
+          "val": {
+            "n": 2,
+            "wins": 0,
+            "losses": 2,
+            "wr": 0.0,
+            "wr_ci95": [
+              0.0,
+              0.0
+            ],
+            "pf": 0.0,
+            "expectancy_r": -0.8003,
+            "max_dd_r": -0.6,
+            "avg_win_r": 0.0,
+            "avg_loss_r": -0.8,
+            "med_win_r": 0.0,
+            "med_loss_r": -0.8,
+            "worst_r": -1.001,
+            "p95_loss_r": -0.981,
+            "trades_per_week": 14.0,
+            "longest_losing_streak": 2,
+            "anti_cheat_ok": true,
+            "anti_cheat_reasons": []
+          },
+          "final": {
+            "n": 4,
+            "wins": 3,
+            "losses": 1,
+            "wr": 0.75,
+            "wr_ci95": [
+              0.4938,
+              1.0
+            ],
+            "pf": 0.454,
+            "expectancy_r": -0.1372,
+            "max_dd_r": -1.005,
+            "avg_win_r": 0.152,
+            "avg_loss_r": -1.005,
+            "med_win_r": 0.135,
+            "med_loss_r": -1.005,
+            "worst_r": -1.005,
+            "p95_loss_r": -1.005,
+            "trades_per_week": 3.71,
+            "longest_losing_streak": 1,
+            "anti_cheat_ok": false,
+            "anti_cheat_reasons": [
+              "tiny_target_or_huge_stop"
+            ]
+          },
+          "selected_for_final": false,
+          "gates_final": false
+        },
+        "sweep_mss_fvg": {
+          "config": "sweep_MSS_disp_R1.0",
+          "family": "sweep_mss_fvg",
+          "params": {
+            "target_r": 1.0,
+            "reason": "bounded R grid 1.0/1.5/2.0"
+          },
+          "train": {
+            "n": 5,
+            "wins": 2,
+            "losses": 3,
+            "wr": 0.4,
+            "wr_ci95": [
+              0.0,
+              0.8
+            ],
+            "pf": 0.755,
+            "expectancy_r": -0.1079,
+            "max_dd_r": -2.206,
+            "avg_win_r": 0.833,
+            "avg_loss_r": -0.735,
+            "med_win_r": 0.833,
+            "med_loss_r": -1.001,
+            "worst_r": -1.006,
+            "p95_loss_r": -1.005,
+            "trades_per_week": 0.97,
+            "longest_losing_streak": 3,
+            "anti_cheat_ok": true,
+            "anti_cheat_reasons": []
+          },
+          "val": {
+            "n": 2,
+            "wins": 0,
+            "losses": 2,
+            "wr": 0.0,
+            "wr_ci95": [
+              0.0,
+              0.0
+            ],
+            "pf": 0.0,
+            "expectancy_r": -1.0032,
+            "max_dd_r": -1.006,
+            "avg_win_r": 0.0,
+            "avg_loss_r": -1.003,
+            "med_win_r": 0.0,
+            "med_loss_r": -1.003,
+            "worst_r": -1.006,
+            "p95_loss_r": -1.005,
+            "trades_per_week": 2.71,
+            "longest_losing_streak": 2,
+            "anti_cheat_ok": true,
+            "anti_cheat_reasons": []
+          },
+          "final": {
+            "n": 1,
+            "wins": 0,
+            "losses": 1,
+            "wr": 0.0,
+            "wr_ci95": [
+              0.0,
+              0.0
+            ],
+            "pf": 0.0,
+            "expectancy_r": -0.1221,
+            "max_dd_r": 0.0,
+            "avg_win_r": 0.0,
+            "avg_loss_r": -0.122,
+            "med_win_r": 0.0,
+            "med_loss_r": -0.122,
+            "worst_r": -0.122,
+            "p95_loss_r": -0.122,
+            "trades_per_week": 1.0,
+            "longest_losing_streak": 1,
+            "anti_cheat_ok": true,
+            "anti_cheat_reasons": []
+          },
+          "selected_for_final": false,
+          "gates_final": false
+        },
+        "vwap_reclaim": {
+          "config": "vwap_reclaim_hold_R1.0",
+          "family": "vwap_reclaim",
+          "params": {
+            "target_r": 1.0,
+            "reason": "bounded R grid 1.0/1.5/2.0"
+          },
+          "train": {
+            "n": 90,
+            "wins": 30,
+            "losses": 60,
+            "wr": 0.3333,
+            "wr_ci95": [
+              0.2442,
+              0.4444
+            ],
+            "pf": 0.46,
+            "expectancy_r": -0.3338,
+            "max_dd_r": -34.102,
+            "avg_win_r": 0.852,
+            "avg_loss_r": -0.927,
+            "med_win_r": 0.995,
+            "med_loss_r": -1.003,
+            "worst_r": -1.016,
+            "p95_loss_r": -1.011,
+            "trades_per_week": 15.7,
+            "longest_losing_streak": 12,
+            "anti_cheat_ok": true,
+            "anti_cheat_reasons": []
+          },
+          "val": {
+            "n": 32,
+            "wins": 9,
+            "losses": 23,
+            "wr": 0.2812,
+            "wr_ci95": [
+              0.1562,
+              0.4688
+            ],
+            "pf": 0.383,
+            "expectancy_r": -0.4176,
+            "max_dd_r": -16.345,
+            "avg_win_r": 0.922,
+            "avg_loss_r": -0.942,
+            "med_win_r": 0.995,
+            "med_loss_r": -1.003,
+            "worst_r": -1.009,
+            "p95_loss_r": -1.009,
+            "trades_per_week": 17.12,
+            "longest_losing_streak": 7,
+            "anti_cheat_ok": true,
+            "anti_cheat_reasons": []
+          },
+          "final": {
+            "n": 28,
+            "wins": 9,
+            "losses": 19,
+            "wr": 0.3214,
+            "wr_ci95": [
+              0.1786,
+              0.5
+            ],
+            "pf": 0.522,
+            "expectancy_r": -0.2802,
+            "max_dd_r": -10.453,
+            "avg_win_r": 0.953,
+            "avg_loss_r": -0.865,
+            "med_win_r": 0.996,
+            "med_loss_r": -1.002,
+            "worst_r": -1.01,
+            "p95_loss_r": -1.01,
+            "trades_per_week": 14.93,
+            "longest_losing_streak": 11,
+            "anti_cheat_ok": true,
+            "anti_cheat_reasons": []
+          },
+          "selected_for_final": false,
+          "gates_final": false
+        },
+        "vwap_rejection": {
+          "config": "vwap_reject_R2.0",
+          "family": "vwap_rejection",
+          "params": {
+            "target_r": 2.0,
+            "reason": "bounded R grid 1.0/1.5/2.0"
+          },
+          "train": {
+            "n": 103,
+            "wins": 60,
+            "losses": 43,
+            "wr": 0.5825,
+            "wr_ci95": [
+              0.4854,
+              0.6799
+            ],
+            "pf": 2.88,
+            "expectancy_r": 0.7124,
+            "max_dd_r": -3.049,
+            "avg_win_r": 1.873,
+            "avg_loss_r": -0.908,
+            "med_win_r": 1.989,
+            "med_loss_r": -1.003,
+            "worst_r": -1.024,
+            "p95_loss_r": -1.013,
+            "trades_per_week": 17.93,
+            "longest_losing_streak": 3,
+            "anti_cheat_ok": true,
+            "anti_cheat_reasons": []
+          },
+          "val": {
+            "n": 32,
+            "wins": 24,
+            "losses": 8,
+            "wr": 0.75,
+            "wr_ci95": [
+              0.5938,
+              0.875
+            ],
+            "pf": 5.211,
+            "expectancy_r": 1.0621,
+            "max_dd_r": -2.038,
+            "avg_win_r": 1.752,
+            "avg_loss_r": -1.009,
+            "med_win_r": 1.99,
+            "med_loss_r": -1.007,
+            "worst_r": -1.022,
+            "p95_loss_r": -1.02,
+            "trades_per_week": 16.96,
+            "longest_losing_streak": 2,
+            "anti_cheat_ok": true,
+            "anti_cheat_reasons": []
+          },
+          "final": {
+            "n": 36,
+            "wins": 23,
+            "losses": 13,
+            "wr": 0.6389,
+            "wr_ci95": [
+              0.4722,
+              0.8056
+            ],
+            "pf": 3.21,
+            "expectancy_r": 0.7483,
+            "max_dd_r": -4.033,
+            "avg_win_r": 1.701,
+            "avg_loss_r": -0.938,
+            "med_win_r": 1.989,
+            "med_loss_r": -1.008,
+            "worst_r": -1.021,
+            "p95_loss_r": -1.019,
+            "trades_per_week": 19.26,
+            "longest_losing_streak": 4,
+            "anti_cheat_ok": true,
+            "anti_cheat_reasons": []
+          },
+          "selected_for_final": true,
+          "gates_final": false
+        },
+        "vwap_mss": {
+          "config": "vwap_mss_R1.0",
+          "family": "vwap_mss",
+          "params": {
+            "target_r": 1.0,
+            "reason": "bounded R grid 1.0/1.5/2.0"
+          },
+          "train": {
+            "n": 25,
+            "wins": 8,
+            "losses": 17,
+            "wr": 0.32,
+            "wr_ci95": [
+              0.159,
+              0.52
+            ],
+            "pf": 0.486,
+            "expectancy_r": -0.3362,
+            "max_dd_r": -8.401,
+            "avg_win_r": 0.995,
+            "avg_loss_r": -0.962,
+            "med_win_r": 0.997,
+            "med_loss_r": -1.003,
+            "worst_r": -1.012,
+            "p95_loss_r": -1.012,
+            "trades_per_week": 4.74,
+            "longest_losing_streak": 8,
+            "anti_cheat_ok": true,
+            "anti_cheat_reasons": []
+          },
+          "val": {
+            "n": 8,
+            "wins": 2,
+            "losses": 6,
+            "wr": 0.25,
+            "wr_ci95": [
+              0.0,
+              0.625
+            ],
+            "pf": 0.33,
+            "expectancy_r": -0.5051,
+            "max_dd_r": -6.036,
+            "avg_win_r": 0.997,
+            "avg_loss_r": -1.006,
+            "med_win_r": 0.997,
+            "med_loss_r": -1.005,
+            "worst_r": -1.011,
+            "p95_loss_r": -1.011,
+            "trades_per_week": 4.31,
+            "longest_losing_streak": 6,
+            "anti_cheat_ok": true,
+            "anti_cheat_reasons": []
+          },
+          "final": {
+            "n": 6,
+            "wins": 4,
+            "losses": 2,
+            "wr": 0.6667,
+            "wr_ci95": [
+              0.3333,
+              1.0
+            ],
+            "pf": 2.829,
+            "expectancy_r": 0.3898,
+            "max_dd_r": -1.279,
+            "avg_win_r": 0.904,
+            "avg_loss_r": -0.639,
+            "med_win_r": 0.994,
+            "med_loss_r": -0.639,
+            "worst_r": -1.003,
+            "p95_loss_r": -0.966,
+            "trades_per_week": 6.07,
+            "longest_losing_streak": 2,
+            "anti_cheat_ok": true,
+            "anti_cheat_reasons": []
+          },
+          "selected_for_final": false,
+          "gates_final": false
+        },
+        "ema_pullback": {
+          "config": "ema_pb_engulf_R1.0",
+          "family": "ema_pullback",
+          "params": {
+            "target_r": 1.0,
+            "reason": "bounded R grid 1.0/1.5/2.0"
+          },
+          "train": {
+            "n": 60,
+            "wins": 17,
+            "losses": 43,
+            "wr": 0.2833,
+            "wr_ci95": [
+              0.1667,
+              0.3833
+            ],
+            "pf": 0.428,
+            "expectancy_r": -0.3195,
+            "max_dd_r": -20.17,
+            "avg_win_r": 0.842,
+            "avg_loss_r": -0.779,
+            "med_win_r": 0.997,
+            "med_loss_r": -1.001,
+            "worst_r": -1.012,
+            "p95_loss_r": -1.008,
+            "trades_per_week": 10.46,
+            "longest_losing_streak": 10,
+            "anti_cheat_ok": true,
+            "anti_cheat_reasons": []
+          },
+          "val": {
+            "n": 20,
+            "wins": 7,
+            "losses": 13,
+            "wr": 0.35,
+            "wr_ci95": [
+              0.15,
+              0.55
+            ],
+            "pf": 0.476,
+            "expectancy_r": -0.2945,
+            "max_dd_r": -7.371,
+            "avg_win_r": 0.766,
+            "avg_loss_r": -0.865,
+            "med_win_r": 0.997,
+            "med_loss_r": -1.002,
+            "worst_r": -1.01,
+            "p95_loss_r": -1.01,
+            "trades_per_week": 10.77,
+            "longest_losing_streak": 5,
+            "anti_cheat_ok": true,
+            "anti_cheat_reasons": []
+          },
+          "final": {
+            "n": 16,
+            "wins": 4,
+            "losses": 12,
+            "wr": 0.25,
+            "wr_ci95": [
+              0.0625,
+              0.5
+            ],
+            "pf": 0.585,
+            "expectancy_r": -0.1671,
+            "max_dd_r": -4.944,
+            "avg_win_r": 0.941,
+            "avg_loss_r": -0.537,
+            "med_win_r": 0.998,
+            "med_loss_r": -0.519,
+            "worst_r": -1.004,
+            "p95_loss_r": -1.003,
+            "trades_per_week": 8.59,
+            "longest_losing_streak": 6,
+            "anti_cheat_ok": true,
+            "anti_cheat_reasons": []
+          },
+          "selected_for_final": false,
+          "gates_final": false
+        },
+        "trend_continuation": {
+          "config": "trend_cont_R1.0",
+          "family": "trend_continuation",
+          "params": {
+            "target_r": 1.0,
+            "reason": "bounded R grid 1.0/1.5/2.0"
+          },
+          "train": {
+            "n": 22,
+            "wins": 8,
+            "losses": 14,
+            "wr": 0.3636,
+            "wr_ci95": [
+              0.1807,
+              0.5455
+            ],
+            "pf": 0.501,
+            "expectancy_r": -0.3196,
+            "max_dd_r": -9.117,
+            "avg_win_r": 0.881,
+            "avg_loss_r": -1.006,
+            "med_win_r": 0.992,
+            "med_loss_r": -1.005,
+            "worst_r": -1.012,
+            "p95_loss_r": -1.011,
+            "trades_per_week": 3.86,
+            "longest_losing_streak": 6,
+            "anti_cheat_ok": true,
+            "anti_cheat_reasons": []
+          },
+          "val": {
+            "n": 5,
+            "wins": 3,
+            "losses": 2,
+            "wr": 0.6,
+            "wr_ci95": [
+              0.2,
+              1.0
+            ],
+            "pf": 1.482,
+            "expectancy_r": 0.1938,
+            "max_dd_r": -1.025,
+            "avg_win_r": 0.994,
+            "avg_loss_r": -1.006,
+            "med_win_r": 0.996,
+            "med_loss_r": -1.006,
+            "worst_r": -1.01,
+            "p95_loss_r": -1.01,
+            "trades_per_week": 3.21,
+            "longest_losing_streak": 1,
+            "anti_cheat_ok": true,
+            "anti_cheat_reasons": []
+          },
+          "final": {
+            "n": 7,
+            "wins": 5,
+            "losses": 2,
+            "wr": 0.7143,
+            "wr_ci95": [
+              0.2857,
+              1.0
+            ],
+            "pf": 2.468,
+            "expectancy_r": 0.421,
+            "max_dd_r": -2.008,
+            "avg_win_r": 0.991,
+            "avg_loss_r": -1.004,
+            "med_win_r": 0.99,
+            "med_loss_r": -1.004,
+            "worst_r": -1.005,
+            "p95_loss_r": -1.004,
+            "trades_per_week": 6.0,
+            "longest_losing_streak": 2,
+            "anti_cheat_ok": true,
+            "anti_cheat_reasons": []
+          },
+          "selected_for_final": false,
+          "gates_final": false
+        },
+        "breakout_retest": {
+          "config": "breakout_retest_R2.0",
+          "family": "breakout_retest",
+          "params": {
+            "target_r": 2.0,
+            "reason": "bounded R grid 1.0/1.5/2.0"
+          },
+          "train": {
+            "n": 25,
+            "wins": 2,
+            "losses": 23,
+            "wr": 0.08,
+            "wr_ci95": [
+              0.0,
+              0.2
+            ],
+            "pf": 0.167,
+            "expectancy_r": -0.7143,
+            "max_dd_r": -19.856,
+            "avg_win_r": 1.786,
+            "avg_loss_r": -0.932,
+            "med_win_r": 1.786,
+            "med_loss_r": -1.002,
+            "worst_r": -1.012,
+            "p95_loss_r": -1.011,
+            "trades_per_week": 4.38,
+            "longest_losing_streak": 16,
+            "anti_cheat_ok": true,
+            "anti_cheat_reasons": []
+          },
+          "val": {
+            "n": 11,
+            "wins": 3,
+            "losses": 8,
+            "wr": 0.2727,
+            "wr_ci95": [
+              0.0,
+              0.5455
+            ],
+            "pf": 0.422,
+            "expectancy_r": -0.4228,
+            "max_dd_r": -5.454,
+            "avg_win_r": 1.131,
+            "avg_loss_r": -1.005,
+            "med_win_r": 0.803,
+            "med_loss_r": -1.003,
+            "worst_r": -1.014,
+            "p95_loss_r": -1.013,
+            "trades_per_week": 5.9,
+            "longest_losing_streak": 4,
+            "anti_cheat_ok": true,
+            "anti_cheat_reasons": []
+          },
+          "final": {
+            "n": 5,
+            "wins": 0,
+            "losses": 5,
+            "wr": 0.0,
+            "wr_ci95": [
+              0.0,
+              0.0
+            ],
+            "pf": 0.0,
+            "expectancy_r": -1.0057,
+            "max_dd_r": -4.027,
+            "avg_win_r": 0.0,
+            "avg_loss_r": -1.006,
+            "med_win_r": 0.0,
+            "med_loss_r": -1.003,
+            "worst_r": -1.011,
+            "p95_loss_r": -1.011,
+            "trades_per_week": 3.15,
+            "longest_losing_streak": 5,
+            "anti_cheat_ok": true,
+            "anti_cheat_reasons": []
+          },
+          "selected_for_final": false,
+          "gates_final": false
+        },
+        "failed_breakout": {
+          "config": "failed_break_R1.0",
+          "family": "failed_breakout",
+          "params": {
+            "target_r": 1.0,
+            "reason": "bounded R grid 1.0/1.5/2.0"
+          },
+          "train": {
+            "n": 0,
+            "wins": 0,
+            "losses": 0,
+            "wr": 0.0,
+            "wr_ci95": [
+              0.0,
+              0.0
+            ],
+            "pf": 0.0,
+            "expectancy_r": 0.0,
+            "max_dd_r": 0.0,
+            "avg_win_r": 0.0,
+            "avg_loss_r": 0.0,
+            "med_win_r": 0.0,
+            "med_loss_r": 0.0,
+            "worst_r": 0.0,
+            "p95_loss_r": 0.0,
+            "trades_per_week": 0.0,
+            "longest_losing_streak": 0,
+            "anti_cheat_ok": true,
+            "anti_cheat_reasons": []
+          },
+          "val": {
+            "n": 0,
+            "wins": 0,
+            "losses": 0,
+            "wr": 0.0,
+            "wr_ci95": [
+              0.0,
+              0.0
+            ],
+            "pf": 0.0,
+            "expectancy_r": 0.0,
+            "max_dd_r": 0.0,
+            "avg_win_r": 0.0,
+            "avg_loss_r": 0.0,
+            "med_win_r": 0.0,
+            "med_loss_r": 0.0,
+            "worst_r": 0.0,
+            "p95_loss_r": 0.0,
+            "trades_per_week": 0.0,
+            "longest_losing_streak": 0,
+            "anti_cheat_ok": true,
+            "anti_cheat_reasons": []
+          },
+          "final": {
+            "n": 0,
+            "wins": 0,
+            "losses": 0,
+            "wr": 0.0,
+            "wr_ci95": [
+              0.0,
+              0.0
+            ],
+            "pf": 0.0,
+            "expectancy_r": 0.0,
+            "max_dd_r": 0.0,
+            "avg_win_r": 0.0,
+            "avg_loss_r": 0.0,
+            "med_win_r": 0.0,
+            "med_loss_r": 0.0,
+            "worst_r": 0.0,
+            "p95_loss_r": 0.0,
+            "trades_per_week": 0.0,
+            "longest_losing_streak": 0,
+            "anti_cheat_ok": true,
+            "anti_cheat_reasons": []
+          },
+          "selected_for_final": false,
+          "gates_final": false
+        },
+        "momentum": {
+          "config": "momentum_R1.0",
+          "family": "momentum",
+          "params": {
+            "target_r": 1.0,
+            "reason": "bounded R grid 1.0/1.5/2.0"
+          },
+          "train": {
+            "n": 100,
+            "wins": 18,
+            "losses": 82,
+            "wr": 0.18,
+            "wr_ci95": [
+              0.11,
+              0.2602
+            ],
+            "pf": 0.205,
+            "expectancy_r": -0.5996,
+            "max_dd_r": -58.959,
+            "avg_win_r": 0.858,
+            "avg_loss_r": -0.92,
+            "med_win_r": 0.997,
+            "med_loss_r": -1.003,
+            "worst_r": -1.013,
+            "p95_loss_r": -1.012,
+            "trades_per_week": 17.45,
+            "longest_losing_streak": 12,
+            "anti_cheat_ok": true,
+            "anti_cheat_reasons": []
+          },
+          "val": {
+            "n": 35,
+            "wins": 10,
+            "losses": 25,
+            "wr": 0.2857,
+            "wr_ci95": [
+              0.1429,
+              0.4286
+            ],
+            "pf": 0.348,
+            "expectancy_r": -0.4455,
+            "max_dd_r": -18.891,
+            "avg_win_r": 0.833,
+            "avg_loss_r": -0.957,
+            "med_win_r": 0.996,
+            "med_loss_r": -1.002,
+            "worst_r": -1.01,
+            "p95_loss_r": -1.01,
+            "trades_per_week": 18.67,
+            "longest_losing_streak": 12,
+            "anti_cheat_ok": true,
+            "anti_cheat_reasons": []
+          },
+          "final": {
+            "n": 33,
+            "wins": 9,
+            "losses": 24,
+            "wr": 0.2727,
+            "wr_ci95": [
+              0.1212,
+              0.4545
+            ],
+            "pf": 0.309,
+            "expectancy_r": -0.4625,
+            "max_dd_r": -14.262,
+            "avg_win_r": 0.76,
+            "avg_loss_r": -0.921,
+            "med_win_r": 0.99,
+            "med_loss_r": -1.002,
+            "worst_r": -1.011,
+            "p95_loss_r": -1.01,
+            "trades_per_week": 17.43,
+            "longest_losing_streak": 6,
+            "anti_cheat_ok": true,
+            "anti_cheat_reasons": []
+          },
+          "selected_for_final": false,
+          "gates_final": false
+        },
+        "fvg_retest": {
+          "config": "fvg_disc_R1.0",
+          "family": "fvg_retest",
+          "params": {
+            "target_r": 1.0,
+            "reason": "bounded R grid 1.0/1.5/2.0"
+          },
+          "train": {
+            "n": 0,
+            "wins": 0,
+            "losses": 0,
+            "wr": 0.0,
+            "wr_ci95": [
+              0.0,
+              0.0
+            ],
+            "pf": 0.0,
+            "expectancy_r": 0.0,
+            "max_dd_r": 0.0,
+            "avg_win_r": 0.0,
+            "avg_loss_r": 0.0,
+            "med_win_r": 0.0,
+            "med_loss_r": 0.0,
+            "worst_r": 0.0,
+            "p95_loss_r": 0.0,
+            "trades_per_week": 0.0,
+            "longest_losing_streak": 0,
+            "anti_cheat_ok": true,
+            "anti_cheat_reasons": []
+          },
+          "val": {
+            "n": 1,
+            "wins": 1,
+            "losses": 0,
+            "wr": 1.0,
+            "wr_ci95": [
+              1.0,
+              1.0
+            ],
+            "pf": 999.0,
+            "expectancy_r": 0.9539,
+            "max_dd_r": 0.0,
+            "avg_win_r": 0.954,
+            "avg_loss_r": 0.0,
+            "med_win_r": 0.954,
+            "med_loss_r": 0.0,
+            "worst_r": 0.954,
+            "p95_loss_r": 0.0,
+            "trades_per_week": 1.0,
+            "longest_losing_streak": 0,
+            "anti_cheat_ok": true,
+            "anti_cheat_reasons": []
+          },
+          "final": {
+            "n": 4,
+            "wins": 1,
+            "losses": 3,
+            "wr": 0.25,
+            "wr_ci95": [
+              0.0,
+              0.5062
+            ],
+            "pf": 0.321,
+            "expectancy_r": -0.5212,
+            "max_dd_r": -2.062,
+            "avg_win_r": 0.984,
+            "avg_loss_r": -1.023,
+            "med_win_r": 0.984,
+            "med_loss_r": -1.014,
+            "worst_r": -1.047,
+            "p95_loss_r": -1.044,
+            "trades_per_week": 6.65,
+            "longest_losing_streak": 2,
+            "anti_cheat_ok": true,
+            "anti_cheat_reasons": []
+          },
+          "selected_for_final": false,
+          "gates_final": false
+        },
+        "fvg_mtf": {
+          "config": "fvg_mtf2_R1.0",
+          "family": "fvg_mtf",
+          "params": {
+            "target_r": 1.0,
+            "reason": "bounded R grid 1.0/1.5/2.0"
+          },
+          "train": {
+            "n": 0,
+            "wins": 0,
+            "losses": 0,
+            "wr": 0.0,
+            "wr_ci95": [
+              0.0,
+              0.0
+            ],
+            "pf": 0.0,
+            "expectancy_r": 0.0,
+            "max_dd_r": 0.0,
+            "avg_win_r": 0.0,
+            "avg_loss_r": 0.0,
+            "med_win_r": 0.0,
+            "med_loss_r": 0.0,
+            "worst_r": 0.0,
+            "p95_loss_r": 0.0,
+            "trades_per_week": 0.0,
+            "longest_losing_streak": 0,
+            "anti_cheat_ok": true,
+            "anti_cheat_reasons": []
+          },
+          "val": {
+            "n": 1,
+            "wins": 1,
+            "losses": 0,
+            "wr": 1.0,
+            "wr_ci95": [
+              1.0,
+              1.0
+            ],
+            "pf": 999.0,
+            "expectancy_r": 0.9539,
+            "max_dd_r": 0.0,
+            "avg_win_r": 0.954,
+            "avg_loss_r": 0.0,
+            "med_win_r": 0.954,
+            "med_loss_r": 0.0,
+            "worst_r": 0.954,
+            "p95_loss_r": 0.0,
+            "trades_per_week": 1.0,
+            "longest_losing_streak": 0,
+            "anti_cheat_ok": true,
+            "anti_cheat_reasons": []
+          },
+          "final": {
+            "n": 3,
+            "wins": 1,
+            "losses": 2,
+            "wr": 0.3333,
+            "wr_ci95": [
+              0.0,
+              1.0
+            ],
+            "pf": 0.487,
+            "expectancy_r": -0.3458,
+            "max_dd_r": -1.014,
+            "avg_win_r": 0.984,
+            "avg_loss_r": -1.011,
+            "med_win_r": 0.984,
+            "med_loss_r": -1.011,
+            "worst_r": -1.014,
+            "p95_loss_r": -1.014,
+            "trades_per_week": 4.99,
+            "longest_losing_streak": 1,
+            "anti_cheat_ok": true,
+            "anti_cheat_reasons": []
+          },
+          "selected_for_final": false,
+          "gates_final": false
+        },
+        "mss_retest": {
+          "config": "mss_retest_R1.0",
+          "family": "mss_retest",
+          "params": {
+            "target_r": 1.0,
+            "reason": "bounded R grid 1.0/1.5/2.0"
+          },
+          "train": {
+            "n": 22,
+            "wins": 7,
+            "losses": 15,
+            "wr": 0.3182,
+            "wr_ci95": [
+              0.1364,
+              0.5
+            ],
+            "pf": 0.403,
+            "expectancy_r": -0.2085,
+            "max_dd_r": -5.723,
+            "avg_win_r": 0.443,
+            "avg_loss_r": -0.513,
+            "med_win_r": 0.395,
+            "med_loss_r": -0.367,
+            "worst_r": -1.006,
+            "p95_loss_r": -1.004,
+            "trades_per_week": 4.49,
+            "longest_losing_streak": 8,
+            "anti_cheat_ok": true,
+            "anti_cheat_reasons": []
+          },
+          "val": {
+            "n": 4,
+            "wins": 0,
+            "losses": 4,
+            "wr": 0.0,
+            "wr_ci95": [
+              0.0,
+              0.0
+            ],
+            "pf": 0.0,
+            "expectancy_r": -0.7038,
+            "max_dd_r": -1.814,
+            "avg_win_r": 0.0,
+            "avg_loss_r": -0.704,
+            "med_win_r": 0.0,
+            "med_loss_r": -0.788,
+            "worst_r": -1.001,
+            "p95_loss_r": -1.001,
+            "trades_per_week": 3.1,
+            "longest_losing_streak": 4,
+            "anti_cheat_ok": true,
+            "anti_cheat_reasons": []
+          },
+          "final": {
+            "n": 6,
+            "wins": 2,
+            "losses": 4,
+            "wr": 0.3333,
+            "wr_ci95": [
+              0.0,
+              0.6667
+            ],
+            "pf": 0.367,
+            "expectancy_r": -0.3267,
+            "max_dd_r": -2.094,
+            "avg_win_r": 0.567,
+            "avg_loss_r": -0.774,
+            "med_win_r": 0.567,
+            "med_loss_r": -0.776,
+            "worst_r": -1.005,
+            "p95_loss_r": -1.004,
+            "trades_per_week": 4.56,
+            "longest_losing_streak": 3,
+            "anti_cheat_ok": true,
+            "anti_cheat_reasons": []
+          },
+          "selected_for_final": false,
+          "gates_final": false
+        },
+        "supply_demand": {
+          "config": "supply_demand_R2.0",
+          "family": "supply_demand",
+          "params": {
+            "target_r": 2.0,
+            "reason": "bounded R grid 1.0/1.5/2.0"
+          },
+          "train": {
+            "n": 16,
+            "wins": 7,
+            "losses": 9,
+            "wr": 0.4375,
+            "wr_ci95": [
+              0.1875,
+              0.6875
+            ],
+            "pf": 1.705,
+            "expectancy_r": 0.1964,
+            "max_dd_r": -1.998,
+            "avg_win_r": 1.086,
+            "avg_loss_r": -0.496,
+            "med_win_r": 0.745,
+            "med_loss_r": -0.343,
+            "worst_r": -1.009,
+            "p95_loss_r": -1.008,
+            "trades_per_week": 2.8,
+            "longest_losing_streak": 5,
+            "anti_cheat_ok": true,
+            "anti_cheat_reasons": []
+          },
+          "val": {
+            "n": 7,
+            "wins": 2,
+            "losses": 5,
+            "wr": 0.2857,
+            "wr_ci95": [
+              0.0,
+              0.7143
+            ],
+            "pf": 0.952,
+            "expectancy_r": -0.0284,
+            "max_dd_r": -2.02,
+            "avg_win_r": 1.984,
+            "avg_loss_r": -0.833,
+            "med_win_r": 1.984,
+            "med_loss_r": -1.002,
+            "worst_r": -1.012,
+            "p95_loss_r": -1.011,
+            "trades_per_week": 3.73,
+            "longest_losing_streak": 2,
+            "anti_cheat_ok": true,
+            "anti_cheat_reasons": []
+          },
+          "final": {
+            "n": 4,
+            "wins": 3,
+            "losses": 1,
+            "wr": 0.75,
+            "wr_ci95": [
+              0.25,
+              1.0
+            ],
+            "pf": 3.828,
+            "expectancy_r": 0.7112,
+            "max_dd_r": -1.006,
+            "avg_win_r": 1.284,
+            "avg_loss_r": -1.006,
+            "med_win_r": 1.051,
+            "med_loss_r": -1.006,
+            "worst_r": -1.006,
+            "p95_loss_r": -1.006,
+            "trades_per_week": 3.46,
+            "longest_losing_streak": 1,
+            "anti_cheat_ok": true,
+            "anti_cheat_reasons": []
+          },
+          "selected_for_final": false,
+          "gates_final": false
+        },
+        "mtf_ema": {
+          "config": "mtf3_ema_R1.0",
+          "family": "mtf_ema",
+          "params": {
+            "target_r": 1.0,
+            "reason": "bounded R grid 1.0/1.5/2.0"
+          },
+          "train": {
+            "n": 48,
+            "wins": 17,
+            "losses": 31,
+            "wr": 0.3542,
+            "wr_ci95": [
+              0.2286,
+              0.4792
+            ],
+            "pf": 0.488,
+            "expectancy_r": -0.2613,
+            "max_dd_r": -14.196,
+            "avg_win_r": 0.702,
+            "avg_loss_r": -0.79,
+            "med_win_r": 0.991,
+            "med_loss_r": -1.002,
+            "worst_r": -1.009,
+            "p95_loss_r": -1.007,
+            "trades_per_week": 8.37,
+            "longest_losing_streak": 11,
+            "anti_cheat_ok": true,
+            "anti_cheat_reasons": []
+          },
+          "val": {
+            "n": 14,
+            "wins": 4,
+            "losses": 10,
+            "wr": 0.2857,
+            "wr_ci95": [
+              0.0714,
+              0.5
+            ],
+            "pf": 0.364,
+            "expectancy_r": -0.4156,
+            "max_dd_r": -6.817,
+            "avg_win_r": 0.833,
+            "avg_loss_r": -0.915,
+            "med_win_r": 0.998,
+            "med_loss_r": -1.002,
+            "worst_r": -1.01,
+            "p95_loss_r": -1.007,
+            "trades_per_week": 7.49,
+            "longest_losing_streak": 4,
+            "anti_cheat_ok": true,
+            "anti_cheat_reasons": []
+          },
+          "final": {
+            "n": 13,
+            "wins": 8,
+            "losses": 5,
+            "wr": 0.6154,
+            "wr_ci95": [
+              0.3077,
+              0.8462
+            ],
+            "pf": 3.265,
+            "expectancy_r": 0.4252,
+            "max_dd_r": -2.389,
+            "avg_win_r": 0.996,
+            "avg_loss_r": -0.488,
+            "med_win_r": 0.998,
+            "med_loss_r": -0.318,
+            "worst_r": -1.01,
+            "p95_loss_r": -1.008,
+            "trades_per_week": 7.58,
+            "longest_losing_streak": 4,
+            "anti_cheat_ok": true,
+            "anti_cheat_reasons": []
+          },
+          "selected_for_final": false,
+          "gates_final": false
+        },
+        "opening_range": {
+          "config": "orb15_retest_vwap1_R2.0",
+          "family": "opening_range",
+          "params": {
+            "target_r": 2.0,
+            "reason": "bounded R grid 1.0/1.5/2.0",
+            "orb_m": 15,
+            "mode": "retest",
+            "vwap_align": true
+          },
+          "train": {
+            "n": 99,
+            "wins": 11,
+            "losses": 88,
+            "wr": 0.1111,
+            "wr_ci95": [
+              0.0606,
+              0.1818
+            ],
+            "pf": 0.063,
+            "expectancy_r": -0.6614,
+            "max_dd_r": -64.94,
+            "avg_win_r": 0.401,
+            "avg_loss_r": -0.794,
+            "med_win_r": 0.194,
+            "med_loss_r": -1.002,
+            "worst_r": -1.015,
+            "p95_loss_r": -1.008,
+            "trades_per_week": 16.5,
+            "longest_losing_streak": 29,
+            "anti_cheat_ok": false,
+            "anti_cheat_reasons": [
+              "tiny_target_or_huge_stop"
+            ]
+          },
+          "val": {
+            "n": 32,
+            "wins": 8,
+            "losses": 24,
+            "wr": 0.25,
+            "wr_ci95": [
+              0.125,
+              0.4062
+            ],
+            "pf": 0.198,
+            "expectancy_r": -0.4586,
+            "max_dd_r": -14.98,
+            "avg_win_r": 0.454,
+            "avg_loss_r": -0.763,
+            "med_win_r": 0.228,
+            "med_loss_r": -0.889,
+            "worst_r": -1.008,
+            "p95_loss_r": -1.005,
+            "trades_per_week": 17.22,
+            "longest_losing_streak": 13,
+            "anti_cheat_ok": false,
+            "anti_cheat_reasons": [
+              "tiny_target_or_huge_stop"
+            ]
+          },
+          "final": {
+            "n": 32,
+            "wins": 5,
+            "losses": 27,
+            "wr": 0.1562,
+            "wr_ci95": [
+              0.0617,
+              0.2812
+            ],
+            "pf": 0.053,
+            "expectancy_r": -0.5727,
+            "max_dd_r": -18.145,
+            "avg_win_r": 0.206,
+            "avg_loss_r": -0.717,
+            "med_win_r": 0.24,
+            "med_loss_r": -1.002,
+            "worst_r": -1.01,
+            "p95_loss_r": -1.009,
+            "trades_per_week": 16.85,
+            "longest_losing_streak": 13,
+            "anti_cheat_ok": false,
+            "anti_cheat_reasons": [
+              "tiny_target_or_huge_stop"
+            ]
+          },
+          "selected_for_final": false,
+          "gates_final": false
+        },
+        "orb_failed": {
+          "config": "orb15_failed_R2.0",
+          "family": "orb_failed",
+          "params": {
+            "target_r": 2.0,
+            "reason": "bounded R grid 1.0/1.5/2.0",
+            "orb_m": 15
+          },
+          "train": {
+            "n": 100,
+            "wins": 25,
+            "losses": 75,
+            "wr": 0.25,
+            "wr_ci95": [
+              0.17,
+              0.34
+            ],
+            "pf": 0.435,
+            "expectancy_r": -0.4075,
+            "max_dd_r": -41.113,
+            "avg_win_r": 1.254,
+            "avg_loss_r": -0.961,
+            "med_win_r": 1.864,
+            "med_loss_r": -1.004,
+            "worst_r": -1.037,
+            "p95_loss_r": -1.012,
+            "trades_per_week": 16.66,
+            "longest_losing_streak": 13,
+            "anti_cheat_ok": true,
+            "anti_cheat_reasons": []
+          },
+          "val": {
+            "n": 32,
+            "wins": 8,
+            "losses": 24,
+            "wr": 0.25,
+            "wr_ci95": [
+              0.1242,
+              0.4375
+            ],
+            "pf": 0.597,
+            "expectancy_r": -0.2886,
+            "max_dd_r": -11.226,
+            "avg_win_r": 1.712,
+            "avg_loss_r": -0.955,
+            "med_win_r": 1.934,
+            "med_loss_r": -1.003,
+            "worst_r": -1.012,
+            "p95_loss_r": -1.012,
+            "trades_per_week": 17.22,
+            "longest_losing_streak": 7,
+            "anti_cheat_ok": true,
+            "anti_cheat_reasons": []
+          },
+          "final": {
+            "n": 32,
+            "wins": 14,
+            "losses": 18,
+            "wr": 0.4375,
+            "wr_ci95": [
+              0.2812,
+              0.5938
+            ],
+            "pf": 1.131,
+            "expectancy_r": 0.0742,
+            "max_dd_r": -6.343,
+            "avg_win_r": 1.463,
+            "avg_loss_r": -1.006,
+            "med_win_r": 1.967,
+            "med_loss_r": -1.003,
+            "worst_r": -1.013,
+            "p95_loss_r": -1.012,
+            "trades_per_week": 17.22,
+            "longest_losing_streak": 4,
+            "anti_cheat_ok": true,
+            "anti_cheat_reasons": []
+          },
+          "selected_for_final": false,
+          "gates_final": false
+        }
+      },
+      "selected": [
+        {
+          "config": "vwap_reject_R2.0",
+          "family": "vwap_rejection",
+          "params": {
+            "target_r": 2.0,
+            "reason": "bounded R grid 1.0/1.5/2.0"
+          },
+          "train": {
+            "n": 103,
+            "wins": 60,
+            "losses": 43,
+            "wr": 0.5825,
+            "wr_ci95": [
+              0.4854,
+              0.6799
+            ],
+            "pf": 2.88,
+            "expectancy_r": 0.7124,
+            "max_dd_r": -3.049,
+            "avg_win_r": 1.873,
+            "avg_loss_r": -0.908,
+            "med_win_r": 1.989,
+            "med_loss_r": -1.003,
+            "worst_r": -1.024,
+            "p95_loss_r": -1.013,
+            "trades_per_week": 17.93,
+            "longest_losing_streak": 3,
+            "anti_cheat_ok": true,
+            "anti_cheat_reasons": []
+          },
+          "val": {
+            "n": 32,
+            "wins": 24,
+            "losses": 8,
+            "wr": 0.75,
+            "wr_ci95": [
+              0.5938,
+              0.875
+            ],
+            "pf": 5.211,
+            "expectancy_r": 1.0621,
+            "max_dd_r": -2.038,
+            "avg_win_r": 1.752,
+            "avg_loss_r": -1.009,
+            "med_win_r": 1.99,
+            "med_loss_r": -1.007,
+            "worst_r": -1.022,
+            "p95_loss_r": -1.02,
+            "trades_per_week": 16.96,
+            "longest_losing_streak": 2,
+            "anti_cheat_ok": true,
+            "anti_cheat_reasons": []
+          },
+          "final": {
+            "n": 36,
+            "wins": 23,
+            "losses": 13,
+            "wr": 0.6389,
+            "wr_ci95": [
+              0.4722,
+              0.8056
+            ],
+            "pf": 3.21,
+            "expectancy_r": 0.7483,
+            "max_dd_r": -4.033,
+            "avg_win_r": 1.701,
+            "avg_loss_r": -0.938,
+            "med_win_r": 1.989,
+            "med_loss_r": -1.008,
+            "worst_r": -1.021,
+            "p95_loss_r": -1.019,
+            "trades_per_week": 19.26,
+            "longest_losing_streak": 4,
+            "anti_cheat_ok": true,
+            "anti_cheat_reasons": []
+          },
+          "selected_for_final": true,
+          "gates_final": false
+        },
+        {
+          "config": "vwap_reject_R1.5",
+          "family": "vwap_rejection",
+          "params": {
+            "target_r": 1.5,
+            "reason": "bounded R grid 1.0/1.5/2.0"
+          },
+          "train": {
+            "n": 103,
+            "wins": 69,
+            "losses": 34,
+            "wr": 0.6699,
+            "wr_ci95": [
+              0.5726,
+              0.7476
+            ],
+            "pf": 3.128,
+            "expectancy_r": 0.6529,
+            "max_dd_r": -3.012,
+            "avg_win_r": 1.433,
+            "avg_loss_r": -0.93,
+            "med_win_r": 1.491,
+            "med_loss_r": -1.003,
+            "worst_r": -1.024,
+            "p95_loss_r": -1.013,
+            "trades_per_week": 17.93,
+            "longest_losing_streak": 3,
+            "anti_cheat_ok": true,
+            "anti_cheat_reasons": []
+          },
+          "val": {
+            "n": 32,
+            "wins": 27,
+            "losses": 5,
+            "wr": 0.8438,
+            "wr_ci95": [
+              0.7188,
+              0.9375
+            ],
+            "pf": 7.591,
+            "expectancy_r": 1.0357,
+            "max_dd_r": -1.011,
+            "avg_win_r": 1.414,
+            "avg_loss_r": -1.006,
+            "med_win_r": 1.491,
+            "med_loss_r": -1.004,
+            "worst_r": -1.011,
+            "p95_loss_r": -1.01,
+            "trades_per_week": 16.96,
+            "longest_losing_streak": 1,
+            "anti_cheat_ok": true,
+            "anti_cheat_reasons": []
+          },
+          "final": {
+            "n": 36,
+            "wins": 26,
+            "losses": 10,
+            "wr": 0.7222,
+            "wr_ci95": [
+              0.5833,
+              0.8611
+            ],
+            "pf": 3.484,
+            "expectancy_r": 0.6949,
+            "max_dd_r": -3.525,
+            "avg_win_r": 1.35,
+            "avg_loss_r": -1.007,
+            "med_win_r": 1.49,
+            "med_loss_r": -1.006,
+            "worst_r": -1.021,
+            "p95_loss_r": -1.018,
+            "trades_per_week": 19.26,
+            "longest_losing_streak": 3,
+            "anti_cheat_ok": true,
+            "anti_cheat_reasons": []
+          },
+          "selected_for_final": true,
+          "gates_final": false
+        },
+        {
+          "config": "vwap_reject_R1.0",
+          "family": "vwap_rejection",
+          "params": {
+            "target_r": 1.0,
+            "reason": "bounded R grid 1.0/1.5/2.0"
+          },
+          "train": {
+            "n": 103,
+            "wins": 77,
+            "losses": 26,
+            "wr": 0.7476,
+            "wr_ci95": [
+              0.6602,
+              0.8252
+            ],
+            "pf": 3.038,
+            "expectancy_r": 0.4948,
+            "max_dd_r": -3.012,
+            "avg_win_r": 0.987,
+            "avg_loss_r": -0.962,
+            "med_win_r": 0.992,
+            "med_loss_r": -1.003,
+            "worst_r": -1.024,
+            "p95_loss_r": -1.013,
+            "trades_per_week": 17.93,
+            "longest_losing_streak": 3,
+            "anti_cheat_ok": true,
+            "anti_cheat_reasons": []
+          },
+          "val": {
+            "n": 32,
+            "wins": 28,
+            "losses": 4,
+            "wr": 0.875,
+            "wr_ci95": [
+              0.75,
+              0.9688
+            ],
+            "pf": 6.883,
+            "expectancy_r": 0.74,
+            "max_dd_r": -1.011,
+            "avg_win_r": 0.989,
+            "avg_loss_r": -1.006,
+            "med_win_r": 0.994,
+            "med_loss_r": -1.006,
+            "worst_r": -1.011,
+            "p95_loss_r": -1.01,
+            "trades_per_week": 16.96,
+            "longest_losing_streak": 1,
+            "anti_cheat_ok": true,
+            "anti_cheat_reasons": []
+          },
+          "final": {
+            "n": 36,
+            "wins": 28,
+            "losses": 8,
+            "wr": 0.7778,
+            "wr_ci95": [
+              0.6389,
+              0.8896
+            ],
+            "pf": 3.302,
+            "expectancy_r": 0.5154,
+            "max_dd_r": -3.011,
+            "avg_win_r": 0.951,
+            "avg_loss_r": -1.007,
+            "med_win_r": 0.993,
+            "med_loss_r": -1.006,
+            "worst_r": -1.021,
+            "p95_loss_r": -1.018,
+            "trades_per_week": 19.26,
+            "longest_losing_streak": 3,
+            "anti_cheat_ok": true,
+            "anti_cheat_reasons": []
+          },
+          "selected_for_final": true,
+          "gates_final": false
+        }
+      ],
+      "gate_pass": []
+    }
+  }
+}

@@ -18,4 +18,4 @@ Before changing trading scope, risk, universe, quantity, sessions, tiering, or W
 - When asked to fix the system: implement, test, and verify — do not only produce a plan.
 - **After every material change:** update **both** `PROJECT_MEMORY.md` and `DEBUG.md` in the same turn (stamps, traps, engine lists, gates). Stale memory is a regression.
 - Do not name a local `risk` inside `live_main.cycle` — use `risk_engine` / `trade_risk_dollars`. Start must pass paper-path preflight.
-- ≥90m open-session paper drought = fault (diagnose/escalate). Do **not** soft-relax quality gates or re-enable EMA spray to “fix” drought.
+- ≥90m open-session paper drought = fault (diagnose/escalate), except specialists-only selective quiet when only specialists can paper. Do **not** soft-relax quality gates or re-enable EMA/location spray to “fix” drought.
