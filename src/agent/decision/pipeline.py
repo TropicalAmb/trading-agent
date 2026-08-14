@@ -151,13 +151,19 @@ class DecisionPipeline:
         self.provider = provider
         self.cursor = cursor
         self.agent_id = agent_id
-        engines = cfg.get("confluence", {}).get("engines") or [
-            "ema_pullback",
-            "liquidity_sweep",
-            "vwap_acceptance",
-            "sweep_retest",
-            "momentum",
-        ]
+        confluence_cfg = cfg.get("confluence") or {}
+        if "engines" in confluence_cfg:
+            # An explicit empty list is a deliberate fail-closed deployment.
+            # Only a genuinely absent key receives legacy compatibility defaults.
+            engines = list(confluence_cfg.get("engines") or [])
+        else:
+            engines = [
+                "ema_pullback",
+                "liquidity_sweep",
+                "vwap_acceptance",
+                "sweep_retest",
+                "momentum",
+            ]
         research_only = list(cfg.get("research_only_engines") or [])
         runtime_research = bool(
             (cfg.get("shadow") or {}).get("evaluate_research_engines_live", True)

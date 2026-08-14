@@ -5,6 +5,17 @@
 
 ---
 
+## AN — Corrected paid caches exposed execution-replay mismatch (2026-08-14)
+
+| | |
+|--|--|
+| **Symptom** | Corrected NQ.v.0/CL.v.0 data was available, but prior promotion figures still described simple target/stop exits instead of the bot's configured two-lot management. One-minute NQ replay could also inspect minutes inside the five-minute signal bar before that signal was knowable. |
+| **Root cause** | `realize_trades` searched immediately after a left-labeled five-minute timestamp and counted 180 rows rather than 180 clock minutes. The frozen report gated the no-scale research outcome while paper actually used 1R half exit, next-bar profit-stop tightening, and a 120-minute losing-only time stop. Evidence read only Yahoo, so corrected paid data could not veto deployment. Separately, `configured_engines or [legacy defaults]` interpreted an explicit empty list as missing and resurrected retired engines. |
+| **Fix** | Stamp `router_v1_specialists_autonomy5`. User-approved Databento spend estimate $1.285970583558 downloaded NQ.v.0/CL.v.0 180d. Added identity/schema/null/duplicate/OHLC/jump/gap/source-condition/Yahoo-correlation audits; invalid parents remain recoverable under `legacy_parent_20260814_autonomy4`. Execution replay now waits for the signal bar to close, uses clock time, models configured quantity-two management and friction, and requires both Databento+Yahoo. NQ fails PF/E/latest Yahoo; CL misses Databento WR53.4%<55%, so both are disabled/research-only and paper is fail-closed. An explicit `confluence.engines: []` now stays empty; defaults apply only when the key is absent. Runtime heartbeat names this `CONFIG_ENTRY_GATE:NO_VALIDATED_PAPER_STRATEGY` instead of vague healthy/no-candidate silence. |
+| **Do not** | Quote or gate a simple no-scale outcome for a scaled/protected executor; trade inside a still-forming signal bar; make a 180-minute rule depend on dataframe frequency; accept parent-symbol caches; let one source alone promote; use `configured_list or defaults` where empty is meaningful; round PF1.297 up to 1.30; lower frozen thresholds merely to create trades; or claim backtested expectancy is guaranteed profit. |
+
+---
+
 ## AM — Failed evidence, post-friction risk, and close-only exits (2026-08-14)
 
 | | |

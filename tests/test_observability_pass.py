@@ -223,6 +223,20 @@ def test_last_evaluation_scope_clears_retired_strategy_candidates(tmp_path):
     assert store.get_symbol("CL")["engines"] == {}
 
 
+def test_explicit_empty_engine_list_does_not_restore_legacy_defaults(tmp_path):
+    cfg = {
+        "config_version": "fail_closed",
+        "confluence": {"engines": []},
+        "research_only_engines": ["ema_pullback"],
+        "shadow": {"evaluate_research_engines_live": False},
+        "market_data": {"last_evaluation_path": str(tmp_path / "le.json")},
+        "strategy_lifecycle": {"path": str(tmp_path / "lifecycle.json")},
+    }
+    pipe = DecisionPipeline(cfg, MagicMock(), MagicMock())
+    assert pipe.engine_names == []
+    assert pipe.last_eval.snapshot()["active_strategies"] == []
+
+
 def test_processed_empty_bar_clears_previous_candidate(tmp_path):
     store = LastEvaluationStore(tmp_path / "le.json")
     old = {"strategy": "nq_context_entry", "symbol": "NQ"}

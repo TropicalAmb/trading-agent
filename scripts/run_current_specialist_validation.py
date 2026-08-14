@@ -11,6 +11,7 @@ sys.path.insert(0, str(ROOT / "src"))
 
 from agent.config import load_settings
 from agent.research.current_specialist_validation import (
+    run_databento_locked_replay,
     run_yahoo_locked_replay,
     summarize_true_forward,
     write_report,
@@ -32,6 +33,7 @@ def main() -> int:
             for name in ((cfg.get("confluence") or {}).get("engines") or [])
             if name in set(cfg.get("paper_specialist_engines") or [])
         ],
+        "databento_locked_replay": run_databento_locked_replay(ROOT / "data" / "databento"),
         "yahoo_locked_replay": run_yahoo_locked_replay(),
     }
     payload["true_forward"] = summarize_true_forward(

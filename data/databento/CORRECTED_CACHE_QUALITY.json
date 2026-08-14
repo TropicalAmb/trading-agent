@@ -1,0 +1,482 @@
+{
+  "generated_at_utc": "2026-08-14T17:25:00.172752+00:00",
+  "intended_use": "frozen strategy research and verified historical paper context",
+  "expected_grain": "one OHLCV row per available CME minute per volume-continuous root",
+  "audits": {
+    "NQ": {
+      "root": "NQ",
+      "status": "PASS",
+      "failures": [],
+      "warnings": [],
+      "expected_grain": "one row per available CME minute for one volume-continuous root",
+      "rows": 177188,
+      "columns": [
+        "open",
+        "high",
+        "low",
+        "close",
+        "volume"
+      ],
+      "dtypes": {
+        "open": "float64",
+        "high": "float64",
+        "low": "float64",
+        "close": "float64",
+        "volume": "float64"
+      },
+      "start": "2026-02-15 18:00:00-05:00",
+      "end": "2026-08-14 04:55:00-04:00",
+      "timezone": "America/New_York",
+      "duplicate_timestamps": 0,
+      "exact_duplicate_value_rows": 6,
+      "null_counts": {
+        "open": 0,
+        "high": 0,
+        "low": 0,
+        "close": 0,
+        "volume": 0
+      },
+      "non_finite_values": 0,
+      "invalid_ohlc_rows": 0,
+      "nonpositive_price_rows": 0,
+      "negative_volume_rows": 0,
+      "large_jump_fraction_gt_1pct": 1.1299498867225239e-05,
+      "jump_fraction_gt_0_5pct": 7.909649207057667e-05,
+      "max_absolute_minute_return": 0.017001642620240842,
+      "top_jumps": [
+        {
+          "timestamp": "2026-03-23 07:05:00-04:00",
+          "absolute_return": 0.017001642620240842,
+          "previous_close": 23894.75,
+          "close": 24301.0,
+          "gap_minutes": 1.0
+        },
+        {
+          "timestamp": "2026-06-16 20:00:00-04:00",
+          "absolute_return": 0.011011986572373456,
+          "previous_close": 30012.75,
+          "close": 30343.25,
+          "gap_minutes": 1.0
+        },
+        {
+          "timestamp": "2026-03-17 20:00:00-04:00",
+          "absolute_return": 0.008704774008734928,
+          "previous_close": 24785.25,
+          "close": 25001.0,
+          "gap_minutes": 1.0
+        },
+        {
+          "timestamp": "2026-03-23 07:06:00-04:00",
+          "absolute_return": 0.008549030904078103,
+          "previous_close": 24301.0,
+          "close": 24508.75,
+          "gap_minutes": 1.0
+        },
+        {
+          "timestamp": "2026-03-26 16:11:00-04:00",
+          "absolute_return": 0.00845677066918804,
+          "previous_close": 23797.5,
+          "close": 23998.75,
+          "gap_minutes": 1.0
+        },
+        {
+          "timestamp": "2026-04-07 18:33:00-04:00",
+          "absolute_return": 0.008283902638576368,
+          "previous_close": 24445.0,
+          "close": 24647.5,
+          "gap_minutes": 1.0
+        },
+        {
+          "timestamp": "2026-07-14 08:30:00-04:00",
+          "absolute_return": 0.006979524483060606,
+          "previous_close": 29694.0,
+          "close": 29901.25,
+          "gap_minutes": 1.0
+        },
+        {
+          "timestamp": "2026-06-09 12:38:00-04:00",
+          "absolute_return": 0.006420939983509011,
+          "previous_close": 28500.5,
+          "close": 28317.5,
+          "gap_minutes": 1.0
+        },
+        {
+          "timestamp": "2026-04-07 18:32:00-04:00",
+          "absolute_return": 0.006260417090125592,
+          "previous_close": 24599.0,
+          "close": 24445.0,
+          "gap_minutes": 1.0
+        },
+        {
+          "timestamp": "2026-06-11 13:29:00-04:00",
+          "absolute_return": 0.00597492434068303,
+          "previous_close": 28912.5,
+          "close": 29085.25,
+          "gap_minutes": 1.0
+        }
+      ],
+      "max_absolute_gap_return": 0.014457427071408846,
+      "top_gap_jumps": [
+        {
+          "timestamp": "2026-04-12 18:00:00-04:00",
+          "absolute_return": 0.014457427071408846,
+          "previous_close": 25333.0,
+          "close": 24966.75,
+          "gap_minutes": 2941.0
+        },
+        {
+          "timestamp": "2026-03-08 18:00:00-04:00",
+          "absolute_return": 0.013046783922145089,
+          "previous_close": 24661.25,
+          "close": 24339.5,
+          "gap_minutes": 2881.0
+        },
+        {
+          "timestamp": "2026-06-14 18:00:00-04:00",
+          "absolute_return": 0.011961823251425807,
+          "previous_close": 29677.75,
+          "close": 30032.75,
+          "gap_minutes": 2941.0
+        },
+        {
+          "timestamp": "2026-07-26 18:00:00-04:00",
+          "absolute_return": 0.011790578135763896,
+          "previous_close": 28306.5,
+          "close": 28640.25,
+          "gap_minutes": 2941.0
+        },
+        {
+          "timestamp": "2026-08-02 18:00:00-04:00",
+          "absolute_return": 0.01136564499593451,
+          "previous_close": 28287.0,
+          "close": 28608.5,
+          "gap_minutes": 2941.0
+        },
+        {
+          "timestamp": "2026-03-22 18:00:00-04:00",
+          "absolute_return": 0.01121101694040405,
+          "previous_close": 24217.25,
+          "close": 23945.75,
+          "gap_minutes": 2941.0
+        },
+        {
+          "timestamp": "2026-04-19 18:00:00-04:00",
+          "absolute_return": 0.010888294850181168,
+          "previous_close": 26840.75,
+          "close": 26548.5,
+          "gap_minutes": 2941.0
+        },
+        {
+          "timestamp": "2026-03-01 18:00:00-05:00",
+          "absolute_return": 0.009748424522347254,
+          "previous_close": 24952.75,
+          "close": 24709.5,
+          "gap_minutes": 2941.0
+        },
+        {
+          "timestamp": "2026-04-07 18:00:00-04:00",
+          "absolute_return": 0.00826869678371267,
+          "previous_close": 24399.25,
+          "close": 24601.0,
+          "gap_minutes": 61.0
+        },
+        {
+          "timestamp": "2026-05-24 18:00:00-04:00",
+          "absolute_return": 0.007774192728843277,
+          "previous_close": 29520.75,
+          "close": 29750.25,
+          "gap_minutes": 2941.0
+        }
+      ],
+      "one_minute_gap_share": 0.9989389740782337,
+      "within_session_2_to_30m_gap_count": 59,
+      "within_session_2_to_30m_gap_fraction": 0.00033298153927771226,
+      "max_gap_minutes": 3406.0,
+      "daily_row_summary": {
+        "calendar_days": 156,
+        "min_rows": 296,
+        "median_rows": 1380.0,
+        "p05_rows": 360.0,
+        "max_rows": 1380
+      },
+      "metadata": {
+        "databento": "NQ.v.0",
+        "stype_in": "continuous",
+        "roll_rule": "volume",
+        "cache_format_version": "databento_continuous_v1",
+        "dataset": "GLBX.MDP3",
+        "schema": "ohlcv-1m",
+        "saved_utc": "2026-08-14T17:00:56.252068+00:00"
+      }
+    },
+    "CL": {
+      "root": "CL",
+      "status": "WARN",
+      "failures": [],
+      "warnings": [
+        "elevated_2_to_30m_gap_fraction:0.006021"
+      ],
+      "expected_grain": "one row per available CME minute for one volume-continuous root",
+      "rows": 175049,
+      "columns": [
+        "open",
+        "high",
+        "low",
+        "close",
+        "volume"
+      ],
+      "dtypes": {
+        "open": "float64",
+        "high": "float64",
+        "low": "float64",
+        "close": "float64",
+        "volume": "float64"
+      },
+      "start": "2026-02-15 18:00:00-05:00",
+      "end": "2026-08-14 04:55:00-04:00",
+      "timezone": "America/New_York",
+      "duplicate_timestamps": 0,
+      "exact_duplicate_value_rows": 1954,
+      "null_counts": {
+        "open": 0,
+        "high": 0,
+        "low": 0,
+        "close": 0,
+        "volume": 0
+      },
+      "non_finite_values": 0,
+      "invalid_ohlc_rows": 0,
+      "nonpositive_price_rows": 0,
+      "negative_volume_rows": 0,
+      "large_jump_fraction_gt_1pct": 0.0009605153423633279,
+      "jump_fraction_gt_0_5pct": 0.006119690564518448,
+      "max_absolute_minute_return": 0.05509641873278237,
+      "top_jumps": [
+        {
+          "timestamp": "2026-03-23 07:08:00-04:00",
+          "absolute_return": 0.05509641873278237,
+          "previous_close": 90.75,
+          "close": 85.75,
+          "gap_minutes": 1.0
+        },
+        {
+          "timestamp": "2026-03-23 07:05:00-04:00",
+          "absolute_return": 0.04473070291104575,
+          "previous_close": 98.59,
+          "close": 94.18,
+          "gap_minutes": 1.0
+        },
+        {
+          "timestamp": "2026-03-09 15:40:00-04:00",
+          "absolute_return": 0.04181397049859803,
+          "previous_close": 82.03,
+          "close": 85.46,
+          "gap_minutes": 1.0
+        },
+        {
+          "timestamp": "2026-05-17 20:00:00-04:00",
+          "absolute_return": 0.0397673982367287,
+          "previous_close": 106.62,
+          "close": 102.38,
+          "gap_minutes": 1.0
+        },
+        {
+          "timestamp": "2026-03-26 16:11:00-04:00",
+          "absolute_return": 0.03972878482890141,
+          "previous_close": 94.39,
+          "close": 90.64,
+          "gap_minutes": 1.0
+        },
+        {
+          "timestamp": "2026-03-23 07:06:00-04:00",
+          "absolute_return": 0.03387131025695489,
+          "previous_close": 94.18,
+          "close": 90.99,
+          "gap_minutes": 1.0
+        },
+        {
+          "timestamp": "2026-04-14 19:34:00-04:00",
+          "absolute_return": 0.031030701754385936,
+          "previous_close": 91.2,
+          "close": 88.37,
+          "gap_minutes": 1.0
+        },
+        {
+          "timestamp": "2026-05-06 04:50:00-04:00",
+          "absolute_return": 0.028238866396761098,
+          "previous_close": 98.8,
+          "close": 96.01,
+          "gap_minutes": 1.0
+        },
+        {
+          "timestamp": "2026-03-08 18:08:00-04:00",
+          "absolute_return": 0.027200459726079984,
+          "previous_close": 104.41,
+          "close": 107.25,
+          "gap_minutes": 1.0
+        },
+        {
+          "timestamp": "2026-05-05 18:52:00-04:00",
+          "absolute_return": 0.02704021866458406,
+          "previous_close": 102.44,
+          "close": 99.67,
+          "gap_minutes": 1.0
+        }
+      ],
+      "max_absolute_gap_return": 0.10912676673605803,
+      "top_gap_jumps": [
+        {
+          "timestamp": "2026-03-08 18:00:00-04:00",
+          "absolute_return": 0.10912676673605803,
+          "previous_close": 91.27,
+          "close": 101.23,
+          "gap_minutes": 2881.0
+        },
+        {
+          "timestamp": "2026-08-02 18:00:00-04:00",
+          "absolute_return": 0.09112903225806446,
+          "previous_close": 86.8,
+          "close": 78.89,
+          "gap_minutes": 2941.0
+        },
+        {
+          "timestamp": "2026-04-12 18:00:00-04:00",
+          "absolute_return": 0.09003450799958168,
+          "previous_close": 95.63,
+          "close": 104.24,
+          "gap_minutes": 2941.0
+        },
+        {
+          "timestamp": "2026-03-01 18:02:00-05:00",
+          "absolute_return": 0.08277604398870553,
+          "previous_close": 67.29,
+          "close": 72.86,
+          "gap_minutes": 2943.0
+        },
+        {
+          "timestamp": "2026-07-26 18:00:00-04:00",
+          "absolute_return": 0.07505250359235094,
+          "previous_close": 90.47,
+          "close": 83.68,
+          "gap_minutes": 2941.0
+        },
+        {
+          "timestamp": "2026-05-24 18:00:00-04:00",
+          "absolute_return": 0.048041237113402024,
+          "previous_close": 97.0,
+          "close": 92.34,
+          "gap_minutes": 2941.0
+        },
+        {
+          "timestamp": "2026-04-19 18:00:00-04:00",
+          "absolute_return": 0.04545985742666825,
+          "previous_close": 85.57,
+          "close": 89.46,
+          "gap_minutes": 2941.0
+        },
+        {
+          "timestamp": "2026-06-14 18:00:00-04:00",
+          "absolute_return": 0.041879226480009524,
+          "previous_close": 84.29,
+          "close": 80.76,
+          "gap_minutes": 2941.0
+        },
+        {
+          "timestamp": "2026-05-10 18:00:00-04:00",
+          "absolute_return": 0.033586818757921355,
+          "previous_close": 94.68,
+          "close": 97.86,
+          "gap_minutes": 2941.0
+        },
+        {
+          "timestamp": "2026-06-07 18:00:00-04:00",
+          "absolute_return": 0.0332409972299168,
+          "previous_close": 90.25,
+          "close": 93.25,
+          "gap_minutes": 2941.0
+        }
+      ],
+      "one_minute_gap_share": 0.9932418536629953,
+      "within_session_2_to_30m_gap_count": 1054,
+      "within_session_2_to_30m_gap_fraction": 0.006021205612174946,
+      "max_gap_minutes": 4381.0,
+      "daily_row_summary": {
+        "calendar_days": 155,
+        "min_rows": 253,
+        "median_rows": 1365.0,
+        "p05_rows": 359.7,
+        "max_rows": 1380
+      },
+      "metadata": {
+        "databento": "CL.v.0",
+        "stype_in": "continuous",
+        "roll_rule": "volume",
+        "cache_format_version": "databento_continuous_v1",
+        "dataset": "GLBX.MDP3",
+        "schema": "ohlcv-1m",
+        "saved_utc": "2026-08-14T17:01:12.237427+00:00"
+      }
+    }
+  },
+  "yahoo_5m_comparisons": {
+    "NQ": {
+      "status": "PASS",
+      "overlap_bars": 13662,
+      "overlap_start": "2026-06-04 00:05:00-04:00",
+      "overlap_end": "2026-08-14 04:50:00-04:00",
+      "median_absolute_basis_points": 0.0,
+      "median_relative_basis_gap": 0.0,
+      "p95_relative_basis_gap": 1.7353434012916753e-05,
+      "max_relative_basis_gap": 0.010637597154525096,
+      "five_minute_return_correlation": 0.9843489895429528
+    },
+    "CL": {
+      "status": "PASS",
+      "overlap_bars": 13555,
+      "overlap_start": "2026-06-04 00:00:00-04:00",
+      "overlap_end": "2026-08-14 04:50:00-04:00",
+      "median_absolute_basis_points": 2.1362304636340923e-06,
+      "median_relative_basis_gap": 2.5942967436983714e-08,
+      "p95_relative_basis_gap": 0.008022658084109392,
+      "max_relative_basis_gap": 0.03214006906326409,
+      "five_minute_return_correlation": 0.9490426657452308
+    }
+  },
+  "databento_dataset_conditions": {
+    "status": "WARN",
+    "days_checked": 181,
+    "degraded_days": [
+      {
+        "date": "2026-03-15",
+        "condition": "degraded",
+        "last_modified_date": "2026-06-05"
+      },
+      {
+        "date": "2026-03-16",
+        "condition": "degraded",
+        "last_modified_date": "2026-06-06"
+      },
+      {
+        "date": "2026-03-21",
+        "condition": "degraded",
+        "last_modified_date": "2026-05-18"
+      },
+      {
+        "date": "2026-04-10",
+        "condition": "degraded",
+        "last_modified_date": "2026-05-21"
+      },
+      {
+        "date": "2026-05-24",
+        "condition": "degraded",
+        "last_modified_date": "2026-06-05"
+      },
+      {
+        "date": "2026-07-30",
+        "condition": "degraded",
+        "last_modified_date": "2026-07-31"
+      }
+    ]
+  },
+  "overall_status": "WARN"
+}

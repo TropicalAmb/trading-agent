@@ -467,7 +467,16 @@ def realize_trades(
     target_r: float | str = 1.5,
     symbol: str = "NQ",
     min_target_r: float = 0.9,
+    entry_bar_minutes: int = 5,
+    max_hold_minutes: int = 180,
 ) -> list[NQTrade]:
+    """Realize candidates without trading inside the still-forming signal bar.
+
+    Candidate timestamps label the left edge of their 5-minute signal bar.  The
+    earliest observable fill is therefore the first execution bar at or after
+    ``entry_ts + entry_bar_minutes``.  Holding time is clock-based so the same
+    180-minute rule is preserved on either one- or five-minute execution data.
+    """
     trades: list[NQTrade] = []
     if not candidates:
         return trades
@@ -498,9 +507,12 @@ def realize_trades(
             style = f"{tr}R"
 
         entry_ts = pd.Timestamp(cand["entry_ts"])
-        pos = idx.searchsorted(entry_ts, side="right")
-        end = min(len(idx), pos + 180)
-        if pos >= len(idx):
+        ready_ts = entry_ts + pd.Timedelta(minutes=int(entry_bar_minutes))
+        pos = int(idx.searchsorted(ready_ts, side="left"))
+        end_ts = ready_ts + pd.Timedelta(minutes=int(max_hold_minutes))
+        end = int(idx.searchsorted(end_ts, side="left"))
+        end = min(len(idx), max(pos, end))
+        if pos >= len(idx) or end <= pos:
             pnl, exit_ts = -FRICTION_NQ / risk, str(entry_ts)
         else:
             exit_px = float(close[end - 1])

@@ -67,68 +67,77 @@ def evaluate_paper_evidence(
             thresholds,
         )
 
-    strategy_rows = (
-        ((payload.get("yahoo_locked_replay") or {}).get("strategies") or {}).get(strategy)
-        or {}
+    required_sources = list(
+        gate.get("required_sources")
+        or ["databento_locked_replay", "yahoo_locked_replay"]
     )
-    metrics = dict(strategy_rows.get(cohort) or {})
-    latest = dict(strategy_rows.get("latest_20pct") or {})
-    if not metrics:
-        return PaperEvidenceDecision(
-            False,
-            f"EVIDENCE_GATE:no_frozen_metrics:{strategy}",
-            strategy,
-            cohort,
-            str(source),
-            {},
-            thresholds,
+    all_metrics: dict[str, Any] = {"sources": {}}
+    for source_name in required_sources:
+        strategy_rows = (
+            ((payload.get(str(source_name)) or {}).get("strategies") or {}).get(strategy)
+            or {}
         )
-
-    checks = (
-        ("n", int(metrics.get("n") or 0), int(thresholds["min_n"])),
-        (
-            "win_rate",
-            float(metrics.get("win_rate") or 0.0),
-            float(thresholds["min_win_rate"]),
-        ),
-        (
-            "profit_factor",
-            float(metrics.get("profit_factor") or 0.0),
-            float(thresholds["min_profit_factor"]),
-        ),
-        (
-            "expectancy_r",
-            float(metrics.get("expectancy_r") or 0.0),
-            float(thresholds["min_expectancy_r"]),
-        ),
-        (
-            "latest_profit_factor",
-            float(latest.get("profit_factor") or 0.0),
-            float(thresholds["latest_min_profit_factor"]),
-        ),
-        (
-            "latest_expectancy_r",
-            float(latest.get("expectancy_r") or 0.0),
-            float(thresholds["latest_min_expectancy_r"]),
-        ),
-    )
-    for name, actual, required in checks:
-        if actual < required:
+        metrics = dict(strategy_rows.get(cohort) or {})
+        latest = dict(strategy_rows.get("latest_20pct") or {})
+        if not metrics:
             return PaperEvidenceDecision(
                 False,
-                f"EVIDENCE_GATE:{name}={actual:.4f}<{required:.4f}",
+                f"EVIDENCE_GATE:no_frozen_metrics:{source_name}:{strategy}",
                 strategy,
                 cohort,
                 str(source),
-                {**metrics, "latest_20pct": latest},
+                all_metrics,
                 thresholds,
             )
+        all_metrics["sources"][str(source_name)] = {
+            **metrics,
+            "latest_20pct": latest,
+        }
+        checks = (
+            ("n", int(metrics.get("n") or 0), int(thresholds["min_n"])),
+            (
+                "win_rate",
+                float(metrics.get("win_rate") or 0.0),
+                float(thresholds["min_win_rate"]),
+            ),
+            (
+                "profit_factor",
+                float(metrics.get("profit_factor") or 0.0),
+                float(thresholds["min_profit_factor"]),
+            ),
+            (
+                "expectancy_r",
+                float(metrics.get("expectancy_r") or 0.0),
+                float(thresholds["min_expectancy_r"]),
+            ),
+            (
+                "latest_profit_factor",
+                float(latest.get("profit_factor") or 0.0),
+                float(thresholds["latest_min_profit_factor"]),
+            ),
+            (
+                "latest_expectancy_r",
+                float(latest.get("expectancy_r") or 0.0),
+                float(thresholds["latest_min_expectancy_r"]),
+            ),
+        )
+        for name, actual, required in checks:
+            if actual < required:
+                return PaperEvidenceDecision(
+                    False,
+                    f"EVIDENCE_GATE:{source_name}:{name}={actual:.4f}<{required:.4f}",
+                    strategy,
+                    cohort,
+                    str(source),
+                    all_metrics,
+                    thresholds,
+                )
     return PaperEvidenceDecision(
         True,
         "EVIDENCE_GATE:PASS",
         strategy,
         cohort,
         str(source),
-        {**metrics, "latest_20pct": latest},
+        all_metrics,
         thresholds,
     )

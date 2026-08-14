@@ -270,7 +270,8 @@ def test_runtime_book_is_only_validated_paper_specialists():
     research = set(cfg.get("research_only_engines") or [])
     specialists = set(cfg.get("paper_specialist_engines") or [])
     assert engines == specialists
-    assert engines == {"nq_context_entry"}
+    assert engines == set()
+    assert {"nq_context_entry", "cl_vwap_prox_momentum"}.issubset(research)
     assert "cl_vwap_prox_momentum" in research
     assert "vwap_rejection" in research
     assert {"vwap_acceptance", "vwap_reclaim", "trend_pullback", "liquidity_reversal", "ema_pullback"} <= research

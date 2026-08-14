@@ -746,6 +746,27 @@ def main(argv: list[str] | None = None) -> int:
                 alerter.send(f"Agent halted new entries: {halt_reason}")
                 return
 
+            if use_pipeline and not pipeline.engine_names:
+                reason = "CONFIG_ENTRY_GATE:NO_VALIDATED_PAPER_STRATEGY"
+                journal.log(
+                    "decision",
+                    {
+                        "action": "blocked",
+                        "reason": reason,
+                        "config_version": cfg.get("config_version"),
+                    },
+                )
+                blotter.heartbeat(
+                    session=f"{sess_info} | mode={trade_mode}",
+                    prices=prices,
+                    decision=f"BLOCKED — {reason}",
+                    signals_found=0,
+                    engine_votes={},
+                    symbol_reports={},
+                    feed_meta=feed_meta,
+                )
+                return
+
             signals = []
             engine_votes: dict[str, list[str]] = {}
             symbol_reports: dict[str, Any] = {}

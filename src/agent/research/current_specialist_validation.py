@@ -1,8 +1,9 @@
 """Locked-rule validation for only the currently papered specialists.
 
-This module keeps two evidence lanes separate:
-1. an independent chronological Yahoo replay with frozen parameters; and
-2. the true paper-forward cohort under one exact config stamp.
+This module keeps three evidence lanes separate:
+1. a corrected Databento volume-continuous replay with frozen parameters;
+2. an independent chronological Yahoo replay with the same frozen parameters; and
+3. the true paper-forward cohort under one exact config stamp.
 
 No retired/research-only strategy is loaded or reported here.
 """
@@ -23,6 +24,7 @@ from agent.research.hc_strategies import gen_vwap_rejection
 from agent.research.momentum_deep import build_feature_frame, collect_momentum_signals
 from agent.research.nq_context_entry import (
     FRICTION_NQ,
+    build_context_5m,
     enrich_context_5m_bars,
     generate_candidates,
     realize_trades,
@@ -87,8 +89,7 @@ def chronological_summary(rows: list[dict[str, Any]]) -> dict[str, Any]:
     }
 
 
-def _nq_candidates(df5: pd.DataFrame) -> list[dict[str, Any]]:
-    frame = enrich_context_5m_bars(df5)
+def _generate_nq_candidates(frame: pd.DataFrame) -> list[dict[str, Any]]:
     return generate_candidates(
         frame,
         trigger="PULLBACK",
@@ -103,18 +104,137 @@ def _nq_candidates(df5: pd.DataFrame) -> list[dict[str, Any]]:
     )
 
 
-def replay_nq(df5: pd.DataFrame) -> list[dict[str, Any]]:
+def _nq_candidates(df5: pd.DataFrame) -> list[dict[str, Any]]:
+    return _generate_nq_candidates(enrich_context_5m_bars(df5))
+
+
+def replay_nq(
+    df5: pd.DataFrame,
+    *,
+    execution_bars: pd.DataFrame | None = None,
+) -> list[dict[str, Any]]:
     candidates = _nq_candidates(df5)
-    trades = realize_trades(candidates, df5, target_r=1.15, symbol="NQ")
-    return [
-        {
-            "strategy": "nq_context_entry",
-            "symbol": "NQ",
-            "entry_ts": t.entry_ts,
-            "pnl_r": float(t.pnl_r),
-        }
-        for t in trades
-    ]
+    return realize_configured_management(
+        candidates,
+        df5 if execution_bars is None else execution_bars,
+        strategy="nq_context_entry",
+        symbol="NQ",
+        target_r=1.15,
+        friction_points=FRICTION_NQ,
+    )
+
+
+def realize_configured_management(
+    candidates: Iterable[dict[str, Any]],
+    bars: pd.DataFrame,
+    *,
+    strategy: str,
+    symbol: str,
+    target_r: float,
+    tp1_r: float = 1.0,
+    entry_bar_minutes: int = 5,
+    time_stop_minutes: int = 120,
+    friction_points: float = 0.0,
+    friction_r: float = 0.0,
+    move_be_at_r: float = 0.75,
+    near_target_frac: float = 0.70,
+    lock_profit_frac: float = 0.50,
+    trail_after_r: float = 1.0,
+    trail_giveback_r: float = 0.35,
+) -> list[dict[str, Any]]:
+    """Replay the configured two-lot paper manager with next-bar stop tightening."""
+    idx = bars.index
+    open_ = bars["open"].to_numpy(dtype=float)
+    high = bars["high"].to_numpy(dtype=float)
+    low = bars["low"].to_numpy(dtype=float)
+    close = bars["close"].to_numpy(dtype=float)
+    rows: list[dict[str, Any]] = []
+    for cand in candidates:
+        entry = float(cand["entry"])
+        initial_stop = float(cand["stop"])
+        side = str(cand.get("side") or cand.get("direction") or "").upper()
+        risk = abs(entry - initial_stop)
+        if risk <= 1e-12 or side not in {"BUY", "SELL"}:
+            continue
+        entry_ts = pd.Timestamp(cand["entry_ts"])
+        ready_ts = entry_ts + pd.Timedelta(minutes=int(entry_bar_minutes))
+        start = int(idx.searchsorted(ready_ts, side="left"))
+        if start >= len(idx):
+            continue
+        target = entry + target_r * risk if side == "BUY" else entry - target_r * risk
+        tp1 = entry + tp1_r * risk if side == "BUY" else entry - tp1_r * risk
+        stop = initial_stop
+        remaining = 1.0
+        banked_r = 0.0
+        tp1_done = False
+        peak_r = 0.0
+        raw_r: float | None = None
+        exit_ts = entry_ts
+        # The live time stop only exits losers. Winners keep running until a
+        # barrier; cap research at 24h to avoid carrying across unrelated weeks.
+        hard_end = int(idx.searchsorted(ready_ts + pd.Timedelta(hours=24), side="left"))
+        hard_end = min(len(idx), max(start, hard_end))
+        for j in range(start, hard_end):
+            h, l, o, c = float(high[j]), float(low[j]), float(open_[j]), float(close[j])
+            stop_hit = (l <= stop) if side == "BUY" else (h >= stop)
+            target_hit = (h >= target) if side == "BUY" else (l <= target)
+            if stop_hit:
+                # Match paper gap handling: a gap through the stop fills at open.
+                exit_px = min(stop, o) if side == "BUY" else max(stop, o)
+                runner_r = ((exit_px - entry) / risk) if side == "BUY" else ((entry - exit_px) / risk)
+                raw_r = banked_r + remaining * runner_r
+                exit_ts = idx[j]
+                break
+            if target_hit:
+                raw_r = banked_r + remaining * target_r
+                exit_ts = idx[j]
+                break
+            if not tp1_done:
+                tp1_hit = (h >= tp1) if side == "BUY" else (l <= tp1)
+                if tp1_hit:
+                    banked_r += 0.5 * tp1_r
+                    remaining = 0.5
+                    tp1_done = True
+                    stop = entry
+                    exit_ts = idx[j]
+                    continue
+
+            favorable_r = ((h - entry) / risk) if side == "BUY" else ((entry - l) / risk)
+            peak_r = max(peak_r, favorable_r)
+            stop_r = ((stop - entry) / risk) if side == "BUY" else ((entry - stop) / risk)
+            new_stop_r = stop_r
+            if favorable_r >= move_be_at_r:
+                new_stop_r = max(new_stop_r, 0.0)
+            if target_r > 0 and favorable_r / target_r >= near_target_frac:
+                new_stop_r = max(new_stop_r, target_r * lock_profit_frac)
+            if peak_r >= trail_after_r:
+                new_stop_r = max(new_stop_r, peak_r - trail_giveback_r)
+            if new_stop_r > stop_r:
+                stop = entry + new_stop_r * risk if side == "BUY" else entry - new_stop_r * risk
+
+            held_minutes = (pd.Timestamp(idx[j]) - ready_ts).total_seconds() / 60.0
+            mark_r = ((c - entry) / risk) if side == "BUY" else ((entry - c) / risk)
+            if held_minutes >= time_stop_minutes and mark_r < 0:
+                raw_r = banked_r + remaining * mark_r
+                exit_ts = idx[j]
+                break
+        if raw_r is None:
+            j = max(start, hard_end - 1)
+            mark_r = ((float(close[j]) - entry) / risk) if side == "BUY" else ((entry - float(close[j])) / risk)
+            raw_r = banked_r + remaining * mark_r
+            exit_ts = idx[j]
+        pnl_r = float(raw_r - friction_r - friction_points / risk)
+        rows.append(
+            {
+                "strategy": strategy,
+                "symbol": symbol,
+                "entry_ts": str(entry_ts),
+                "exit_ts": str(exit_ts),
+                "pnl_r": pnl_r,
+                "tp1_done": tp1_done,
+            }
+        )
+    return rows
 
 
 def realize_nq_scaled_exit(
@@ -123,7 +243,8 @@ def realize_nq_scaled_exit(
     *,
     tp1_r: float,
     target_r: float = 1.15,
-    max_hold_bars: int = 180,
+    entry_bar_minutes: int = 5,
+    max_hold_minutes: int = 180,
 ) -> list[dict[str, Any]]:
     """Two-lot outcome: half at TP1, runner to target/BE, stop-first OHLC ordering."""
     idx = bars.index
@@ -141,8 +262,10 @@ def realize_nq_scaled_exit(
         target = entry + target_r * risk if side == "BUY" else entry - target_r * risk
         tp1 = entry + tp1_r * risk if side == "BUY" else entry - tp1_r * risk
         entry_ts = pd.Timestamp(cand["entry_ts"])
-        start = int(idx.searchsorted(entry_ts, side="right"))
-        end = min(len(idx), start + max_hold_bars)
+        ready_ts = entry_ts + pd.Timedelta(minutes=int(entry_bar_minutes))
+        start = int(idx.searchsorted(ready_ts, side="left"))
+        end_ts = ready_ts + pd.Timedelta(minutes=int(max_hold_minutes))
+        end = min(len(idx), max(start, int(idx.searchsorted(end_ts, side="left"))))
         tp1_done = False
         raw_r: float | None = None
         exit_ts = entry_ts
@@ -208,18 +331,42 @@ def realize_nq_scaled_exit(
     return rows
 
 
-def replay_nq_exit_sensitivity(df5: pd.DataFrame) -> dict[str, Any]:
+def replay_nq_exit_sensitivity(
+    df5: pd.DataFrame,
+    *,
+    execution_bars: pd.DataFrame | None = None,
+) -> dict[str, Any]:
     candidates = _nq_candidates(df5)
-    baseline = replay_nq(df5)
+    bars = df5 if execution_bars is None else execution_bars
+    baseline_trades = realize_trades(
+        candidates,
+        bars,
+        target_r=1.15,
+        symbol="NQ",
+        entry_bar_minutes=5,
+        max_hold_minutes=180,
+    )
+    baseline = [
+        {
+            "strategy": "nq_context_entry",
+            "symbol": "NQ",
+            "entry_ts": t.entry_ts,
+            "pnl_r": float(t.pnl_r),
+        }
+        for t in baseline_trades
+    ]
     return {
         "method": (
             "two contracts; half at TP1; runner stop moves to breakeven on the next bar; "
             "same-bar stop wins; identical NQ point-friction haircut"
         ),
+        "configured_management": chronological_summary(
+            replay_nq(df5, execution_bars=bars)
+        ),
         "baseline_no_scale": chronological_summary(baseline),
         "scale_out": {
             f"{tp1:.2f}R": chronological_summary(
-                realize_nq_scaled_exit(candidates, df5, tp1_r=tp1)
+                realize_nq_scaled_exit(candidates, bars, tp1_r=tp1)
             )
             for tp1 in (0.30, 0.50, 0.75, 1.00)
         },
@@ -237,18 +384,25 @@ def replay_cl(df5: pd.DataFrame) -> list[dict[str, Any]]:
         stop_atr_mult=1.0,
         point_value=1000.0,
     )
-    # One underlying only: do not pool CL and MCL as independent observations.
-    return [
+    candidates = [
         {
-            "strategy": "cl_vwap_prox_momentum",
-            "symbol": "CL",
-            "entry_ts": str(row["timestamp"]),
-            # Same stress used by the specialist report: 0.05R slippage + 0.02R fees.
-            "pnl_r": float(row["pnl_r"]) - 0.07,
+            "entry_ts": row["timestamp"],
+            "entry": row["entry"],
+            "stop": row["stop"],
+            "side": row["direction"],
         }
         for row in rows
         if float(row.get("abs_dist_vwap_atr", 999.0)) <= 0.25
     ]
+    # One underlying only: do not pool CL and MCL as independent observations.
+    return realize_configured_management(
+        candidates,
+        df5,
+        strategy="cl_vwap_prox_momentum",
+        symbol="CL",
+        target_r=2.0,
+        friction_r=0.07,
+    )
 
 
 def replay_vwap(frames_1h: dict[str, pd.DataFrame]) -> list[dict[str, Any]]:
@@ -296,6 +450,101 @@ def run_yahoo_locked_replay() -> dict[str, Any]:
         },
         "strategies": {name: chronological_summary(part) for name, part in rows.items()},
         "nq_exit_sensitivity": replay_nq_exit_sensitivity(nq) if len(nq) else {},
+        "paper_promotion_gate": {
+            "min_n": GATES["min_n"],
+            "min_win_rate": GATES["min_wr"],
+            "min_profit_factor": GATES["min_pf"],
+            "min_expectancy_r": GATES["min_expectancy_r"],
+        },
+    }
+
+
+def _verified_continuous_cache(cache_dir: Path, root: str) -> tuple[pd.DataFrame, dict[str, Any]]:
+    path = cache_dir / f"{root}_1m_cache.parquet"
+    meta_path = cache_dir / f"{root}_1m_cache_meta.json"
+    frame = pd.read_parquet(path).sort_index()
+    meta = json.loads(meta_path.read_text(encoding="utf-8"))
+    expected = f"{root}.v.0"
+    quality = meta.get("quality_audit") or {}
+    if (
+        str(meta.get("databento") or "").lower() != expected.lower()
+        or str(meta.get("stype_in") or "").lower() != "continuous"
+        or str(meta.get("cache_format_version") or "") != "databento_continuous_v1"
+        or str(quality.get("status") or "").upper() == "FAIL"
+    ):
+        raise RuntimeError(f"Databento cache failed identity/quality preflight: {root}")
+    return frame, meta
+
+
+def _completed_5m(frame_1m: pd.DataFrame) -> pd.DataFrame:
+    counts = frame_1m["close"].resample("5min", label="left", closed="left").count()
+    bars = frame_1m.resample("5min", label="left", closed="left").agg(
+        {"open": "first", "high": "max", "low": "min", "close": "last", "volume": "sum"}
+    )
+    return bars.loc[counts >= 4].dropna(subset=["open", "high", "low", "close"])
+
+
+def run_databento_locked_replay(cache_dir: Path) -> dict[str, Any]:
+    """Run frozen strategies on paid, audited `.v.0` one-minute history."""
+    nq_1m, nq_meta = _verified_continuous_cache(cache_dir, "NQ")
+    cl_1m, cl_meta = _verified_continuous_cache(cache_dir, "CL")
+    nq_5m = build_context_5m(nq_1m)
+    cl_5m = _completed_5m(cl_1m)
+    nq_candidates = _generate_nq_candidates(nq_5m)
+    nq_rows = realize_configured_management(
+        nq_candidates,
+        nq_1m,
+        strategy="nq_context_entry",
+        symbol="NQ",
+        target_r=1.15,
+        friction_points=FRICTION_NQ,
+    )
+    nq_baseline = [
+        {
+            "strategy": "nq_context_entry",
+            "symbol": "NQ",
+            "entry_ts": t.entry_ts,
+            "pnl_r": float(t.pnl_r),
+        }
+        for t in realize_trades(
+            nq_candidates,
+            nq_1m,
+            target_r=1.15,
+            symbol="NQ",
+            entry_bar_minutes=5,
+            max_hold_minutes=180,
+        )
+    ]
+    cl_rows = replay_cl(cl_5m)
+    return {
+        "source": "Databento GLBX.MDP3 audited volume-continuous `.v.0`; frozen current rules; no optimization",
+        "generated_at_utc": datetime.now(timezone.utc).isoformat(),
+        "windows": {
+            "NQ_1m": [str(nq_1m.index.min()), str(nq_1m.index.max())],
+            "CL_1m": [str(cl_1m.index.min()), str(cl_1m.index.max())],
+        },
+        "cache_quality": {
+            "NQ": nq_meta.get("quality_audit") or {},
+            "CL": cl_meta.get("quality_audit") or {},
+        },
+        "strategies": {
+            "nq_context_entry": chronological_summary(nq_rows),
+            "cl_vwap_prox_momentum": chronological_summary(cl_rows),
+        },
+        "nq_exit_sensitivity": {
+            "method": (
+                "two contracts; half at TP1; runner stop moves to breakeven on the next bar; "
+                "same-bar stop wins; signal bar must close before 1m execution; identical NQ friction"
+            ),
+            "baseline_no_scale": chronological_summary(nq_baseline),
+            "configured_management": chronological_summary(nq_rows),
+            "scale_out": {
+                f"{tp1:.2f}R": chronological_summary(
+                    realize_nq_scaled_exit(nq_candidates, nq_1m, tp1_r=tp1)
+                )
+                for tp1 in (0.30, 0.50, 0.75, 1.00)
+            },
+        },
         "paper_promotion_gate": {
             "min_n": GATES["min_n"],
             "min_win_rate": GATES["min_wr"],
@@ -371,20 +620,26 @@ def write_report(payload: dict[str, Any], output_dir: Path) -> None:
     )
     active = set(payload.get("active_specialists") or [])
     metric_rows: list[dict[str, Any]] = []
-    for name, result in payload["yahoo_locked_replay"]["strategies"].items():
-        for cohort_key, cohort_label in (
-            ("all", "All"),
-            ("latest_20pct", "Latest 20%"),
-        ):
-            stats = result[cohort_key]
-            metric_rows.append(
-                {
-                    "strategy": name,
-                    "cohort": cohort_label,
-                    "deployment": "active_forward" if name in active else "disabled",
-                    **stats,
-                }
-            )
+    lanes = (
+        ("databento_locked_replay", "Databento corrected .v.0"),
+        ("yahoo_locked_replay", "Yahoo independent"),
+    )
+    for lane_key, lane_label in lanes:
+        for name, result in (payload.get(lane_key, {}).get("strategies") or {}).items():
+            for cohort_key, cohort_label in (
+                ("all", "All"),
+                ("latest_20pct", "Latest 20%"),
+            ):
+                stats = result[cohort_key]
+                metric_rows.append(
+                    {
+                        "source": lane_label,
+                        "strategy": name,
+                        "cohort": cohort_label,
+                        "deployment": "active_forward" if name in active else "research_only",
+                        **stats,
+                    }
+                )
     pd.DataFrame(metric_rows).to_csv(output_dir / "strategy_metrics.csv", index=False)
 
     def fmt(st: dict[str, Any]) -> str:
@@ -400,17 +655,18 @@ def write_report(payload: dict[str, Any], output_dir: Path) -> None:
             f"E={st['expectancy_r']:+.3f}R · maxDD={st['max_drawdown_r']:+.2f}R"
         )
 
+    active_label = ", ".join(payload["active_specialists"]) or "none"
     lines = [
         "# Current Specialist Validation",
         "",
         "## Executive decision",
         "",
-        "Only strategies that pass the frozen promotion thresholds can enter paper. `nq_context_entry` is active; `cl_vwap_prox_momentum` and `vwap_rejection` are research-only. No strategy is called forward-profitable until the exact-stamp forward cohort passes its separate proof rule.",
+        "No strategy currently passes every frozen threshold on both the corrected paid Databento lane and the independent Yahoo lane using the bot's configured management. Paper entry is therefore fail-closed; this is not a profitability claim.",
         "",
         "## True forward paper cohort",
         "",
         f"Config: `{payload['true_forward']['config_version']}`",
-        f"Active: `{', '.join(payload['active_specialists'])}`",
+        f"Active: `{active_label}`",
         "",
         f"- Overall: {fmt(payload['true_forward']['overall'])}",
     ]
@@ -418,34 +674,44 @@ def write_report(payload: dict[str, Any], output_dir: Path) -> None:
         lines.append(f"- `{name}`: {fmt(st)}")
     lines += [
         "",
-        "## Frozen-rule independent Yahoo replay",
-        "",
-        "This is chronological historical replay, not future data. The latest 20% was not used to retune parameters in this run. NQ includes a 3-tick point haircut, CL includes a 0.07R fee/slippage haircut, and VWAP uses a 3-tick haircut.",
-        "",
     ]
-    for name, result in payload["yahoo_locked_replay"]["strategies"].items():
-        lines.append(f"### `{name}`")
-        lines.append("")
-    sensitivity = payload["yahoo_locked_replay"].get("nq_exit_sensitivity") or {}
-    if sensitivity:
+    for lane_key, lane_label in lanes:
+        lane = payload.get(lane_key) or {}
         lines += [
-            "## NQ two-contract exit sensitivity",
             "",
-            sensitivity.get("method", ""),
+            f"## {lane_label} frozen replay",
             "",
-            f"- No scale-out: {fmt((sensitivity.get('baseline_no_scale') or {}).get('all') or {})}",
+            str(lane.get("source") or ""),
+            "",
         ]
-        for label, cohorts in (sensitivity.get("scale_out") or {}).items():
-            lines.append(f"- TP1 `{label}`: {fmt((cohorts or {}).get('all') or {})}")
-        lines.append("")
-        lines.append(f"- All: {fmt(result['all'])}")
-        lines.append(f"- Latest chronological 20%: {fmt(result['latest_20pct'])}")
-        lines.append(f"- Holdout start: {result['latest_20pct_start']}")
-        lines.append("")
+        for name, result in (lane.get("strategies") or {}).items():
+            lines += [
+                f"### `{name}`",
+                "",
+                f"- All: {fmt(result['all'])}",
+                f"- Latest chronological 20%: {fmt(result['latest_20pct'])}",
+                f"- Holdout start: {result['latest_20pct_start']}",
+                "",
+            ]
+        sensitivity = lane.get("nq_exit_sensitivity") or {}
+        if sensitivity:
+            lines += [
+                "### NQ exit architecture",
+                "",
+                sensitivity.get("method", ""),
+                "",
+                f"- Configured manager: {fmt((sensitivity.get('configured_management') or {}).get('all') or {})}",
+                f"- No scale-out: {fmt((sensitivity.get('baseline_no_scale') or {}).get('all') or {})}",
+            ]
+            for label, cohorts in (sensitivity.get("scale_out") or {}).items():
+                lines.append(f"- TP1 `{label}` without pre-TP1 protection: {fmt((cohorts or {}).get('all') or {})}")
+            lines.append("")
     lines += [
         "## Methodology and reproducibility",
         "",
         "- Rules and thresholds were frozen before this replay; this run performed no parameter search.",
+        "- Primary metrics simulate configured quantity-two management: 1R half exit, next-bar breakeven/profit-stop tightening, stop-first same-bar ordering, 120-minute losing-only time stop, and friction.",
+        "- A five-minute signal cannot execute until its signal bar has closed; one-minute Databento paths begin at the next tradable minute.",
         "- Every higher-timeframe feature is point-in-time. Automated prefix-invariance tests verify that appending future bars cannot change an earlier feature or signal.",
         "- CL and MCL are one underlying and are not counted as independent observations.",
         "- The current-stamp cohort excludes partial TP1 rows, prune/demo exits, different config stamps, and research-only strategies.",
@@ -453,11 +719,11 @@ def write_report(payload: dict[str, Any], output_dir: Path) -> None:
         "",
         "## Limitations",
         "",
-        "Yahoo replay is an independent screen, not a fill-perfect simulator or proof of future returns. Confidence intervals are wide for the latest NQ and CL slices. Corrected Databento `.v.0` validation remains pending explicit download approval.",
+        "Neither replay is a fill-perfect simulator or proof of future returns. Databento marks six source dates degraded; CL also has an elevated 2–30 minute gap rate. Those warnings are retained in `CORRECTED_CACHE_QUALITY.md`. Latest Yahoo NQ has only 10 trades.",
         "",
         "## Decision rule",
         "",
-        "Do not claim forward profitability until a strategy has at least 40 resolved current-stamp trades with PF≥1.3 and positive expectancy after friction. A backtest or Yahoo screen cannot substitute for that cohort.",
+        "Historical promotion requires both lanes to meet n≥40, WR≥55%, PF≥1.3, E≥0.15R, plus non-negative latest-slice expectancy and PF≥1.0. Forward profitability still requires at least 40 resolved current-stamp paper trades with PF≥1.3 and positive expectancy after friction.",
         "",
         "## Sources",
         "",

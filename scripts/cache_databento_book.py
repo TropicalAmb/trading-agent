@@ -162,13 +162,21 @@ def main() -> int:
         df = df[df["close"] >= floor].copy()
         if df.index.duplicated().any():
             df = df[~df.index.duplicated(keep="last")]
-        jumps = df["close"].pct_change().abs().dropna()
-        large_jump_fraction = float((jumps > 0.01).mean()) if len(jumps) else 0.0
-        if large_jump_fraction > 0.002:
-            print(
-                f"REFUSED {s}: continuity audit found {large_jump_fraction:.3%} "
-                "of minute returns above 1%"
-            )
+        from agent.research.databento_cache_quality import audit_continuous_cache
+
+        provisional_meta = {
+            "symbol": s,
+            "databento": SYMBOLS[s],
+            "stype_in": "continuous",
+            "roll_rule": "volume",
+            "cache_format_version": CACHE_FORMAT_VERSION,
+            "dataset": "GLBX.MDP3",
+            "schema": "ohlcv-1m",
+        }
+        quality = audit_continuous_cache(df, provisional_meta, root=s)
+        large_jump_fraction = float(quality.get("large_jump_fraction_gt_1pct") or 0.0)
+        if quality["status"] == "FAIL":
+            print(f"REFUSED {s}: quality audit failed: {quality['failures']}")
             return 6
         df.to_parquet(path)
         meta = {
@@ -190,6 +198,7 @@ def main() -> int:
             "query_end": end.isoformat(),
             "batch_est_cost_usd": batch_cost,
             "saved_utc": datetime.now(timezone.utc).isoformat(),
+            "quality_audit": quality,
         }
         meta_path.write_text(json.dumps(meta, indent=2), encoding="utf-8")
         spent_note.append(s)
