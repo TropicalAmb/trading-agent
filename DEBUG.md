@@ -5,14 +5,14 @@
 
 ---
 
-## AL — Missing Windows recovery tasks leave a healthy process non-autonomous (2026-08-14)
+## AL — Sandboxed Task Scheduler checks can falsely report tasks missing (2026-08-14)
 
 | | |
 |--|--|
-| **Symptom** | The agent heartbeat and in-process supervisor were healthy, but both expected Task Scheduler entries were absent. A full supervisor death or Windows login/reboot therefore had no independent recovery path. |
-| **Root cause** | The current processes had been launched directly after maintenance, while `TradingAgentWatchdog` and `TradingAgentAutonomous` were not registered in Windows Task Scheduler. A fresh watchdog log alone was not proof that the scheduled task existed. |
-| **Fix** | Reinstalled both tasks through `scripts/install_watchdog.ps1`. Verified `TradingAgentWatchdog` is Hidden, `WakeToRun=false`, `IgnoreNew`, runs `pythonw.exe scripts/watchdog_tick.py` every 5 minutes, and completed its first automatic run at 10:56:03 ET with result `0`. Verified `TradingAgentAutonomous` is Hidden, `WakeToRun=false`, `IgnoreNew`, and runs `pythonw.exe scripts/run_supervised.py` at login. Live heartbeat remained healthy during verification. |
-| **Do not** | Call the system autonomous from process/heartbeat checks alone. Also verify both scheduled tasks, their actions/triggers, and a successful watchdog result; do not use visible PowerShell, `WakeToRun=true`, or Task Scheduler `RestartOnFailure` for the autonomous task. |
+| **Symptom** | A sandboxed `Get-ScheduledTask`/`schtasks` check returned empty/not-found even though `data/watchdog.log` proved the existing watchdog was already executing every five minutes. This was incorrectly reported as missing recovery tasks. |
+| **Root cause** | Task Scheduler visibility was restricted in the sandbox and the suppressed access failure was mistaken for authoritative absence. The pre-refresh log had successful ticks through 10:54 ET. |
+| **Fix** | Treat an elevated Task Scheduler query plus execution history/log continuity as the authority. The existing installer was run once, which unregisters/replaces the fixed names rather than stacking duplicates. Elevated verification found exactly one `TradingAgentWatchdog` and one `TradingAgentAutonomous`; both are Hidden, `WakeToRun=false`, `IgnoreNew`, and the watchdog returned `0`. No watchdog/supervisor implementation was added. |
+| **Do not** | Reinstall or claim tasks are absent from a sandbox-only query. Do not call a task refresh a new autonomy implementation. Keep fixed task names and the supervisor mutex; do not use visible PowerShell, `WakeToRun=true`, or Task Scheduler `RestartOnFailure` for the autonomous task. |
 
 ---
 
