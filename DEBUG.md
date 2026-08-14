@@ -5,6 +5,17 @@
 
 ---
 
+## AL — Missing Windows recovery tasks leave a healthy process non-autonomous (2026-08-14)
+
+| | |
+|--|--|
+| **Symptom** | The agent heartbeat and in-process supervisor were healthy, but both expected Task Scheduler entries were absent. A full supervisor death or Windows login/reboot therefore had no independent recovery path. |
+| **Root cause** | The current processes had been launched directly after maintenance, while `TradingAgentWatchdog` and `TradingAgentAutonomous` were not registered in Windows Task Scheduler. A fresh watchdog log alone was not proof that the scheduled task existed. |
+| **Fix** | Reinstalled both tasks through `scripts/install_watchdog.ps1`. Verified `TradingAgentWatchdog` is Hidden, `WakeToRun=false`, `IgnoreNew`, runs `pythonw.exe scripts/watchdog_tick.py` every 5 minutes, and completed its first automatic run at 10:56:03 ET with result `0`. Verified `TradingAgentAutonomous` is Hidden, `WakeToRun=false`, `IgnoreNew`, and runs `pythonw.exe scripts/run_supervised.py` at login. Live heartbeat remained healthy during verification. |
+| **Do not** | Call the system autonomous from process/heartbeat checks alone. Also verify both scheduled tasks, their actions/triggers, and a successful watchdog result; do not use visible PowerShell, `WakeToRun=true`, or Task Scheduler `RestartOnFailure` for the autonomous task. |
+
+---
+
 ## AK — Clean replay failure must demote, not be tuned around (2026-08-14)
 
 | | |
