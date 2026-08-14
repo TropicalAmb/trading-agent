@@ -19,6 +19,7 @@ from math import comb, sqrt
 from pathlib import Path
 from typing import Any, Callable, Iterable
 import json
+import weakref
 
 import numpy as np
 import pandas as pd
@@ -169,6 +170,31 @@ SOURCE_CATALOG: dict[str, dict[str, str]] = {
         "title": "Price action and volume analysis on completed NQ bars",
         "url": "https://www.reddit.com/r/FuturesTrading/comments/1vll43k/what_timeframe_do_you_trade_for_nqmnq/",
     },
+    "bulk_volume_classification": {
+        "kind": "Primary technical research",
+        "title": "Discerning information from trade data",
+        "url": "https://opus.lib.uts.edu.au/handle/10453/121971",
+    },
+    "order_flow_price_impact": {
+        "kind": "Primary technical research",
+        "title": "The Price Impact of Order Book Events",
+        "url": "https://arxiv.org/abs/1011.6402",
+    },
+    "vpin_futures": {
+        "kind": "Primary technical research",
+        "title": "Volume-Synchronised Probability of Informed Trading on Chinese Index Futures",
+        "url": "https://link.springer.com/article/10.7603/s40570-016-0005-6",
+    },
+    "cvd_absorption": {
+        "kind": "Reddit implementation hypothesis",
+        "title": "Scalping NQ using CVD divergence and absorption at POC",
+        "url": "https://www.reddit.com/r/FuturesTrading/comments/1g5m4we/scalping_nq_on_the_30s_using_cvd/",
+    },
+    "order_flow_practice": {
+        "kind": "Reddit implementation hypothesis",
+        "title": "Footprint absorption, stacked imbalance, CVD divergence, and volume profile",
+        "url": "https://www.reddit.com/r/FuturesTrading/comments/1t6j6gi/should_i_use_order_flow/",
+    },
 }
 
 FAMILY_SOURCE: dict[str, str] = {
@@ -204,6 +230,11 @@ FAMILY_SOURCE: dict[str, str] = {
     "lunch_vwap_reclaim": "vwap_reversion",
     "two_test_range_breakout": "tested_level_break",
     "nq_post_settlement_alignment": "post_settlement_gap",
+    "bvc_cvd_divergence": "cvd_absorption",
+    "bvc_absorption_reversal": "bulk_volume_classification",
+    "bvc_pressure_breakout": "order_flow_price_impact",
+    "vpin_failed_extension": "vpin_futures",
+    "impact_shock_reversal": "order_flow_practice",
 }
 
 
@@ -382,6 +413,112 @@ def _session_vwap_features(df: pd.DataFrame) -> pd.DataFrame:
     out["atr_fast"] = _atr(out, 5)
     out["atr_slow"] = _atr(out, 50)
     return out
+
+
+_MICRO_PROXY_CACHE: dict[
+    int, tuple[weakref.ReferenceType[pd.DataFrame], pd.DataFrame]
+] = {}
+
+
+def _microstructure_proxy_5m(bars_1m: pd.DataFrame) -> pd.DataFrame:
+    """Build completed-bar BVC/VPIN-style proxies from one-minute OHLCV.
+
+    These fields are deliberately named proxies. OHLCV cannot reconstruct true
+    bid/ask delta, cancellations, queue imbalance, or order-book depth. The
+    completed one-minute price change is classified with a prior-only volatility
+    estimate, then aggregated into completed five-minute decision bars.
+    """
+    cache_key = id(bars_1m)
+    cached = _MICRO_PROXY_CACHE.get(cache_key)
+    if cached is not None and cached[0]() is bars_1m:
+        return cached[1]
+
+    from scipy.special import ndtr
+
+    raw = bars_1m[["open", "high", "low", "close", "volume"]].copy().sort_index()
+    if len(raw.index) >= 3:
+        median_minutes = float(
+            pd.Series(raw.index[1:] - raw.index[:-1]).median().total_seconds() / 60.0
+        )
+    else:
+        median_minutes = 1.0
+    base_is_five_minute = median_minutes >= 4.0
+    sigma_lookback = 24 if base_is_five_minute else 120
+    sigma_minimum = 12 if base_is_five_minute else 60
+    change = raw["close"].diff()
+    prior_sigma = (
+        change.shift(1)
+        .rolling(sigma_lookback, min_periods=sigma_minimum)
+        .std(ddof=0)
+        .replace(0, np.nan)
+    )
+    standardized = (change / prior_sigma).clip(-6.0, 6.0)
+    signed_fraction = pd.Series(2.0 * ndtr(standardized.to_numpy()) - 1.0, index=raw.index)
+    raw["signed_volume_proxy"] = raw["volume"].clip(lower=0) * signed_fraction.fillna(0.0)
+    raw["absolute_signed_volume_proxy"] = raw["signed_volume_proxy"].abs()
+
+    if base_is_five_minute:
+        agg = raw.dropna(subset=["open", "high", "low", "close"])
+    else:
+        counts = raw["close"].resample("5min", label="left", closed="left").count()
+        agg = raw.resample("5min", label="left", closed="left").agg(
+            {
+                "open": "first",
+                "high": "max",
+                "low": "min",
+                "close": "last",
+                "volume": "sum",
+                "signed_volume_proxy": "sum",
+                "absolute_signed_volume_proxy": "sum",
+            }
+        )
+        agg = agg.loc[counts >= 4].dropna(subset=["open", "high", "low", "close"])
+    f = _session_vwap_features(agg)
+    volume = f["volume"].replace(0, np.nan)
+    f["signed_pressure_proxy"] = f["signed_volume_proxy"] / volume
+    pressure_mean = f["signed_pressure_proxy"].shift(1).rolling(100, min_periods=50).mean()
+    pressure_std = (
+        f["signed_pressure_proxy"].shift(1).rolling(100, min_periods=50).std(ddof=0).replace(0, np.nan)
+    )
+    f["pressure_z_proxy"] = (f["signed_pressure_proxy"] - pressure_mean) / pressure_std
+    volume_mean = f["volume"].shift(1).rolling(100, min_periods=50).mean()
+    volume_std = f["volume"].shift(1).rolling(100, min_periods=50).std(ddof=0).replace(0, np.nan)
+    f["volume_z_proxy"] = (f["volume"] - volume_mean) / volume_std
+    range_ = (f["high"] - f["low"]).replace(0, np.nan)
+    f["efficiency_proxy"] = (f["close"] - f["open"]).abs() / range_
+    f["close_location_proxy"] = (f["close"] - f["low"]) / range_
+    f["range_atr_proxy"] = range_ / f["atr"].replace(0, np.nan)
+    f["vwap_distance_atr_proxy"] = (f["close"] - f["vwap"]) / f["atr"].replace(0, np.nan)
+    flow_volume = f["volume"].rolling(6, min_periods=6).sum().replace(0, np.nan)
+    f["flow6_proxy"] = f["signed_volume_proxy"].rolling(6, min_periods=6).sum() / flow_volume
+    f["price6_atr_proxy"] = (f["close"] - f["close"].shift(6)) / f["atr"].replace(0, np.nan)
+    toxicity_volume = f["volume"].rolling(12, min_periods=12).sum().replace(0, np.nan)
+    f["toxicity_proxy"] = (
+        f["absolute_signed_volume_proxy"].rolling(12, min_periods=12).sum()
+        / toxicity_volume
+    )
+    f["toxicity_q90_proxy"] = (
+        f["toxicity_proxy"].shift(1).rolling(500, min_periods=200).quantile(0.90)
+    )
+    relative_volume = f["volume"] / volume_mean.replace(0, np.nan)
+    raw_impact = f["range_atr_proxy"] / relative_volume.replace(0, np.nan)
+    impact_mean = raw_impact.shift(1).rolling(100, min_periods=50).mean()
+    impact_std = raw_impact.shift(1).rolling(100, min_periods=50).std(ddof=0).replace(0, np.nan)
+    f["impact_z_proxy"] = (raw_impact - impact_mean) / impact_std
+    f["prior_high12_proxy"] = f["high"].shift(1).rolling(12, min_periods=12).max()
+    f["prior_low12_proxy"] = f["low"].shift(1).rolling(12, min_periods=12).min()
+
+    def _drop_cache(_reference: weakref.ReferenceType[pd.DataFrame], key: int = cache_key) -> None:
+        _MICRO_PROXY_CACHE.pop(key, None)
+
+    _MICRO_PROXY_CACHE[cache_key] = (weakref.ref(bars_1m, _drop_cache), f)
+    return f
+
+
+def _micro_session_mask(frame: pd.DataFrame, symbol: str) -> pd.Series:
+    minutes = frame.index.hour * 60 + frame.index.minute
+    end_minute = 13 * 60 if symbol == "CL" else 15 * 60
+    return pd.Series((minutes >= 10 * 60) & (minutes <= end_minute), index=frame.index)
 
 
 def generate_vwap_band_reentry(
@@ -2794,6 +2931,322 @@ def generate_nq_post_settlement_alignment(
     return out
 
 
+def generate_bvc_cvd_divergence(
+    bars_1m: pd.DataFrame,
+    _bars_5m: pd.DataFrame,
+    symbol: str,
+    spec: dict[str, Any],
+) -> list[Candidate]:
+    """Fade a six-bar price/estimated-flow disagreement at a VWAP stretch."""
+    f = _microstructure_proxy_5m(bars_1m)
+    price_move = f["price6_atr_proxy"]
+    flow = f["flow6_proxy"]
+    distance = f["vwap_distance_atr_proxy"]
+    valid = f[["atr", "price6_atr_proxy", "flow6_proxy", "vwap_distance_atr_proxy"]].notna().all(axis=1) & (f["atr"] > 0)
+    up = (
+        (price_move >= float(spec["minimum_price_atr"]))
+        & (flow <= -float(spec["minimum_opposite_flow"]))
+        & (distance >= float(spec["minimum_vwap_atr"]))
+    )
+    down = (
+        (price_move <= -float(spec["minimum_price_atr"]))
+        & (flow >= float(spec["minimum_opposite_flow"]))
+        & (distance <= -float(spec["minimum_vwap_atr"]))
+    )
+    mask = valid & _micro_session_mask(f, symbol) & (up | down)
+    mask.iloc[:500] = False
+    out: list[Candidate] = []
+    last_signal: pd.Timestamp | None = None
+    for i in np.flatnonzero(mask.to_numpy()):
+        ts = pd.Timestamp(f.index[i])
+        if last_signal is not None and ts - last_signal < pd.Timedelta(hours=2):
+            continue
+        row = f.iloc[i]
+        atr = float(row["atr"])
+        recent = f.iloc[i - 5 : i + 1]
+        if bool(up.iloc[i]):
+            side = "SELL"
+            stop = float(recent["high"].max()) + 0.10 * atr
+        else:
+            side = "BUY"
+            stop = float(recent["low"].min()) - 0.10 * atr
+        cand = _candidate(
+            bars_1m=bars_1m,
+            signal_ts=ts,
+            signal_minutes=5,
+            family="bvc_cvd_divergence",
+            variant=str(spec["id"]),
+            source_id="cvd_absorption",
+            symbol=symbol,
+            side=side,
+            stop=stop,
+            target_r=1.6,
+            notes="OHLCV-derived six-bar BVC pressure diverges from price at a session-VWAP stretch",
+        )
+        if cand:
+            out.append(cand)
+            last_signal = ts
+    return out
+
+
+def generate_bvc_absorption_reversal(
+    bars_1m: pd.DataFrame,
+    _bars_5m: pd.DataFrame,
+    symbol: str,
+    spec: dict[str, Any],
+) -> list[Candidate]:
+    """Fade estimated aggressive pressure that produces little directional progress."""
+    f = _microstructure_proxy_5m(bars_1m)
+    valid = f[
+        [
+            "atr",
+            "pressure_z_proxy",
+            "volume_z_proxy",
+            "efficiency_proxy",
+            "close_location_proxy",
+            "vwap_distance_atr_proxy",
+        ]
+    ].notna().all(axis=1) & (f["atr"] > 0)
+    common = (
+        (f["volume_z_proxy"] >= float(spec["minimum_volume_z"]))
+        & (f["efficiency_proxy"] <= float(spec["maximum_efficiency"]))
+    )
+    up = (
+        (f["pressure_z_proxy"] >= float(spec["minimum_pressure_z"]))
+        & (f["close_location_proxy"] <= float(spec["maximum_rejection_location"]))
+        & (f["vwap_distance_atr_proxy"] >= float(spec["minimum_vwap_atr"]))
+    )
+    down = (
+        (f["pressure_z_proxy"] <= -float(spec["minimum_pressure_z"]))
+        & (f["close_location_proxy"] >= 1.0 - float(spec["maximum_rejection_location"]))
+        & (f["vwap_distance_atr_proxy"] <= -float(spec["minimum_vwap_atr"]))
+    )
+    mask = valid & common & _micro_session_mask(f, symbol) & (up | down)
+    mask.iloc[:500] = False
+    out: list[Candidate] = []
+    last_signal: pd.Timestamp | None = None
+    for i in np.flatnonzero(mask.to_numpy()):
+        ts = pd.Timestamp(f.index[i])
+        if last_signal is not None and ts - last_signal < pd.Timedelta(hours=2):
+            continue
+        row = f.iloc[i]
+        atr = float(row["atr"])
+        if bool(up.iloc[i]):
+            side, stop = "SELL", float(row["high"]) + 0.10 * atr
+        else:
+            side, stop = "BUY", float(row["low"]) - 0.10 * atr
+        cand = _candidate(
+            bars_1m=bars_1m,
+            signal_ts=ts,
+            signal_minutes=5,
+            family="bvc_absorption_reversal",
+            variant=str(spec["id"]),
+            source_id="bulk_volume_classification",
+            symbol=symbol,
+            side=side,
+            stop=stop,
+            target_r=1.6,
+            notes="BVC pressure/volume extreme with low efficiency and rejection away from VWAP; proxy, not true delta",
+        )
+        if cand:
+            out.append(cand)
+            last_signal = ts
+    return out
+
+
+def generate_bvc_pressure_breakout(
+    bars_1m: pd.DataFrame,
+    _bars_5m: pd.DataFrame,
+    symbol: str,
+    spec: dict[str, Any],
+) -> list[Candidate]:
+    """Follow an efficient range break when estimated pressure and volume agree."""
+    f = _microstructure_proxy_5m(bars_1m)
+    valid = f[
+        [
+            "atr",
+            "pressure_z_proxy",
+            "volume_z_proxy",
+            "efficiency_proxy",
+            "prior_high12_proxy",
+            "prior_low12_proxy",
+            "vwap_distance_atr_proxy",
+        ]
+    ].notna().all(axis=1) & (f["atr"] > 0)
+    common = (
+        (f["volume_z_proxy"] >= float(spec["minimum_volume_z"]))
+        & (f["efficiency_proxy"] >= float(spec["minimum_efficiency"]))
+    )
+    up = (
+        (f["pressure_z_proxy"] >= float(spec["minimum_pressure_z"]))
+        & (f["close"] > f["prior_high12_proxy"])
+        & (f["vwap_distance_atr_proxy"] > 0)
+    )
+    down = (
+        (f["pressure_z_proxy"] <= -float(spec["minimum_pressure_z"]))
+        & (f["close"] < f["prior_low12_proxy"])
+        & (f["vwap_distance_atr_proxy"] < 0)
+    )
+    mask = valid & common & _micro_session_mask(f, symbol) & (up | down)
+    mask.iloc[:500] = False
+    out: list[Candidate] = []
+    last_signal: pd.Timestamp | None = None
+    for i in np.flatnonzero(mask.to_numpy()):
+        ts = pd.Timestamp(f.index[i])
+        if last_signal is not None and ts - last_signal < pd.Timedelta(hours=3):
+            continue
+        row = f.iloc[i]
+        atr = float(row["atr"])
+        prior_high = float(row["prior_high12_proxy"])
+        prior_low = float(row["prior_low12_proxy"])
+        if bool(up.iloc[i]):
+            side, stop = "BUY", max(prior_high - 0.50 * atr, float(row["low"]) - 0.10 * atr)
+        else:
+            side, stop = "SELL", min(prior_low + 0.50 * atr, float(row["high"]) + 0.10 * atr)
+        cand = _candidate(
+            bars_1m=bars_1m,
+            signal_ts=ts,
+            signal_minutes=5,
+            family="bvc_pressure_breakout",
+            variant=str(spec["id"]),
+            source_id="order_flow_price_impact",
+            symbol=symbol,
+            side=side,
+            stop=stop,
+            target_r=1.6,
+            notes="Efficient 12-bar break with aligned BVC pressure, relative volume, and session VWAP",
+        )
+        if cand:
+            out.append(cand)
+            last_signal = ts
+    return out
+
+
+def generate_vpin_failed_extension(
+    bars_1m: pd.DataFrame,
+    _bars_5m: pd.DataFrame,
+    symbol: str,
+    spec: dict[str, Any],
+) -> list[Candidate]:
+    """Fade a failed range extension only during an unusually toxic proxy state."""
+    f = _microstructure_proxy_5m(bars_1m)
+    valid = f[
+        [
+            "atr",
+            "toxicity_proxy",
+            "toxicity_q90_proxy",
+            "prior_high12_proxy",
+            "prior_low12_proxy",
+            "close_location_proxy",
+        ]
+    ].notna().all(axis=1) & (f["atr"] > 0)
+    toxic = f["toxicity_proxy"] >= float(spec["toxicity_quantile_multiplier"]) * f["toxicity_q90_proxy"]
+    up = (
+        (f["high"] > f["prior_high12_proxy"])
+        & (f["close"] < f["prior_high12_proxy"])
+        & (f["close_location_proxy"] <= float(spec["edge_fraction"]))
+    )
+    down = (
+        (f["low"] < f["prior_low12_proxy"])
+        & (f["close"] > f["prior_low12_proxy"])
+        & (f["close_location_proxy"] >= 1.0 - float(spec["edge_fraction"]))
+    )
+    mask = valid & toxic & _micro_session_mask(f, symbol) & (up | down)
+    mask.iloc[:500] = False
+    out: list[Candidate] = []
+    last_signal: pd.Timestamp | None = None
+    for i in np.flatnonzero(mask.to_numpy()):
+        ts = pd.Timestamp(f.index[i])
+        if last_signal is not None and ts - last_signal < pd.Timedelta(hours=3):
+            continue
+        row = f.iloc[i]
+        atr = float(row["atr"])
+        if bool(up.iloc[i]):
+            side, stop = "SELL", float(row["high"]) + 0.10 * atr
+        else:
+            side, stop = "BUY", float(row["low"]) - 0.10 * atr
+        cand = _candidate(
+            bars_1m=bars_1m,
+            signal_ts=ts,
+            signal_minutes=5,
+            family="vpin_failed_extension",
+            variant=str(spec["id"]),
+            source_id="vpin_futures",
+            symbol=symbol,
+            side=side,
+            stop=stop,
+            target_r=1.6,
+            notes="VPIN-style OHLCV toxicity proxy plus completed failed 12-bar extension",
+        )
+        if cand:
+            out.append(cand)
+            last_signal = ts
+    return out
+
+
+def generate_impact_shock_reversal(
+    bars_1m: pd.DataFrame,
+    _bars_5m: pd.DataFrame,
+    symbol: str,
+    spec: dict[str, Any],
+) -> list[Candidate]:
+    """Fade a high price-impact liquidity shock only after an extreme rejection."""
+    f = _microstructure_proxy_5m(bars_1m)
+    valid = f[
+        [
+            "atr",
+            "impact_z_proxy",
+            "range_atr_proxy",
+            "close_location_proxy",
+            "prior_high12_proxy",
+            "prior_low12_proxy",
+        ]
+    ].notna().all(axis=1) & (f["atr"] > 0)
+    common = (
+        (f["impact_z_proxy"] >= float(spec["minimum_impact_z"]))
+        & (f["range_atr_proxy"] >= float(spec["minimum_range_atr"]))
+    )
+    up = (
+        (f["high"] > f["prior_high12_proxy"])
+        & (f["close_location_proxy"] <= float(spec["edge_fraction"]))
+    )
+    down = (
+        (f["low"] < f["prior_low12_proxy"])
+        & (f["close_location_proxy"] >= 1.0 - float(spec["edge_fraction"]))
+    )
+    mask = valid & common & _micro_session_mask(f, symbol) & (up | down)
+    mask.iloc[:500] = False
+    out: list[Candidate] = []
+    last_signal: pd.Timestamp | None = None
+    for i in np.flatnonzero(mask.to_numpy()):
+        ts = pd.Timestamp(f.index[i])
+        if last_signal is not None and ts - last_signal < pd.Timedelta(hours=3):
+            continue
+        row = f.iloc[i]
+        atr = float(row["atr"])
+        if bool(up.iloc[i]):
+            side, stop = "SELL", float(row["high"]) + 0.10 * atr
+        else:
+            side, stop = "BUY", float(row["low"]) - 0.10 * atr
+        cand = _candidate(
+            bars_1m=bars_1m,
+            signal_ts=ts,
+            signal_minutes=5,
+            family="impact_shock_reversal",
+            variant=str(spec["id"]),
+            source_id="order_flow_practice",
+            symbol=symbol,
+            side=side,
+            stop=stop,
+            target_r=1.6,
+            notes="High OHLCV price-impact proxy, wide bar, and completed rejection beyond a 12-bar extreme",
+        )
+        if cand:
+            out.append(cand)
+            last_signal = ts
+    return out
+
+
 FAMILY_SPECS: tuple[tuple[str, Generator, tuple[dict[str, Any], ...]], ...] = (
     (
         "vwap_band_reentry",
@@ -3208,6 +3661,60 @@ FAMILY_SPECS: tuple[tuple[str, Generator, tuple[dict[str, Any], ...]], ...] = (
         (
             {"id": "drift05_gap10", "minimum_post_drift_range": 0.05, "minimum_gap_range": 0.10},
             {"id": "drift10_gap20", "minimum_post_drift_range": 0.10, "minimum_gap_range": 0.20},
+        ),
+    ),
+    (
+        "bvc_cvd_divergence",
+        generate_bvc_cvd_divergence,
+        (
+            {"id": "price050_flow15_vwap050", "minimum_price_atr": 0.50, "minimum_opposite_flow": 0.15, "minimum_vwap_atr": 0.50},
+            {"id": "price075_flow20_vwap075", "minimum_price_atr": 0.75, "minimum_opposite_flow": 0.20, "minimum_vwap_atr": 0.75},
+        ),
+    ),
+    (
+        "bvc_absorption_reversal",
+        generate_bvc_absorption_reversal,
+        (
+            {
+                "id": "pressure20_volume10_eff35",
+                "minimum_pressure_z": 2.0,
+                "minimum_volume_z": 1.0,
+                "maximum_efficiency": 0.35,
+                "maximum_rejection_location": 0.55,
+                "minimum_vwap_atr": 0.50,
+            },
+            {
+                "id": "pressure25_volume15_eff25",
+                "minimum_pressure_z": 2.5,
+                "minimum_volume_z": 1.5,
+                "maximum_efficiency": 0.25,
+                "maximum_rejection_location": 0.50,
+                "minimum_vwap_atr": 0.75,
+            },
+        ),
+    ),
+    (
+        "bvc_pressure_breakout",
+        generate_bvc_pressure_breakout,
+        (
+            {"id": "pressure20_volume10_eff60", "minimum_pressure_z": 2.0, "minimum_volume_z": 1.0, "minimum_efficiency": 0.60},
+            {"id": "pressure25_volume15_eff70", "minimum_pressure_z": 2.5, "minimum_volume_z": 1.5, "minimum_efficiency": 0.70},
+        ),
+    ),
+    (
+        "vpin_failed_extension",
+        generate_vpin_failed_extension,
+        (
+            {"id": "toxicity_q90_edge35", "toxicity_quantile_multiplier": 1.0, "edge_fraction": 0.35},
+            {"id": "toxicity_q90x105_edge25", "toxicity_quantile_multiplier": 1.05, "edge_fraction": 0.25},
+        ),
+    ),
+    (
+        "impact_shock_reversal",
+        generate_impact_shock_reversal,
+        (
+            {"id": "impact20_range15_edge30", "minimum_impact_z": 2.0, "minimum_range_atr": 1.5, "edge_fraction": 0.30},
+            {"id": "impact30_range20_edge20", "minimum_impact_z": 3.0, "minimum_range_atr": 2.0, "edge_fraction": 0.20},
         ),
     ),
 )

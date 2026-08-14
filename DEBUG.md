@@ -5,6 +5,17 @@
 
 ---
 
+## AT — OHLCV flow proxies are not order-book evidence; Yahoo cadence must remain usable (2026-08-14)
+
+| | |
+|--|--|
+| **Symptom** | Public order-flow discussions describe CVD divergence, absorption, stacked imbalance, and VPIN. The paid cache contains only one-minute OHLCV, and the first pass-6 run produced zero Yahoo candidates for every family even though the frozen rules generated long/paid candidates. |
+| **Root cause** | BVC can estimate signed pressure from price/volume bars, but it cannot reconstruct aggressor-side trades, bid/ask queues, cancellations, or depth. Separately, `_microstructure_proxy_5m` initially required at least four source rows per five-minute bucket; independent Yahoo already supplies one completed five-minute row, so the resampler discarded the entire source. |
+| **Fix** | Name every derived field and report as a proxy; classify one-minute bars with a prior-only 120-minute volatility estimate, aggregate into completed five-minute signals, and keep true L1 semantics out of claims. Detect completed five-minute input and classify it directly with an equivalent 24-bar prior window for the independent Yahoo check. Prefix-invariance tests cover both cadences. Frozen pass-6 evidence failed: pressure-breakout holdout n90 WR44.4%; toxicity holdout n193 WR47.1%, paid n23 WR47.8%, Yahoo n10 WR60%; impact-shock holdout n37 WR40.5%. |
+| **Do not** | Call OHLCV-estimated pressure real CVD/OFI/footprint data; claim 6/10 Yahoo proves 60%; discard an independent source merely because its base cadence already equals the decision cadence; retune after this holdout; or download TBBO/MBP-1 without fresh explicit spend approval. |
+
+---
+
 ## AS — More public strategy names do not create independent evidence (2026-08-14)
 
 | | |

@@ -1,6 +1,6 @@
 # Broad Futures Strategy Discovery
 
-Generated: 2026-08-14T23:00:54.169905+00:00
+Generated: 2026-08-14T23:35:17.232030+00:00
 
 **Verdict: NO_70_PERCENT_STRATEGY_VALIDATED**
 
@@ -13,7 +13,10 @@ Paid Databento API calls: **0**; additional spend: **$0.00**. The run used the a
 | daily_ibs_capitulation_reversion | NQ | ibs30_excursion25_stop050 | 7 | 42.9% | 1.22 | +0.095R | 1 | 100.0% | 999.00 | +1.292R | FAIL |
 | value_area_breakout_continuation | CL | break10_depth50 | 13 | 30.8% | 0.75 | -0.138R | 1 | 100.0% | 999.00 | +0.975R | FAIL |
 | gap_reject_then_go | NQ | gap25_fill20 | 2 | 100.0% | 999.00 | +1.032R | 1 | 100.0% | 999.00 | +0.950R | FAIL |
+| bvc_pressure_breakout | NQ | pressure20_volume10_eff60 | 29 | 58.6% | 2.08 | +0.287R | 6 | 100.0% | 999.00 | +0.949R | FAIL |
+| impact_shock_reversal | CL | impact20_range15_edge30 | 2 | 100.0% | 999.00 | +0.830R | 2 | 100.0% | 999.00 | +0.830R | FAIL |
 | value_area_80_rule_rotation | NQ | two_closes_stop025 | 8 | 62.5% | 1.72 | +0.212R | 3 | 100.0% | 999.00 | +0.660R | FAIL |
+| vpin_failed_extension | NQ | toxicity_q90x105_edge25 | 23 | 47.8% | 1.31 | +0.113R | 4 | 75.0% | 3.18 | +0.551R | FAIL |
 | value_area_breakout_continuation | NQ | break10_depth50 | 24 | 70.8% | 4.07 | +0.544R | 7 | 71.4% | 5.90 | +0.720R | FAIL |
 | opening_range_midpoint_continuation | NQ | or60_impulse50_depth25 | 22 | 63.6% | 2.04 | +0.296R | 3 | 66.7% | 1.77 | +0.260R | FAIL |
 | ny_open_three_bar_continuation | NQ | drive_pause_break_hold9 | 40 | 45.0% | 1.25 | +0.101R | 10 | 60.0% | 3.38 | +0.484R | FAIL |
@@ -50,6 +53,7 @@ Paid Databento API calls: **0**; additional spend: **$0.00**. The run used the a
 | session_extreme_two_bar_reversal | NQ | vwap10_confirm35 | 99 | 41.4% | 0.95 | -0.022R | 25 | 28.0% | 0.57 | -0.195R | FAIL |
 | overnight_gap_reversion | NQ | gap030 | 32 | 37.5% | 1.10 | +0.034R | 11 | 27.3% | 0.81 | -0.072R | FAIL |
 | volatility_compression_breakout | NQ | compress40 | 93 | 40.9% | 0.98 | -0.006R | 26 | 26.9% | 0.63 | -0.174R | FAIL |
+| bvc_pressure_breakout | CL | pressure25_volume15_eff70 | 8 | 25.0% | 0.49 | -0.222R | 4 | 25.0% | 0.72 | -0.090R | FAIL |
 | overnight_gap_reversion | CL | gap030 | 44 | 29.5% | 0.62 | -0.184R | 12 | 25.0% | 0.53 | -0.262R | FAIL |
 | volume_climax_rejection | CL | vol20_range15_edge25 | 39 | 43.6% | 1.05 | +0.019R | 10 | 20.0% | 0.29 | -0.399R | FAIL |
 | lunch_vwap_reclaim | NQ | stretch20_reclaim075 | 41 | 34.2% | 0.84 | -0.064R | 11 | 18.2% | 0.24 | -0.488R | FAIL |
@@ -58,9 +62,13 @@ Paid Databento API calls: **0**; additional spend: **$0.00**. The run used the a
 | vwap_band_reentry | NQ | z2_re1_flat035 | 8 | 37.5% | 1.61 | +0.162R | 0 | 0.0% | 0.00 | +0.000R | FAIL |
 | intraday_capitulation_reversal | NQ | bb20_20_rsi2 | 7 | 71.4% | 2.12 | +0.322R | 0 | 0.0% | 0.00 | +0.000R | FAIL |
 | conditional_overnight_reversal | NQ | same_sign_gap030_prior015 | 5 | 40.0% | 2.97 | +0.238R | 0 | 0.0% | 0.00 | +0.000R | FAIL |
+| impact_shock_reversal | NQ | impact20_range15_edge30 | 5 | 20.0% | 0.31 | -0.421R | 0 | 0.0% | 0.00 | +0.000R | FAIL |
 | trend_capitulation_reclaim | NQ | bb20_20 | 4 | 75.0% | 346.71 | +0.661R | 0 | 0.0% | 0.00 | +0.000R | FAIL |
+| bvc_cvd_divergence | CL | price050_flow15_vwap050 | 2 | 100.0% | 999.00 | +1.273R | 0 | 0.0% | 0.00 | +0.000R | FAIL |
 | balanced_value_area_reversion | NQ | value3_balance35 | 1 | 0.0% | 0.00 | -1.031R | 0 | 0.0% | 0.00 | +0.000R | FAIL |
 | balanced_value_area_reversion | CL | value3_balance35 | 0 | 0.0% | 0.00 | +0.000R | 0 | 0.0% | 0.00 | +0.000R | FAIL |
+| bvc_absorption_reversal | NQ | pressure20_volume10_eff35 | 0 | 0.0% | 0.00 | +0.000R | 0 | 0.0% | 0.00 | +0.000R | FAIL |
+| bvc_cvd_divergence | NQ | price050_flow15_vwap050 | 0 | 0.0% | 0.00 | +0.000R | 0 | 0.0% | 0.00 | +0.000R | FAIL |
 | daily_ibs_capitulation_reversion | CL | ibs30_excursion25_stop050 | 0 | 0.0% | 0.00 | +0.000R | 0 | 0.0% | 0.00 | +0.000R | FAIL |
 | gap_reject_then_go | CL | gap25_fill20 | 0 | 0.0% | 0.00 | +0.000R | 0 | 0.0% | 0.00 | +0.000R | FAIL |
 | intraday_capitulation_reversal | CL | bb20_20_rsi2 | 0 | 0.0% | 0.00 | +0.000R | 0 | 0.0% | 0.00 | +0.000R | FAIL |
@@ -73,7 +81,9 @@ Paid Databento API calls: **0**; additional spend: **$0.00**. The run used the a
 | trend_capitulation_reclaim | CL | bb20_20 | 0 | 0.0% | 0.00 | +0.000R | 0 | 0.0% | 0.00 | +0.000R | FAIL |
 | weekly_value_area_failed_auction | NQ | outside10_retest05 | 8 | 12.5% | 0.23 | -0.333R | 4 | 0.0% | 0.00 | -0.505R | FAIL |
 | conditional_overnight_reversal | CL | same_sign_gap050_prior025_exmon | 10 | 20.0% | 0.35 | -0.427R | 3 | 0.0% | 0.00 | -0.737R | FAIL |
+| vpin_failed_extension | CL | toxicity_q90_edge35 | 9 | 33.3% | 0.41 | -0.406R | 4 | 0.0% | 0.00 | -0.999R | FAIL |
 | lunch_vwap_reclaim | CL | stretch25_reclaim050 | 6 | 33.3% | 0.40 | -0.430R | 1 | 0.0% | 0.00 | -1.070R | FAIL |
+| bvc_absorption_reversal | CL | pressure20_volume10_eff35 | 1 | 0.0% | 0.00 | -1.070R | 1 | 0.0% | 0.00 | -1.070R | FAIL |
 
 ## Why the holdout is protected
 
@@ -89,5 +99,5 @@ One regularized logistic selector per symbol was trained only on development row
 
 | Symbol | Threshold | Development n/WR | Validation n/WR/PF/E | Holdout n/WR/PF/E | Yahoo n/WR/PF/E | Verdict |
 |---|---:|---|---|---|---|---|
-| NQ | 0.55 | 113/55.8% | 62/56.5%/1.81/+0.222R | 55/45.5%/1.08/+0.029R | 88/47.7%/1.00/+0.001R | FAIL |
-| CL | 0.50 | 161/66.5% | 96/45.8%/0.96/-0.019R | 86/44.2%/0.79/-0.106R | 142/43.7%/0.94/-0.031R | FAIL |
+| NQ | 0.60 | 45/64.4% | 35/57.1%/2.29/+0.285R | 26/61.5%/2.13/+0.253R | 42/45.2%/0.82/-0.070R | FAIL |
+| CL | 0.50 | 162/67.3% | 91/44.0%/0.88/-0.060R | 90/45.6%/0.81/-0.097R | 144/45.8%/1.03/+0.014R | FAIL |

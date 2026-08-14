@@ -66,6 +66,11 @@ LONG_HISTORY_FAMILIES = (
     "lunch_vwap_reclaim",
     "two_test_range_breakout",
     "nq_post_settlement_alignment",
+    "bvc_cvd_divergence",
+    "bvc_absorption_reversal",
+    "bvc_pressure_breakout",
+    "vpin_failed_extension",
+    "impact_shock_reversal",
 )
 
 Progress = Callable[[str], None]
@@ -344,9 +349,15 @@ def write_long_history_report(payload: dict[str, Any], output_dir: Path) -> None
         "",
         "No paper strategy is enabled unless the external holdout, corrected paid Databento recent window, and independent current Yahoo window all pass. The external file is research-only.",
         "",
-        "| Family | Variant | Long n | Long WR | Holdout n | Holdout WR | Paid n | Paid WR | Yahoo n | Yahoo WR | Eligible |",
-        "|---|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|",
     ]
+    if payload.get("proxy_warning"):
+        lines.extend([f"**Proxy warning:** {payload['proxy_warning']}", ""])
+    lines.extend(
+        [
+            "| Family | Variant | Long n | Long WR | Holdout n | Holdout WR | Paid n | Paid WR | Yahoo n | Yahoo WR | Eligible |",
+            "|---|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|",
+        ]
+    )
     for row in payload["finalists"]:
         all_stats = row["external_all"]
         hold = row["external_holdout"]
