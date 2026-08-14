@@ -58,6 +58,8 @@ data/nq_focused_research/*.json
 # Large raw research datasets (Kaggle / Databento caches) — do not commit
 data/kaggle/
 data/databento/
+data/yfinance_cache/
+data/external_nq_quality/*.parquet
 data/raw/
 *.csv.gz
 Dataset_NQ_1min*.csv

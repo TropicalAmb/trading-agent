@@ -5,6 +5,28 @@
 
 ---
 
+## AP — Intentional no-strategy gate was misclassified as restartable risk drought (2026-08-14)
+
+| | |
+|--|--|
+| **Symptom** | Live heartbeat correctly said `BLOCKED — CONFIG_ENTRY_GATE:NO_VALIDATED_PAPER_STRATEGY`, but `trade_silence_status.json` reported `RISK_OR_PORTFOLIO_BLOCKS` from older rejects and set `auto_restart_suggested: true`. This could cause pointless overnight restart churn while no strategy is eligible. |
+| **Root cause** | `trade_silence` recognized only specific schedule strings (`skip_friday_entries`, NY-open delay, session window), not the generic `CONFIG_ENTRY_GATE` decision emitted by the paper evidence fail-close. Recent/stale reject classes were evaluated without current global-gate precedence. |
+| **Fix** | Detect generic `CONFIG_ENTRY_GATE` in heartbeat scan/decision text. A current config gate now removes stale quality/risk/pipeline blockers while preserving genuine code/preflight failures, reports `CONFIG_ENTRY_GATE`, and forces `auto_restart_suggested=false`. Regression test seeds four recent risk rejects under `NO_VALIDATED_PAPER_STRATEGY` and requires config-only classification. |
+| **Do not** | Restart to remove an evidence/config gate; let historical rejects override the current global decision; call intentional no-strategy fail-close a healthy selective setup drought; or suppress a real code/preflight failure merely because a config gate is also visible. |
+
+---
+
+## AO — Reddit headline WR and long-history data can still manufacture false confidence (2026-08-14)
+
+| | |
+|--|--|
+| **Symptom** | Public posts claimed ~70% win rates or 70% market events; short paid slices showed attractive 5/7, 3/4, or 1/1 results; an initial regime selector also appeared >70% before unfinished feature bars and overlapping opportunities were removed. A public 15-year NQ file initially failed Yahoo agreement and contained a one-week 100× price-scale error. |
+| **Root cause** | Event frequency was confused with trade profitability; Reddit results used different instruments/exits or lacked audited evidence. The first data cross-check compared futures-session closes to Yahoo daily labels shifted to the prior ET date. The public file's 2012-02-05–2012-02-12 episode was mis-scaled by ~100×. Direct binomial-tail summation overflowed on thousands of trades. Small recent samples and unconstrained meta-selection can look excellent even when the untouched long holdout fails. |
+| **Fix** | Encode each public claim only as a research hypothesis. Yahoo daily labels now localize as ET date labels and compare equivalent RTH closes. Quarantine bounded scale episodes without rewriting them; public data remains `WARN_UNVERIFIED_PROVENANCE`, research-only, and never a paper provider. Use completed entry features, same-partition exit embargo, one-position non-overlap, frozen chronological selection, paid corrected Databento, independent Yahoo, minimum samples, PF/E gates, and scipy's stable binomial survival function. The final 13-family/54-test screen promoted nothing; nonlinear router validation n94 WR50.0% and holdout n107 WR31.8% PF0.55 E−0.245R. |
+| **Do not** | Turn a “NY takes London 70%” event into a 70% strategy claim; transfer a SPY daily WR to stopped NQ; rescale contaminated public rows silently; treat unverified provenance as Databento; use unfinished entry bars; count overlapping opportunities as simultaneous wins; quote 5/7, 3/4, or 1/1 as proof; chase the rejected 0.30R/75.5% sensitivity; retune after viewing holdout; or enable research code because it exists. |
+
+---
+
 ## AN — Corrected paid caches exposed execution-replay mismatch (2026-08-14)
 
 | | |

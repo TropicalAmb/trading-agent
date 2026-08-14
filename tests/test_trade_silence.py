@@ -434,3 +434,40 @@ def test_global_schedule_gate_is_not_reported_as_healthy_quiet(tmp_path: Path):
     assert BLOCKER_CONFIG_ENTRY_GATE in report.blocker_codes
     assert BLOCKER_HEALTHY_SELECTIVE_QUIET not in report.blocker_codes
     assert report.auto_restart_suggested is False
+
+
+def test_no_validated_strategy_gate_supersedes_stale_risk_rejects(tmp_path: Path):
+    data = tmp_path / "data"
+    data.mkdir()
+    _copy_preflight(tmp_path)
+    now = datetime(2026, 8, 14, 15, 0, tzinfo=timezone.utc)  # Friday 11:00 ET
+    _seed_regime(data, now - timedelta(hours=3))
+    (data / "paper_trades.json").write_text(
+        json.dumps(
+            {
+                "trades": [],
+                "heartbeat": {
+                    "ts": now.isoformat(),
+                    "decision": "BLOCKED — CONFIG_ENTRY_GATE:NO_VALIDATED_PAPER_STRATEGY",
+                },
+            }
+        ),
+        encoding="utf-8",
+    )
+    decisions = data / "execution_decisions.jsonl"
+    reject = {
+        "cycle_ts": (now - timedelta(minutes=20)).isoformat(),
+        "decision": "REJECTED",
+        "reason": "RISK_LIMIT:confidence 35 < 62 (ny quality bar)",
+    }
+    decisions.write_text(
+        "\n".join(json.dumps(reject) for _ in range(4)) + "\n",
+        encoding="utf-8",
+    )
+    cfg = _cfg()
+    cfg["trade_silence_watch"]["decisions_path"] = str(decisions)
+    report = diagnose_trade_silence(root=tmp_path, cfg=cfg, now=now)
+    assert report.severity == "ALERT"
+    assert report.blocker_codes == [BLOCKER_CONFIG_ENTRY_GATE]
+    assert report.details["config_entry_gate"] is True
+    assert report.auto_restart_suggested is False

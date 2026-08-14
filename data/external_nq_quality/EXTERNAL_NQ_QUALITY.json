@@ -1,0 +1,122 @@
+{
+  "generated_at_utc": "2026-08-14T18:23:31.691675+00:00",
+  "status": "WARN_UNVERIFIED_PROVENANCE",
+  "research_use_only": true,
+  "paper_provider_allowed": false,
+  "provenance": {
+    "source_post": "https://www.reddit.com/r/FuturesTrading/comments/1kns6vk/",
+    "public_drive_file_id": "1Gznd9uTMMfEfGRt427aKLVi4LSe0nRUh",
+    "claimed_origin": "Databento (author statement only; no manifest supplied)",
+    "sha256": "ADBD9BD99E4D5042EFC43EE0B99468310143C9FFB1CF0944078A35927E30D071",
+    "bytes": 272136128
+  },
+  "shape": {
+    "rows": 4974698,
+    "columns": [
+      "open",
+      "high",
+      "low",
+      "close",
+      "volume"
+    ]
+  },
+  "window": [
+    "2010-06-06 20:00:00",
+    "2025-03-14 16:59:00"
+  ],
+  "quality": {
+    "null_numeric_rows": 0,
+    "invalid_ohlc_rows": 0,
+    "duplicate_timestamp_rows": 0,
+    "out_of_order_rows_after_sort": 0,
+    "gap_2_to_30_minutes": 135029,
+    "gaps_over_30_minutes": 3807,
+    "minute_returns_over_1pct": 99,
+    "minute_returns_over_1pct_rate": 1.992566719788361e-05,
+    "max_abs_minute_return": 0.04069629880006764,
+    "biggest_return_timestamps": [
+      {
+        "timestamp": "2020-03-16 09:45:00",
+        "abs_return": 0.04069629880006764
+      },
+      {
+        "timestamp": "2022-10-13 08:30:00",
+        "abs_return": 0.034690144065858686
+      },
+      {
+        "timestamp": "2020-03-22 18:00:00",
+        "abs_return": 0.03341642281709478
+      },
+      {
+        "timestamp": "2022-02-27 18:00:00",
+        "abs_return": 0.03055452767352118
+      },
+      {
+        "timestamp": "2025-02-02 18:00:00",
+        "abs_return": 0.02709656483241385
+      },
+      {
+        "timestamp": "2020-03-08 18:00:00",
+        "abs_return": 0.026259299555973725
+      },
+      {
+        "timestamp": "2022-07-13 08:30:00",
+        "abs_return": 0.026234114834542632
+      },
+      {
+        "timestamp": "2022-11-10 08:30:00",
+        "abs_return": 0.026174280724331256
+      },
+      {
+        "timestamp": "2011-08-07 18:00:00",
+        "abs_return": 0.02385572423239357
+      },
+      {
+        "timestamp": "2020-03-03 10:00:00",
+        "abs_return": 0.02186788154897501
+      },
+      {
+        "timestamp": "2022-09-13 08:30:00",
+        "abs_return": 0.02156465500448046
+      },
+      {
+        "timestamp": "2020-03-16 09:30:00",
+        "abs_return": 0.021142138697723634
+      },
+      {
+        "timestamp": "2020-03-09 09:30:00",
+        "abs_return": 0.021066938498131127
+      },
+      {
+        "timestamp": "2015-08-24 09:30:00",
+        "abs_return": 0.02104076648506481
+      },
+      {
+        "timestamp": "2022-12-02 08:30:00",
+        "abs_return": 0.01926113696808507
+      }
+    ],
+    "price_min": 1698.0,
+    "price_max": 256500.0,
+    "scale_quarantines": [
+      {
+        "start": "2012-02-05 18:00:00",
+        "end_exclusive": "2012-02-12 18:00:00",
+        "rows": 6231,
+        "entry_scale_ratio": 99.72260748959778,
+        "exit_scale_ratio": 99.6092605255446
+      }
+    ],
+    "quarantined_rows": 6231,
+    "clean_rows": 4968467
+  },
+  "yahoo_daily_agreement": {
+    "status": "PASS",
+    "n_days": 2135,
+    "start": "2016-08-15 00:00:00",
+    "end": "2025-03-14 00:00:00",
+    "close_return_correlation": 0.9667095758164672,
+    "median_close_basis_pct": 0.0002865380827020541
+  },
+  "failures": []
+}

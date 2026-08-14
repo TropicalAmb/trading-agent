@@ -26,6 +26,13 @@ def fetch_yahoo(symbol: str, interval: str, period: str) -> pd.DataFrame:
     from zoneinfo import ZoneInfo
 
     ET = ZoneInfo("America/New_York")
+    # yfinance 1.5 stores timezone and cookie state in SQLite.  Sandboxed and
+    # service accounts may not be able to write its user-profile default, which
+    # previously turned an independent-data check into an empty result.  Keep
+    # research cache state local, writable, and git-ignored with the other data.
+    cache_dir = Path("data") / "yfinance_cache"
+    cache_dir.mkdir(parents=True, exist_ok=True)
+    yf.set_tz_cache_location(str(cache_dir.resolve()))
     df = yf.download(
         symbol,
         interval=interval,
@@ -44,7 +51,12 @@ def fetch_yahoo(symbol: str, interval: str, period: str) -> pd.DataFrame:
     df = df.dropna(subset=["open", "high", "low", "close"]).copy()
     idx = pd.to_datetime(df.index)
     if getattr(idx, "tz", None) is None:
-        idx = idx.tz_localize("UTC")
+        # Yahoo daily bars are date labels, not midnight-UTC observations.
+        # Treating them as UTC silently moves every label to the prior US date
+        # and destroys daily-return agreement checks. Intraday naive labels, on
+        # the other hand, are UTC observations in the download response.
+        daily_like = interval.lower().endswith(("d", "wk", "mo"))
+        idx = idx.tz_localize(ET if daily_like else "UTC")
     df.index = idx.tz_convert(ET)
     return df
 

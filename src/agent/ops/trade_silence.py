@@ -335,6 +335,7 @@ def diagnose_trade_silence(
     config_entry_gate = any(
         marker in scan_upper
         for marker in (
+            "CONFIG_ENTRY_GATE",
             "SKIP_FRIDAY_ENTRIES",
             "NY_OPEN_ENTRY_DELAY",
             "OUTSIDE ENABLED SESSION WINDOWS",
@@ -409,6 +410,15 @@ def diagnose_trade_silence(
             blockers.append(BLOCKER_DATA_STALE_STUCK)
         if config_entry_gate:
             blockers.append(BLOCKER_CONFIG_ENTRY_GATE)
+            # A current global gate supersedes older quality/risk rejects. Keep
+            # genuine code/preflight failures visible, but never recommend a
+            # restart for historical rejects when execution is intentionally
+            # fail-closed by configuration/evidence.
+            blockers = [
+                blocker
+                for blocker in blockers
+                if blocker in {BLOCKER_CODE_BUG, BLOCKER_PREFLIGHT_FAIL}
+            ] + [BLOCKER_CONFIG_ENTRY_GATE]
         if not blockers:
             # Path may be OK but still no paper — still a fault after 90m (user lock)
             # Exception: specialists-only paper — no-setup silence is intentional.
@@ -447,7 +457,7 @@ def diagnose_trade_silence(
         elif BLOCKER_CONFIG_ENTRY_GATE in blockers:
             summary = (
                 f"No paper fill for {silent_m:.0f}m — market is open but a global "
-                f"entry schedule gate is blocking the book ({scan_text})."
+                f"entry/config gate is blocking the book ({scan_text})."
             )
             action = (
                 "Configuration change required; restarting cannot remove an intentional "
