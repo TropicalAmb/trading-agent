@@ -34,10 +34,9 @@ from agent.research.current_specialist_validation import _verified_continuous_ca
 from agent.research.harness.datasets import fetch_yahoo
 
 
-# These are the high-hit-rate hypotheses from the broader 11-family screen.
-# Breakout/trend families remain documented in broad discovery, but their public
-# premise is high payoff at a lower win rate and therefore cannot meet this user-
-# requested 70% objective by construction.
+# These are the high-hit-rate or selectively filtered hypotheses from both broad
+# discovery passes. Lower-hit-rate trend families remain documented in broad
+# discovery but are not promoted merely by payoff ratio.
 LONG_HISTORY_FAMILIES = (
     "vwap_band_reentry",
     "atr_rsi_failure_reversion",
@@ -48,6 +47,18 @@ LONG_HISTORY_FAMILIES = (
     "overnight_gap_reversion",
     "balanced_value_area_reversion",
     "daily_ibs_capitulation_reversion",
+    "prior_day_level_failure",
+    "opening_range_retest_continuation",
+    "opening_range_midpoint_continuation",
+    "conditional_overnight_reversal",
+    "value_area_breakout_continuation",
+    "overnight_range_break_retest",
+    "session_extreme_two_bar_reversal",
+    "weekly_value_area_failed_auction",
+    "value_area_80_rule_rotation",
+    "ny_open_three_bar_continuation",
+    "nq_15m_opening_range_retest",
+    "nq_premarket_ema_engulfing",
 )
 
 Progress = Callable[[str], None]

@@ -89,6 +89,56 @@ SOURCE_CATALOG: dict[str, dict[str, str]] = {
         "title": "Simple mean reversion setup with a reported 70% win rate",
         "url": "https://www.reddit.com/r/algotrading/comments/1rjvxjy/found_a_simple_mean_reversion_setup_with_70_win/",
     },
+    "nq_first_pullback": {
+        "kind": "Reddit strategy hypothesis",
+        "title": "NQ strategy backtest: opening trend and first pullback",
+        "url": "https://www.reddit.com/r/FuturesTrading/comments/1b2gi87/nq_strategy_backtest/",
+    },
+    "vwap_rejection": {
+        "kind": "Reddit strategy hypothesis",
+        "title": "Full MNQ and NQ VWAP strategy",
+        "url": "https://www.reddit.com/r/FuturesTrading/comments/1kca8nt/full_mnq_and_nq_vwap_strategy/",
+    },
+    "nq_intraday_conditional": {
+        "kind": "Primary technical research",
+        "title": "Nasdaq-100 Index Futures: Intraday Momentum or Reversal?",
+        "url": "https://papers.ssrn.com/sol3/papers.cfm?abstract_id=712168",
+    },
+    "value_area_breakout": {
+        "kind": "Primary technical research",
+        "title": "Stop Distance, Exit Methodology, and Signal Preservation in Intraday Value Area Breakouts",
+        "url": "https://papers.ssrn.com/sol3/papers.cfm?abstract_id=6350238",
+    },
+    "weekly_failed_auction": {
+        "kind": "Primary technical research",
+        "title": "Pre-Registered Tests of Failed Weekly Auction Reversion in Liquid Futures Markets",
+        "url": "https://papers.ssrn.com/sol3/papers.cfm?abstract_id=6728359",
+    },
+    "opening_range_research": {
+        "kind": "Primary technical research",
+        "title": "An Investigation of Simple Intraday Trading Strategies",
+        "url": "https://papers.ssrn.com/sol3/papers.cfm?abstract_id=2488539",
+    },
+    "value_area_80_rule": {
+        "kind": "Public market-profile rule",
+        "title": "Value Area Trading and the 80% Rule",
+        "url": "https://traderprofesional.com/en/value-area-trading/",
+    },
+    "ny_open_three_bar": {
+        "kind": "Reddit strategy hypothesis",
+        "title": "Here's my strategy: first-40-minute drive, pause, continuation",
+        "url": "https://www.reddit.com/r/FuturesTrading/comments/1eui37q/heres_my_strategy/",
+    },
+    "nq_15m_orb": {
+        "kind": "Reddit strategy hypothesis",
+        "title": "15 minute opening range break strategy",
+        "url": "https://www.reddit.com/r/FuturesTrading/comments/1joy48s/15_minute_opening_range_break_strategy/",
+    },
+    "premarket_ema_pullback": {
+        "kind": "Reddit strategy hypothesis",
+        "title": "Beginner friendly 9/20 EMA trend pullback",
+        "url": "https://www.reddit.com/r/FuturesTrading/comments/1kh3081/beginner_friendly_strategy/",
+    },
 }
 
 FAMILY_SOURCE: dict[str, str] = {
@@ -105,6 +155,18 @@ FAMILY_SOURCE: dict[str, str] = {
     "donchian_trend_breakout": "donchian",
     "balanced_value_area_reversion": "volume_profile_balance",
     "daily_ibs_capitulation_reversion": "daily_ibs_reversion",
+    "prior_day_level_failure": "nq_first_pullback",
+    "opening_range_retest_continuation": "opening_range_research",
+    "opening_range_midpoint_continuation": "nq_first_pullback",
+    "conditional_overnight_reversal": "nq_intraday_conditional",
+    "value_area_breakout_continuation": "value_area_breakout",
+    "overnight_range_break_retest": "nq_first_pullback",
+    "session_extreme_two_bar_reversal": "vwap_rejection",
+    "weekly_value_area_failed_auction": "weekly_failed_auction",
+    "value_area_80_rule_rotation": "value_area_80_rule",
+    "ny_open_three_bar_continuation": "ny_open_three_bar",
+    "nq_15m_opening_range_retest": "nq_15m_orb",
+    "nq_premarket_ema_engulfing": "premarket_ema_pullback",
 }
 
 
@@ -1172,6 +1234,1123 @@ def generate_donchian_trend(
     return out
 
 
+def _session_clock(symbol: str) -> tuple[tuple[int, int], tuple[int, int]]:
+    return ((9, 0), (14, 0)) if symbol == "CL" else ((9, 30), (16, 0))
+
+
+def _clock(day: pd.Timestamp, value: tuple[int, int]) -> pd.Timestamp:
+    return day + pd.Timedelta(hours=value[0], minutes=value[1])
+
+
+def _rth_day_frames(
+    bars: pd.DataFrame, symbol: str, *, minimum_rows: int = 40
+) -> dict[pd.Timestamp, pd.DataFrame]:
+    open_clock, close_clock = _session_clock(symbol)
+    result: dict[pd.Timestamp, pd.DataFrame] = {}
+    for day, day_frame in bars.groupby(bars.index.normalize()):
+        day = pd.Timestamp(day)
+        rth = day_frame[
+            (day_frame.index >= _clock(day, open_clock))
+            & (day_frame.index < _clock(day, close_clock))
+        ]
+        if len(rth) >= minimum_rows:
+            result[day] = rth
+    return result
+
+
+def _volume_profile_mean_std(frame: pd.DataFrame) -> tuple[float, float] | None:
+    typical = (frame["high"] + frame["low"] + frame["close"]) / 3.0
+    weights = frame["volume"].clip(lower=0).replace(0, 1.0)
+    total = float(weights.sum())
+    if not np.isfinite(total) or total <= 0:
+        return None
+    mean = float((typical * weights).sum() / total)
+    variance = float((((typical - mean) ** 2) * weights).sum() / total)
+    std = sqrt(max(0.0, variance))
+    if not np.isfinite(mean) or not np.isfinite(std) or std <= 0:
+        return None
+    return mean, std
+
+
+def _volume_profile_value_area(
+    frame: pd.DataFrame, symbol: str, fraction: float = 0.70
+) -> tuple[float, float, float] | None:
+    """Approximate a 70% volume-profile VA from point-in-time OHLCV bars.
+
+    Bar volume is assigned to its typical-price bin because OHLCV does not
+    expose volume-at-price. The POC bin is expanded toward the higher-volume
+    adjacent bin until the requested cumulative fraction is covered.
+    """
+    low = float(frame["low"].min())
+    high = float(frame["high"].max())
+    span = high - low
+    if not np.isfinite(span) or span <= 0:
+        return None
+    tick = 0.01 if symbol == "CL" else 0.25
+    width = max(tick, span / 50.0)
+    typical = (frame["high"] + frame["low"] + frame["close"]) / 3.0
+    volume = frame["volume"].clip(lower=0).replace(0, 1.0)
+    bins = np.floor((typical - low) / width).astype(int)
+    profile = volume.groupby(bins).sum().sort_index()
+    if profile.empty or float(profile.sum()) <= 0:
+        return None
+    poc_bin = int(profile.idxmax())
+    selected = {poc_bin}
+    cumulative = float(profile.loc[poc_bin])
+    target = float(profile.sum()) * float(fraction)
+    lower = upper = poc_bin
+    while cumulative < target:
+        lower_volume = float(profile.get(lower - 1, 0.0))
+        upper_volume = float(profile.get(upper + 1, 0.0))
+        if lower_volume <= 0 and upper_volume <= 0:
+            remaining = [int(value) for value in profile.index if int(value) not in selected]
+            if not remaining:
+                break
+            nearest = min(remaining, key=lambda value: abs(value - poc_bin))
+            selected.add(nearest)
+            cumulative += float(profile.loc[nearest])
+            lower, upper = min(lower, nearest), max(upper, nearest)
+            continue
+        if upper_volume >= lower_volume:
+            upper += 1
+            selected.add(upper)
+            cumulative += upper_volume
+        else:
+            lower -= 1
+            selected.add(lower)
+            cumulative += lower_volume
+    value_low = low + min(selected) * width
+    value_high = low + (max(selected) + 1) * width
+    poc = low + (poc_bin + 0.5) * width
+    if not (value_low < value_high):
+        return None
+    return float(value_low), float(value_high), float(poc)
+
+
+def generate_prior_day_level_failure(
+    bars_1m: pd.DataFrame,
+    bars_5m: pd.DataFrame,
+    symbol: str,
+    spec: dict[str, Any],
+) -> list[Candidate]:
+    """Fade a completed rejection of the prior RTH high or low toward VWAP."""
+    f = _session_vwap_features(bars_5m)
+    rth_days = _rth_day_frames(f, symbol)
+    days = sorted(rth_days)
+    out: list[Candidate] = []
+    open_clock, close_clock = _session_clock(symbol)
+    for i in range(1, len(days)):
+        day = days[i]
+        prior = rth_days[days[i - 1]]
+        current = rth_days[day]
+        prior_high = float(prior["high"].max())
+        prior_low = float(prior["low"].min())
+        search = current[
+            (current.index >= _clock(day, open_clock) + pd.Timedelta(minutes=30))
+            & (current.index < _clock(day, close_clock) - pd.Timedelta(minutes=45))
+        ]
+        for ts, row in search.iterrows():
+            atr = float(row["atr"])
+            candle_range = float(row["high"] - row["low"])
+            if not np.isfinite(atr) or atr <= 0 or candle_range <= 0:
+                continue
+            close_location = float(row["close"] - row["low"]) / candle_range
+            pierce = float(spec["pierce_atr"]) * atr
+            side: str | None = None
+            if (
+                float(row["high"]) >= prior_high + pierce
+                and float(row["close"]) < prior_high
+                and close_location <= float(spec["max_close_location"])
+                and float(row["close"]) < float(row["open"])
+            ):
+                side = "SELL"
+                stop = float(row["high"]) + 0.10 * atr
+            elif (
+                float(row["low"]) <= prior_low - pierce
+                and float(row["close"]) > prior_low
+                and close_location >= 1.0 - float(spec["max_close_location"])
+                and float(row["close"]) > float(row["open"])
+            ):
+                side = "BUY"
+                stop = float(row["low"]) - 0.10 * atr
+            if side is None:
+                continue
+            nxt = _entry_after(bars_1m, pd.Timestamp(ts), 5)
+            if nxt is None:
+                continue
+            entry_ts, entry = nxt
+            risk = abs(entry - stop)
+            reward = (
+                entry - float(row["vwap"])
+                if side == "SELL"
+                else float(row["vwap"]) - entry
+            )
+            if risk <= 0 or reward / risk < float(spec["min_reward_r"]):
+                continue
+            out.append(
+                Candidate(
+                    family="prior_day_level_failure",
+                    variant=str(spec["id"]),
+                    source_id="nq_first_pullback",
+                    symbol=symbol,
+                    side=side,
+                    signal_ts=str(ts),
+                    entry_ts=str(entry_ts),
+                    entry=entry,
+                    stop=stop,
+                    target_r=min(1.6, reward / risk),
+                    forced_exit_ts=str(_clock(day, close_clock)),
+                    notes="Prior RTH extreme pierced and rejected on a completed bar; fixed signal-time VWAP objective",
+                )
+            )
+            break
+    return out
+
+
+def generate_opening_range_retest_continuation(
+    bars_1m: pd.DataFrame,
+    bars_5m: pd.DataFrame,
+    symbol: str,
+    spec: dict[str, Any],
+) -> list[Candidate]:
+    """Enter only after an opening-range breakout survives a separate-bar retest."""
+    f = _session_vwap_features(bars_5m)
+    f["prior_volume_median"] = f["volume"].shift(1).rolling(20).median()
+    rth_days = _rth_day_frames(f, symbol)
+    out: list[Candidate] = []
+    open_clock, close_clock = _session_clock(symbol)
+    duration = int(spec["range_minutes"])
+    for day, rth in rth_days.items():
+        start = _clock(day, open_clock)
+        range_end = start + pd.Timedelta(minutes=duration)
+        opening = rth[(rth.index >= start) & (rth.index < range_end)]
+        post = rth[
+            (rth.index >= range_end)
+            & (rth.index < _clock(day, close_clock) - pd.Timedelta(minutes=60))
+        ]
+        if len(opening) < max(4, int(duration / 5 * 0.8)) or len(post) < 2:
+            continue
+        range_high = float(opening["high"].max())
+        range_low = float(opening["low"].min())
+        post_rows = list(post.iterrows())
+        for j, (break_ts, break_row) in enumerate(post_rows[:-1]):
+            atr = float(break_row["atr"])
+            volume_ref = float(break_row["prior_volume_median"])
+            if not np.isfinite(atr) or atr <= 0 or not np.isfinite(volume_ref):
+                continue
+            threshold = float(spec["break_atr"]) * atr
+            enough_volume = float(break_row["volume"]) >= float(spec["min_rvol"]) * volume_ref
+            if (
+                float(break_row["close"]) > range_high + threshold
+                and float(break_row["close"]) > float(break_row["vwap"])
+                and enough_volume
+            ):
+                side, boundary = "BUY", range_high
+            elif (
+                float(break_row["close"]) < range_low - threshold
+                and float(break_row["close"]) < float(break_row["vwap"])
+                and enough_volume
+            ):
+                side, boundary = "SELL", range_low
+            else:
+                continue
+            for retest_ts, row in post_rows[j + 1 : j + 1 + int(spec["max_retest_bars"])]:
+                row_atr = float(row["atr"])
+                if not np.isfinite(row_atr) or row_atr <= 0:
+                    continue
+                depth = float(spec["max_depth_atr"]) * row_atr
+                if side == "BUY":
+                    confirms = (
+                        float(row["low"]) <= boundary + 0.10 * row_atr
+                        and float(row["low"]) >= boundary - depth
+                        and float(row["close"]) > boundary
+                        and float(row["close"]) > float(row["open"])
+                    )
+                    stop = min(float(row["low"]), boundary - depth) - 0.05 * row_atr
+                else:
+                    confirms = (
+                        float(row["high"]) >= boundary - 0.10 * row_atr
+                        and float(row["high"]) <= boundary + depth
+                        and float(row["close"]) < boundary
+                        and float(row["close"]) < float(row["open"])
+                    )
+                    stop = max(float(row["high"]), boundary + depth) + 0.05 * row_atr
+                if not confirms:
+                    continue
+                cand = _candidate(
+                    bars_1m=bars_1m,
+                    signal_ts=pd.Timestamp(retest_ts),
+                    signal_minutes=5,
+                    family="opening_range_retest_continuation",
+                    variant=str(spec["id"]),
+                    source_id="opening_range_research",
+                    symbol=symbol,
+                    side=side,
+                    stop=stop,
+                    target_r=1.6,
+                    forced_exit_ts=_clock(day, close_clock),
+                    notes="Completed opening-range break, volume confirmation, then a separate shallow retest",
+                )
+                if cand:
+                    out.append(cand)
+                break
+            break
+    return out
+
+
+def generate_opening_range_midpoint_continuation(
+    bars_1m: pd.DataFrame,
+    bars_5m: pd.DataFrame,
+    symbol: str,
+    spec: dict[str, Any],
+) -> list[Candidate]:
+    """Trade the first directional rejection of an opening-range midpoint."""
+    f = _session_vwap_features(bars_5m)
+    rth_days = _rth_day_frames(f, symbol)
+    out: list[Candidate] = []
+    open_clock, close_clock = _session_clock(symbol)
+    duration = int(spec["range_minutes"])
+    for day, rth in rth_days.items():
+        start = _clock(day, open_clock)
+        range_end = start + pd.Timedelta(minutes=duration)
+        opening = rth[(rth.index >= start) & (rth.index < range_end)]
+        search = rth[
+            (rth.index >= range_end)
+            & (rth.index < _clock(day, close_clock) - pd.Timedelta(minutes=90))
+        ]
+        if len(opening) < max(4, int(duration / 5 * 0.8)) or search.empty:
+            continue
+        atr = float(opening["atr"].iloc[-1])
+        if not np.isfinite(atr) or atr <= 0:
+            continue
+        impulse = float(opening["close"].iloc[-1] - opening["open"].iloc[0])
+        if abs(impulse) < float(spec["impulse_atr"]) * atr:
+            continue
+        side = "BUY" if impulse > 0 else "SELL"
+        high = float(opening["high"].max())
+        low = float(opening["low"].min())
+        midpoint = (high + low) / 2.0
+        for ts, row in search.iterrows():
+            row_atr = float(row["atr"])
+            if not np.isfinite(row_atr) or row_atr <= 0:
+                continue
+            if side == "BUY":
+                confirms = (
+                    float(row["low"]) <= midpoint + 0.10 * row_atr
+                    and float(row["low"]) >= midpoint - float(spec["max_depth_atr"]) * row_atr
+                    and float(row["close"]) > midpoint
+                    and float(row["close"]) > float(row["open"])
+                    and float(row["close"]) > float(row["vwap"])
+                )
+                stop = float(row["low"]) - 0.10 * row_atr
+                objective = high
+            else:
+                confirms = (
+                    float(row["high"]) >= midpoint - 0.10 * row_atr
+                    and float(row["high"]) <= midpoint + float(spec["max_depth_atr"]) * row_atr
+                    and float(row["close"]) < midpoint
+                    and float(row["close"]) < float(row["open"])
+                    and float(row["close"]) < float(row["vwap"])
+                )
+                stop = float(row["high"]) + 0.10 * row_atr
+                objective = low
+            if not confirms:
+                continue
+            nxt = _entry_after(bars_1m, pd.Timestamp(ts), 5)
+            if nxt is None:
+                continue
+            entry_ts, entry = nxt
+            risk = abs(entry - stop)
+            reward = objective - entry if side == "BUY" else entry - objective
+            if risk <= 0 or reward / risk < float(spec["min_reward_r"]):
+                continue
+            out.append(
+                Candidate(
+                    family="opening_range_midpoint_continuation",
+                    variant=str(spec["id"]),
+                    source_id="nq_first_pullback",
+                    symbol=symbol,
+                    side=side,
+                    signal_ts=str(ts),
+                    entry_ts=str(entry_ts),
+                    entry=entry,
+                    stop=stop,
+                    target_r=min(1.6, reward / risk),
+                    forced_exit_ts=str(_clock(day, close_clock)),
+                    notes="Directional opening impulse followed by the first completed midpoint rejection",
+                )
+            )
+            break
+    return out
+
+
+def generate_conditional_overnight_reversal(
+    bars_1m: pd.DataFrame,
+    _bars_5m: pd.DataFrame,
+    symbol: str,
+    spec: dict[str, Any],
+) -> list[Candidate]:
+    """Fade overnight inventory only after same-direction prior-day extension and rejection."""
+    open_clock, close_clock = _session_clock(symbol)
+    median_step = bars_1m.index.to_series().diff().dropna().dt.total_seconds().median()
+    minimum_rows = 300 if not np.isfinite(median_step) or median_step <= 90 else 60
+    first_window_rows = 10 if minimum_rows == 300 else 3
+    rth_days = _rth_day_frames(bars_1m, symbol, minimum_rows=minimum_rows)
+    days = sorted(rth_days)
+    prior_ranges: list[float] = []
+    out: list[Candidate] = []
+    for i in range(1, len(days)):
+        day = days[i]
+        prior = rth_days[days[i - 1]]
+        current = rth_days[day]
+        if bool(spec.get("exclude_monday")) and day.dayofweek == 0:
+            prior_ranges.append(float(prior["high"].max() - prior["low"].min()))
+            continue
+        atr_ref = float(np.mean(prior_ranges[-20:])) if len(prior_ranges) >= 10 else np.nan
+        prior_ranges.append(float(prior["high"].max() - prior["low"].min()))
+        if not np.isfinite(atr_ref) or atr_ref <= 0:
+            continue
+        prior_return = float(prior["close"].iloc[-1] - prior["open"].iloc[0])
+        prior_close = float(prior["close"].iloc[-1])
+        current_open = float(current["open"].iloc[0])
+        gap = current_open - prior_close
+        if (
+            abs(gap) < float(spec["gap_atr"]) * atr_ref
+            or abs(prior_return) < float(spec["prior_return_atr"]) * atr_ref
+            or np.sign(gap) != np.sign(prior_return)
+        ):
+            continue
+        first = current[current.index < _clock(day, open_clock) + pd.Timedelta(minutes=15)]
+        if len(first) < first_window_rows:
+            continue
+        rejected = (gap > 0 and float(first["close"].iloc[-1]) < current_open) or (
+            gap < 0 and float(first["close"].iloc[-1]) > current_open
+        )
+        if not rejected:
+            continue
+        side = "SELL" if gap > 0 else "BUY"
+        stop = (
+            float(first["high"].max()) + 0.10 * atr_ref
+            if side == "SELL"
+            else float(first["low"].min()) - 0.10 * atr_ref
+        )
+        signal_ts = pd.Timestamp(first.index[-1])
+        nxt = _entry_after(bars_1m, signal_ts, int(round(median_step / 60.0)))
+        if nxt is None:
+            continue
+        entry_ts, entry = nxt
+        risk = abs(entry - stop)
+        reward = entry - prior_close if side == "SELL" else prior_close - entry
+        if risk <= 0 or reward / risk < float(spec["min_reward_r"]):
+            continue
+        out.append(
+            Candidate(
+                family="conditional_overnight_reversal",
+                variant=str(spec["id"]),
+                source_id="nq_intraday_conditional",
+                symbol=symbol,
+                side=side,
+                signal_ts=str(signal_ts),
+                entry_ts=str(entry_ts),
+                entry=entry,
+                stop=stop,
+                target_r=min(1.6, reward / risk),
+                forced_exit_ts=str(_clock(day, close_clock)),
+                notes="Prior RTH return and overnight gap share a sign; first 15 minutes reject the gap",
+            )
+        )
+    return out
+
+
+def generate_value_area_breakout_continuation(
+    bars_1m: pd.DataFrame,
+    bars_5m: pd.DataFrame,
+    symbol: str,
+    spec: dict[str, Any],
+) -> list[Candidate]:
+    """Follow a prior-value-area break only after a shallow, completed retest."""
+    f = _session_vwap_features(bars_5m)
+    rth_days = _rth_day_frames(f, symbol)
+    days = sorted(rth_days)
+    out: list[Candidate] = []
+    open_clock, close_clock = _session_clock(symbol)
+    for i in range(1, len(days)):
+        day = days[i]
+        profile = _volume_profile_mean_std(rth_days[days[i - 1]])
+        if profile is None:
+            continue
+        poc, profile_std = profile
+        value_high, value_low = poc + profile_std, poc - profile_std
+        current = rth_days[day]
+        search = current[
+            (current.index >= _clock(day, open_clock) + pd.Timedelta(minutes=30))
+            & (current.index < _clock(day, close_clock) - pd.Timedelta(minutes=60))
+        ]
+        rows = list(search.iterrows())
+        for j, (_break_ts, break_row) in enumerate(rows[:-1]):
+            atr = float(break_row["atr"])
+            if not np.isfinite(atr) or atr <= 0:
+                continue
+            threshold = float(spec["break_atr"]) * atr
+            if (
+                float(break_row["close"]) > value_high + threshold
+                and float(break_row["close"]) > float(break_row["vwap"])
+            ):
+                side, boundary = "BUY", value_high
+            elif (
+                float(break_row["close"]) < value_low - threshold
+                and float(break_row["close"]) < float(break_row["vwap"])
+            ):
+                side, boundary = "SELL", value_low
+            else:
+                continue
+            for retest_ts, row in rows[j + 1 : j + 1 + int(spec["max_retest_bars"])]:
+                row_atr = float(row["atr"])
+                if not np.isfinite(row_atr) or row_atr <= 0:
+                    continue
+                max_depth = float(spec["max_depth_atr"]) * row_atr
+                if side == "BUY":
+                    confirms = (
+                        boundary - max_depth <= float(row["low"]) <= boundary + 0.10 * row_atr
+                        and float(row["close"]) > boundary
+                        and float(row["close"]) > float(row["open"])
+                    )
+                    stop = min(float(row["low"]), boundary - max_depth) - 0.05 * row_atr
+                else:
+                    confirms = (
+                        boundary - 0.10 * row_atr <= float(row["high"]) <= boundary + max_depth
+                        and float(row["close"]) < boundary
+                        and float(row["close"]) < float(row["open"])
+                    )
+                    stop = max(float(row["high"]), boundary + max_depth) + 0.05 * row_atr
+                if not confirms:
+                    continue
+                cand = _candidate(
+                    bars_1m=bars_1m,
+                    signal_ts=pd.Timestamp(retest_ts),
+                    signal_minutes=5,
+                    family="value_area_breakout_continuation",
+                    variant=str(spec["id"]),
+                    source_id="value_area_breakout",
+                    symbol=symbol,
+                    side=side,
+                    stop=stop,
+                    target_r=1.6,
+                    forced_exit_ts=_clock(day, close_clock),
+                    notes="Prior-day volume-weighted value boundary break; skip first 30 minutes; shallow retest",
+                )
+                if cand:
+                    out.append(cand)
+                break
+            break
+    return out
+
+
+def generate_overnight_range_break_retest(
+    bars_1m: pd.DataFrame,
+    bars_5m: pd.DataFrame,
+    symbol: str,
+    spec: dict[str, Any],
+) -> list[Candidate]:
+    """Follow a NY/pit break of the completed overnight range after a retest."""
+    f = _session_vwap_features(bars_5m)
+    rth_days = _rth_day_frames(f, symbol)
+    out: list[Candidate] = []
+    open_clock, close_clock = _session_clock(symbol)
+    for day, rth in rth_days.items():
+        start = _clock(day, open_clock)
+        overnight = f[
+            (f.index >= day - pd.Timedelta(days=1) + pd.Timedelta(hours=18))
+            & (f.index < start)
+        ]
+        search = rth[(rth.index >= start) & (rth.index < start + pd.Timedelta(hours=2))]
+        if len(overnight) < 60 or len(search) < 2:
+            continue
+        overnight_high = float(overnight["high"].max())
+        overnight_low = float(overnight["low"].min())
+        rows = list(search.iterrows())
+        for j, (_break_ts, break_row) in enumerate(rows[:-1]):
+            atr = float(break_row["atr"])
+            if not np.isfinite(atr) or atr <= 0:
+                continue
+            threshold = float(spec["break_atr"]) * atr
+            if (
+                float(break_row["close"]) > overnight_high + threshold
+                and float(break_row["close"]) > float(break_row["vwap"])
+            ):
+                side, boundary = "BUY", overnight_high
+            elif (
+                float(break_row["close"]) < overnight_low - threshold
+                and float(break_row["close"]) < float(break_row["vwap"])
+            ):
+                side, boundary = "SELL", overnight_low
+            else:
+                continue
+            for retest_ts, row in rows[j + 1 : j + 1 + int(spec["max_retest_bars"])]:
+                row_atr = float(row["atr"])
+                depth = float(spec["max_depth_atr"]) * row_atr
+                if not np.isfinite(row_atr) or row_atr <= 0:
+                    continue
+                if side == "BUY":
+                    confirms = (
+                        boundary - depth <= float(row["low"]) <= boundary + 0.10 * row_atr
+                        and float(row["close"]) > boundary
+                        and float(row["close"]) > float(row["open"])
+                    )
+                    stop = min(float(row["low"]), boundary - depth) - 0.05 * row_atr
+                else:
+                    confirms = (
+                        boundary - 0.10 * row_atr <= float(row["high"]) <= boundary + depth
+                        and float(row["close"]) < boundary
+                        and float(row["close"]) < float(row["open"])
+                    )
+                    stop = max(float(row["high"]), boundary + depth) + 0.05 * row_atr
+                if not confirms:
+                    continue
+                cand = _candidate(
+                    bars_1m=bars_1m,
+                    signal_ts=pd.Timestamp(retest_ts),
+                    signal_minutes=5,
+                    family="overnight_range_break_retest",
+                    variant=str(spec["id"]),
+                    source_id="nq_first_pullback",
+                    symbol=symbol,
+                    side=side,
+                    stop=stop,
+                    target_r=1.6,
+                    forced_exit_ts=_clock(day, close_clock),
+                    notes="Completed overnight range, RTH breakout, and separate shallow retest",
+                )
+                if cand:
+                    out.append(cand)
+                break
+            break
+    return out
+
+
+def generate_session_extreme_two_bar_reversal(
+    bars_1m: pd.DataFrame,
+    bars_5m: pd.DataFrame,
+    symbol: str,
+    spec: dict[str, Any],
+) -> list[Candidate]:
+    """Fade a new session extreme only after a separate two-bar rejection."""
+    f = _session_vwap_features(bars_5m)
+    rth_days = _rth_day_frames(f, symbol)
+    out: list[Candidate] = []
+    open_clock, close_clock = _session_clock(symbol)
+    for day, rth in rth_days.items():
+        search_start = _clock(day, open_clock) + pd.Timedelta(minutes=60)
+        search_end = _clock(day, close_clock) - pd.Timedelta(minutes=60)
+        for i in range(13, len(rth)):
+            ts = pd.Timestamp(rth.index[i])
+            if ts < search_start or ts >= search_end:
+                continue
+            prior_history = rth.iloc[: i - 1]
+            prior = rth.iloc[i - 1]
+            row = rth.iloc[i]
+            atr = float(row["atr"])
+            prior_range = float(prior["high"] - prior["low"])
+            if not np.isfinite(atr) or atr <= 0 or prior_range <= 0:
+                continue
+            upper_extreme = (
+                float(prior["high"]) > float(prior_history["high"].max())
+                and (float(prior["high"]) - float(prior["vwap"])) / atr
+                >= float(spec["min_vwap_distance_atr"])
+            )
+            lower_extreme = (
+                float(prior["low"]) < float(prior_history["low"].min())
+                and (float(prior["vwap"]) - float(prior["low"])) / atr
+                >= float(spec["min_vwap_distance_atr"])
+            )
+            confirm_fraction = float(spec["confirm_fraction"])
+            if (
+                upper_extreme
+                and float(row["close"]) <= float(prior["low"]) + confirm_fraction * prior_range
+                and float(row["close"]) < float(row["open"])
+            ):
+                side = "SELL"
+                stop = max(float(prior["high"]), float(row["high"])) + 0.10 * atr
+            elif (
+                lower_extreme
+                and float(row["close"]) >= float(prior["high"]) - confirm_fraction * prior_range
+                and float(row["close"]) > float(row["open"])
+            ):
+                side = "BUY"
+                stop = min(float(prior["low"]), float(row["low"])) - 0.10 * atr
+            else:
+                continue
+            nxt = _entry_after(bars_1m, ts, 5)
+            if nxt is None:
+                continue
+            entry_ts, entry = nxt
+            risk = abs(entry - stop)
+            reward = (
+                entry - float(row["vwap"])
+                if side == "SELL"
+                else float(row["vwap"]) - entry
+            )
+            if risk <= 0 or reward / risk < float(spec["min_reward_r"]):
+                continue
+            out.append(
+                Candidate(
+                    family="session_extreme_two_bar_reversal",
+                    variant=str(spec["id"]),
+                    source_id="vwap_rejection",
+                    symbol=symbol,
+                    side=side,
+                    signal_ts=str(ts),
+                    entry_ts=str(entry_ts),
+                    entry=entry,
+                    stop=stop,
+                    target_r=min(1.6, reward / risk),
+                    forced_exit_ts=str(_clock(day, close_clock)),
+                    notes="New session extreme far from VWAP, followed by a separate completed reversal bar",
+                )
+            )
+            break
+    return out
+
+
+def generate_weekly_value_area_failed_auction(
+    bars_1m: pd.DataFrame,
+    bars_5m: pd.DataFrame,
+    symbol: str,
+    spec: dict[str, Any],
+) -> list[Candidate]:
+    """Encode the pre-registered outside/reentry/retest weekly auction sequence."""
+    f = _session_vwap_features(bars_5m)
+    rth_days = _rth_day_frames(f, symbol)
+    weekly_parts: dict[tuple[int, int], list[pd.DataFrame]] = {}
+    for day, rth in rth_days.items():
+        iso = day.date().isocalendar()
+        weekly_parts.setdefault((iso.year, iso.week), []).append(rth)
+    weeks = sorted(weekly_parts)
+    out: list[Candidate] = []
+    _open_clock, close_clock = _session_clock(symbol)
+    for i in range(1, len(weeks)):
+        prior_week = pd.concat(weekly_parts[weeks[i - 1]]).sort_index()
+        current = pd.concat(weekly_parts[weeks[i]]).sort_index()
+        profile = _volume_profile_mean_std(prior_week)
+        if profile is None:
+            continue
+        poc, profile_std = profile
+        value_high, value_low = poc + profile_std, poc - profile_std
+        side: str | None = None
+        extreme: float | None = None
+        reentered = False
+        for ts, row in current.iterrows():
+            atr = float(row["atr"])
+            if not np.isfinite(atr) or atr <= 0:
+                continue
+            if side is None:
+                if float(row["close"]) > value_high + float(spec["outside_atr"]) * atr:
+                    side, extreme = "SELL", float(row["high"])
+                elif float(row["close"]) < value_low - float(spec["outside_atr"]) * atr:
+                    side, extreme = "BUY", float(row["low"])
+                continue
+            if side == "SELL":
+                extreme = max(float(extreme), float(row["high"]))
+                if not reentered:
+                    reentered = float(row["close"]) < value_high
+                    continue
+                touches = float(row["high"]) >= value_high - float(spec["retest_atr"]) * atr
+                confirms = touches and float(row["close"]) < value_high and float(row["close"]) < float(row["open"])
+                stop = float(extreme) + 0.10 * atr
+            else:
+                extreme = min(float(extreme), float(row["low"]))
+                if not reentered:
+                    reentered = float(row["close"]) > value_low
+                    continue
+                touches = float(row["low"]) <= value_low + float(spec["retest_atr"]) * atr
+                confirms = touches and float(row["close"]) > value_low and float(row["close"]) > float(row["open"])
+                stop = float(extreme) - 0.10 * atr
+            if not confirms:
+                continue
+            nxt = _entry_after(bars_1m, pd.Timestamp(ts), 5)
+            if nxt is None:
+                break
+            entry_ts, entry = nxt
+            risk = abs(entry - stop)
+            reward = entry - poc if side == "SELL" else poc - entry
+            if risk <= 0 or reward / risk < float(spec["min_reward_r"]):
+                break
+            force_day = pd.Timestamp(current.index[-1]).normalize()
+            out.append(
+                Candidate(
+                    family="weekly_value_area_failed_auction",
+                    variant=str(spec["id"]),
+                    source_id="weekly_failed_auction",
+                    symbol=symbol,
+                    side=side,
+                    signal_ts=str(ts),
+                    entry_ts=str(entry_ts),
+                    entry=entry,
+                    stop=stop,
+                    target_r=min(1.6, reward / risk),
+                    forced_exit_ts=str(_clock(force_day, close_clock)),
+                    notes="Prior-week value area; outside close, reentry, then separate boundary retest toward POC",
+                )
+            )
+            break
+    return out
+
+
+def generate_value_area_80_rule_rotation(
+    bars_1m: pd.DataFrame,
+    bars_5m: pd.DataFrame,
+    symbol: str,
+    spec: dict[str, Any],
+) -> list[Candidate]:
+    """Test the classic outside-open, two-bracket value-area rotation rule."""
+    f = _session_vwap_features(bars_5m)
+    rth_days = _rth_day_frames(f, symbol)
+    days = sorted(rth_days)
+    out: list[Candidate] = []
+    _open_clock, close_clock = _session_clock(symbol)
+    for i in range(1, len(days)):
+        day = days[i]
+        profile = _volume_profile_value_area(rth_days[days[i - 1]], symbol)
+        if profile is None:
+            continue
+        value_low, value_high, poc = profile
+        current = rth_days[day]
+        first_atr = float(current["atr"].iloc[0])
+        current_open = float(current["open"].iloc[0])
+        if not np.isfinite(first_atr) or first_atr <= 0:
+            continue
+        outside = float(spec["minimum_outside_atr"]) * first_atr
+        if current_open > value_high + outside:
+            side, entry_edge, objective = "SELL", value_high, value_low
+        elif current_open < value_low - outside:
+            side, entry_edge, objective = "BUY", value_low, value_high
+        else:
+            continue
+        brackets = _resample_complete(current, "30min", base_minutes=5)
+        if len(brackets) < 3:
+            continue
+        accepted: list[tuple[pd.Timestamp, pd.Series]] = []
+        for ts, row in brackets.iterrows():
+            if str(spec["acceptance"]) == "close":
+                inside = value_low < float(row["close"]) < value_high
+            else:
+                inside = float(row["high"]) > value_low and float(row["low"]) < value_high
+            if inside:
+                accepted.append((pd.Timestamp(ts), row))
+            else:
+                accepted = []
+            if len(accepted) < 2:
+                continue
+            first_ts, first_row = accepted[-2]
+            second_ts, second_row = accepted[-1]
+            if second_ts - first_ts != pd.Timedelta(minutes=30):
+                continue
+            completed_underlying = current[
+                (current.index >= second_ts)
+                & (current.index < second_ts + pd.Timedelta(minutes=30))
+            ]
+            if completed_underlying.empty:
+                continue
+            atr = float(completed_underlying["atr"].iloc[-1])
+            if not np.isfinite(atr) or atr <= 0:
+                continue
+            nxt = _entry_after(bars_1m, second_ts, 30)
+            if nxt is None:
+                continue
+            entry_ts, entry = nxt
+            if side == "SELL":
+                stop = max(
+                    entry_edge + float(spec["stop_atr"]) * atr,
+                    float(first_row["high"]),
+                    float(second_row["high"]),
+                )
+                reward = entry - objective
+            else:
+                stop = min(
+                    entry_edge - float(spec["stop_atr"]) * atr,
+                    float(first_row["low"]),
+                    float(second_row["low"]),
+                )
+                reward = objective - entry
+            risk = abs(entry - stop)
+            if risk <= 0 or reward / risk < float(spec["min_reward_r"]):
+                break
+            out.append(
+                Candidate(
+                    family="value_area_80_rule_rotation",
+                    variant=str(spec["id"]),
+                    source_id="value_area_80_rule",
+                    symbol=symbol,
+                    side=side,
+                    signal_ts=str(second_ts),
+                    entry_ts=str(entry_ts),
+                    entry=entry,
+                    stop=stop,
+                    target_r=min(1.6, reward / risk),
+                    forced_exit_ts=str(_clock(day, close_clock)),
+                    notes=(
+                        "Outside RTH open; two consecutive completed 30m brackets accepted "
+                        f"inside prior 70% VA; fixed far-edge objective; prior POC={poc:.4f}"
+                    ),
+                )
+            )
+            break
+    return out
+
+
+def generate_ny_open_three_bar_continuation(
+    bars_1m: pd.DataFrame,
+    bars_5m: pd.DataFrame,
+    symbol: str,
+    spec: dict[str, Any],
+) -> list[Candidate]:
+    """Conservative 5m adaptation of the public 2m drive/pause/continuation setup."""
+    if symbol != "NQ":
+        return []
+    f = bars_5m.copy()
+    rth_days = _rth_day_frames(f, symbol)
+    if not rth_days:
+        return []
+    rth_all = pd.concat([rth_days[day] for day in sorted(rth_days)]).sort_index()
+    rth_all["ema9_rth"] = rth_all["close"].ewm(span=9, adjust=False).mean()
+    out: list[Candidate] = []
+    tick = 0.25
+    for day in sorted(rth_days):
+        d = rth_all[rth_all.index.normalize() == day]
+        start = day + pd.Timedelta(hours=9, minutes=30)
+        cutoff = start + pd.Timedelta(minutes=40)
+        pattern_bars = d[(d.index >= start) & (d.index < cutoff)]
+        if len(pattern_bars) < 3:
+            continue
+        for i in range(2, len(pattern_bars)):
+            previous = pattern_bars.iloc[i - 2]
+            strength = pattern_bars.iloc[i - 1]
+            pullback = pattern_bars.iloc[i]
+            pullback_ts = pd.Timestamp(pattern_bars.index[i])
+            long_pattern = (
+                float(strength["close"]) > float(previous["high"])
+                and float(strength["close"]) > float(strength["ema9_rth"])
+                and float(pullback["close"]) < float(pullback["open"])
+            )
+            short_pattern = (
+                float(strength["close"]) < float(previous["low"])
+                and float(strength["close"]) < float(strength["ema9_rth"])
+                and float(pullback["close"]) > float(pullback["open"])
+            )
+            if bool(spec.get("pullback_holds_ema")):
+                long_pattern = long_pattern and float(pullback["close"]) > float(pullback["ema9_rth"])
+                short_pattern = short_pattern and float(pullback["close"]) < float(pullback["ema9_rth"])
+            if not long_pattern and not short_pattern:
+                continue
+            side = "BUY" if long_pattern else "SELL"
+            stop_entry = (
+                float(pullback["high"]) + tick
+                if side == "BUY"
+                else float(pullback["low"]) - tick
+            )
+            stop = (
+                float(pullback["low"]) - tick
+                if side == "BUY"
+                else float(pullback["high"]) + tick
+            )
+            trigger_start = pullback_ts + pd.Timedelta(minutes=5)
+            trigger_end = min(cutoff, trigger_start + pd.Timedelta(minutes=15))
+            triggers = bars_1m[(bars_1m.index >= trigger_start) & (bars_1m.index < trigger_end)]
+            for trigger_ts, trigger in triggers.iterrows():
+                crossed = (
+                    float(trigger["high"]) >= stop_entry
+                    if side == "BUY"
+                    else float(trigger["low"]) <= stop_entry
+                )
+                if not crossed:
+                    continue
+                entry = (
+                    max(stop_entry, float(trigger["open"]))
+                    if side == "BUY"
+                    else min(stop_entry, float(trigger["open"]))
+                )
+                if (side == "BUY" and stop >= entry) or (side == "SELL" and stop <= entry):
+                    break
+                out.append(
+                    Candidate(
+                        family="ny_open_three_bar_continuation",
+                        variant=str(spec["id"]),
+                        source_id="ny_open_three_bar",
+                        symbol="NQ",
+                        side=side,
+                        signal_ts=str(pullback_ts),
+                        entry_ts=str(trigger_ts),
+                        entry=entry,
+                        stop=stop,
+                        target_r=1.6,
+                        forced_exit_ts=str(day + pd.Timedelta(hours=16)),
+                        notes=(
+                            "RTH-only EMA9 direction; completed strength bar; opposite-color "
+                            "pause; stop-entry on a later bar; same-bar stop-first replay"
+                        ),
+                    )
+                )
+                break
+    return out
+
+
+def generate_nq_15m_opening_range_retest(
+    bars_1m: pd.DataFrame,
+    bars_5m: pd.DataFrame,
+    symbol: str,
+    spec: dict[str, Any],
+) -> list[Candidate]:
+    """Encode the published 09:30-09:45 range, break, retest, 11:00 exit."""
+    if symbol != "NQ":
+        return []
+    f = _session_vwap_features(bars_5m)
+    rth_days = _rth_day_frames(f, symbol)
+    out: list[Candidate] = []
+    for day, rth in rth_days.items():
+        start = day + pd.Timedelta(hours=9, minutes=30)
+        opening_end = day + pd.Timedelta(hours=9, minutes=45)
+        search_end = day + pd.Timedelta(hours=10, minutes=45)
+        forced_exit = day + pd.Timedelta(hours=11)
+        opening = rth[(rth.index >= start) & (rth.index < opening_end)]
+        search = rth[(rth.index >= opening_end) & (rth.index < search_end)]
+        if len(opening) < 3 or len(search) < 2:
+            continue
+        range_high = float(opening["high"].max())
+        range_low = float(opening["low"].min())
+        rows = list(search.iterrows())
+        for i, (_break_ts, break_row) in enumerate(rows[:-1]):
+            if float(break_row["close"]) > range_high:
+                side, boundary = "BUY", range_high
+                if bool(spec.get("require_vwap")) and float(break_row["close"]) <= float(break_row["vwap"]):
+                    continue
+            elif float(break_row["close"]) < range_low:
+                side, boundary = "SELL", range_low
+                if bool(spec.get("require_vwap")) and float(break_row["close"]) >= float(break_row["vwap"]):
+                    continue
+            else:
+                continue
+            for retest_ts, row in rows[i + 1 :]:
+                atr = float(row["atr"])
+                if not np.isfinite(atr) or atr <= 0:
+                    continue
+                if side == "BUY":
+                    confirms = (
+                        float(row["low"]) <= boundary + 0.10 * atr
+                        and float(row["close"]) > boundary
+                        and float(row["close"]) > float(row["open"])
+                    )
+                    stop = range_low - 0.10 * atr
+                else:
+                    confirms = (
+                        float(row["high"]) >= boundary - 0.10 * atr
+                        and float(row["close"]) < boundary
+                        and float(row["close"]) < float(row["open"])
+                    )
+                    stop = range_high + 0.10 * atr
+                if not confirms:
+                    continue
+                cand = _candidate(
+                    bars_1m=bars_1m,
+                    signal_ts=pd.Timestamp(retest_ts),
+                    signal_minutes=5,
+                    family="nq_15m_opening_range_retest",
+                    variant=str(spec["id"]),
+                    source_id="nq_15m_orb",
+                    symbol="NQ",
+                    side=side,
+                    stop=stop,
+                    target_r=1.6,
+                    forced_exit_ts=forced_exit,
+                    notes="09:30-09:45 wick range; completed close outside; separate retest; opposite-edge stop; 11:00 flat",
+                )
+                if cand:
+                    out.append(cand)
+                break
+            break
+    return out
+
+
+def generate_nq_premarket_ema_engulfing(
+    bars_1m: pd.DataFrame,
+    bars_5m: pd.DataFrame,
+    symbol: str,
+    spec: dict[str, Any],
+) -> list[Candidate]:
+    """Require 9/20 separation, EMA touch, engulfing confirmation, and volume."""
+    if symbol != "NQ":
+        return []
+    f = bars_5m.copy()
+    f["atr"] = _atr(f)
+    f["ema9"] = f["close"].ewm(span=9, adjust=False).mean()
+    f["ema20"] = f["close"].ewm(span=20, adjust=False).mean()
+    out: list[Candidate] = []
+    for day, d in f.groupby(f.index.normalize()):
+        premarket = d[
+            (d.index >= day + pd.Timedelta(hours=7))
+            & (d.index < day + pd.Timedelta(hours=9, minutes=25))
+        ]
+        if len(premarket) < 8:
+            continue
+        for i in range(5, len(premarket)):
+            prior = premarket.iloc[i - 1]
+            row = premarket.iloc[i]
+            ts = pd.Timestamp(premarket.index[i])
+            atr = float(row["atr"])
+            if not np.isfinite(atr) or atr <= 0 or float(row["volume"]) <= float(prior["volume"]):
+                continue
+            separation = abs(float(row["ema9"] - row["ema20"])) / atr
+            if separation < float(spec["minimum_separation_atr"]):
+                continue
+            ema9_slope = float(row["ema9"] - premarket["ema9"].iloc[i - 4])
+            bullish_engulf = (
+                float(row["close"]) > float(row["open"])
+                and float(row["open"]) <= float(prior["close"])
+                and float(row["close"]) >= float(prior["open"])
+            )
+            bearish_engulf = (
+                float(row["close"]) < float(row["open"])
+                and float(row["open"]) >= float(prior["close"])
+                and float(row["close"]) <= float(prior["open"])
+            )
+            if (
+                float(row["ema9"]) > float(row["ema20"])
+                and ema9_slope > 0
+                and float(prior["low"]) <= float(prior["ema9"]) + 0.10 * atr
+                and float(prior["close"]) >= float(prior["ema20"]) - 0.10 * atr
+                and bullish_engulf
+            ):
+                side = "BUY"
+                stop = min(float(prior["low"]), float(row["low"])) - 0.10 * atr
+            elif (
+                float(row["ema9"]) < float(row["ema20"])
+                and ema9_slope < 0
+                and float(prior["high"]) >= float(prior["ema9"]) - 0.10 * atr
+                and float(prior["close"]) <= float(prior["ema20"]) + 0.10 * atr
+                and bearish_engulf
+            ):
+                side = "SELL"
+                stop = max(float(prior["high"]), float(row["high"])) + 0.10 * atr
+            else:
+                continue
+            cand = _candidate(
+                bars_1m=bars_1m,
+                signal_ts=ts,
+                signal_minutes=5,
+                family="nq_premarket_ema_engulfing",
+                variant=str(spec["id"]),
+                source_id="premarket_ema_pullback",
+                symbol="NQ",
+                side=side,
+                stop=stop,
+                target_r=1.6,
+                forced_exit_ts=day + pd.Timedelta(hours=9, minutes=25),
+                notes="Research-only dual-EMA trend separation, pullback touch, engulfing confirmation, and higher volume",
+            )
+            if cand:
+                out.append(cand)
+    return out
+
+
 FAMILY_SPECS: tuple[tuple[str, Generator, tuple[dict[str, Any], ...]], ...] = (
     (
         "vwap_band_reentry",
@@ -1308,6 +2487,202 @@ FAMILY_SPECS: tuple[tuple[str, Generator, tuple[dict[str, Any], ...]], ...] = (
         (
             {"id": "donchian20_stop10", "lookback": 20, "stop_atr": 1.0},
             {"id": "donchian40_stop15", "lookback": 40, "stop_atr": 1.5},
+        ),
+    ),
+    (
+        "prior_day_level_failure",
+        generate_prior_day_level_failure,
+        (
+            {
+                "id": "pierce000_close40",
+                "pierce_atr": 0.0,
+                "max_close_location": 0.40,
+                "min_reward_r": 1.0,
+            },
+            {
+                "id": "pierce010_close35",
+                "pierce_atr": 0.10,
+                "max_close_location": 0.35,
+                "min_reward_r": 1.1,
+            },
+        ),
+    ),
+    (
+        "opening_range_retest_continuation",
+        generate_opening_range_retest_continuation,
+        (
+            {
+                "id": "or30_break05_depth35",
+                "range_minutes": 30,
+                "break_atr": 0.05,
+                "min_rvol": 1.0,
+                "max_retest_bars": 6,
+                "max_depth_atr": 0.35,
+            },
+            {
+                "id": "or60_break05_depth35",
+                "range_minutes": 60,
+                "break_atr": 0.05,
+                "min_rvol": 1.0,
+                "max_retest_bars": 6,
+                "max_depth_atr": 0.35,
+            },
+        ),
+    ),
+    (
+        "opening_range_midpoint_continuation",
+        generate_opening_range_midpoint_continuation,
+        (
+            {
+                "id": "or30_impulse50_depth25",
+                "range_minutes": 30,
+                "impulse_atr": 0.50,
+                "max_depth_atr": 0.25,
+                "min_reward_r": 1.0,
+            },
+            {
+                "id": "or60_impulse50_depth25",
+                "range_minutes": 60,
+                "impulse_atr": 0.50,
+                "max_depth_atr": 0.25,
+                "min_reward_r": 1.0,
+            },
+        ),
+    ),
+    (
+        "conditional_overnight_reversal",
+        generate_conditional_overnight_reversal,
+        (
+            {
+                "id": "same_sign_gap030_prior015",
+                "gap_atr": 0.30,
+                "prior_return_atr": 0.15,
+                "exclude_monday": False,
+                "min_reward_r": 1.0,
+            },
+            {
+                "id": "same_sign_gap050_prior025_exmon",
+                "gap_atr": 0.50,
+                "prior_return_atr": 0.25,
+                "exclude_monday": True,
+                "min_reward_r": 1.1,
+            },
+        ),
+    ),
+    (
+        "value_area_breakout_continuation",
+        generate_value_area_breakout_continuation,
+        (
+            {
+                "id": "break05_depth25",
+                "break_atr": 0.05,
+                "max_retest_bars": 6,
+                "max_depth_atr": 0.25,
+            },
+            {
+                "id": "break10_depth50",
+                "break_atr": 0.10,
+                "max_retest_bars": 6,
+                "max_depth_atr": 0.50,
+            },
+        ),
+    ),
+    (
+        "overnight_range_break_retest",
+        generate_overnight_range_break_retest,
+        (
+            {
+                "id": "break05_depth35",
+                "break_atr": 0.05,
+                "max_retest_bars": 6,
+                "max_depth_atr": 0.35,
+            },
+            {
+                "id": "break10_depth25",
+                "break_atr": 0.10,
+                "max_retest_bars": 4,
+                "max_depth_atr": 0.25,
+            },
+        ),
+    ),
+    (
+        "session_extreme_two_bar_reversal",
+        generate_session_extreme_two_bar_reversal,
+        (
+            {
+                "id": "vwap10_confirm35",
+                "min_vwap_distance_atr": 1.0,
+                "confirm_fraction": 0.35,
+                "min_reward_r": 1.0,
+            },
+            {
+                "id": "vwap15_confirm25",
+                "min_vwap_distance_atr": 1.5,
+                "confirm_fraction": 0.25,
+                "min_reward_r": 1.1,
+            },
+        ),
+    ),
+    (
+        "weekly_value_area_failed_auction",
+        generate_weekly_value_area_failed_auction,
+        (
+            {
+                "id": "outside00_retest10",
+                "outside_atr": 0.0,
+                "retest_atr": 0.10,
+                "min_reward_r": 1.0,
+            },
+            {
+                "id": "outside10_retest05",
+                "outside_atr": 0.10,
+                "retest_atr": 0.05,
+                "min_reward_r": 1.1,
+            },
+        ),
+    ),
+    (
+        "value_area_80_rule_rotation",
+        generate_value_area_80_rule_rotation,
+        (
+            {
+                "id": "two_closes_stop025",
+                "acceptance": "close",
+                "minimum_outside_atr": 0.0,
+                "stop_atr": 0.25,
+                "min_reward_r": 1.0,
+            },
+            {
+                "id": "two_overlaps_outside010",
+                "acceptance": "overlap",
+                "minimum_outside_atr": 0.10,
+                "stop_atr": 0.25,
+                "min_reward_r": 1.0,
+            },
+        ),
+    ),
+    (
+        "ny_open_three_bar_continuation",
+        generate_ny_open_three_bar_continuation,
+        (
+            {"id": "drive_pause_break", "pullback_holds_ema": False},
+            {"id": "drive_pause_break_hold9", "pullback_holds_ema": True},
+        ),
+    ),
+    (
+        "nq_15m_opening_range_retest",
+        generate_nq_15m_opening_range_retest,
+        (
+            {"id": "opposite_edge_stop", "require_vwap": False},
+            {"id": "opposite_edge_stop_vwap", "require_vwap": True},
+        ),
+    ),
+    (
+        "nq_premarket_ema_engulfing",
+        generate_nq_premarket_ema_engulfing,
+        (
+            {"id": "sep010", "minimum_separation_atr": 0.10},
+            {"id": "sep020", "minimum_separation_atr": 0.20},
         ),
     ),
 )

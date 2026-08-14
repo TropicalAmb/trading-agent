@@ -5,8 +5,11 @@ import pandas as pd
 from agent.research.broad_strategy_discovery import (
     _binomial_upper_tail,
     Candidate,
+    FAMILY_SOURCE,
+    FAMILY_SPECS,
     _completed_feature_position,
     _resample_complete,
+    _volume_profile_value_area,
     freeze_split_lock,
     period_for,
     simulate_candidates,
@@ -83,3 +86,22 @@ def test_entry_features_use_only_a_completed_five_minute_bar() -> None:
     idx = pd.date_range("2026-01-05 09:30", periods=4, freq="5min", tz="America/New_York")
     assert _completed_feature_position(idx, pd.Timestamp("2026-01-05 09:35", tz="America/New_York")) == 0
     assert _completed_feature_position(idx, pd.Timestamp("2026-01-05 09:39", tz="America/New_York")) == 0
+
+
+def test_all_frozen_families_have_sources() -> None:
+    families = {family for family, _generator, _specs in FAMILY_SPECS}
+    assert len(families) == 25
+    assert families <= set(FAMILY_SOURCE)
+
+
+def test_volume_profile_value_area_is_ordered_and_contains_poc() -> None:
+    bars = _bars("2026-01-05 09:30", 20)
+    bars["close"] = [100.0] * 12 + [101.0] * 6 + [102.0] * 2
+    bars["open"] = bars["close"]
+    bars["high"] = bars["close"] + 0.25
+    bars["low"] = bars["close"] - 0.25
+    bars["volume"] = [100.0] * 12 + [50.0] * 6 + [10.0] * 2
+    result = _volume_profile_value_area(bars, "NQ")
+    assert result is not None
+    value_low, value_high, poc = result
+    assert value_low < poc < value_high

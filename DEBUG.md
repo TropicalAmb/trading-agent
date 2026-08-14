@@ -5,6 +5,28 @@
 
 ---
 
+## AR — Unicode heartbeat text crashed the Windows health-check command (2026-08-14)
+
+| | |
+|--|--|
+| **Symptom** | `supervisor_status.json` and the agent heartbeat were healthy, but `scripts/healthcheck.py` raised `UnicodeEncodeError` when a market-status decision contained `→` and stdout used Windows `cp1252`. A diagnostic failure could be mistaken for a dead bot. |
+| **Root cause** | The health checker printed arbitrary UTF-8 heartbeat text directly through the active console encoding with strict error handling. The market-calendar message legitimately uses Unicode punctuation. |
+| **Fix** | Route every health-check message through `_safe_print`, which replacement-encodes only for the active stdout encoding. The underlying heartbeat JSON remains unchanged. Regression coverage installs a strict ASCII stream and verifies the command prints a safe replacement rather than raising. |
+| **Do not** | Treat console-encoding failure as heartbeat failure; strip or rewrite canonical heartbeat state; require a UTF-8 terminal for watchdog health; or reintroduce direct printing of untrusted status text in `healthcheck.py`. |
+
+---
+
+## AQ — Public 69%/80% claims and state-model accuracy are not executable proof (2026-08-14)
+
+| | |
+|--|--|
+| **Symptom** | An expanded paid screen produced NQ value-area continuation at 70.8% (17/24), public sources advertised a 69% first-40-minute three-bar setup and an “80%” value-area rotation rule, and a high-precision classifier could be thresholded on old labels. These numbers looked promotion-ready in isolation. The first value-area 80% implementation also crashed before any result by trying to read derived `atr` from a 30m OHLCV resample. |
+| **Root cause** | Headline probabilities used different exits, discretionary definitions, or event occurrence rather than configured trade P&L. Small current samples hid regime failure. Classifier TP1 labels were not equivalent to non-overlapping two-contract execution. `_resample_complete` intentionally retains only OHLCV, so derived indicators must be recomputed or read from the last completed underlying bar. |
+| **Fix** | Expanded to 25 source-backed families / 102 paid symbol×variant tests and froze every variant before chronological selection. The paid 70.8% value-area cell collapsed to long holdout n144 WR35.4% E−0.168R; the public 80% rule produced holdout n89 WR38.2%; the public 69% three-bar setup n390 WR39.7%; 15m ORB n521 WR52.6%; premarket dual-EMA n984 WR43.0%. A separate shallow HGB trained on 151,046 old rows, selected threshold on validation only, and then failed untouched holdout (n188 WR45.2% PF1.08 E+0.032R), paid (n39 WR46.2%), and Yahoo (n13 WR53.8%). All displayed performance uses exact non-overlapping configured replay. The value-area ATR fix reads the final completed 5m ATR inside the second accepted 30m bracket; no holdout/result existed before the crash. |
+| **Do not** | Promote 17/24, 3/4, 1/1, classifier accuracy, or an advertised probability; alter risk/TP1 to manufacture WR; retune a family/model after its holdout opens; treat bar overlap as a guaranteed fill; read derived columns after an OHLCV-only resample; or connect the research-only EMA families to paper without explicit user re-enablement and full evidence. |
+
+---
+
 ## AP — Intentional no-strategy gate was misclassified as restartable risk drought (2026-08-14)
 
 | | |

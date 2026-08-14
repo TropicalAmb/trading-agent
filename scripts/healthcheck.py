@@ -12,6 +12,14 @@ if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT / "src"))
 
 
+def _safe_print(message: object) -> None:
+    """Never let a Windows console code page turn health output into failure."""
+    value = str(message)
+    encoding = getattr(sys.stdout, "encoding", None) or "utf-8"
+    safe = value.encode(encoding, errors="replace").decode(encoding, errors="replace")
+    print(safe)
+
+
 def main() -> int:
     # Prefer blotter heartbeat — proves agent loop is alive even with 0 trades
     candidates = [
@@ -29,7 +37,7 @@ def main() -> int:
         hb = state.get("heartbeat") or {}
         ts = hb.get("ts")
         if not ts:
-            print("heartbeat missing — agent may still be starting")
+            _safe_print("heartbeat missing — agent may still be starting")
             return 0  # allow start_period
         try:
             ht = datetime.fromisoformat(str(ts).replace("Z", "+00:00"))
@@ -37,15 +45,15 @@ def main() -> int:
                 ht = ht.replace(tzinfo=timezone.utc)
             age = (datetime.now(timezone.utc) - ht).total_seconds()
         except Exception:
-            print("heartbeat unreadable")
+            _safe_print("heartbeat unreadable")
             return 1
         if age > 300:
-            print(f"STALE heartbeat age={age:.0f}s")
+            _safe_print(f"STALE heartbeat age={age:.0f}s")
             return 1
-        print(f"OK heartbeat age={age:.0f}s decision={hb.get('decision')}")
+        _safe_print(f"OK heartbeat age={age:.0f}s decision={hb.get('decision')}")
         return 0
 
-    print("no blotter yet — starting")
+    _safe_print("no blotter yet — starting")
     return 0
 
 
