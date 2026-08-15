@@ -78,6 +78,9 @@ def _from_engine_signal(
     risk_d = abs(entry - stop) * point_value * qty
     reward_d = abs(target - entry) * point_value * qty
     level = getattr(sig, "level", None) or getattr(sig, "pdh", None) or getattr(sig, "pdl", None)
+    # Most engines act on the latest provider bar. Resampled specialists can
+    # explicitly identify the completed source bar that produced their signal.
+    signal_bar_ts = getattr(sig, "market_bar_timestamp", None)
     return TradeSetup(
         strategy_name=strategy_name,
         symbol=str(sig.symbol).upper(),
@@ -88,7 +91,7 @@ def _from_engine_signal(
         stop=stop,
         target=target,
         expected_r=er,
-        market_timestamp=latest.timestamp,
+        market_timestamp=signal_bar_ts or latest.timestamp,
         received_timestamp=latest.received_time,
         reasons=reasons,
         session=session,
@@ -148,18 +151,30 @@ class DecisionPipeline:
         self.provider = provider
         self.cursor = cursor
         self.agent_id = agent_id
-        engines = cfg.get("confluence", {}).get("engines") or [
-            "ema_pullback",
-            "liquidity_sweep",
-            "vwap_acceptance",
-            "sweep_retest",
-            "momentum",
-        ]
+        confluence_cfg = cfg.get("confluence") or {}
+        if "engines" in confluence_cfg:
+            # An explicit empty list is a deliberate fail-closed deployment.
+            # Only a genuinely absent key receives legacy compatibility defaults.
+            engines = list(confluence_cfg.get("engines") or [])
+        else:
+            engines = [
+                "ema_pullback",
+                "liquidity_sweep",
+                "vwap_acceptance",
+                "sweep_retest",
+                "momentum",
+            ]
         research_only = list(cfg.get("research_only_engines") or [])
-        # Additive: evaluate research specialists but never execute them
+        runtime_research = bool(
+            (cfg.get("shadow") or {}).get("evaluate_research_engines_live", True)
+        )
+        # Offline research modules remain available even when live shadow
+        # evaluation is disabled. This keeps the paper runtime focused on the
+        # validated book without deleting experiments or their evidence.
+        runtime_names = list(engines) + (research_only if runtime_research else [])
         seen = set()
         names: list[str] = []
-        for n in list(engines) + research_only:
+        for n in runtime_names:
             if n not in seen:
                 seen.add(n)
                 names.append(n)
@@ -186,6 +201,10 @@ class DecisionPipeline:
             or "data/last_evaluation.json"
         )
         self.last_eval = LastEvaluationStore(Path(obs_path))
+        self.last_eval.ensure_scope(
+            config_version=self.config_version,
+            active_strategies=self.engine_names,
+        )
 
     def _qty(self, symbol: str, strategy: str, *, tier: str | None = None) -> int:
         profile = self.cfg.get("agent_profile") or self.cfg.get("agent_id") or self.agent_id
@@ -791,6 +810,7 @@ class DecisionPipeline:
                             df_ctx,
                             self.cfg,
                             lifecycle_state=str(meta.get("lifecycle_state") or "ACTIVE"),
+                            market_context=ctx,
                         )
                         meta = dict(s.metadata or {})
                     except Exception:
@@ -976,14 +996,20 @@ class DecisionPipeline:
             if sid and sid in by_id:
                 c["router_evidence"] = (by_id[sid].metadata or {}).get("router_evidence")
                 c["global_score"] = (by_id[sid].metadata or {}).get("global_score", c.get("global_score"))
-        if all_candidates:
+        processed_bar = any(
+            str((report or {}).get("scan_state") or "") == "BAR_PROCESSED"
+            for report in symbol_reports.values()
+        )
+        if all_candidates or processed_bar:
             bar_times = [
                 c.get("market_timestamp")
                 for c in all_candidates
                 if c.get("market_timestamp")
             ]
             self.last_eval.set_last_candidates(
-                all_candidates, market_bar=bar_times[0] if bar_times else None
+                all_candidates,
+                market_bar=bar_times[0] if bar_times else None,
+                allow_empty=processed_bar,
             )
         last_candidates = all_candidates or self.last_eval.last_candidates()
         cycle_status = classify_cycle(

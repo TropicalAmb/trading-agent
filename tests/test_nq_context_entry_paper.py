@@ -47,27 +47,44 @@ def _synth_nq_pullback_bars(n: int = 200) -> pd.DataFrame:
     return df
 
 
-def test_config_wires_nq_context_entry_paper():
+def test_config_fails_closed_when_no_specialist_passes_both_sources():
     cfg = _cfg()
     engines = cfg.get("confluence", {}).get("engines") or []
     research = set(cfg.get("research_only_engines") or [])
     specs = set(cfg.get("paper_specialist_engines") or [])
-    assert "nq_context_entry" in engines
-    assert "nq_context_entry" not in research
-    assert "nq_context_entry" in specs
-    assert cfg.get("config_version") == "router_v1_specialists_vwaprej"
+    assert engines == []
+    assert "nq_context_entry" in research
+    assert "nq_context_entry" not in specs
+    assert cfg.get("config_version") == "router_v1_specialists_autonomy5"
     assert "breakout_retest" in research
     assert "liquidity_sweep" in research
-    assert "cl_vwap_prox_momentum" in specs
-    assert "vwap_rejection" in specs
+    assert "cl_vwap_prox_momentum" not in specs
+    assert "cl_vwap_prox_momentum" in research
+    assert (cfg.get("cl_vwap_prox_momentum") or {}).get("enabled") is False
+    assert "vwap_rejection" not in specs
+    assert "vwap_rejection" in research
     nq = cfg.get("nq_context_entry") or {}
     assert nq.get("window") == "0930_1200"
     assert float(nq.get("target_r_multiple")) == 1.15
     assert nq.get("sides") == ["BUY"]
 
+    from agent.decision.evidence_gate import evaluate_paper_evidence
+
+    nq_evidence = evaluate_paper_evidence("nq_context_entry", cfg)
+    assert nq_evidence.eligible is False
+    assert "databento_locked_replay" in nq_evidence.reason
+    cl_evidence = evaluate_paper_evidence("cl_vwap_prox_momentum", cfg)
+    assert cl_evidence.eligible is False
+    assert "win_rate" in cl_evidence.reason
+
 
 def test_specialist_exempt_from_global_min_r():
     cfg = _cfg()
+    cfg["paper_evidence_gate"]["enabled"] = False
+    cfg["paper_specialist_engines"] = ["nq_context_entry"]
+    cfg["research_only_engines"] = [
+        name for name in cfg["research_only_engines"] if name != "nq_context_entry"
+    ]
     now = datetime.now(timezone.utc)
     setup = TradeSetup(
         strategy_name="nq_context_entry",
@@ -112,8 +129,11 @@ def test_pipeline_registers_nq_context_entry():
     cfg = _cfg()
     pipe = DecisionPipeline.__new__(DecisionPipeline)
     pipe.cfg = cfg
-    pipe.engine_names = list(cfg["confluence"]["engines"]) + list(cfg.get("research_only_engines") or [])
+    pipe.engine_names = list(cfg["confluence"]["engines"])
     pipe.research_only_engines = set(cfg.get("research_only_engines") or [])
+    assert (cfg.get("shadow") or {}).get("evaluate_research_engines_live") is False
+    assert set(pipe.engine_names) == set(cfg.get("paper_specialist_engines") or []) == set()
+    assert not (set(pipe.engine_names) & pipe.research_only_engines)
     # Call private map indirectly via _eval_engines empty frame path
     from agent.strategy.nq_context_entry import evaluate_nq_context_entry as fn
 

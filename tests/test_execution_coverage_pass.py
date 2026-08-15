@@ -118,6 +118,9 @@ def test_aa_cannot_silently_disappear(tmp_path):
 
 def test_agreement_superseded_reported():
     cfg = _cfg()
+    cfg["research_only_engines"] = [
+        name for name in (cfg.get("research_only_engines") or []) if name != "liquidity_sweep"
+    ]
     # Isolate agreement merge from live paper empirical router cells
     cfg = dict(cfg)
     cfg["performance_router"] = {"enabled": False}
@@ -260,18 +263,20 @@ def test_missed_move_research_only():
     assert summary["note"].startswith("research-only")
 
 
-def test_specialists_are_research_only_not_executable_engines():
-    """Failed specialists stay in research_only_engines; core engines preserved."""
+def test_runtime_book_is_only_validated_paper_specialists():
+    """Live evaluation stays lean; unvalidated engines remain available offline."""
     cfg = _cfg()
-    engines = cfg["confluence"]["engines"]
-    research = cfg.get("research_only_engines") or []
-    assert "vwap_acceptance" in engines
-    assert "vwap_reclaim" not in engines
-    assert "vwap_reclaim" in research
-    assert "trend_pullback" in research
-    assert "liquidity_reversal" in research
-    assert "ema_pullback" in research  # spray engine demoted to shadow (quality2)
-    assert "ema_pullback" not in engines
+    engines = set(cfg["confluence"]["engines"])
+    research = set(cfg.get("research_only_engines") or [])
+    specialists = set(cfg.get("paper_specialist_engines") or [])
+    assert engines == specialists
+    assert engines == set()
+    assert {"nq_context_entry", "cl_vwap_prox_momentum"}.issubset(research)
+    assert "cl_vwap_prox_momentum" in research
+    assert "vwap_rejection" in research
+    assert {"vwap_acceptance", "vwap_reclaim", "trend_pullback", "liquidity_reversal", "ema_pullback"} <= research
+    assert not (engines & research)
+    assert (cfg.get("shadow") or {}).get("evaluate_research_engines_live") is False
     assert (cfg.get("performance_router") or {}).get("enabled", True)
     assert (cfg.get("performance_router_v2") or {}).get("enabled") is False
 

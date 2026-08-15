@@ -243,6 +243,19 @@ def execution_reject_reason(setup: TradeSetup, cfg: dict[str, Any]) -> str | Non
     research_only = {str(x) for x in (cfg.get("research_only_engines") or [])}
     if setup.strategy_name in research_only or meta.get("research_only"):
         return f"RESEARCH_ONLY:{setup.strategy_name}"
+    paper_specs = {str(x) for x in (cfg.get("paper_specialist_engines") or [])}
+    if setup.strategy_name in paper_specs and bool(
+        (cfg.get("paper_evidence_gate") or {}).get("enabled", False)
+    ):
+        from agent.decision.evidence_gate import evaluate_paper_evidence
+
+        evidence = evaluate_paper_evidence(setup.strategy_name, cfg)
+        next_meta = dict(meta)
+        next_meta["paper_evidence_gate"] = evidence.to_dict()
+        setup.metadata = next_meta
+        meta = next_meta
+        if not evidence.eligible:
+            return evidence.reason
     health = str(
         meta.get("cell_health")
         or (meta.get("router_evidence") or {}).get("cell_health")
@@ -273,7 +286,6 @@ def execution_reject_reason(setup: TradeSetup, cfg: dict[str, Any]) -> str | Non
 
     eq = cfg.get("execution_quality") or {}
     if bool(eq.get("enabled", False)) and setup.strategy_name != "x":
-        paper_specs = {str(x) for x in (cfg.get("paper_specialist_engines") or [])}
         is_specialist = setup.strategy_name in paper_specs
         min_r = float(eq.get("min_expected_r", 0) or 0)
         # Paper specialists may use their validated target R (e.g. NQ champion 1.15R)

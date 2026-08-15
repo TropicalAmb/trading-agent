@@ -36,6 +36,7 @@ BLOCKER_STOPPED = "STOP_AGENT_SET"
 BLOCKER_STALE_HEARTBEAT = "STALE_HEARTBEAT"
 BLOCKER_EXEC_ERROR = "EXECUTION_ERROR_SEEN"
 BLOCKER_CODE_BUG = "CODE_BUG_RESTART_WILL_NOT_FIX"
+BLOCKER_CONFIG_ENTRY_GATE = "CONFIG_ENTRY_GATE"
 BLOCKER_UNKNOWN = "UNKNOWN_SILENCE"
 
 # Exceptions that a process restart cannot heal — need a code patch
@@ -329,6 +330,17 @@ def diagnose_trade_silence(
     summary = "Paper path OK (recent fill or market closed / intentional quiet)."
     action = "none"
     auto_restart = False
+    scan_text = str(hb.get("scan_state") or hb.get("decision") or "")
+    scan_upper = scan_text.upper()
+    config_entry_gate = any(
+        marker in scan_upper
+        for marker in (
+            "CONFIG_ENTRY_GATE",
+            "SKIP_FRIDAY_ENTRIES",
+            "NY_OPEN_ENTRY_DELAY",
+            "OUTSIDE ENABLED SESSION WINDOWS",
+        )
+    )
 
     if stop_path.exists():
         blockers = [BLOCKER_STOPPED]
@@ -394,9 +406,19 @@ def diagnose_trade_silence(
             blockers.append(BLOCKER_QUALITY_GATE)
         if class_counts.get(BLOCKER_RISK_PORTFOLIO, 0) >= max(3, len(bug_rejected) // 4 or 1):
             blockers.append(BLOCKER_RISK_PORTFOLIO)
-        scan_u = str(hb.get("scan_state") or hb.get("decision") or "").upper()
-        if "DATA_STALE" in scan_u:
+        if "DATA_STALE" in scan_upper:
             blockers.append(BLOCKER_DATA_STALE_STUCK)
+        if config_entry_gate:
+            blockers.append(BLOCKER_CONFIG_ENTRY_GATE)
+            # A current global gate supersedes older quality/risk rejects. Keep
+            # genuine code/preflight failures visible, but never recommend a
+            # restart for historical rejects when execution is intentionally
+            # fail-closed by configuration/evidence.
+            blockers = [
+                blocker
+                for blocker in blockers
+                if blocker in {BLOCKER_CODE_BUG, BLOCKER_PREFLIGHT_FAIL}
+            ] + [BLOCKER_CONFIG_ENTRY_GATE]
         if not blockers:
             # Path may be OK but still no paper — still a fault after 90m (user lock)
             # Exception: specialists-only paper — no-setup silence is intentional.
@@ -406,10 +428,13 @@ def diagnose_trade_silence(
                 blockers.append(BLOCKER_HEALTHY_SELECTIVE_QUIET)
 
         if BLOCKER_HEALTHY_SELECTIVE_QUIET in blockers and len(blockers) == 1:
+            specialist_names = " / ".join(
+                str(x) for x in (cfg.get("paper_specialist_engines") or [])
+            ) or "configured specialists"
             severity = SEVERITY_OK
             summary = (
                 f"No paper fill for {silent_m:.0f}m — specialists-only selective quiet "
-                f"(nq_context_entry / cl_vwap_prox_momentum). Not a drought fault."
+                f"({specialist_names}). Not a drought fault."
             )
             action = "none"
             auto_restart = False
@@ -427,6 +452,16 @@ def diagnose_trade_silence(
             action = (
                 "CODE PATCH REQUIRED. Do not thrash-restart. "
                 "Run scripts/preflight_paper_path.py; see DEBUG.md bug P."
+            )
+            auto_restart = False
+        elif BLOCKER_CONFIG_ENTRY_GATE in blockers:
+            summary = (
+                f"No paper fill for {silent_m:.0f}m — market is open but a global "
+                f"entry/config gate is blocking the book ({scan_text})."
+            )
+            action = (
+                "Configuration change required; restarting cannot remove an intentional "
+                "entry gate. Keep exchange maintenance/weekend closures intact."
             )
             auto_restart = False
         elif BLOCKER_RESEARCH_SUPERSEDE in blockers:
@@ -504,6 +539,7 @@ def diagnose_trade_silence(
             "bug_window_minutes": bug_window_m,
             "bug_reject_count": len(bug_rejected),
             "class_counts": dict(class_counts),
+            "config_entry_gate": config_entry_gate,
             "scan_state": hb.get("scan_state"),
             "decision": hb.get("decision"),
             "config_version": cfg.get("config_version"),

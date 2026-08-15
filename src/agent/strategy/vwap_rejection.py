@@ -1,4 +1,4 @@
-"""VWAP rejection specialist — wick through VWAP then close reject (research-locked).
+"""VWAP rejection specialist — wick through VWAP then close reject.
 
 Matches harness gen_vwap_rejection on 1h bars (researched timeframe).
 Paper path usually supplies 5m → resampled to 1h inside the evaluator.
@@ -9,6 +9,7 @@ from __future__ import annotations
 from dataclasses import dataclass
 from datetime import datetime, timezone
 from typing import Any, Optional
+from zoneinfo import ZoneInfo
 
 import numpy as np
 import pandas as pd
@@ -31,6 +32,7 @@ class VwapRejectionSignal:
     reward_dollars: float
     level: float | None = None
     vwap: float = 0.0
+    market_bar_timestamp: datetime | None = None
 
 
 def _session_vwap(df: pd.DataFrame) -> pd.Series:
@@ -68,11 +70,24 @@ def _to_1h(df: pd.DataFrame) -> pd.DataFrame:
     work = df.copy()
     if "volume" not in work.columns:
         work["volume"] = 1.0
-    return (
-        work.resample("1h", label="left", closed="left")
-        .agg({"open": "first", "high": "max", "low": "min", "close": "last", "volume": "sum"})
-        .dropna(subset=["open", "high", "low", "close"])
+    deltas = work.index.to_series().diff().dropna()
+    median_delta = deltas.median() if len(deltas) else pd.Timedelta(minutes=5)
+    hourly = work.resample("1h", label="left", closed="left").agg(
+        {
+            "open": "first",
+            "high": "max",
+            "low": "min",
+            "close": "last",
+            "volume": "sum",
+        }
     )
+    counts = work["close"].resample("1h", label="left", closed="left").count()
+    if median_delta < pd.Timedelta(minutes=50):
+        expected = max(1, int(round(pd.Timedelta(hours=1) / median_delta)))
+        # A 1h close-rejection rule must not fire from the still-forming hour.
+        # Allow one missing 5m print, but require an otherwise completed bucket.
+        hourly = hourly.loc[counts >= max(1, expected - 1)]
+    return hourly.dropna(subset=["open", "high", "low", "close"])
 
 
 def evaluate_vwap_rejection(
@@ -134,10 +149,12 @@ def evaluate_vwap_rejection(
     else:
         target = entry - risk * target_r
 
-    if ts.tzinfo is None:
-        ts_dt = ts.to_pydatetime().replace(tzinfo=timezone.utc)
+    ts_dt = ts.to_pydatetime()
+    if ts_dt.tzinfo is not None:
+        ts_market = ts_dt.astimezone(ZoneInfo("America/New_York")).replace(tzinfo=None)
     else:
-        ts_dt = ts.to_pydatetime()
+        # Yahoo provider indexes are deliberately naive New York market time.
+        ts_market = ts_dt
 
     risk_d = risk * point_value
     reward_d = abs(target - entry) * point_value
@@ -150,11 +167,12 @@ def evaluate_vwap_rejection(
         confidence=76,
         reason=(
             f"{version}:wick_reject VWAP 1h target={target_r}R "
-            f"stopATR={stop_atr} (Databento-locked)"
+            f"stopATR={stop_atr} (frozen-rule forward validation)"
         ),
-        ts=ts_dt,
+        ts=ts_market.replace(tzinfo=ZoneInfo("America/New_York")),
         risk_dollars=risk_d,
         reward_dollars=reward_d,
         level=vv,
         vwap=vv,
+        market_bar_timestamp=ts_market,
     )

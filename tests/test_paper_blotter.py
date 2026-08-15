@@ -115,6 +115,169 @@ def test_scale_out_tp1_then_runner(tmp_path):
     assert events2[0]["pnl_dollars"] == 300.0  # partial 100 + runner 200
     assert b.realized_pnl() == 300.0
     assert len(b.open_positions()) == 0
+    stats = b.session_pnl()
+    assert stats["other"]["trades"] == 1
+    assert stats["other"]["pnl"] == 300.0
+    assert b.realized_pnl_today() == 300.0
+
+
+def test_bar_high_hits_configured_early_tp1_and_banks_half(tmp_path):
+    b = PaperBlotter(
+        json_path=tmp_path / "t.json",
+        html_path=tmp_path / "t.html",
+        csv_path=tmp_path / "t.csv",
+    )
+    b.record_paper_fill(
+        symbol="CL",
+        side="BUY",
+        entry=100,
+        stop=90,
+        target=120,
+        qty=2,
+        point_value=1.0,
+        tp1_r_multiple=0.30,
+        market_timestamp="2026-08-14T10:00:00-04:00",
+    )
+    events = b.manage_open(
+        {"CL": 101.0},
+        bar_paths={
+            "CL": {
+                "open": 100.0,
+                "high": 104.0,
+                "low": 99.0,
+                "close": 101.0,
+                "timestamp": "2026-08-14T10:05:00-04:00",
+            }
+        },
+        scale_out={"enabled": True, "move_stop_to_breakeven": True},
+    )
+    assert len(events) == 1
+    assert events[0]["exit_reason"] == "tp1"
+    assert events[0]["exit"] == 103.0
+    assert events[0]["pnl_dollars"] == 3.0
+    runner = b.open_positions()[0]
+    assert runner["qty"] == 1
+    assert runner["stop"] == 100.0
+    assert runner["mfe_pts"] == 4.0
+
+
+def test_bar_low_executes_stop_at_barrier_not_late_close(tmp_path):
+    b = PaperBlotter(
+        json_path=tmp_path / "t.json",
+        html_path=tmp_path / "t.html",
+        csv_path=tmp_path / "t.csv",
+    )
+    b.record_paper_fill(
+        symbol="CL",
+        side="BUY",
+        entry=100,
+        stop=95,
+        target=110,
+        qty=1,
+        point_value=1.0,
+        market_timestamp="2026-08-14T10:00:00-04:00",
+    )
+    events = b.manage_open(
+        {"CL": 99.0},
+        bar_paths={
+            "CL": {
+                "open": 100.0,
+                "high": 102.0,
+                "low": 94.0,
+                "close": 99.0,
+                "timestamp": "2026-08-14T10:05:00-04:00",
+            }
+        },
+    )
+    assert events[0]["exit_reason"] == "stop"
+    assert events[0]["exit"] == 95.0
+    assert events[0]["pnl_dollars"] == -5.0
+    assert events[0]["mae_pts"] == 6.0
+
+
+def test_same_bar_stop_and_target_is_conservative_stop(tmp_path):
+    b = PaperBlotter(
+        json_path=tmp_path / "t.json",
+        html_path=tmp_path / "t.html",
+        csv_path=tmp_path / "t.csv",
+    )
+    b.record_paper_fill(
+        symbol="CL",
+        side="BUY",
+        entry=100,
+        stop=95,
+        target=110,
+        qty=1,
+        point_value=1.0,
+        market_timestamp="2026-08-14T10:00:00-04:00",
+    )
+    events = b.manage_open(
+        {"CL": 105.0},
+        bar_paths={
+            "CL": {
+                "open": 100.0,
+                "high": 111.0,
+                "low": 94.0,
+                "close": 105.0,
+                "timestamp": "2026-08-14T10:05:00-04:00",
+            }
+        },
+    )
+    assert events[0]["exit_reason"] == "stop"
+    assert events[0]["pnl_dollars"] == -5.0
+
+
+def test_entry_bar_extremes_are_not_replayed_before_fill(tmp_path):
+    b = PaperBlotter(
+        json_path=tmp_path / "t.json",
+        html_path=tmp_path / "t.html",
+        csv_path=tmp_path / "t.csv",
+    )
+    b.record_paper_fill(
+        symbol="CL",
+        side="BUY",
+        entry=100,
+        stop=95,
+        target=110,
+        qty=1,
+        point_value=1.0,
+        market_timestamp="2026-08-14T10:00:00-04:00",
+    )
+    events = b.manage_open(
+        {"CL": 101.0},
+        bar_paths={
+            "CL": {
+                "open": 100.0,
+                "high": 111.0,
+                "low": 94.0,
+                "close": 101.0,
+                "timestamp": "2026-08-14T10:00:00-04:00",
+            }
+        },
+    )
+    assert events == []
+    assert len(b.open_positions()) == 1
+
+
+def test_daily_session_market_timestamp_naive_is_et(tmp_path):
+    b = PaperBlotter(
+        json_path=tmp_path / "t.json",
+        html_path=tmp_path / "t.html",
+        csv_path=tmp_path / "t.csv",
+    )
+    b._state["closed_trades"] = [
+        {
+            "id": "x",
+            "market_timestamp": "2026-08-13 00:30:00",
+            "closed_at": "2026-08-13T05:00:00+00:00",
+            "session": "asia",
+            "pnl_dollars": 25.0,
+            "partial_pnl_dollars": 0.0,
+            "exit_reason": "target",
+        }
+    ]
+    daily = b.daily_session_pnl()
+    assert daily["2026-08-13"]["asia"]["pnl"] == 25.0
 
 
 def test_time_stop_skips_winners(tmp_path):

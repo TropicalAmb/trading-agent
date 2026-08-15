@@ -11,6 +11,8 @@ from typing import Any, Iterable
 import numpy as np
 import pandas as pd
 
+from agent.research.time_alignment import partial_bar_direction, partial_bar_trend
+
 
 R_TARGETS = (1.0, 1.25, 1.5, 2.0)
 
@@ -44,24 +46,11 @@ def _vwap(df: pd.DataFrame) -> pd.Series:
 
 
 def _htf_dir_asof(df: pd.DataFrame, rule: str) -> pd.Series:
-    o = df["open"].resample(rule, label="left", closed="left").first()
-    c = df["close"].resample(rule, label="left", closed="left").last()
-    o_asof = o.reindex(df.index, method="ffill")
-    c_asof = c.reindex(df.index, method="ffill")
-    out = pd.Series(0, index=df.index, dtype=int)
-    out = out.mask(c_asof > o_asof, 1)
-    out = out.mask(c_asof < o_asof, -1)
-    return out.fillna(0).astype(int)
+    return partial_bar_direction(df, rule)
 
 
 def _htf_trend_asof(df: pd.DataFrame, rule: str, ema_n: int = 20) -> pd.Series:
-    """Completed/live HTF trend: close vs EMA on that TF, ffilled to base."""
-    htf = df["close"].resample(rule, label="left", closed="left").last().dropna()
-    ema = htf.ewm(span=ema_n, adjust=False).mean()
-    trend = pd.Series(0, index=htf.index, dtype=int)
-    trend = trend.mask(htf > ema, 1)
-    trend = trend.mask(htf < ema, -1)
-    return trend.reindex(df.index, method="ffill").fillna(0).astype(int)
+    return partial_bar_trend(df, rule, ema_n=ema_n)
 
 
 def _prior_day_hl(df: pd.DataFrame) -> tuple[pd.Series, pd.Series]:

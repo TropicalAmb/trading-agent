@@ -41,15 +41,26 @@ data/_boot_*
 data/**/*.joblib
 data/**/*.pkl
 data/**/models/
+data/**/*.csv
+data/**/*.jsonl
 data/**/*_trades.csv
 data/**/parity_state*.csv
 data/**/unified_candidates.csv
 data/**/run_log.txt
 data/**/*_log.txt
+data/**/ckpt_*.json
+data/**/_e2e_tmp/
+data/pytest_*/
+# Superseded NQ search dumps are generated and now invalidated by the
+# continuous-contract/look-ahead audit; keep only their reviewed markdown.
+data/nq_focused_research/*.json
 
 # Large raw research datasets (Kaggle / Databento caches) — do not commit
 data/kaggle/
 data/databento/
+data/databento_order_flow/
+data/yfinance_cache/
+data/external_nq_quality/*.parquet
 data/raw/
 *.csv.gz
 Dataset_NQ_1min*.csv

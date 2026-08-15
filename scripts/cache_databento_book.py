@@ -21,13 +21,30 @@ load_dotenv(ROOT / ".env")
 
 OUT = ROOT / "data" / "databento"
 SYMBOLS = {
-    "NQ": "NQ.FUT",
-    "ES": "ES.FUT",
-    "CL": "CL.FUT",
-    "GC": "GC.FUT",
+    "NQ": "NQ.v.0",
+    "ES": "ES.v.0",
+    "CL": "CL.v.0",
+    "GC": "GC.v.0",
 }
 # Drop junk / calendar-spread prints (DEBUG traps)
 CLOSE_FLOOR = {"NQ": 5000.0, "ES": 1000.0, "CL": 10.0, "GC": 500.0}
+CACHE_FORMAT_VERSION = "databento_continuous_v1"
+
+
+def _compatible_cache(root: str) -> bool:
+    path = OUT / f"{root}_1m_cache.parquet"
+    meta_path = OUT / f"{root}_1m_cache_meta.json"
+    if not path.exists() or not meta_path.exists():
+        return False
+    try:
+        meta = json.loads(meta_path.read_text(encoding="utf-8"))
+    except (OSError, json.JSONDecodeError):
+        return False
+    return (
+        meta.get("cache_format_version") == CACHE_FORMAT_VERSION
+        and str(meta.get("stype_in") or "").lower() == "continuous"
+        and str(meta.get("databento") or "").lower() == SYMBOLS[root].lower()
+    )
 
 
 def _end_available(client) -> datetime:
@@ -93,7 +110,7 @@ def main() -> int:
             dataset="GLBX.MDP3",
             symbols=db_syms,
             schema="ohlcv-1m",
-            stype_in="parent",
+            stype_in="continuous",
             start=start.isoformat(),
             end=end.isoformat(),
         )
@@ -107,13 +124,13 @@ def main() -> int:
                 dataset="GLBX.MDP3",
                 symbols=SYMBOLS[s],
                 schema="ohlcv-1m",
-                stype_in="parent",
+                stype_in="continuous",
                 start=start.isoformat(),
                 end=end.isoformat(),
             )
         )
         path = OUT / f"{s}_1m_cache.parquet"
-        hit = path.exists() and not args.force
+        hit = _compatible_cache(s) and not args.force
         print(f"  {s:3} {SYMBOLS[s]:8} ${c:.4f}  cache={'HIT' if hit else 'MISS'}")
 
     if batch_cost > float(args.max_cost_usd):
@@ -128,12 +145,14 @@ def main() -> int:
     for s in want:
         path = OUT / f"{s}_1m_cache.parquet"
         meta_path = OUT / f"{s}_1m_cache_meta.json"
-        if path.exists() and not args.force:
+        if _compatible_cache(s) and not args.force:
             df = pd.read_parquet(path)
             print(f"CACHE HIT {s} rows={len(df)} {df.index.min()} -> {df.index.max()}")
             continue
         print(f"DOWNLOAD {s}...", flush=True)
-        df = prov.fetch_ohlcv_df(s, start=start, end=end, schema="ohlcv-1m")
+        df = prov.fetch_ohlcv_df(
+            s, start=start, end=end, schema="ohlcv-1m", stype_in="continuous"
+        )
         if df is None or df.empty:
             print(f"FAIL empty {s}")
             return 5
@@ -143,10 +162,30 @@ def main() -> int:
         df = df[df["close"] >= floor].copy()
         if df.index.duplicated().any():
             df = df[~df.index.duplicated(keep="last")]
+        from agent.research.databento_cache_quality import audit_continuous_cache
+
+        provisional_meta = {
+            "symbol": s,
+            "databento": SYMBOLS[s],
+            "stype_in": "continuous",
+            "roll_rule": "volume",
+            "cache_format_version": CACHE_FORMAT_VERSION,
+            "dataset": "GLBX.MDP3",
+            "schema": "ohlcv-1m",
+        }
+        quality = audit_continuous_cache(df, provisional_meta, root=s)
+        large_jump_fraction = float(quality.get("large_jump_fraction_gt_1pct") or 0.0)
+        if quality["status"] == "FAIL":
+            print(f"REFUSED {s}: quality audit failed: {quality['failures']}")
+            return 6
         df.to_parquet(path)
         meta = {
             "symbol": s,
             "databento": SYMBOLS[s],
+            "stype_in": "continuous",
+            "roll_rule": "volume",
+            "cache_format_version": CACHE_FORMAT_VERSION,
+            "large_jump_fraction": large_jump_fraction,
             "rows": len(df),
             "rows_raw": before,
             "start": str(df.index.min()),
@@ -159,6 +198,7 @@ def main() -> int:
             "query_end": end.isoformat(),
             "batch_est_cost_usd": batch_cost,
             "saved_utc": datetime.now(timezone.utc).isoformat(),
+            "quality_audit": quality,
         }
         meta_path.write_text(json.dumps(meta, indent=2), encoding="utf-8")
         spent_note.append(s)

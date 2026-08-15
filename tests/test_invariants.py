@@ -29,6 +29,15 @@ def _cfg():
     return load_settings(ROOT / "config" / "settings.yaml")
 
 
+def _execution_logic_cfg(*engine_names: str):
+    """Opt named legacy engines into isolated logic tests, never live config."""
+    cfg = _cfg()
+    cfg["research_only_engines"] = [
+        name for name in (cfg.get("research_only_engines") or []) if name not in engine_names
+    ]
+    return cfg
+
+
 def _setup(tier="A", conf=75, symbol="MES", side="BUY", agent="agent_1", r=1.6):
     return TradeSetup(
         strategy_name="liquidity_sweep",
@@ -64,6 +73,13 @@ def test_one_minute_scan_config():
     assert int(cfg["schedule"]["poll_interval_minutes"]) == 1
 
 
+def test_paid_databento_cache_is_in_paper_data_path_without_api_spend():
+    cfg = _cfg()
+    md = cfg["market_data"]
+    assert md["provider"] == "databento_cache_yahoo"
+    assert md["databento_allow_api_refresh"] is False
+
+
 def test_asia_london_ny_tradable_when_exchange_open():
     cfg = _cfg()
     # Use non-Friday dates (skip_friday_entries may block Fri)
@@ -75,6 +91,10 @@ def test_asia_london_ny_tradable_when_exchange_open():
     assert ok and label == "london"
     ok, label = session_ok(cfg, datetime(2026, 8, 6, 11, 0, tzinfo=ET))
     assert ok and ("ny" in label or label == "ny")
+    # A research observation for one ORB variant must not disable the whole
+    # specialist book on Friday while CME is still open.
+    ok, label = session_ok(cfg, datetime(2026, 8, 14, 11, 0, tzinfo=ET))
+    assert ok and label == "ny"
 
 
 def test_cme_closed_window_blocks():
@@ -149,7 +169,7 @@ def test_no_trade_without_stop():
 
 
 def test_tiers_a_plus_and_a_execute_b_c_do_not():
-    cfg = _cfg()
+    cfg = _execution_logic_cfg("liquidity_sweep")
     assert can_execute(_setup("A+", 90), cfg)
     assert can_execute(_setup("A", 75), cfg)
     assert not can_execute(_setup("B", 60), cfg)
@@ -351,7 +371,7 @@ def test_setup_identity_suppresses_duplicate(tmp_path):
 
 
 def test_single_engine_can_qualify_without_mandatory_confluence():
-    cfg = _cfg()
+    cfg = _execution_logic_cfg("liquidity_sweep")
     # must_include_one_of empty; min agree not used by decision pipeline
     # Non-EMA engines can still execute alone; EMA is the partner exception
     assert cfg.get("confluence", {}).get("must_include_one_of") in ([], None)
@@ -361,7 +381,7 @@ def test_single_engine_can_qualify_without_mandatory_confluence():
 
 
 def test_multiple_aa_setups_selected_same_cycle():
-    cfg = _cfg()
+    cfg = _execution_logic_cfg("liquidity_sweep")
     setups = []
     for tier, conf, sym in [("A", 80, "MES"), ("A+", 90, "MNQ"), ("A", 78, "MGC")]:
         s = _setup(tier, conf, symbol=sym)
@@ -463,6 +483,43 @@ def test_paper_mode_forces_dry_run_path():
     broker.place_bracket_order.assert_not_called()
 
 
+def test_paper_friction_refits_quantity_and_records_actual_risk():
+    """The failed CL path must not keep 2 lots after friction pushes it over $500."""
+    from agent.execution.directional import DirectionalExecutor
+    from agent.strategy.sweep_retest import SweepSignal
+
+    cfg = _cfg()
+    cfg["mode"] = "paper"
+    broker = MagicMock()
+    blotter = MagicMock()
+    blotter.record_paper_fill.return_value = {"id": "PAPER-FRICTION"}
+    ex = DirectionalExecutor(broker, cfg, blotter=blotter)
+    sig = SweepSignal(
+        symbol="CL",
+        side="BUY",
+        entry=81.76000,
+        stop=81.52143,
+        target=82.23714,
+        confidence=82,
+        reason="regression",
+        pdh=0,
+        pdl=0,
+        ts=datetime.now(timezone.utc),
+        risk_dollars=238.57,
+        reward_dollars=477.14,
+    )
+    setattr(sig, "quantity", 2)
+    setattr(sig, "setup_tier", "A")
+    result = ex.execute(sig)
+    assert result["status"] == "PAPER_FILL"
+    kwargs = blotter.record_paper_fill.call_args.kwargs
+    assert kwargs["qty"] == 1
+    assert kwargs["entry"] == pytest.approx(81.77)
+    assert kwargs["stop"] == pytest.approx(81.51143)
+    assert round(kwargs["risk_dollars"], 2) == 258.57
+    assert kwargs["risk_dollars"] * kwargs["qty"] <= 500
+
+
 def test_rejected_setup_has_reason_fields():
     s = _setup("B", 60)
     assert s.setup_tier == "B"
@@ -492,3 +549,6 @@ def test_settings_yaml_poll_and_universe_locked():
     assert raw["quantity"]["default_quantity"] == 2
     assert raw["quantity"]["quantity_by_tier"]["A"] == 2
     assert raw["tiering"]["minimum_trade_tier"] == "A"
+    assert raw["schedule"]["skip_friday_entries"] is False
+    assert raw["shadow"]["evaluate_research_engines_live"] is False
+    assert set(raw["confluence"]["engines"]) == set(raw["paper_specialist_engines"])

@@ -6,6 +6,15 @@ import os
 import sys
 from typing import Any
 
+# Windows pythonw inherits a legacy code page unless forced. Reconfigure before
+# logging so arrows and other diagnostics never generate hundreds of cp1252
+# logging tracebacks that obscure the actual crash.
+for _stream in (sys.stdout, sys.stderr):
+    try:
+        _stream.reconfigure(encoding="utf-8", errors="backslashreplace")
+    except (AttributeError, OSError):
+        pass
+
 from agent.alerts import Alerter
 from agent.broker.ibkr import IBKRClient, MockIBKRClient
 from agent.broker.tradovate import TradovateClient
@@ -335,26 +344,16 @@ def main(argv: list[str] | None = None) -> int:
         "Daily Paper Trading View: %s  (NOT TradingView's Paper Trading panel)",
         blotter.html_path.resolve(),
     )
-    # Never hard-die on a flaky Yahoo probe — retry then continue; cycles also retry.
-    for attempt in range(1, 6):
+    # DecisionPipeline's first cycle is the market-data proof. A separate
+    # all-symbol startup probe used to add ten more Yahoo downloads before the
+    # first heartbeat, amplifying rate limits and restart loops.
+    if use_pipeline:
+        logger.info("Market data check deferred to first paper cycle (single shared snapshot).")
+    else:
         try:
             log_market_data_status(symbols, logger)
-            break
         except Exception as exc:
-            logger.error(
-                "Market data probe failed (%s/5): %s — retrying in %ss",
-                attempt,
-                exc,
-                10 * attempt,
-            )
-            if attempt == 5:
-                logger.error(
-                    "Continuing without startup probe; cycles will keep retrying Yahoo"
-                )
-            else:
-                import time as _time
-
-                _time.sleep(10 * attempt)
+            logger.error("Startup market data probe failed; cycles will retry: %s", exc)
 
     if args.demo_paper_trade:
         from datetime import datetime, timezone
@@ -535,8 +534,12 @@ def main(argv: list[str] | None = None) -> int:
                 or cfg.get("sweep_retest", {}).get("bar_period", "10d")
             )
             sched_min = max(1, int(cfg.get("schedule", {}).get("poll_interval_minutes", 1)))
+            try:
+                feed_source = provider.health().source
+            except Exception:
+                feed_source = str(cfg.get("market_data", {}).get("provider") or "unknown")
             feed_meta: dict[str, Any] = {
-                "source": "yahoo_delayed",
+                "source": feed_source,
                 "is_realtime": False,
                 "estimated_delay_seconds": None,
                 "expected_delay_seconds": float(
@@ -555,12 +558,13 @@ def main(argv: list[str] | None = None) -> int:
                     bar = provider.get_latest_bar(sym, interval=interval, period=period)
                     prices[sym] = float(bar.close)
                     bar_paths[sym] = {
+                        "open": float(bar.open),
                         "high": float(bar.high),
                         "low": float(bar.low),
                         "close": float(bar.close),
                         "timestamp": bar.timestamp.isoformat(),
+                        "source": bar.source,
                     }
-                    feed_meta["source"] = bar.source
                     feed_meta["is_realtime"] = bar.is_realtime
                     feed_meta["estimated_delay_seconds"] = bar.estimated_delay_seconds
                     feed_meta["last_market_bar"] = bar.timestamp.isoformat()
@@ -582,6 +586,7 @@ def main(argv: list[str] | None = None) -> int:
                     logger.warning("price for manage %s failed: %s", sym, exc)
             closed = blotter.manage_open(
                 prices,
+                bar_paths=bar_paths,
                 max_hold_minutes=float(cfg.get("schedule", {}).get("max_hold_minutes") or 0)
                 or None,
                 scale_out=cfg.get("execution", {}).get("scale_out"),
@@ -691,6 +696,7 @@ def main(argv: list[str] | None = None) -> int:
 
             ok_sess, sess_info = session_ok(cfg)
             paper_realized = blotter.realized_pnl()
+            paper_realized_today = blotter.realized_pnl_today()
             open_risk = blotter.open_risk_dollars()
             risk_cfg = cfg.get("risk", {})
             kill_dollars = float(risk_cfg.get("daily_loss_kill_dollars", 4000))
@@ -699,22 +705,23 @@ def main(argv: list[str] | None = None) -> int:
             max_open_risk = float(risk_cfg.get("max_total_open_risk_dollars", 3500))
             halted_new = False
             halt_reason = ""
-            if paper_realized <= -kill_dollars:
+            if paper_realized_today <= -kill_dollars:
                 halted_new = True
-                halt_reason = f"daily loss kill ${abs(paper_realized):.0f} >= ${kill_dollars:.0f}"
-            elif start_eq > 0 and (-paper_realized / start_eq) >= kill_pct:
+                halt_reason = f"daily loss kill ${abs(paper_realized_today):.0f} >= ${kill_dollars:.0f}"
+            elif start_eq > 0 and (-paper_realized_today / start_eq) >= kill_pct:
                 halted_new = True
-                halt_reason = f"daily loss kill {(-paper_realized/start_eq):.1%} >= {kill_pct:.1%}"
+                halt_reason = f"daily loss kill {(-paper_realized_today/start_eq):.1%} >= {kill_pct:.1%}"
             elif open_risk >= max_open_risk:
                 halted_new = True
                 halt_reason = f"open risk ${open_risk:.0f} >= max ${max_open_risk:.0f}"
 
             logger.info(
-                "cycle session=%s prices=%s open=%s realized=%s open_risk=%s halt_new=%s",
+                "cycle session=%s prices=%s open=%s realized_total=%s realized_today=%s open_risk=%s halt_new=%s",
                 sess_info if ok_sess else f"FLAT/{sess_info}",
                 {k: round(v, 2) for k, v in prices.items()},
                 open_symbols,
                 paper_realized,
+                paper_realized_today,
                 open_risk,
                 halt_reason or "no",
             )
@@ -737,6 +744,27 @@ def main(argv: list[str] | None = None) -> int:
                     signals_found=0,
                 )
                 alerter.send(f"Agent halted new entries: {halt_reason}")
+                return
+
+            if use_pipeline and not pipeline.engine_names:
+                reason = "CONFIG_ENTRY_GATE:NO_VALIDATED_PAPER_STRATEGY"
+                journal.log(
+                    "decision",
+                    {
+                        "action": "blocked",
+                        "reason": reason,
+                        "config_version": cfg.get("config_version"),
+                    },
+                )
+                blotter.heartbeat(
+                    session=f"{sess_info} | mode={trade_mode}",
+                    prices=prices,
+                    decision=f"BLOCKED — {reason}",
+                    signals_found=0,
+                    engine_votes={},
+                    symbol_reports={},
+                    feed_meta=feed_meta,
+                )
                 return
 
             signals = []

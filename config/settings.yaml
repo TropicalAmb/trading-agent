@@ -1,9 +1,10 @@
 mode: paper  # paper | live — live also requires ALLOW_LIVE_TRADING=true in .env
 
 # Version stamp for BEFORE vs AFTER optimization comparison (do not erase old journals)
-config_version: router_v1_specialists_vwaprej
-# Paper stamp: NQ context + CL VWAP-prox + VWAP rejection (Databento-locked 1h).
-# Breakout/location spray stays research_only. Practical gates WR>=55% n>=40 (not 65/100).
+config_version: router_v1_specialists_autonomy5
+# Corrected `.v.0` + independent-source reset. Configured two-lot management
+# currently leaves no specialist above every frozen promotion threshold, so the
+# paper executor is fail-closed while research continues. No gate was relaxed.
 strategy_version: performance_router_v1
 execution_profile: balanced  # balanced | high_confidence
 
@@ -20,18 +21,27 @@ require_tv_alert_confluence: false
 
 # Market data provider (swap later without rewriting strategies)
 market_data:
-  provider: yahoo_delayed
+  # Paid NQ/CL volume-continuous caches are audited and usable; the hybrid
+  # adapter uses their verified history and Yahoo supplies the current tail.
+  provider: databento_cache_yahoo
   bar_interval: 5m   # strategy timeframe (scheduler is 1m — these differ)
   bar_period: 10d
   estimated_delay_seconds: 780          # ~13m typical Yahoo
   expected_delay_seconds: 900           # ~15m expected feed delay
   stale_extra_tolerance_seconds: 420    # stale = expected + bar_interval + this
   # Do NOT set stale_after_seconds unless overriding the formula for ops/tests
-  request_timeout_sec: 40
-  max_retries: 3
+  # Hard HTTP timeout (not a thread wrapper that waits after timeout).
+  request_timeout_sec: 20
+  max_retries: 2
+  # live_main management + DecisionPipeline share one in-cycle download.
+  in_cycle_cache_seconds: 30
+  databento_cache_dir: data/databento
+  databento_cache_roots: [NQ, ES, CL, GC]
+  databento_allow_api_refresh: false
+  hybrid_max_relative_basis_gap: 0.02
   bar_cursor_path: data/bar_cursors.json
   last_evaluation_path: data/last_evaluation.json
-  # Databento historical (research). Keep yahoo_delayed for paper until key works.
+  # Databento historical API settings (offline research only; hybrid does not call it).
   databento_dataset: GLBX.MDP3
   databento_schema: ohlcv-1m
   databento_default_lookback_days: 60
@@ -41,6 +51,9 @@ shadow:
   research_horizon_bars: 36          # ~3h on 5m bars
   research_horizon_minutes: 180
   path: data/shadow_trades.json
+  # Keep experiments available to offline research, but do not evaluate all of
+  # them inside the autonomous paper loop. Runtime stays on proven specialists.
+  evaluate_research_engines_live: false
 
 # Supervisor stuck detection (NO_NEW_BAR is NOT stuck)
 observability:
@@ -124,29 +137,23 @@ portfolio:
   allow_opposite_same_symbol: false
   allow_duplicate_same_trade: false
 
-# Engines run independently; agreement boosts confidence but is NOT mandatory for proposals
+# Runtime engine list is intentionally empty: no configured-management replay
+# currently passes both paid Databento and independent Yahoo evidence gates.
 confluence:
   min_engines_agree: 1
   must_include_one_of: []
-  engines:
-    - liquidity_sweep   # PDH/PDL sweep reclaim
-    - vwap_acceptance   # acceptance / location VWAP engine (kept)
-    - sweep_retest
-    - momentum          # breakout continuation (PRESENT ≠ ENTRY_VALID)
-    - breakout_retest   # resistance break + hold/retest (no chase)
-    - opening_range     # London/NY OR breakout+retest / failed OR
-    - vwap_orb          # ORB + VWAP filter (accuracy research)
-    - vwap_mss          # VWAP + MSS + MTF3 (paper vwap_mss_v1)
-    - cl_vwap_prox_momentum  # PAPER: validated CL specialist v1 (exact research definition)
-    - nq_context_entry       # PAPER: Databento WR>=65% PULLBACK BUY champion
-    - vwap_rejection         # PAPER: Databento 1h wick-reject (R1.5); Yahoo disagrees — DB is truth
+  engines: []
   max_risk_dollars: 180
   min_reward_dollars: 150
   min_rr: 1.6
 
-# Shadow/research only — still evaluated & journaled, NOT paper-executable
-# Spray demoted after Aug13 bleed; only specialists (+ vwap_rejection) paper
+# Shadow/research only — available to offline research, NOT live-loop evaluated
+# under shadow.evaluate_research_engines_live=false, and NOT paper-executable.
+# Failed/experimental engines remain offline research-only.
 research_only_engines:
+  - nq_context_entry      # DB PF1.30/E+0.105; Yahoo PF1.26/E+0.090/latest negative
+  - cl_vwap_prox_momentum # DB WR53.4%: below frozen 55% dual-source threshold
+  - vwap_rejection       # clean Yahoo replay n=576 PF=0.83 E=-0.114R; not paperable
   - ema_pullback         # was 39/64 lifetime fills; spray engine → shadow until proven with partners
   - trend_continuation   # thin single-engine scrapes
   - trend_pullback
@@ -163,11 +170,22 @@ research_only_engines:
   - vwap_orb
   - vwap_mss
 
-# Paper-executable validated specialists (tier floor A when cascade OK; still hard-risk gated)
-paper_specialist_engines:
-  - cl_vwap_prox_momentum
-  - nq_context_entry
-  - vwap_rejection
+# Paper-executable frozen specialists (tier floor A when cascade OK; still hard-risk gated)
+paper_specialist_engines: []
+
+# Fail closed: a paper specialist must still pass the frozen evidence artifact.
+# This prevents a config-list edit or advisory model from re-promoting a failed system.
+paper_evidence_gate:
+  enabled: true
+  registry_path: data/current_specialist_validation/CURRENT_SPECIALIST_VALIDATION.json
+  required_sources: [databento_locked_replay, yahoo_locked_replay]
+  cohort: all
+  min_n: 40
+  min_win_rate: 0.55
+  min_profit_factor: 1.30
+  min_expectancy_r: 0.15
+  latest_min_profit_factor: 1.0
+  latest_min_expectancy_r: 0.0
 
 # Five-layer cascade (additive context; hard risk unchanged)
 trade_cascade:
@@ -196,9 +214,9 @@ strategy_lifecycle:
     hard_kill_r: -9.0
     equity_book_key: VWAP_REJ_BOOK
 
-# CL specialist — EXACT validated definition (do not tweak during forward sample)
+# CL specialist — frozen definition (do not tweak during forward sample)
 cl_vwap_prox_momentum:
-  enabled: true
+  enabled: false  # research-only after failing n/WR/PF frozen promotion evidence
   symbols: [CL, MCL]
   max_abs_vwap_atr: 0.25
   stop_atr_mult: 1.0
@@ -206,9 +224,9 @@ cl_vwap_prox_momentum:
   strategy_version: cl_vwap_prox_momentum_v1
   prefer_micro_when_risk_exceeded: true  # remap CL→MCL; never widen stop
 
-# NQ_CONTEXT_ENTRY — locked Databento WR>=65% champion (do not tweak during forward sample)
+# NQ_CONTEXT_ENTRY — frozen definition under clean revalidation
 nq_context_entry:
-  enabled: true
+  enabled: false
   symbols: [NQ, MNQ]
   trigger: PULLBACK
   window: "0930_1200"
@@ -223,9 +241,9 @@ nq_context_entry:
   strategy_version: nq_context_entry_pullback_v1
   prefer_micro_when_risk_exceeded: true  # remap NQ→MNQ; never widen stop
 
-# VWAP rejection — Databento 1h wick-reject champion (R1.5). Yahoo 1h fails — DB is truth.
+# VWAP rejection — frozen 1h wick-reject definition under clean revalidation.
 vwap_rejection:
-  enabled: true
+  enabled: false
   symbols: [NQ, ES, CL, GC, MNQ, MES, MCL, MGC]
   target_r_multiple: 1.5
   stop_atr_mult: 0.2
@@ -257,14 +275,16 @@ session_open_momentum:
 strategy_fit_evidence:
   cl_vwap_prox_momentum:
     CL:
-      validated_positive: true
-      n: 121
+      validated_positive: false
+      n: 133
       min_n_for_poor_fit: 30
+      note: "Configured management: Databento WR53.4% PF1.79 E+0.259R; misses dual gate WR≥55%"
       poor_vol_regimes: []  # do not skip regimes until adequate negative evidence
     MCL:
-      validated_positive: true
-      n: 121
+      validated_positive: false
+      n: 133
       min_n_for_poor_fit: 30
+      note: "Same CL underlying; not an independent sample"
   nq_ny_open_momentum:
     NQ:
       validated_positive: true
@@ -276,15 +296,15 @@ strategy_fit_evidence:
       min_n_for_poor_fit: 30
   nq_context_entry:
     NQ:
-      validated_positive: true
-      n: 57
+      validated_positive: false
+      n: 141
       min_n_for_poor_fit: 30
-      note: "Databento holdout WR~74% strict folds min>=65%"
+      note: "Configured management: Databento PF1.297/E+0.105R; Yahoo PF1.264/E+0.090R; fails dual gate"
     MNQ:
-      validated_positive: true
-      n: 57
+      validated_positive: false
+      n: 141
       min_n_for_poor_fit: 30
-      note: "Same rules as NQ; micro remap when risk cap binds"
+      note: "Same frozen rules as NQ; micro remap when risk cap binds"
 
 # TradingView MTF Sweep Retest Assistant parity (strict all-3 HTF; 1m preferred)
 indicator_parity:
@@ -732,8 +752,9 @@ schedule:
   weekend_close: "17:00"  # Friday
   maintenance_start: "17:00"
   maintenance_end: "18:00"
-  # WIT-group + backtest: NQ/ES ORB quality improved when Friday entries skipped
-  skip_friday_entries: true
+  # No book-wide Friday research filter. Exchange close at 17:00 ET still blocks.
+  # Strategy-specific windows remain strategy-specific (e.g. NQ 09:30-12:00).
+  skip_friday_entries: false
   # Optional NY open delay (minutes after 09:30 ET). 0=off; 30≈"no trade before 10am"
   # Kept off by default — mixed evidence vs ORB participation; enable if desired.
   ny_open_entry_delay_minutes: 0
