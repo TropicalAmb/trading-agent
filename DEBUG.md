@@ -5,6 +5,17 @@
 
 ---
 
+## AU — A profitable current flag sample is not a validated 70% solution (2026-08-14)
+
+| | |
+|--|--|
+| **Symptom** | Reddit posts reported roughly 60–70% NQ results for MACD/EMA/VWAP momentum and flag/pullback setups. Pass 7 found an apparently attractive NQ flag cell on the recent sources: corrected paid Databento n14 WR64.3% PF4.008 E+0.451R and Yahoo n8 WR75.0% PF6.011 E+0.643R. It would be easy to quote the Yahoo 75% or add another filter after seeing the result. |
+| **Root cause** | Public rules contain discretionary phrases such as “bullish trend,” “perfect pullback,” and “strong candle.” A mechanical translation is a new hypothesis, not the poster's claimed system. The chosen flag variant's 15-year all-period result was n260 WR45.4%, while the untouched holdout improved to n74 WR58.1% PF1.839 E+0.270R—profitable, but not 70%. Yahoo n8 is below the frozen n≥10 current minimum and cannot override the large holdout. |
+| **Fix** | Freeze two variants before results; share point-in-time EMA/MACD/ADX/Stochastic/MFI/Bollinger features; enforce prefix invariance, completed-bar entry, friction, configured two-lot management, non-overlap, daily caps, and cooldowns. Preserve the flag only as research/forward-observation evidence. Reject the other pass-7 finalists: momentum holdout n674 WR41.8%, VWAP rejection n32 WR43.8%, Keltner n2 WR50.0%, and squeeze n353 WR46.2% with paid WR25.6%. Paper stays fail-closed. |
+| **Do not** | Call 6/8 Yahoo a proven 75% strategy; retune the opened flag holdout; conflate a Reddit discretionary claim with this mechanical implementation; keep generating cosmetic indicator variants from the same OHLCV modality; enable any pass-7 family in paper; or spend on a new Databento schema without fresh explicit approval. |
+
+---
+
 ## AT — OHLCV flow proxies are not order-book evidence; Yahoo cadence must remain usable (2026-08-14)
 
 | | |

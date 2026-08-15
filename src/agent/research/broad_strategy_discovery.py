@@ -195,6 +195,31 @@ SOURCE_CATALOG: dict[str, dict[str, str]] = {
         "title": "Footprint absorption, stacked imbalance, CVD divergence, and volume profile",
         "url": "https://www.reddit.com/r/FuturesTrading/comments/1t6j6gi/should_i_use_order_flow/",
     },
+    "nq_macd_ema_vwap_momentum": {
+        "kind": "Reddit strategy hypothesis",
+        "title": "NQ MACD, 9/21 EMA, VWAP, volume, and momentum-candle scalp",
+        "url": "https://www.reddit.com/r/Daytrading/comments/1hq1h9z/new_trader_any_advice_appreciated/",
+    },
+    "nq_flag_pullback": {
+        "kind": "Reddit strategy hypothesis",
+        "title": "NQ two-bar flag pullback to EMA9 with VWAP and trend alignment",
+        "url": "https://www.reddit.com/r/Daytrading/comments/1isbt73/profitable_easy_flag_pattern_strategy/",
+    },
+    "nq_vwap_ema9_rejection": {
+        "kind": "Reddit strategy hypothesis",
+        "title": "Full MNQ and NQ VWAP rejection strategy with EMA9 management",
+        "url": "https://www.reddit.com/r/FuturesTrading/comments/1kca8nt/full_mnq_and_nq_vwap_strategy/",
+    },
+    "keltner_stochastic_balance": {
+        "kind": "Reddit implementation hypothesis",
+        "title": "Keltner-channel and stochastic reversal conditioned on balance",
+        "url": "https://www.reddit.com/r/FuturesTrading/comments/1dvdned/what_would_you_suggest_i_doadd_to_not_get_hit_by/",
+    },
+    "intraday_bb_keltner_mfi": {
+        "kind": "Reddit implementation hypothesis",
+        "title": "Intraday Bollinger/Keltner squeeze with MFI and relative volume",
+        "url": "https://www.reddit.com/r/algotrading/comments/1r7gm3v/intraday_strategies/",
+    },
 }
 
 FAMILY_SOURCE: dict[str, str] = {
@@ -235,6 +260,11 @@ FAMILY_SOURCE: dict[str, str] = {
     "bvc_pressure_breakout": "order_flow_price_impact",
     "vpin_failed_extension": "vpin_futures",
     "impact_shock_reversal": "order_flow_practice",
+    "nq_macd_ema_vwap_momentum": "nq_macd_ema_vwap_momentum",
+    "nq_flag_ema_vwap_pullback": "nq_flag_pullback",
+    "nq_vwap_ema9_rejection": "nq_vwap_ema9_rejection",
+    "balanced_keltner_stochastic_reentry": "keltner_stochastic_balance",
+    "bollinger_keltner_mfi_squeeze": "intraday_bb_keltner_mfi",
 }
 
 
@@ -3247,6 +3277,450 @@ def generate_impact_shock_reversal(
     return out
 
 
+_CLASSIC_5M_CACHE: dict[
+    int, tuple[weakref.ReferenceType[pd.DataFrame], pd.DataFrame]
+] = {}
+
+
+def _classic_5m_features(bars_5m: pd.DataFrame) -> pd.DataFrame:
+    """Point-in-time indicator features shared by the frozen pass-7 rules."""
+    cache_key = id(bars_5m)
+    cached = _CLASSIC_5M_CACHE.get(cache_key)
+    if cached is not None and cached[0]() is bars_5m:
+        return cached[1]
+
+    f = _session_vwap_features(bars_5m.sort_index())
+    close = pd.to_numeric(f["close"], errors="coerce")
+    high = pd.to_numeric(f["high"], errors="coerce")
+    low = pd.to_numeric(f["low"], errors="coerce")
+    volume = pd.to_numeric(f["volume"], errors="coerce").clip(lower=0)
+    f["ema9"] = close.ewm(span=9, adjust=False, min_periods=9).mean()
+    f["ema20"] = close.ewm(span=20, adjust=False, min_periods=20).mean()
+    f["ema21"] = close.ewm(span=21, adjust=False, min_periods=21).mean()
+    f["ema50"] = close.ewm(span=50, adjust=False, min_periods=50).mean()
+    ema12 = close.ewm(span=12, adjust=False, min_periods=12).mean()
+    ema26 = close.ewm(span=26, adjust=False, min_periods=26).mean()
+    f["macd"] = ema12 - ema26
+    f["macd_signal"] = f["macd"].ewm(span=9, adjust=False, min_periods=9).mean()
+    f["macd_hist"] = f["macd"] - f["macd_signal"]
+
+    bar_range = (high - low).replace(0, np.nan)
+    f["bar_range"] = bar_range
+    f["body_fraction"] = (close - f["open"]).abs() / bar_range
+    f["close_location"] = (close - low) / bar_range
+    f["volume_ref"] = volume.shift(1).rolling(50, min_periods=25).median()
+    f["relative_volume"] = volume / f["volume_ref"].replace(0, np.nan)
+
+    lowest = low.rolling(14, min_periods=14).min()
+    highest = high.rolling(14, min_periods=14).max()
+    f["stoch_k"] = 100.0 * (close - lowest) / (highest - lowest).replace(0, np.nan)
+    typical = (high + low + close) / 3.0
+    raw_flow = typical * volume
+    direction = typical.diff()
+    positive_flow = raw_flow.where(direction > 0, 0.0)
+    negative_flow = raw_flow.where(direction < 0, 0.0)
+    positive_sum = positive_flow.rolling(14, min_periods=14).sum()
+    negative_sum = negative_flow.rolling(14, min_periods=14).sum()
+    ratio = positive_sum / negative_sum.replace(0, np.nan)
+    mfi = 100.0 - 100.0 / (1.0 + ratio)
+    mfi = mfi.mask((negative_sum == 0) & (positive_sum > 0), 100.0)
+    f["mfi14"] = mfi.fillna(50.0)
+
+    prior_close = close.shift(1)
+    true_range = pd.concat(
+        [high - low, (high - prior_close).abs(), (low - prior_close).abs()], axis=1
+    ).max(axis=1)
+    up_move = high.diff()
+    down_move = -low.diff()
+    plus_dm = pd.Series(
+        np.where((up_move > down_move) & (up_move > 0), up_move, 0.0), index=f.index
+    )
+    minus_dm = pd.Series(
+        np.where((down_move > up_move) & (down_move > 0), down_move, 0.0), index=f.index
+    )
+    smoothed_tr = true_range.ewm(alpha=1.0 / 14.0, adjust=False, min_periods=14).mean()
+    plus_di = 100.0 * plus_dm.ewm(alpha=1.0 / 14.0, adjust=False, min_periods=14).mean() / smoothed_tr
+    minus_di = 100.0 * minus_dm.ewm(alpha=1.0 / 14.0, adjust=False, min_periods=14).mean() / smoothed_tr
+    dx = 100.0 * (plus_di - minus_di).abs() / (plus_di + minus_di).replace(0, np.nan)
+    f["adx14"] = dx.ewm(alpha=1.0 / 14.0, adjust=False, min_periods=14).mean()
+
+    f["bb_basis"] = close.rolling(20, min_periods=20).mean()
+    f["bb_std"] = close.rolling(20, min_periods=20).std(ddof=0)
+    f["bb_upper"] = f["bb_basis"] + 2.0 * f["bb_std"]
+    f["bb_lower"] = f["bb_basis"] - 2.0 * f["bb_std"]
+
+    def _drop_cache(_reference: weakref.ReferenceType[pd.DataFrame], key: int = cache_key) -> None:
+        _CLASSIC_5M_CACHE.pop(key, None)
+
+    _CLASSIC_5M_CACHE[cache_key] = (weakref.ref(bars_5m, _drop_cache), f)
+    return f
+
+
+def _ny_morning_mask(frame: pd.DataFrame, end_minute: int = 12 * 60) -> pd.Series:
+    minute = frame.index.hour * 60 + frame.index.minute
+    return pd.Series((minute >= 9 * 60 + 35) & (minute <= end_minute), index=frame.index)
+
+
+def _signals_to_candidates(
+    *,
+    frame: pd.DataFrame,
+    bars_1m: pd.DataFrame,
+    mask: pd.Series,
+    long_mask: pd.Series,
+    family: str,
+    variant: str,
+    source_id: str,
+    symbol: str,
+    stop_for: Callable[[int, str, float], float],
+    notes: str,
+    cooldown: pd.Timedelta,
+    maximum_per_trade_day: int = 2,
+) -> list[Candidate]:
+    """Create candidates from completed bars with deterministic cooldown/day caps."""
+    out: list[Candidate] = []
+    last_signal: pd.Timestamp | None = None
+    counts: dict[pd.Timestamp, int] = {}
+    for i in np.flatnonzero(mask.fillna(False).to_numpy()):
+        ts = pd.Timestamp(frame.index[i])
+        if last_signal is not None and ts - last_signal < cooldown:
+            continue
+        trade_day = pd.Timestamp(_trade_day(pd.DatetimeIndex([ts]))[0])
+        if counts.get(trade_day, 0) >= maximum_per_trade_day:
+            continue
+        row = frame.iloc[i]
+        atr = float(row["atr"])
+        if not np.isfinite(atr) or atr <= 0:
+            continue
+        side = "BUY" if bool(long_mask.iloc[i]) else "SELL"
+        stop = float(stop_for(i, side, atr))
+        if not np.isfinite(stop):
+            continue
+        cand = _candidate(
+            bars_1m=bars_1m,
+            signal_ts=ts,
+            signal_minutes=5,
+            family=family,
+            variant=variant,
+            source_id=source_id,
+            symbol=symbol,
+            side=side,
+            stop=stop,
+            target_r=1.6,
+            forced_exit_ts=_clock(ts.normalize(), _session_clock(symbol)[1]),
+            notes=notes,
+        )
+        if cand:
+            out.append(cand)
+            last_signal = ts
+            counts[trade_day] = counts.get(trade_day, 0) + 1
+    return out
+
+
+def generate_nq_macd_ema_vwap_momentum(
+    bars_1m: pd.DataFrame,
+    bars_5m: pd.DataFrame,
+    symbol: str,
+    spec: dict[str, Any],
+) -> list[Candidate]:
+    """Mechanical NQ momentum-candle translation of a reported ~70% scalp."""
+    if symbol != "NQ":
+        return []
+    f = _classic_5m_features(bars_5m)
+    hist = f["macd_hist"]
+    if bool(spec["require_zero_cross"]):
+        long_macd = (hist > 0) & (hist.shift(1) <= 0)
+        short_macd = (hist < 0) & (hist.shift(1) >= 0)
+    else:
+        long_macd = (hist > 0) & (hist > hist.shift(1)) & (hist.shift(1) > hist.shift(2))
+        short_macd = (hist < 0) & (hist < hist.shift(1)) & (hist.shift(1) < hist.shift(2))
+    common = (
+        _ny_morning_mask(f, 11 * 60 + 30)
+        & (f["relative_volume"] >= float(spec["minimum_relative_volume"]))
+        & (f["body_fraction"] >= float(spec["minimum_body_fraction"]))
+        & f[["atr", "ema9", "ema21", "vwap", "macd_hist", "relative_volume"]].notna().all(axis=1)
+    )
+    long = (
+        common
+        & long_macd
+        & (f["close"] > f["open"])
+        & (f["close_location"] >= 0.75)
+        & (f["close"] > f["vwap"])
+        & (f["ema9"] > f["ema21"])
+        & (f["ema21"] > f["ema21"].shift(3))
+    )
+    short = (
+        common
+        & short_macd
+        & (f["close"] < f["open"])
+        & (f["close_location"] <= 0.25)
+        & (f["close"] < f["vwap"])
+        & (f["ema9"] < f["ema21"])
+        & (f["ema21"] < f["ema21"].shift(3))
+    )
+
+    def stop_for(i: int, side: str, atr: float) -> float:
+        return float(f["low"].iloc[i] - 0.10 * atr) if side == "BUY" else float(f["high"].iloc[i] + 0.10 * atr)
+
+    return _signals_to_candidates(
+        frame=f,
+        bars_1m=bars_1m,
+        mask=long | short,
+        long_mask=long,
+        family="nq_macd_ema_vwap_momentum",
+        variant=str(spec["id"]),
+        source_id="nq_macd_ema_vwap_momentum",
+        symbol="NQ",
+        stop_for=stop_for,
+        notes="Completed 5m MACD/EMA/VWAP/volume alignment and strong momentum candle",
+        cooldown=pd.Timedelta(minutes=45),
+        maximum_per_trade_day=1,
+    )
+
+
+def generate_nq_flag_ema_vwap_pullback(
+    bars_1m: pd.DataFrame,
+    bars_5m: pd.DataFrame,
+    symbol: str,
+    spec: dict[str, Any],
+) -> list[Candidate]:
+    """NQ trend flag: impulse, exactly two countertrend bars, then engulfing close."""
+    if symbol != "NQ":
+        return []
+    f = _classic_5m_features(bars_5m)
+    green = f["close"] > f["open"]
+    red = f["close"] < f["open"]
+    impulse_bars = int(spec["minimum_impulse_bars"])
+    bull_impulse = green.shift(3).rolling(impulse_bars, min_periods=impulse_bars).sum() >= impulse_bars
+    bear_impulse = red.shift(3).rolling(impulse_bars, min_periods=impulse_bars).sum() >= impulse_bars
+    tolerance = float(spec["touch_tolerance_atr"]) * f["atr"]
+    pullback_touches = (
+        (f["low"].shift(1) <= f["ema9"].shift(1) + tolerance)
+        | (f["low"].shift(2) <= f["ema9"].shift(2) + tolerance)
+    )
+    rally_touches = (
+        (f["high"].shift(1) >= f["ema9"].shift(1) - tolerance)
+        | (f["high"].shift(2) >= f["ema9"].shift(2) - tolerance)
+    )
+    prior_impulse_volume = f["volume"].shift(3).rolling(impulse_bars, min_periods=impulse_bars).mean()
+    pullback_volume = pd.concat([f["volume"].shift(1), f["volume"].shift(2)], axis=1).mean(axis=1)
+    volume_contracts = pullback_volume <= float(spec["maximum_pullback_volume_ratio"]) * prior_impulse_volume
+    common = (
+        _ny_morning_mask(f)
+        & volume_contracts
+        & f[["atr", "ema9", "ema20", "vwap"]].notna().all(axis=1)
+    )
+    long = (
+        common
+        & bull_impulse
+        & red.shift(1)
+        & red.shift(2)
+        & pullback_touches
+        & (f["ema9"] > f["ema20"])
+        & (f["ema20"] > f["vwap"])
+        & (f["close"] > f["open"])
+        & (f["close"] > f["open"].shift(1))
+        & (f["close"] > f["ema9"])
+    )
+    short = (
+        common
+        & bear_impulse
+        & green.shift(1)
+        & green.shift(2)
+        & rally_touches
+        & (f["ema9"] < f["ema20"])
+        & (f["ema20"] < f["vwap"])
+        & (f["close"] < f["open"])
+        & (f["close"] < f["open"].shift(1))
+        & (f["close"] < f["ema9"])
+    )
+
+    def stop_for(i: int, side: str, atr: float) -> float:
+        window = f.iloc[max(0, i - 2) : i + 1]
+        return float(window["low"].min() - 0.10 * atr) if side == "BUY" else float(window["high"].max() + 0.10 * atr)
+
+    return _signals_to_candidates(
+        frame=f,
+        bars_1m=bars_1m,
+        mask=long | short,
+        long_mask=long,
+        family="nq_flag_ema_vwap_pullback",
+        variant=str(spec["id"]),
+        source_id="nq_flag_pullback",
+        symbol="NQ",
+        stop_for=stop_for,
+        notes="Trend-aligned NQ flag with two countertrend bars, EMA9 touch, volume contraction, and confirmation",
+        cooldown=pd.Timedelta(hours=2),
+    )
+
+
+def generate_nq_vwap_ema9_rejection(
+    bars_1m: pd.DataFrame,
+    bars_5m: pd.DataFrame,
+    symbol: str,
+    spec: dict[str, Any],
+) -> list[Candidate]:
+    """First-hours NQ VWAP touch that closes back on the approach side."""
+    if symbol != "NQ":
+        return []
+    f = _classic_5m_features(bars_5m)
+    body_low = f[["open", "close"]].min(axis=1)
+    body_high = f[["open", "close"]].max(axis=1)
+    lower_wick = (body_low - f["low"]) / f["bar_range"]
+    upper_wick = (f["high"] - body_high) / f["bar_range"]
+    touch = (f["low"] <= f["vwap"]) & (f["high"] >= f["vwap"])
+    close_enough = (f["close"] - f["vwap"]).abs() <= float(spec["maximum_vwap_atr"]) * f["atr"]
+    reject_long = (
+        touch
+        & close_enough
+        & (f["close"].shift(1) > f["vwap"].shift(1))
+        & (f["close"] > f["vwap"])
+        & (f["close"] > f["open"])
+        & (lower_wick >= float(spec["minimum_wick_fraction"]))
+        & (f["ema9"] > f["vwap"])
+    )
+    reject_short = (
+        touch
+        & close_enough
+        & (f["close"].shift(1) < f["vwap"].shift(1))
+        & (f["close"] < f["vwap"])
+        & (f["close"] < f["open"])
+        & (upper_wick >= float(spec["minimum_wick_fraction"]))
+        & (f["ema9"] < f["vwap"])
+    )
+    if int(spec["confirmation_bars"]) == 2:
+        long = reject_long.shift(1).fillna(False) & (f["close"] > f["high"].shift(1))
+        short = reject_short.shift(1).fillna(False) & (f["close"] < f["low"].shift(1))
+    else:
+        long, short = reject_long, reject_short
+    common = (
+        _ny_morning_mask(f, 11 * 60)
+        & f[["atr", "vwap", "ema9", "bar_range"]].notna().all(axis=1)
+    )
+    long &= common
+    short &= common
+
+    def stop_for(i: int, side: str, atr: float) -> float:
+        window = f.iloc[max(0, i - int(spec["confirmation_bars"])) : i + 1]
+        return float(window["low"].min() - 0.05 * atr) if side == "BUY" else float(window["high"].max() + 0.05 * atr)
+
+    return _signals_to_candidates(
+        frame=f,
+        bars_1m=bars_1m,
+        mask=long | short,
+        long_mask=long,
+        family="nq_vwap_ema9_rejection",
+        variant=str(spec["id"]),
+        source_id="nq_vwap_ema9_rejection",
+        symbol="NQ",
+        stop_for=stop_for,
+        notes="NQ morning VWAP touch, wick rejection, close back on approach side, and EMA9 alignment",
+        cooldown=pd.Timedelta(minutes=45),
+    )
+
+
+def generate_balanced_keltner_stochastic_reentry(
+    bars_1m: pd.DataFrame,
+    bars_5m: pd.DataFrame,
+    symbol: str,
+    spec: dict[str, Any],
+) -> list[Candidate]:
+    """Fade a Keltner excursion only after reentry in a low-ADX balance regime."""
+    f = _classic_5m_features(bars_5m)
+    channel = float(spec["keltner_atr"]) * f["atr"]
+    upper = f["ema20"] + channel
+    lower = f["ema20"] - channel
+    balance = (
+        (f["adx14"] <= float(spec["maximum_adx"]))
+        & ((f["ema20"] - f["ema20"].shift(6)).abs() / f["atr"] <= float(spec["maximum_slope_atr"]))
+    )
+    minute = f.index.hour * 60 + f.index.minute
+    session = pd.Series((minute >= 10 * 60) & (minute <= (13 * 60 if symbol == "CL" else 15 * 60)), index=f.index)
+    common = session & balance & f[["atr", "adx14", "stoch_k", "ema20"]].notna().all(axis=1)
+    long = (
+        common
+        & (f["close"].shift(1) < lower.shift(1))
+        & (f["close"] >= lower)
+        & (f["close"] > f["open"])
+        & (f["stoch_k"].shift(1) <= float(spec["stochastic_edge"]))
+        & (f["stoch_k"] > f["stoch_k"].shift(1))
+    )
+    short = (
+        common
+        & (f["close"].shift(1) > upper.shift(1))
+        & (f["close"] <= upper)
+        & (f["close"] < f["open"])
+        & (f["stoch_k"].shift(1) >= 100.0 - float(spec["stochastic_edge"]))
+        & (f["stoch_k"] < f["stoch_k"].shift(1))
+    )
+
+    def stop_for(i: int, side: str, atr: float) -> float:
+        window = f.iloc[max(0, i - 1) : i + 1]
+        return float(window["low"].min() - 0.10 * atr) if side == "BUY" else float(window["high"].max() + 0.10 * atr)
+
+    return _signals_to_candidates(
+        frame=f,
+        bars_1m=bars_1m,
+        mask=long | short,
+        long_mask=long,
+        family="balanced_keltner_stochastic_reentry",
+        variant=str(spec["id"]),
+        source_id="keltner_stochastic_balance",
+        symbol=symbol,
+        stop_for=stop_for,
+        notes="Low-ADX/flat-EMA balance, Keltner excursion, stochastic extreme, and completed reentry",
+        cooldown=pd.Timedelta(hours=3),
+    )
+
+
+def generate_bollinger_keltner_mfi_squeeze(
+    bars_1m: pd.DataFrame,
+    bars_5m: pd.DataFrame,
+    symbol: str,
+    spec: dict[str, Any],
+) -> list[Candidate]:
+    """Break a completed BB-inside-Keltner squeeze with MFI and RVOL confirmation."""
+    f = _classic_5m_features(bars_5m)
+    channel = float(spec["keltner_atr"]) * f["atr"]
+    kc_upper = f["ema20"] + channel
+    kc_lower = f["ema20"] - channel
+    squeeze = (f["bb_upper"] < kc_upper) & (f["bb_lower"] > kc_lower)
+    squeeze_bars = int(spec["minimum_squeeze_bars"])
+    prior_squeeze = squeeze.shift(1).rolling(squeeze_bars, min_periods=squeeze_bars).sum() >= squeeze_bars
+    prior_high = f["high"].shift(1).rolling(squeeze_bars, min_periods=squeeze_bars).max()
+    prior_low = f["low"].shift(1).rolling(squeeze_bars, min_periods=squeeze_bars).min()
+    width = f["bb_upper"] - f["bb_lower"]
+    minute = f.index.hour * 60 + f.index.minute
+    session = pd.Series((minute >= 9 * 60 + 35) & (minute <= (13 * 60 if symbol == "CL" else 15 * 60)), index=f.index)
+    common = (
+        session
+        & prior_squeeze
+        & (width > width.shift(1))
+        & (f["relative_volume"] >= float(spec["minimum_relative_volume"]))
+        & f[["atr", "ema20", "bb_upper", "bb_lower", "mfi14", "relative_volume"]].notna().all(axis=1)
+    )
+    long = common & (f["close"] > prior_high) & (f["close"] > f["bb_upper"]) & (f["mfi14"] >= float(spec["minimum_mfi"]))
+    short = common & (f["close"] < prior_low) & (f["close"] < f["bb_lower"]) & (f["mfi14"] <= 100.0 - float(spec["minimum_mfi"]))
+
+    def stop_for(i: int, side: str, atr: float) -> float:
+        if side == "BUY":
+            return float(max(prior_low.iloc[i], f["close"].iloc[i] - float(spec["maximum_stop_atr"]) * atr))
+        return float(min(prior_high.iloc[i], f["close"].iloc[i] + float(spec["maximum_stop_atr"]) * atr))
+
+    return _signals_to_candidates(
+        frame=f,
+        bars_1m=bars_1m,
+        mask=long | short,
+        long_mask=long,
+        family="bollinger_keltner_mfi_squeeze",
+        variant=str(spec["id"]),
+        source_id="intraday_bb_keltner_mfi",
+        symbol=symbol,
+        stop_for=stop_for,
+        notes="Completed Bollinger-inside-Keltner squeeze release with MFI and relative-volume confirmation",
+        cooldown=pd.Timedelta(hours=4),
+    )
+
+
 FAMILY_SPECS: tuple[tuple[str, Generator, tuple[dict[str, Any], ...]], ...] = (
     (
         "vwap_band_reentry",
@@ -3715,6 +4189,102 @@ FAMILY_SPECS: tuple[tuple[str, Generator, tuple[dict[str, Any], ...]], ...] = (
         (
             {"id": "impact20_range15_edge30", "minimum_impact_z": 2.0, "minimum_range_atr": 1.5, "edge_fraction": 0.30},
             {"id": "impact30_range20_edge20", "minimum_impact_z": 3.0, "minimum_range_atr": 2.0, "edge_fraction": 0.20},
+        ),
+    ),
+    (
+        "nq_macd_ema_vwap_momentum",
+        generate_nq_macd_ema_vwap_momentum,
+        (
+            {
+                "id": "cross_rvol12_body60",
+                "require_zero_cross": True,
+                "minimum_relative_volume": 1.2,
+                "minimum_body_fraction": 0.60,
+            },
+            {
+                "id": "rising_rvol15_body70",
+                "require_zero_cross": False,
+                "minimum_relative_volume": 1.5,
+                "minimum_body_fraction": 0.70,
+            },
+        ),
+    ),
+    (
+        "nq_flag_ema_vwap_pullback",
+        generate_nq_flag_ema_vwap_pullback,
+        (
+            {
+                "id": "impulse3_touch15_vol90",
+                "minimum_impulse_bars": 3,
+                "touch_tolerance_atr": 0.15,
+                "maximum_pullback_volume_ratio": 0.90,
+            },
+            {
+                "id": "impulse4_touch10_vol75",
+                "minimum_impulse_bars": 4,
+                "touch_tolerance_atr": 0.10,
+                "maximum_pullback_volume_ratio": 0.75,
+            },
+        ),
+    ),
+    (
+        "nq_vwap_ema9_rejection",
+        generate_nq_vwap_ema9_rejection,
+        (
+            {
+                "id": "onebar_wick25_near30",
+                "confirmation_bars": 1,
+                "minimum_wick_fraction": 0.25,
+                "maximum_vwap_atr": 0.30,
+            },
+            {
+                "id": "twobar_wick20_near40",
+                "confirmation_bars": 2,
+                "minimum_wick_fraction": 0.20,
+                "maximum_vwap_atr": 0.40,
+            },
+        ),
+    ),
+    (
+        "balanced_keltner_stochastic_reentry",
+        generate_balanced_keltner_stochastic_reentry,
+        (
+            {
+                "id": "kc15_adx20_stoch20",
+                "keltner_atr": 1.5,
+                "maximum_adx": 20.0,
+                "maximum_slope_atr": 0.35,
+                "stochastic_edge": 20.0,
+            },
+            {
+                "id": "kc20_adx25_stoch15",
+                "keltner_atr": 2.0,
+                "maximum_adx": 25.0,
+                "maximum_slope_atr": 0.25,
+                "stochastic_edge": 15.0,
+            },
+        ),
+    ),
+    (
+        "bollinger_keltner_mfi_squeeze",
+        generate_bollinger_keltner_mfi_squeeze,
+        (
+            {
+                "id": "sq3_kc15_rvol12_mfi60",
+                "minimum_squeeze_bars": 3,
+                "keltner_atr": 1.5,
+                "minimum_relative_volume": 1.2,
+                "minimum_mfi": 60.0,
+                "maximum_stop_atr": 0.75,
+            },
+            {
+                "id": "sq5_kc20_rvol15_mfi65",
+                "minimum_squeeze_bars": 5,
+                "keltner_atr": 2.0,
+                "minimum_relative_volume": 1.5,
+                "minimum_mfi": 65.0,
+                "maximum_stop_atr": 0.60,
+            },
         ),
     ),
 )

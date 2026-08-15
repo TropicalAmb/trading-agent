@@ -71,6 +71,11 @@ LONG_HISTORY_FAMILIES = (
     "bvc_pressure_breakout",
     "vpin_failed_extension",
     "impact_shock_reversal",
+    "nq_macd_ema_vwap_momentum",
+    "nq_flag_ema_vwap_pullback",
+    "nq_vwap_ema9_rejection",
+    "balanced_keltner_stochastic_reentry",
+    "bollinger_keltner_mfi_squeeze",
 )
 
 Progress = Callable[[str], None]
@@ -352,6 +357,8 @@ def write_long_history_report(payload: dict[str, Any], output_dir: Path) -> None
     ]
     if payload.get("proxy_warning"):
         lines.extend([f"**Proxy warning:** {payload['proxy_warning']}", ""])
+    if payload.get("translation_warning"):
+        lines.extend([f"**Translation warning:** {payload['translation_warning']}", ""])
     lines.extend(
         [
             "| Family | Variant | Long n | Long WR | Holdout n | Holdout WR | Paid n | Paid WR | Yahoo n | Yahoo WR | Eligible |",
@@ -367,6 +374,24 @@ def write_long_history_report(payload: dict[str, Any], output_dir: Path) -> None
             f"| {row['family']} | {row['variant']} | {all_stats['n']} | {all_stats['wr']:.1%} | "
             f"{hold['n']} | {hold['wr']:.1%} | {paid['n']} | {paid['wr']:.1%} | "
             f"{yahoo['n']} | {yahoo['wr']:.1%} | {'YES' if row['paper_eligible'] else 'NO'} |"
+        )
+    lines.extend(
+        [
+            "",
+            "## Profitability evidence",
+            "",
+            "| Family | Holdout PF | Holdout E | Paid PF | Paid E | Yahoo PF | Yahoo E |",
+            "|---|---:|---:|---:|---:|---:|---:|",
+        ]
+    )
+    for row in payload["finalists"]:
+        hold = row["external_holdout"]
+        paid = row["paid_recent"]
+        yahoo = row["independent_yahoo_current"]
+        lines.append(
+            f"| {row['family']} | {hold['pf']:.3f} | {hold['expectancy_r']:+.3f}R | "
+            f"{paid['pf']:.3f} | {paid['expectancy_r']:+.3f}R | "
+            f"{yahoo['pf']:.3f} | {yahoo['expectancy_r']:+.3f}R |"
         )
     lines.extend(
         [
