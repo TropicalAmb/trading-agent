@@ -5,6 +5,17 @@
 
 ---
 
+## AV — TBBO trade-side semantics and paid-download gates must stay exact (2026-08-14)
+
+| | |
+|--|--|
+| **Symptom** | Repeated OHLCV variants failed, while order-flow ideas require actual aggressor side and the pre-trade bid/ask. A careless implementation could relabel Databento sides backwards, treat bar-derived pressure as true flow, silently accept malformed book records, or spend ~$23 without a fresh approval. |
+| **Root cause** | OHLCV contains price/volume aggregates but not trade initiator or top-of-book state. Databento TBBO uses `B` for a **buyer aggressor** and `A` for a **seller aggressor**, and supplies the BBO immediately before each trade. This differs from guessing direction from bar returns. Metadata quotes are free, but `timeseries.get_range` is the paid download path. |
+| **Fix** | `agent.research.databento_order_flow` validates the TBBO schema/event ordering, preserves unknown-side volume separately, and computes only explicit buy/sell volume, delta, VWAP, spread, and L1 size imbalance. Invalid fields/actions/sides/prices/sizes and locked/crossed quotes fail closed. `scripts/cache_databento_tbbo.py` defaults to quote-only; paid download requires `--download`, exact `--confirm-spend USER_APPROVED`, positive `--max-cost-usd`, and quote≤cap. Raw output is ignored and the key is never printed. Prior free quote: 30d NQ.v.0+CL.v.0 TBBO **$23.170063**; this implementation turn made no API call/download/spend. |
+| **Do not** | Reverse `A`/`B`; infer unknown sides without an explicitly reviewed method; call TBBO full depth or MBP-1; conflate L1 size imbalance with queue dynamics/cancellations; load it into paper or claim profitability before frozen leak-free validation; bypass the exact spend gates; or treat an older OHLCV approval as approval for TBBO. |
+
+---
+
 ## AU — A profitable current flag sample is not a validated 70% solution (2026-08-14)
 
 | | |
