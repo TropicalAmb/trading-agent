@@ -1,7 +1,20 @@
 # DEBUG.md — Trading Agent (known bugs, traps, fixes)
 
-**Last updated:** 2026-08-13  
+**Last updated:** 2026-09-10  
 **Purpose:** Prevent Cursor from reintroducing bugs we already fixed. Read with `PROJECT_MEMORY.md`.
+
+---
+
+## AG — Risk-engine confidence bar starved paper book; `vwap_rejection` never papered (2026-09-10) — CRITICAL
+
+| | |
+|--|--|
+| **Symptom** | Bot "isn't taking any trades." Full `--mock --once` path: `vwap_rejection` reaches tier A + `executable`, hits `handle_signal`, then `DirectionalRiskEngine` rejects it `RISK_LIMIT:confidence 38 < 62 (asia quality bar)`. Paper book goes dark whenever aligned specialists (NQ pullback / CL tight-VWAP) are also quiet. |
+| **Root cause** | `setup_to_signal` maps `signal.confidence = setup.confidence_score` = the **GLOBAL** score. For counter-trend mean-reversion `vwap_rejection` the global score is structurally low (~38: `+32` valid, `+10` location, `+8` confirm, `+6` not-overext, **`-10` VWAP_OPPOSE, `-8` EMA_OPPOSE**) even though its strategy-local confidence is 76 and Databento WR~77%. `DirectionalRiskEngine.evaluate` applied the session min-confidence quality bar (`growth_plan.active.min_confidence` = 62) to **all** engines with **no specialist exemption** — so a validated tier-A specialist could essentially never clear it. Promoted in `5c42054` without this exemption → regression. |
+| **Fix** | `src/agent/risk/directional.py`: exempt `paper_specialist_engines` from the confidence quality bar (mirrors the `execution_quality` specialist exemption in `decision.tiering.execution_reject_reason`). Signal already carries `strategy_name`. Hard risk ($ cap, min_reward $150, position/correlation/session/stop-target/cooldown) STILL applies to specialists. Also completed `vwap_rejection` cascade wiring that the promote commit left unwired: `cascade.layer4_trigger` now emits `REJECTION` (the `CascadeResult.trigger` enum already listed it but nothing produced it); `cascade.layer3_location` gets a near-VWAP branch; added to `tiering.LOCATION_STRATEGIES` and to the specialist tier-floor trigger whitelist — mirroring `nq_context_entry` / `cl_vwap_prox_momentum` which both have layer3+layer4 branches. Verified end-to-end: `OPEN SELL ES … PAPER-00001`, `EXECUTED ES vwap_rejection`. Tests: `test_paper_specialist_exempt_from_confidence_quality_bar`, `test_non_specialist_still_blocked_by_confidence_quality_bar`. |
+| **Do not** | Change the `62` confidence number or session `extra_min_confidence`. Do not remove the confidence bar for non-specialists (blanket bypass). Do not raise specialist confidence by re-scoring counter-trend penalties away. Do not re-enable EMA/location spray to "fix" the drought. |
+| **Trap** | A specialist reaching `executable` in `scan_cycle` is NOT proof it papers — the `live_main` risk-engine leg (`handle_signal → DirectionalRiskEngine.evaluate`) is a second, independent gate. When diagnosing zero-trades, drive the FULL `--mock --once` path and read `data/execution_decisions.jsonl` / the `risk` journal, not just `scan_cycle` output. |
+| **Test-debt (pre-existing, not this bug)** | 13 tests in `test_optimization_pass` / `test_invariants` / `test_observability_pass` / `test_execution_coverage_pass` fail because they assume the pre-`specialists_only` world (location engines paperable; A-threshold 72). They are stale vs `router_v1_specialists_vwaprej` (location engines → research_only; A-threshold 75). **Do not "fix" them by re-enabling spray or lowering the A threshold** — that violates the specialists-only lock. Refresh the tests to the specialists-only contract in a separate, explicit change. |
 
 ---
 

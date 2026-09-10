@@ -1,6 +1,6 @@
 # PROJECT MEMORY — Trading Agent (binding)
 
-**Last updated:** 2026-08-13  
+**Last updated:** 2026-09-10  
 **Paper stamps:** `config_version: router_v1_specialists_vwaprej`. Paper Yahoo delayed for live scans. **Paper specialists:** `nq_context_entry`, `cl_vwap_prox_momentum`, **`vwap_rejection`** (1h wick-reject R1.5, Databento-locked). Breakout/location spray stays `research_only`.  
 
 **Research data (binding):** Prefer **Databento + Yahoo dual**. Local caches `data/databento/{NQ,ES,CL,GC}_1m_cache.parquet` (~180d, ~$25.59). **No further Databento downloads without user OK.** When Yahoo and Databento disagree on CME futures research, **Databento is truth** (Yahoo continuous is screening only).  
@@ -148,7 +148,7 @@ Engines (independent; propose only — do not place orders):
 `ema_pullback`, `trend_continuation`, `trend_pullback`, `liquidity_reversal`, `vwap_reclaim`, `indicator_parity`, `nq_ny_open_momentum`,  
 `liquidity_sweep`, `vwap_acceptance`, `sweep_retest`, `momentum`, `breakout_retest`, `opening_range`, `vwap_orb`, `vwap_mss`
 
-**Paper specialists** (`paper_specialist_engines`): the three above — tier floor A when cascade OK; exempt from global `execution_quality.min_expected_r` (NQ **1.15R**, VWAP rej **1.5R**, CL **2.0R**). Still hard risk / lifecycle / SHADOW gated.
+**Paper specialists** (`paper_specialist_engines`): the three above — tier floor A when cascade OK; exempt from global `execution_quality.min_expected_r` (NQ **1.15R**, VWAP rej **1.5R**, CL **2.0R**) **and** from the `DirectionalRiskEngine` session min-confidence "quality bar" (their `signal.confidence` is the GLOBAL score, which for counter-trend `vwap_rejection` is structurally low ~38 from VWAP/EMA opposition — see DEBUG.md **AG**). Still hard risk / min_reward $150 / position / correlation / session / lifecycle / SHADOW gated. `vwap_rejection` cascade wiring is complete: `layer4_trigger`→`REJECTION`, `layer3_location` near-VWAP branch, member of `LOCATION_STRATEGIES` and the specialist tier-floor trigger whitelist (mirrors NQ/CL).
 
 Flow: engines → `TradeSetup` → **global** A+/A/B/C tiering (metadata/gates) → **StrategyPerformanceRouter** empirical rank among executables → portfolio/risk → paper/live execution adapter.
 
@@ -258,6 +258,7 @@ Overnight on this laptop: stay-awake + no sleep while running (prefer AC power).
 
 ## Change log
 
+- 2026-09-10: **No-trades fix (DEBUG.md AG)** — `vwap_rejection` (and any low-global-confidence paper specialist) was killed by `DirectionalRiskEngine`'s session min-confidence quality bar (`confidence 38 < 62`) because `signal.confidence` = GLOBAL score and counter-trend reject scores low. Exempted `paper_specialist_engines` from that quality bar (still hard-risk / min_reward / position / correlation / session / lifecycle gated). Completed `vwap_rejection` cascade wiring left unwired by `5c42054`: `layer4_trigger`→`REJECTION`, `layer3_location` near-VWAP branch, added to `LOCATION_STRATEGIES` + specialist tier-floor whitelist. Verified end-to-end paper fill (`PAPER-00001` SELL ES). Config numbers unchanged. New tests in `test_directional_risk_guards.py`. Flag: `.cursor/rules/trading-agent-memory.mdc` referenced by AGENTS.md is not present in the repo (`.cursor/` is git-ignored) — could not update it; no preference shifted (bugfix only).
 - 2026-08-13: **Paper View readability** — “Papering NOW” card lists the 3 live specialists; closed/open tables show Strategy + SPECIALIST vs LEGACY SPRAY badges; cohorts split specialists vs spray; sections grouped Status / Trading / Optional. Fold state key `paper_view_folds_v4`.
 - 2026-08-13: **`router_v1_specialists_vwaprej`** — user: run what works; soften impossible 65%/n100. Practical `GATES` → WR≥55% n≥40 PF≥1.3 E≥0.15; aspirational 65/100 retained separately. Wired live `vwap_rejection` (1h resample) as paper specialist alongside NQ+CL. Databento R1.5 final n=86 WR~77% E~+0.84R clears practical gates; Yahoo 1h same rule **fails** — promote on Databento truth. Breakout spray still research_only.
 - 2026-08-13: **Databento book cache + dual hardening** — user OK ~$26 credit pull: NQ/ES/CL/GC 180d cached (est. **$25.59**). Spend lock. Dual pass report under `data/dual_source_hardening/`.

@@ -130,26 +130,36 @@ class DirectionalRiskEngine:
                         )
                         break
 
-        min_conf = int(
-            self.cfg.get("growth_plan", {})
-            .get("active", {})
-            .get(
-                "min_confidence",
-                self.cfg.get("sweep_retest", {}).get("min_confidence", 65),
+        # Validated paper specialists are tier-floored to A and carry the GLOBAL
+        # score as `confidence`; for counter-trend engines (e.g. vwap_rejection)
+        # that global score is structurally low (VWAP/EMA opposition penalties)
+        # even though the strategy is research-validated. They are exempt from the
+        # confidence quality bar here, consistent with the `execution_quality`
+        # specialist exemption in `decision.tiering.execution_reject_reason`.
+        # Hard risk ($ cap, position/correlation/session/stop-target) still applies.
+        paper_specs = {str(x) for x in (self.cfg.get("paper_specialist_engines") or [])}
+        is_specialist = str(getattr(signal, "strategy_name", "") or "") in paper_specs
+        if not is_specialist:
+            min_conf = int(
+                self.cfg.get("growth_plan", {})
+                .get("active", {})
+                .get(
+                    "min_confidence",
+                    self.cfg.get("sweep_retest", {}).get("min_confidence", 65),
+                )
             )
-        )
-        # Asia is thinner — require higher confidence (session_quality)
-        sess = active_session_name(self.cfg, now) or "globex_open"
-        sess_key = "ny" if str(sess).startswith("ny") else str(sess)
-        extra = int(
-            self.cfg.get("session_quality", {})
-            .get(sess_key, {})
-            .get("extra_min_confidence", 0)
-        )
-        need = min_conf + extra
-        if signal.confidence < need:
-            reasons.append(
-                f"confidence {signal.confidence} < {need} ({sess_key} quality bar)"
+            # Asia is thinner — require higher confidence (session_quality)
+            sess = active_session_name(self.cfg, now) or "globex_open"
+            sess_key = "ny" if str(sess).startswith("ny") else str(sess)
+            extra = int(
+                self.cfg.get("session_quality", {})
+                .get(sess_key, {})
+                .get("extra_min_confidence", 0)
             )
+            need = min_conf + extra
+            if signal.confidence < need:
+                reasons.append(
+                    f"confidence {signal.confidence} < {need} ({sess_key} quality bar)"
+                )
 
         return len(reasons) == 0, reasons
