@@ -150,3 +150,65 @@ def test_min_reward_still_blocks_thin_position_reward():
     ok, reasons = eng.evaluate(sig, _acct(), [], skip_session_check=True)
     assert not ok
     assert any("reward $" in r and "< min" in r for r in reasons)
+
+
+def _conf_cfg():
+    # High confidence bar (62); vwap_rejection carries a low GLOBAL score.
+    return {
+        "risk": {"max_open_positions": 50, "max_risk_dollars_per_trade": 500},
+        "growth_plan": {"active": {"min_confidence": 62}},
+        "execution_quality": {"min_reward_dollars": 150},
+        "paper_specialist_engines": [
+            "cl_vwap_prox_momentum",
+            "nq_context_entry",
+            "vwap_rejection",
+        ],
+        "schedule": {
+            "timezone": "America/New_York",
+            "entry_mode": "always_open",
+            "weekend_open": "18:00",
+            "weekend_close": "17:00",
+            "maintenance_start": "17:00",
+            "maintenance_end": "18:00",
+        },
+    }
+
+
+def test_paper_specialist_exempt_from_confidence_quality_bar():
+    """vwap_rejection floors to A but carries a structurally low GLOBAL confidence
+    (VWAP/EMA opposition). It must not be killed by the session confidence bar —
+    otherwise the counter-trend specialist can never paper (no-trades regression)."""
+    eng = DirectionalRiskEngine(_conf_cfg())
+    sig = _sig(
+        symbol="ES",
+        side="SELL",
+        entry=5000.5,
+        stop=5003.73,
+        target=4995.66,
+        confidence=38,  # low GLOBAL score
+        risk_dollars=161.0,
+        reward_dollars=242.0,
+    )
+    setattr(sig, "strategy_name", "vwap_rejection")
+    ok, reasons = eng.evaluate(sig, _acct(), [], skip_session_check=True)
+    assert ok, reasons
+    assert not any("quality bar" in r for r in reasons)
+
+
+def test_non_specialist_still_blocked_by_confidence_quality_bar():
+    """The confidence bar must still gate non-specialist engines (no blanket bypass)."""
+    eng = DirectionalRiskEngine(_conf_cfg())
+    sig = _sig(
+        symbol="ES",
+        side="SELL",
+        entry=5000.5,
+        stop=5003.73,
+        target=4995.66,
+        confidence=38,
+        risk_dollars=161.0,
+        reward_dollars=242.0,
+    )
+    setattr(sig, "strategy_name", "breakout_retest")  # not a paper specialist
+    ok, reasons = eng.evaluate(sig, _acct(), [], skip_session_check=True)
+    assert not ok
+    assert any("quality bar" in r for r in reasons)

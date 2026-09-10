@@ -19,6 +19,7 @@ LOCATION_STRATEGIES = {
     "cl_vwap_prox_momentum",
     "nq_ny_open_momentum",
     "nq_context_entry",
+    "vwap_rejection",
 }
 
 
@@ -187,7 +188,12 @@ def assign_tier_for_setup(setup: TradeSetup, cfg: dict[str, Any]) -> str:
     paper_specs = {str(x) for x in (cfg.get("paper_specialist_engines") or [])}
     if setup.strategy_name in paper_specs and not meta.get("hard_invalidations"):
         cas = meta.get("cascade") or {}
-        trig_ok = str(cas.get("trigger") or "") in {"MOMENTUM", "PULLBACK", "BREAKOUT_RETEST"}
+        trig_ok = str(cas.get("trigger") or "") in {
+            "MOMENTUM",
+            "PULLBACK",
+            "BREAKOUT_RETEST",
+            "REJECTION",
+        }
         loc_ok = str(cas.get("location") or "") in {
             "EXCELLENT_LOCATION",
             "ACCEPTABLE_LOCATION",

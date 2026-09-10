@@ -119,6 +119,15 @@ def layer3_location(row: pd.Series, side: str, *, strategy: str, cfg: dict[str, 
         if abs_vwap is not None and abs_vwap <= 0.75:
             return "ACCEPTABLE_LOCATION", details
         return "POOR_LOCATION", details
+    if strategy.startswith("vwap_rejection"):
+        # Wick-reject closes back across VWAP — entry sits near VWAP by construction.
+        if abs_vwap is not None and abs_vwap <= 0.35:
+            return "EXCELLENT_LOCATION", details
+        if abs_vwap is not None and abs_vwap <= 0.75:
+            return "ACCEPTABLE_LOCATION", details
+        if abs_vwap is not None and abs_vwap > 1.5:
+            return "POOR_LOCATION", details
+        return "ACCEPTABLE_LOCATION", details
     # Generic
     if abs_vwap is not None and abs_vwap <= 0.25:
         return "EXCELLENT_LOCATION", details
@@ -132,6 +141,10 @@ def layer3_location(row: pd.Series, side: str, *, strategy: str, cfg: dict[str, 
 def layer4_trigger(row: pd.Series, side: str, *, strategy: str) -> tuple[str, dict[str, Any]]:
     if strategy.startswith("nq_context_entry"):
         return "PULLBACK", {"nq_context_entry": True}
+    if strategy.startswith("vwap_rejection"):
+        # Evaluator only fires on a validated VWAP wick-reject; the rejection
+        # itself is the entry trigger (mirrors nq_context_entry trusting PULLBACK).
+        return "REJECTION", {"vwap_rejection": True}
     if strategy.startswith("cl_vwap_prox") or strategy.startswith("nq_ny_open"):
         ok = (side == "BUY" and int(row.get("parity_mom_long", 0)) == 1) or (
             side == "SELL" and int(row.get("parity_mom_short", 0)) == 1
